@@ -74,9 +74,21 @@ module cable_netcdf_pio_mod
     procedure :: def_dims => cable_netcdf_pio_file_def_dims
     procedure :: def_var => cable_netcdf_pio_file_def_var
     procedure :: put_att_global_string => cable_netcdf_pio_file_put_att_global_string
+    procedure :: put_att_global_int32 => cable_netcdf_pio_file_put_att_global_int32
+    procedure :: put_att_global_real32 => cable_netcdf_pio_file_put_att_global_real32
+    procedure :: put_att_global_real64 => cable_netcdf_pio_file_put_att_global_real64
     procedure :: put_att_var_string => cable_netcdf_pio_file_put_att_var_string
+    procedure :: put_att_var_int32 => cable_netcdf_pio_file_put_att_var_int32
+    procedure :: put_att_var_real32 => cable_netcdf_pio_file_put_att_var_real32
+    procedure :: put_att_var_real64 => cable_netcdf_pio_file_put_att_var_real64
     procedure :: get_att_global_string => cable_netcdf_pio_file_get_att_global_string
+    procedure :: get_att_global_int32 => cable_netcdf_pio_file_get_att_global_int32
+    procedure :: get_att_global_real32 => cable_netcdf_pio_file_get_att_global_real32
+    procedure :: get_att_global_real64 => cable_netcdf_pio_file_get_att_global_real64
     procedure :: get_att_var_string => cable_netcdf_pio_file_get_att_var_string
+    procedure :: get_att_var_int32 => cable_netcdf_pio_file_get_att_var_int32
+    procedure :: get_att_var_real32 => cable_netcdf_pio_file_get_att_var_real32
+    procedure :: get_att_var_real64 => cable_netcdf_pio_file_get_att_var_real64
     procedure :: inq_dim_len => cable_netcdf_pio_file_inq_dim_len
     procedure :: put_var_int32_0d => cable_netcdf_pio_file_put_var_int32_0d
     procedure :: put_var_int32_1d => cable_netcdf_pio_file_put_var_int32_1d
@@ -278,9 +290,57 @@ contains
     call check_pio(pio_put_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
   end subroutine
 
+  subroutine cable_netcdf_pio_file_put_att_global_int32(this, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: att_name
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: att_value
+    call check_pio(pio_put_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_put_att_global_real32(this, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: att_name
+    real(kind=CABLE_NETCDF_REAL32_KIND), intent(in) :: att_value
+    call check_pio(pio_put_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_put_att_global_real64(this, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: att_name
+    real(kind=CABLE_NETCDF_REAL64_KIND), intent(in) :: att_value
+    call check_pio(pio_put_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
+  end subroutine
+
   subroutine cable_netcdf_pio_file_put_att_var_string(this, var_name, att_name, att_value)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name, att_name, att_value
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    call check_pio(pio_put_att(this%pio_file_desc, var_desc, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_put_att_var_int32(this, var_name, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name, att_name
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: att_value
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    call check_pio(pio_put_att(this%pio_file_desc, var_desc, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_put_att_var_real32(this, var_name, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name, att_name
+    real(kind=CABLE_NETCDF_REAL32_KIND), intent(in) :: att_value
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    call check_pio(pio_put_att(this%pio_file_desc, var_desc, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_put_att_var_real64(this, var_name, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name, att_name
+    real(kind=CABLE_NETCDF_REAL64_KIND), intent(in) :: att_value
     type(pio_var_desc_t) :: var_desc
     call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
     call check_pio(pio_put_att(this%pio_file_desc, var_desc, att_name, att_value))
@@ -293,10 +353,58 @@ contains
     call check_pio(pio_get_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
   end subroutine
 
+  subroutine cable_netcdf_pio_file_get_att_global_int32(this, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: att_name
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: att_value
+    call check_pio(pio_get_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_get_att_global_real32(this, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: att_name
+    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: att_value
+    call check_pio(pio_get_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_get_att_global_real64(this, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: att_name
+    real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: att_value
+    call check_pio(pio_get_att(this%pio_file_desc, PIO_GLOBAL, att_name, att_value))
+  end subroutine
+
   subroutine cable_netcdf_pio_file_get_att_var_string(this, var_name, att_name, att_value)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name, att_name
     character(len=*), intent(out) :: att_value
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    call check_pio(pio_get_att(this%pio_file_desc, var_desc, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_get_att_var_int32(this, var_name, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name, att_name
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: att_value
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    call check_pio(pio_get_att(this%pio_file_desc, var_desc, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_get_att_var_real32(this, var_name, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name, att_name
+    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: att_value
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    call check_pio(pio_get_att(this%pio_file_desc, var_desc, att_name, att_value))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_get_att_var_real64(this, var_name, att_name, att_value)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name, att_name
+    real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: att_value
     type(pio_var_desc_t) :: var_desc
     call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
     call check_pio(pio_get_att(this%pio_file_desc, var_desc, att_name, att_value))

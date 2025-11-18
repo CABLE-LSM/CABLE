@@ -59,11 +59,27 @@ module cable_netcdf_mod
     procedure(cable_netcdf_file_def_dims), deferred :: def_dims
     procedure(cable_netcdf_file_def_var), deferred :: def_var
     procedure(cable_netcdf_file_put_att_global_string), deferred :: put_att_global_string
+    procedure(cable_netcdf_file_put_att_global_int32), deferred :: put_att_global_int32
+    procedure(cable_netcdf_file_put_att_global_real32), deferred :: put_att_global_real32
+    procedure(cable_netcdf_file_put_att_global_real64), deferred :: put_att_global_real64
     procedure(cable_netcdf_file_put_att_var_string), deferred :: put_att_var_string
-    generic :: put_att => put_att_global_string, put_att_var_string
+    procedure(cable_netcdf_file_put_att_var_int32), deferred :: put_att_var_int32
+    procedure(cable_netcdf_file_put_att_var_real32), deferred :: put_att_var_real32
+    procedure(cable_netcdf_file_put_att_var_real64), deferred :: put_att_var_real64
+    generic :: put_att => &
+      put_att_global_string, put_att_global_int32, put_att_global_real32, put_att_global_real64, &
+      put_att_var_string, put_att_var_int32, put_att_var_real32, put_att_var_real64
     procedure(cable_netcdf_file_get_att_global_string), deferred :: get_att_global_string
+    procedure(cable_netcdf_file_get_att_global_int32), deferred :: get_att_global_int32
+    procedure(cable_netcdf_file_get_att_global_real32), deferred :: get_att_global_real32
+    procedure(cable_netcdf_file_get_att_global_real64), deferred :: get_att_global_real64
     procedure(cable_netcdf_file_get_att_var_string), deferred :: get_att_var_string
-    generic :: get_att => get_att_global_string, get_att_var_string
+    procedure(cable_netcdf_file_get_att_var_int32), deferred :: get_att_var_int32
+    procedure(cable_netcdf_file_get_att_var_real32), deferred :: get_att_var_real32
+    procedure(cable_netcdf_file_get_att_var_real64), deferred :: get_att_var_real64
+    generic :: get_att => &
+      get_att_global_string, get_att_global_int32, get_att_global_real32, get_att_global_real64, &
+      get_att_var_string, get_att_var_int32, get_att_var_real32, get_att_var_real64
     procedure(cable_netcdf_file_inq_dim_len), deferred :: inq_dim_len
     procedure(cable_netcdf_file_put_var_int32_0d), deferred :: put_var_int32_0d
     procedure(cable_netcdf_file_put_var_int32_1d), deferred :: put_var_int32_1d
@@ -155,10 +171,46 @@ module cable_netcdf_mod
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: att_name, att_value
     end subroutine
+    subroutine cable_netcdf_file_put_att_global_int32(this, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_INT32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: att_name
+      integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_put_att_global_real32(this, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: att_name
+      real(kind=CABLE_NETCDF_REAL32_KIND), intent(in) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_put_att_global_real64(this, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL64_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: att_name
+      real(kind=CABLE_NETCDF_REAL64_KIND), intent(in) :: att_value
+    end subroutine
     subroutine cable_netcdf_file_put_att_var_string(this, var_name, att_name, att_value)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: var_name, att_name, att_value
+    end subroutine
+    subroutine cable_netcdf_file_put_att_var_int32(this, var_name, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_INT32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name, att_name
+      integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_put_att_var_real32(this, var_name, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name, att_name
+      real(kind=CABLE_NETCDF_REAL32_KIND), intent(in) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_put_att_var_real64(this, var_name, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL64_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name, att_name
+      real(kind=CABLE_NETCDF_REAL64_KIND), intent(in) :: att_value
     end subroutine
     subroutine cable_netcdf_file_get_att_global_string(this, att_name, att_value)
       import cable_netcdf_file_t
@@ -166,11 +218,47 @@ module cable_netcdf_mod
       character(len=*), intent(in) :: att_name
       character(len=*), intent(out) :: att_value
     end subroutine
+    subroutine cable_netcdf_file_get_att_global_int32(this, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_INT32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: att_name
+      integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_get_att_global_real32(this, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: att_name
+      real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_get_att_global_real64(this, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL64_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: att_name
+      real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: att_value
+    end subroutine
     subroutine cable_netcdf_file_get_att_var_string(this, var_name, att_name, att_value)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: var_name, att_name
       character(len=*), intent(out) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_get_att_var_int32(this, var_name, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_INT32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name, att_name
+      integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_get_att_var_real32(this, var_name, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL32_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name, att_name
+      real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: att_value
+    end subroutine
+    subroutine cable_netcdf_file_get_att_var_real64(this, var_name, att_name, att_value)
+      import cable_netcdf_file_t, CABLE_NETCDF_REAL64_KIND
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name, att_name
+      real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: att_value
     end subroutine
     subroutine cable_netcdf_file_inq_dim_len(this, dim_name, dim_len)
       import cable_netcdf_file_t
