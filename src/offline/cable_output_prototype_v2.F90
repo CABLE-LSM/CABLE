@@ -62,20 +62,6 @@ module cable_output_prototype_v2_mod
   public :: requires_x_y_output_grid
   public :: requires_land_output_grid
 
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_UNDEFINED              = 0
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE                   = 1
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_SOIL              = 2
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_SNOW              = 3
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_RAD               = 4
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PLANTCARBON       = 5
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_SOILCARBON        = 6
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH             = 7
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_SOIL        = 8
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_SNOW        = 9
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_RAD         = 10
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_PLANTCARBON = 11
-  integer, parameter, public :: CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_SOILCARBON  = 12
-
   integer(kind=int32), parameter :: FILL_VALUE_INT32  = -9999_int32
   real(kind=real32),   parameter :: FILL_VALUE_REAL32 = -1.0e+33_real32
   real(kind=real64),   parameter :: FILL_VALUE_REAL64 = -1.0e+33_real64
@@ -95,7 +81,6 @@ module cable_output_prototype_v2_mod
     character(len=100) :: cell_methods
     logical :: active
     logical :: grid_cell_averaging
-    integer :: shape_type = CABLE_OUTPUT_SHAPE_TYPE_UNDEFINED
     real, dimension(2) :: range
     type(cable_output_aggregator_t) :: output_aggregator
     class(cable_netcdf_decomp_t), pointer :: decomp => null()
@@ -118,44 +103,6 @@ module cable_output_prototype_v2_mod
     type(cable_output_aggregator_t), allocatable :: output_aggregators(:)
     type(cable_output_variable_t), allocatable :: output_variables(:)
   end type
-
-  ! Decomposition mappings for each variable class and type
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soil_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soil_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soil_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_snow_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_snow_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_snow_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_rad_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_rad_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_rad_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_plantcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_plantcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_plantcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soilcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soilcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soilcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soil_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soil_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soil_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_snow_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_snow_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_snow_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_rad_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_rad_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_rad_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_plantcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_plantcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_plantcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soilcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soilcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soilcarbon_real64
 
   ! Temporary buffers for computing grid-cell averages for each variable class
   real(kind=real32), allocatable, target :: temp_buffer_land_real32(:)
@@ -226,87 +173,8 @@ contains
 
   end subroutine
 
-  subroutine cable_output_mod_init(io_decomp)
-    type(io_decomp_t), intent(in), target :: io_decomp
+  subroutine cable_output_mod_init()
     class(cable_netcdf_file_t), allocatable :: output_file
-
-    if (requires_x_y_output_grid(output_options%grid, metGrid)) then
-      output_decomp_base_int32                    => io_decomp%land_to_x_y_int32
-      output_decomp_base_real32                   => io_decomp%land_to_x_y_real32
-      output_decomp_base_real64                   => io_decomp%land_to_x_y_real64
-      output_decomp_base_soil_int32               => io_decomp%land_soil_to_x_y_soil_int32
-      output_decomp_base_soil_real32              => io_decomp%land_soil_to_x_y_soil_real32
-      output_decomp_base_soil_real64              => io_decomp%land_soil_to_x_y_soil_real64
-      output_decomp_base_snow_int32               => io_decomp%land_snow_to_x_y_snow_int32
-      output_decomp_base_snow_real32              => io_decomp%land_snow_to_x_y_snow_real32
-      output_decomp_base_snow_real64              => io_decomp%land_snow_to_x_y_snow_real64
-      output_decomp_base_rad_int32                => io_decomp%land_rad_to_x_y_rad_int32
-      output_decomp_base_rad_real32               => io_decomp%land_rad_to_x_y_rad_real32
-      output_decomp_base_rad_real64               => io_decomp%land_rad_to_x_y_rad_real64
-      output_decomp_base_plantcarbon_int32        => io_decomp%land_plantcarbon_to_x_y_plantcarbon_int32
-      output_decomp_base_plantcarbon_real32       => io_decomp%land_plantcarbon_to_x_y_plantcarbon_real32
-      output_decomp_base_plantcarbon_real64       => io_decomp%land_plantcarbon_to_x_y_plantcarbon_real64
-      output_decomp_base_soilcarbon_int32         => io_decomp%land_soilcarbon_to_x_y_soilcarbon_int32
-      output_decomp_base_soilcarbon_real32        => io_decomp%land_soilcarbon_to_x_y_soilcarbon_real32
-      output_decomp_base_soilcarbon_real64        => io_decomp%land_soilcarbon_to_x_y_soilcarbon_real64
-      output_decomp_base_patch_int32              => io_decomp%patch_to_x_y_patch_int32
-      output_decomp_base_patch_real32             => io_decomp%patch_to_x_y_patch_real32
-      output_decomp_base_patch_real64             => io_decomp%patch_to_x_y_patch_real64
-      output_decomp_base_patch_soil_int32         => io_decomp%patch_soil_to_x_y_patch_soil_int32
-      output_decomp_base_patch_soil_real32        => io_decomp%patch_soil_to_x_y_patch_soil_real32
-      output_decomp_base_patch_soil_real64        => io_decomp%patch_soil_to_x_y_patch_soil_real64
-      output_decomp_base_patch_snow_int32         => io_decomp%patch_snow_to_x_y_patch_snow_int32
-      output_decomp_base_patch_snow_real32        => io_decomp%patch_snow_to_x_y_patch_snow_real32
-      output_decomp_base_patch_snow_real64        => io_decomp%patch_snow_to_x_y_patch_snow_real64
-      output_decomp_base_patch_rad_int32          => io_decomp%patch_rad_to_x_y_patch_rad_int32
-      output_decomp_base_patch_rad_real32         => io_decomp%patch_rad_to_x_y_patch_rad_real32
-      output_decomp_base_patch_rad_real64         => io_decomp%patch_rad_to_x_y_patch_rad_real64
-      output_decomp_base_patch_plantcarbon_int32  => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_int32
-      output_decomp_base_patch_plantcarbon_real32 => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real32
-      output_decomp_base_patch_plantcarbon_real64 => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real64
-      output_decomp_base_patch_soilcarbon_int32   => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_int32
-      output_decomp_base_patch_soilcarbon_real32  => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real32
-      output_decomp_base_patch_soilcarbon_real64  => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real64
-    else if (requires_land_output_grid(output_options%grid, metGrid)) then
-      output_decomp_base_int32                    => io_decomp%land_to_land_int32
-      output_decomp_base_real32                   => io_decomp%land_to_land_real32
-      output_decomp_base_real64                   => io_decomp%land_to_land_real64
-      output_decomp_base_soil_int32               => io_decomp%land_soil_to_land_soil_int32
-      output_decomp_base_soil_real32              => io_decomp%land_soil_to_land_soil_real32
-      output_decomp_base_soil_real64              => io_decomp%land_soil_to_land_soil_real64
-      output_decomp_base_snow_int32               => io_decomp%land_snow_to_land_snow_int32
-      output_decomp_base_snow_real32              => io_decomp%land_snow_to_land_snow_real32
-      output_decomp_base_snow_real64              => io_decomp%land_snow_to_land_snow_real64
-      output_decomp_base_rad_int32                => io_decomp%land_rad_to_land_rad_int32
-      output_decomp_base_rad_real32               => io_decomp%land_rad_to_land_rad_real32
-      output_decomp_base_rad_real64               => io_decomp%land_rad_to_land_rad_real64
-      output_decomp_base_plantcarbon_int32        => io_decomp%land_plantcarbon_to_land_plantcarbon_int32
-      output_decomp_base_plantcarbon_real32       => io_decomp%land_plantcarbon_to_land_plantcarbon_real32
-      output_decomp_base_plantcarbon_real64       => io_decomp%land_plantcarbon_to_land_plantcarbon_real64
-      output_decomp_base_soilcarbon_int32         => io_decomp%land_soilcarbon_to_land_soilcarbon_int32
-      output_decomp_base_soilcarbon_real32        => io_decomp%land_soilcarbon_to_land_soilcarbon_real32
-      output_decomp_base_soilcarbon_real64        => io_decomp%land_soilcarbon_to_land_soilcarbon_real64
-      output_decomp_base_patch_int32              => io_decomp%patch_to_land_patch_int32
-      output_decomp_base_patch_real32             => io_decomp%patch_to_land_patch_real32
-      output_decomp_base_patch_real64             => io_decomp%patch_to_land_patch_real64
-      output_decomp_base_patch_soil_int32         => io_decomp%patch_soil_to_land_patch_soil_int32
-      output_decomp_base_patch_soil_real32        => io_decomp%patch_soil_to_land_patch_soil_real32
-      output_decomp_base_patch_soil_real64        => io_decomp%patch_soil_to_land_patch_soil_real64
-      output_decomp_base_patch_snow_int32         => io_decomp%patch_snow_to_land_patch_snow_int32
-      output_decomp_base_patch_snow_real32        => io_decomp%patch_snow_to_land_patch_snow_real32
-      output_decomp_base_patch_snow_real64        => io_decomp%patch_snow_to_land_patch_snow_real64
-      output_decomp_base_patch_rad_int32          => io_decomp%patch_rad_to_land_patch_rad_int32
-      output_decomp_base_patch_rad_real32         => io_decomp%patch_rad_to_land_patch_rad_real32
-      output_decomp_base_patch_rad_real64         => io_decomp%patch_rad_to_land_patch_rad_real64
-      output_decomp_base_patch_plantcarbon_int32  => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_int32
-      output_decomp_base_patch_plantcarbon_real32 => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real32
-      output_decomp_base_patch_plantcarbon_real64 => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real64
-      output_decomp_base_patch_soilcarbon_int32   => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_int32
-      output_decomp_base_patch_soilcarbon_real32  => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real32
-      output_decomp_base_patch_soilcarbon_real64  => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real64
-    else
-      call cable_abort("Unable to determine output I/O decomposition", __FILE__, __LINE__)
-    end if
 
     ! Initialize temporary buffers for grid-cell averaging
     allocate(temp_buffer_land_real32(mland))
@@ -336,43 +204,6 @@ contains
 
     call aggregator_mod_end()
 
-    if (associated(output_decomp_base_int32))                    nullify(output_decomp_base_int32)
-    if (associated(output_decomp_base_real32))                   nullify(output_decomp_base_real32)
-    if (associated(output_decomp_base_real64))                   nullify(output_decomp_base_real64)
-    if (associated(output_decomp_base_soil_int32))               nullify(output_decomp_base_soil_int32)
-    if (associated(output_decomp_base_soil_real32))              nullify(output_decomp_base_soil_real32)
-    if (associated(output_decomp_base_soil_real64))              nullify(output_decomp_base_soil_real64)
-    if (associated(output_decomp_base_snow_int32))               nullify(output_decomp_base_snow_int32)
-    if (associated(output_decomp_base_snow_real32))              nullify(output_decomp_base_snow_real32)
-    if (associated(output_decomp_base_snow_real64))              nullify(output_decomp_base_snow_real64)
-    if (associated(output_decomp_base_rad_int32))                nullify(output_decomp_base_rad_int32)
-    if (associated(output_decomp_base_rad_real32))               nullify(output_decomp_base_rad_real32)
-    if (associated(output_decomp_base_rad_real64))               nullify(output_decomp_base_rad_real64)
-    if (associated(output_decomp_base_plantcarbon_int32))        nullify(output_decomp_base_plantcarbon_int32)
-    if (associated(output_decomp_base_plantcarbon_real32))       nullify(output_decomp_base_plantcarbon_real32)
-    if (associated(output_decomp_base_plantcarbon_real64))       nullify(output_decomp_base_plantcarbon_real64)
-    if (associated(output_decomp_base_soilcarbon_int32))         nullify(output_decomp_base_soilcarbon_int32)
-    if (associated(output_decomp_base_soilcarbon_real32))        nullify(output_decomp_base_soilcarbon_real32)
-    if (associated(output_decomp_base_soilcarbon_real64))        nullify(output_decomp_base_soilcarbon_real64)
-    if (associated(output_decomp_base_patch_int32))              nullify(output_decomp_base_patch_int32)
-    if (associated(output_decomp_base_patch_real32))             nullify(output_decomp_base_patch_real32)
-    if (associated(output_decomp_base_patch_real64))             nullify(output_decomp_base_patch_real64)
-    if (associated(output_decomp_base_patch_soil_int32))         nullify(output_decomp_base_patch_soil_int32)
-    if (associated(output_decomp_base_patch_soil_real32))        nullify(output_decomp_base_patch_soil_real32)
-    if (associated(output_decomp_base_patch_soil_real64))        nullify(output_decomp_base_patch_soil_real64)
-    if (associated(output_decomp_base_patch_snow_int32))         nullify(output_decomp_base_patch_snow_int32)
-    if (associated(output_decomp_base_patch_snow_real32))        nullify(output_decomp_base_patch_snow_real32)
-    if (associated(output_decomp_base_patch_snow_real64))        nullify(output_decomp_base_patch_snow_real64)
-    if (associated(output_decomp_base_patch_rad_int32))          nullify(output_decomp_base_patch_rad_int32)
-    if (associated(output_decomp_base_patch_rad_real32))         nullify(output_decomp_base_patch_rad_real32)
-    if (associated(output_decomp_base_patch_rad_real64))         nullify(output_decomp_base_patch_rad_real64)
-    if (associated(output_decomp_base_patch_plantcarbon_int32))  nullify(output_decomp_base_patch_plantcarbon_int32)
-    if (associated(output_decomp_base_patch_plantcarbon_real32)) nullify(output_decomp_base_patch_plantcarbon_real32)
-    if (associated(output_decomp_base_patch_plantcarbon_real64)) nullify(output_decomp_base_patch_plantcarbon_real64)
-    if (associated(output_decomp_base_patch_soilcarbon_int32))   nullify(output_decomp_base_patch_soilcarbon_int32)
-    if (associated(output_decomp_base_patch_soilcarbon_real32))  nullify(output_decomp_base_patch_soilcarbon_real32)
-    if (associated(output_decomp_base_patch_soilcarbon_real64))  nullify(output_decomp_base_patch_soilcarbon_real64)
-
     deallocate(temp_buffer_land_real32)
     deallocate(temp_buffer_land_real64)
     deallocate(temp_buffer_land_soil_real32)
@@ -390,7 +221,7 @@ contains
 
   subroutine cable_output_add_variable( &
     name, dims, var_type, units, long_name, active, grid_cell_averaging, &
-    shape_type, range, accumulation_frequency, aggregation_frequency, aggregator &
+    decomp, range, accumulation_frequency, aggregation_frequency, aggregator &
   )
     character(len=*), intent(in) :: name
     character(len=*), dimension(:), intent(in) :: dims
@@ -399,7 +230,7 @@ contains
     character(len=*), intent(in) :: long_name
     logical, intent(in) :: active
     logical, intent(in) :: grid_cell_averaging
-    integer, intent(in) :: shape_type
+    class(cable_netcdf_decomp_t), intent(in), target :: decomp
     real, dimension(2), intent(in) :: range
     character(len=*), intent(in) :: accumulation_frequency
     character(len=*), intent(in) :: aggregation_frequency
@@ -435,7 +266,7 @@ contains
     output_var%active = active
     output_var%grid_cell_averaging = grid_cell_averaging
     output_var%range = range
-    output_var%shape_type = shape_type
+    output_var%decomp => decomp
     output_var%var_type = var_type
 
     if (active) then
@@ -448,202 +279,55 @@ contains
     end if
 
     if (grid_cell_averaging) then
-      select case(shape_type)
-      case (CABLE_OUTPUT_SHAPE_TYPE_BASE)
-        select type(aggregator)
-        type is (aggregator_real32_1d_t)
+      select type(aggregator)
+      type is (aggregator_real32_1d_t)
+        if (all(shape(aggregator%source_data) == [mp])) then
           output_var%temp_buffer_real32_1d => temp_buffer_land_real32
-        type is (aggregator_real64_1d_t)
+        else
+          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+        end if
+      type is (aggregator_real64_1d_t)
+        if (all(shape(aggregator%source_data) == [mp])) then
           output_var%temp_buffer_real64_1d => temp_buffer_land_real64
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      case (CABLE_OUTPUT_SHAPE_TYPE_BASE_SOIL)
-        select type(aggregator)
-        type is (aggregator_real32_2d_t)
+        else
+          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+        end if
+      type is (aggregator_real32_2d_t)
+        if (all(shape(aggregator%source_data) == [mp, ms])) then
           output_var%temp_buffer_real32_2d => temp_buffer_land_soil_real32
-        type is (aggregator_real64_2d_t)
-          output_var%temp_buffer_real64_2d => temp_buffer_land_soil_real64
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      case (CABLE_OUTPUT_SHAPE_TYPE_BASE_SNOW)
-        select type(aggregator)
-        type is (aggregator_real32_2d_t)
-          output_var%temp_buffer_real32_2d => temp_buffer_land_snow_real32
-        type is (aggregator_real64_2d_t)
-          output_var%temp_buffer_real64_2d => temp_buffer_land_snow_real64
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      case (CABLE_OUTPUT_SHAPE_TYPE_BASE_RAD)
-        select type(aggregator)
-        type is (aggregator_real32_2d_t)
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
           output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
-        type is (aggregator_real64_2d_t)
-          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PLANTCARBON)
-        select type(aggregator)
-        type is (aggregator_real32_2d_t)
+        else if (all(shape(aggregator%source_data) == [mp, msn])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_snow_real32
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
+        else if (all(shape(aggregator%source_data) == [mp, ncp])) then
           output_var%temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
-        type is (aggregator_real64_2d_t)
-          output_var%temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      case (CABLE_OUTPUT_SHAPE_TYPE_BASE_SOILCARBON)
-        select type(aggregator)
-        type is (aggregator_real32_2d_t)
+        else if (all(shape(aggregator%source_data) == [mp, ncs])) then
           output_var%temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
-        type is (aggregator_real64_2d_t)
+        else
+          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+        end if
+      type is (aggregator_real64_2d_t)
+        if (all(shape(aggregator%source_data) == [mp, ms])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_soil_real64
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
+        else if (all(shape(aggregator%source_data) == [mp, msn])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_snow_real64
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
+        else if (all(shape(aggregator%source_data) == [mp, ncp])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
+        else if (all(shape(aggregator%source_data) == [mp, ncs])) then
           output_var%temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      case default
-        call cable_abort("Unexpected shape_type", __FILE__, __LINE__)
+        else
+          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+        end if
+      class default
+        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
       end select
     end if
-
-    select case(shape_type)
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE)
-      select type(aggregator)
-      type is (aggregator_int32_1d_t)
-        output_var%decomp => output_decomp_base_int32
-      type is (aggregator_real32_1d_t)
-        output_var%decomp => output_decomp_base_real32
-      type is (aggregator_real64_1d_t)
-        output_var%decomp => output_decomp_base_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_SOIL)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_soil_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_soil_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_soil_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_SNOW)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_snow_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_snow_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_snow_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_RAD)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_rad_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_rad_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_rad_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PLANTCARBON)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_plantcarbon_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_plantcarbon_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_plantcarbon_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_SOILCARBON)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_soilcarbon_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_soilcarbon_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_soilcarbon_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH)
-      select type(aggregator)
-      type is (aggregator_int32_1d_t)
-        output_var%decomp => output_decomp_base_patch_int32
-      type is (aggregator_real32_1d_t)
-        output_var%decomp => output_decomp_base_patch_real32
-      type is (aggregator_real64_1d_t)
-        output_var%decomp => output_decomp_base_patch_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_SOIL)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_patch_soil_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_patch_soil_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_patch_soil_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_SNOW)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_patch_snow_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_patch_snow_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_patch_snow_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_RAD)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_patch_rad_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_patch_rad_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_patch_rad_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_PLANTCARBON)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_patch_plantcarbon_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_patch_plantcarbon_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_patch_plantcarbon_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case (CABLE_OUTPUT_SHAPE_TYPE_BASE_PATCH_SOILCARBON)
-      select type(aggregator)
-      type is (aggregator_int32_2d_t)
-        output_var%decomp => output_decomp_base_patch_soilcarbon_int32
-      type is (aggregator_real32_2d_t)
-        output_var%decomp => output_decomp_base_patch_soilcarbon_real32
-      type is (aggregator_real64_2d_t)
-        output_var%decomp => output_decomp_base_patch_soilcarbon_real64
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    case default
-      call cable_abort("Unexpected shape_type", __FILE__, __LINE__)
-    end select
 
     if (.not. allocated(global_profile%output_variables)) then
       global_profile%output_variables = [output_var]

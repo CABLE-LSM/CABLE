@@ -473,8 +473,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
           call cable_io_decomp_init(io_decomp)
 
           if (.not. casaonly) then
-            call cable_output_mod_init(io_decomp)
-            call cable_output_definitions_set(canopy)
+            call cable_output_mod_init()
+            call cable_output_definitions_set(io_decomp, canopy)
             call cable_output_commit()
           end if
 
