@@ -939,8 +939,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
         ENDIF
         IF (TRIM(cable_user%MetType) == "gswp3") CALL close_met_file
 
-        if (.not. casaonly) call cable_output_mod_end()
-
         IF ((icycle.GT.0).AND.(.NOT.casaonly)) THEN
           ! re-initalise annual flux sums
           casabal%FCgppyear=0.0
@@ -963,6 +961,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
   IF ( SpinConv .AND. .NOT. CASAONLY ) THEN
     ! Close output file and deallocate main variables:
+    call cable_output_mod_end()
     CALL close_output_file( bal, air, bgc, canopy, met,                      &
          rad, rough, soil, ssnow,                                            &
          sum_flux, veg )
