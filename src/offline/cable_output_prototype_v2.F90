@@ -4,6 +4,7 @@ module cable_output_prototype_v2_mod
   use cable_def_types_mod, only: mp, mp_global
   use cable_def_types_mod, only: mland
   use cable_def_types_mod, only: ms
+  use cable_def_types_mod, only: msn
   use cable_def_types_mod, only: nrb
   use cable_def_types_mod, only: ncs
   use cable_def_types_mod, only: ncp
@@ -310,16 +311,16 @@ contains
     ! Initialize temporary buffers for grid-cell averaging
     allocate(temp_buffer_land_real32(mland))
     allocate(temp_buffer_land_real64(mland))
-    allocate(temp_buffer_land_soil_real32(mland, mp))
-    allocate(temp_buffer_land_soil_real64(mland, mp))
-    allocate(temp_buffer_land_snow_real32(mland, mp))
-    allocate(temp_buffer_land_snow_real64(mland, mp))
-    allocate(temp_buffer_land_rad_real32(mland, mp))
-    allocate(temp_buffer_land_rad_real64(mland, mp))
-    allocate(temp_buffer_land_plantcarbon_real32(mland, mp))
-    allocate(temp_buffer_land_plantcarbon_real64(mland, mp))
-    allocate(temp_buffer_land_soilcarbon_real32(mland, mp))
-    allocate(temp_buffer_land_soilcarbon_real64(mland, mp))
+    allocate(temp_buffer_land_soil_real32(mland, ms))
+    allocate(temp_buffer_land_soil_real64(mland, ms))
+    allocate(temp_buffer_land_snow_real32(mland, msn))
+    allocate(temp_buffer_land_snow_real64(mland, msn))
+    allocate(temp_buffer_land_rad_real32(mland, nrb))
+    allocate(temp_buffer_land_rad_real64(mland, nrb))
+    allocate(temp_buffer_land_plantcarbon_real32(mland, ncp))
+    allocate(temp_buffer_land_plantcarbon_real64(mland, ncp))
+    allocate(temp_buffer_land_soilcarbon_real32(mland, ncs))
+    allocate(temp_buffer_land_soilcarbon_real64(mland, ncs))
 
     call aggregator_mod_init()
 
