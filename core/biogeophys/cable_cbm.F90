@@ -231,6 +231,8 @@ CONTAINS
          ssnow%wb_depth_rootzone(i) =  sum(ssnow%wb(i,:) * zsetmp)
          ssnow%rwc_depth_rootzone(i) =  real((ssnow%wb_depth_rootzone(i) - soil%swilt_recal(i)) / &
          (soil%sfc_recal(i) - soil%swilt_recal(i)))
+         ssnow%psi_depth_rootzone(i) = real(soil%sucs(i) * C%grav * C%RHOW * 1E-6) * &
+         MAX(1.E-9, MIN(1.0, ssnow%wb_depth_rootzone(i) / soil%ssat(i))) ** (-soil%bch(i))
       end do
 
       do i = 1, mp

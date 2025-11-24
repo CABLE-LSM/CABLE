@@ -495,6 +495,7 @@ MODULE cable_IO_vars_module
          psi_30 = .FALSE., &
          wb_fr_rootzone = .FALSE., &
          psi_fr_rootzone = .FALSE., &
+         psi_depth_rootzone = .FALSE., &
          dlf = .FALSE.
    END TYPE output_inclusion_type
 
@@ -829,6 +830,7 @@ MODULE cable_IO_vars_module
          psi_30 = .FALSE., &
          wb_fr_rootzone = .FALSE., &
          psi_fr_rootzone = .FALSE., &
+         psi_depth_rootzone = .FALSE., &
          rwc_30 = .FALSE., &
          rwc_fr_rootzone = .FALSE., &
          wb_depth_rootzone = .FALSE., &
