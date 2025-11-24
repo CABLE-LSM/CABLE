@@ -21,7 +21,6 @@
 MODULE cable_abort_module
 
   USE iso_fortran_env, ONLY: error_unit
-  USE cable_IO_vars_module, ONLY: check, logn
   USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
@@ -106,72 +105,4 @@ CONTAINS
 
   END SUBROUTINE nc_abort
 
-  !==============================================================================
-  !
-  ! Name: range_abort
-  !
-  ! Purpose: Prints an error message and localisation information then stops the
-  !          code
-  !
-  ! CALLed from: write_output_variable_r1
-  !              write_output_variable_r2
-  !
-  ! MODULEs used: cable_def_types_mod
-  !               cable_IO_vars_module
-  !
-  !==============================================================================
-
-  SUBROUTINE range_abort(vname, ktau, met, value, var_range, i, xx, yy)
-
-    USE cable_def_types_mod, ONLY: met_type
-    USE cable_IO_vars_module, ONLY: latitude, longitude, &
-                                    landpt, lat_all, lon_all
-
-    ! Input arguments
-    CHARACTER(LEN=*), INTENT(IN) :: vname
-
-    INTEGER, INTENT(IN) :: &
-      ktau, & ! time step
-      i       ! tile number along mp
-
-    REAL, INTENT(IN) :: &
-      xx, & ! coordinates of erroneous grid square
-      yy    ! coordinates of erroneous grid square
-
-    TYPE(met_type), INTENT(IN) :: met  ! met data
-
-    REAL(4), INTENT(IN) :: value ! value deemed to be out of range
-
-    REAL, INTENT(IN) :: var_range(2) ! appropriate var range
-
-    INTEGER :: iunit
-
-    IF (check%exit) THEN
-      iunit = 6
-    ELSE
-      iunit = logn ! warning
-    END IF
-
-    WRITE (iunit, *) "in SUBR range_abort: Out of range"
-    WRITE (iunit, *) "for var ", vname ! error from subroutine
-
-    ! patch(i)%latitude, patch(i)%longitude
-    WRITE (iunit, *) 'Site lat, lon:', xx, yy
-    WRITE (iunit, *) 'Output timestep', ktau, &
-      ', or ', met%hod(i), ' hod, ', &
-      INT(met%doy(i)), 'doy, ', &
-      INT(met%year(i))
-
-    WRITE (iunit, *) 'Specified acceptable range (cable_checks.f90):', &
-      var_range(1), 'to', var_range(2)
-
-    WRITE (iunit, *) 'Value:', value
-
-    IF (check%exit) THEN
-      STOP
-    END IF
-
-  END SUBROUTINE range_abort
-
-  !==============================================================================
 END MODULE cable_abort_module
