@@ -514,6 +514,8 @@ CONTAINS
           ssnow%rnof2  = ssnow%rnof2*dels
           ssnow%runoff = ssnow%runoff*dels
 
+          call canopy%tscrn_max_daily%accumulate()
+          call canopy%tscrn_min_daily%accumulate()
 
           !jhan this is insufficient testing. condition for
           !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
@@ -563,6 +565,11 @@ CONTAINS
           !                      rad, bal, air, soil, veg, C%SBOLTZ, &
           !                      C%EMLEAF, C%EMSOIL )
 
+          IF (.not. casaonly .and. ktau > kstart .and. mod(ktau - kstart + 1, ktauday) == 0) THEN
+            ! Reset daily aggregators if it is the end of day
+            CALL canopy%tscrn_max_daily%reset()
+            CALL canopy%tscrn_min_daily%reset()
+          END IF
 
           CALL1 = .FALSE.
 
@@ -1746,7 +1753,13 @@ CONTAINS
     CALL MPI_Get_address (canopy%wcint, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_max_daily%aggregated_data, displs(bidx), ierr)
+    blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_min_daily%aggregated_data, displs(bidx), ierr)
+    blen(bidx) = r1len
 
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater, displs(bidx), ierr)
@@ -4597,6 +4610,14 @@ CONTAINS
     !blen(vidx) = cnt * extr1
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%wcint(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_max_daily%aggregated_data(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_min_daily%aggregated_data(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1

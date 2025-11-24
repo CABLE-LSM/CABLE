@@ -577,6 +577,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             IF (l_laiFeedbk.AND.icycle>0) veg%vlai(:) = casamet%glai(:)
 
             IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
+
             ! Call land surface scheme for this timestep, all grid points:
             CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
                  rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch )
@@ -591,9 +592,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ssnow%rnof2 = ssnow%rnof2*dels
             ssnow%runoff = ssnow%runoff*dels
 
-
-
-
+            call canopy%tscrn_max_daily%accumulate()
+            call canopy%tscrn_min_daily%accumulate()
 
           ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
                 koffset, kend, ktauday, logn) ) THEN                ! CLN READ FROM FILE INSTEAD !
@@ -727,6 +727,11 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             END SELECT
           ENDIF
 
+          IF (.not. casaonly .and. ktau > kstart .and. mod(ktau - kstart + 1, ktauday) == 0) THEN
+            ! Reset daily aggregators if it is the end of day
+            CALL canopy%tscrn_max_daily%reset()
+            CALL canopy%tscrn_min_daily%reset()
+          END IF
 
           ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
           IF(cable_user%consistency_check) THEN
