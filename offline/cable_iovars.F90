@@ -491,7 +491,7 @@ MODULE cable_IO_vars_module
          epotvpd = .FALSE., &
          fevc = .FALSE., &
          total_est_evap = .FALSE., &
-         wb_30 = .FALSE., &
+         wb_30 = .TRUE., &
          psi_30 = .FALSE., &
          wb_fr_rootzone = .FALSE., &
          psi_fr_rootzone = .FALSE., &

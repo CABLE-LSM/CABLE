@@ -3344,38 +3344,20 @@ CONTAINS
        ! Add current timestep's value to total of temporary output variable:
        out%SoilMoist = out%SoilMoist + toreal4(ssnow%wb)
        out%SoilMoistIce = out%SoilMoistIce + toreal4(ssnow%wbice)
-       out%wb_30 = out%wb_30 + toreal4(ssnow%wb_30)
-       out%psi_30 = out%psi_30 + toreal4(ssnow%psi_30)
-       out%wb_fr_rootzone = out%wb_fr_rootzone + toreal4(ssnow%wb_fr_rootzone)
-       out%psi_fr_rootzone = out%psi_fr_rootzone + toreal4(ssnow%psi_fr_rootzone)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilMoist = out%SoilMoist * rinterval
           out%SoilMoistIce = out%SoilMoistIce * rinterval
-          out%wb_30 = out%wb_30 * rinterval
-          out%psi_30 = out%psi_30 * rinterval
-          out%wb_fr_rootzone = out%wb_fr_rootzone * rinterval
-          out%psi_fr_rootzone = out%psi_fr_rootzone * rinterval
+
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoist, 'SoilMoist', &
                out%SoilMoist, ranges%SoilMoist, patchout%SoilMoist, 'soil', met)
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoistIce, 'SoilMoistIce', &
                out%SoilMoistIce, ranges%SoilMoist, patchout%SoilMoistIce, 'soil', met)
-          CALL write_ovar(out_timestep, ncid_out, ovid%wb_30, 'wb_30', &
-               out%wb_30, ranges%SoilMoist, patchout%wb_30, 'default', met)
-          CALL write_ovar(out_timestep, ncid_out, ovid%psi_30, 'psi_30', &
-               out%psi_30, ranges%psi_soil, patchout%psi_30, 'default', met)
-          CALL write_ovar(out_timestep, ncid_out, ovid%wb_fr_rootzone, 'wb_fr_rootzone', &
-               out%wb_fr_rootzone, ranges%SoilMoist, patchout%wb_fr_rootzone, 'default', met)
-          CALL write_ovar(out_timestep, ncid_out, ovid%psi_fr_rootzone, 'psi_fr_rootzone', &
-               out%psi_fr_rootzone, ranges%psi_soil, patchout%psi_fr_rootzone, 'default', met)
           ! Reset temporary output variable:
           out%SoilMoist = zero4
           out%SoilMoistIce = zero4
-          out%wb_30 = zero4
-          out%psi_30 = zero4
-          out%wb_fr_rootzone = zero4
-          out%psi_fr_rootzone = zero4
+
        END IF
     END IF
     IF(output%soil .OR. output%wb_30) THEN
