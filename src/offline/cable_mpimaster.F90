@@ -2564,6 +2564,14 @@ CONTAINS
        CALL MPI_Get_address (canopy%wcint(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%tscrn_max_daily%aggregated_data(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%tscrn_min_daily%aggregated_data(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
        !  bidx = bidx + 1
        !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
        !  CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
@@ -5479,6 +5487,14 @@ CONTAINS
        vidx = vidx + 1
        ! REAL(r_1)
        CALL MPI_Get_address (canopy%wcint(off), vaddr(vidx), ierr) ! 59
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+       ! REAL(r_1)
+       CALL MPI_Get_address (canopy%tscrn_max_daily%aggregated_data(off), vaddr(vidx), ierr)
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+       ! REAL(r_1)
+       CALL MPI_Get_address (canopy%tscrn_min_daily%aggregated_data(off), vaddr(vidx), ierr)
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
        ! REAL(r_2)
