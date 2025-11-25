@@ -84,11 +84,9 @@ contains
   function new_aggregator_int32_1d_t(source_data, method) result(agg)
     integer(kind=int32), dimension(:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_int32_1d_t) :: agg_int32_1d
+    type(aggregator_int32_1d_t) :: agg
 
-    agg_int32_1d%source_data => source_data
-    agg = agg_int32_1d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_int32_1d_t
@@ -96,11 +94,9 @@ contains
   function new_aggregator_int32_2d_t(source_data, method) result(agg)
     integer(kind=int32), dimension(:,:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_int32_2d_t) :: agg_int32_2d
+    type(aggregator_int32_2d_t) :: agg
 
-    agg_int32_2d%source_data => source_data
-    agg = agg_int32_2d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_int32_2d_t
@@ -108,11 +104,9 @@ contains
   function new_aggregator_int32_3d_t(source_data, method) result(agg)
     integer(kind=int32), dimension(:,:,:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_int32_3d_t) :: agg_int32_3d
+    type(aggregator_int32_3d_t) :: agg
 
-    agg_int32_3d%source_data => source_data
-    agg = agg_int32_3d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_int32_3d_t
@@ -120,11 +114,9 @@ contains
   function new_aggregator_real32_1d(source_data, method) result(agg)
     real(kind=real32), dimension(:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_real32_1d_t) :: agg_real32_1d
+    type(aggregator_real32_1d_t) :: agg
 
-    agg_real32_1d%source_data => source_data
-    agg = agg_real32_1d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_real32_1d
@@ -132,11 +124,9 @@ contains
   function new_aggregator_real32_2d(source_data, method) result(agg)
     real(kind=real32), dimension(:,:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_real32_2d_t) :: agg_real32_2d
+    type(aggregator_real32_2d_t) :: agg
 
-    agg_real32_2d%source_data => source_data
-    agg = agg_real32_2d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_real32_2d
@@ -144,11 +134,9 @@ contains
   function new_aggregator_real32_3d(source_data, method) result(agg)
     real(kind=real32), dimension(:,:,:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_real32_3d_t) :: agg_real32_3d
+    type(aggregator_real32_3d_t) :: agg
 
-    agg_real32_3d%source_data => source_data
-    agg = agg_real32_3d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_real32_3d
@@ -156,11 +144,9 @@ contains
   function new_aggregator_real64_1d(source_data, method) result(agg)
     real(kind=real64), dimension(:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_real64_1d_t) :: agg_real64_1d
+    type(aggregator_real64_1d_t) :: agg
 
-    agg_real64_1d%source_data => source_data
-    agg = agg_real64_1d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_real64_1d
@@ -168,11 +154,9 @@ contains
   function new_aggregator_real64_2d(source_data, method) result(agg)
     real(kind=real64), dimension(:,:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_real64_2d_t) :: agg_real64_2d
+    type(aggregator_real64_2d_t) :: agg
 
-    agg_real64_2d%source_data => source_data
-    agg = agg_real64_2d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_real64_2d
@@ -180,11 +164,9 @@ contains
   function new_aggregator_real64_3d(source_data, method) result(agg)
     real(kind=real64), dimension(:,:,:), intent(inout), target :: source_data
     character(len=*), intent(in) :: method
-    class(aggregator_t), allocatable :: agg
-    type(aggregator_real64_3d_t) :: agg_real64_3d
+    type(aggregator_real64_3d_t) :: agg
 
-    agg_real64_3d%source_data => source_data
-    agg = agg_real64_3d
+    agg%source_data => source_data
     call agg%set_method(method)
 
   end function new_aggregator_real64_3d
