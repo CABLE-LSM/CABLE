@@ -8,15 +8,17 @@ module cable_output_prototype_v2_mod
   use cable_def_types_mod, only: nrb
   use cable_def_types_mod, only: ncs
   use cable_def_types_mod, only: ncp
+  use cable_def_types_mod, only: met_type
 
   use cable_abort_module, only: cable_abort
 
   use cable_io_vars_module, only: metGrid, patch_type, land_type, xdimsize, ydimsize, max_vegpatches
   use cable_io_vars_module, only: timeunits, calendar, time_coord
+  use cable_io_vars_module, only: check, ON_TIMESTEP, ON_WRITE
 
-  use cable_io_vars_module, only: output_options => output, patchout_options => patchout
+  use cable_checks_module, only: check_range
 
-  use cable_io_decomp_mod, only: io_decomp_t
+  use cable_io_vars_module, only: output, patchout
 
   use cable_timing_utils_mod, only: time_step_matches
 
@@ -45,7 +47,7 @@ module cable_output_prototype_v2_mod
   use cable_netcdf_mod, only: MAX_LEN_VAR => CABLE_NETCDF_MAX_STR_LEN_VAR
   use cable_netcdf_mod, only: MAX_LEN_DIM => CABLE_NETCDF_MAX_STR_LEN_DIM
 
-  use cable_output_utils_mod
+  use cable_output_utils_mod, only: grid_cell_average
 
   implicit none
   private
@@ -53,24 +55,17 @@ module cable_output_prototype_v2_mod
   public :: cable_output_mod_init
   public :: cable_output_mod_end
   public :: cable_output_add_variable
-  public :: cable_output_aggregator_t
   public :: cable_output_add_aggregator
   public :: cable_output_commit
   public :: cable_output_update
-  public :: output_options
-  public :: patchout_options
+  public :: output
+  public :: patchout
   public :: requires_x_y_output_grid
   public :: requires_land_output_grid
 
   integer(kind=int32), parameter :: FILL_VALUE_INT32  = -9999_int32
   real(kind=real32),   parameter :: FILL_VALUE_REAL32 = -1.0e+33_real32
   real(kind=real64),   parameter :: FILL_VALUE_REAL64 = -1.0e+33_real64
-
-  type :: cable_output_aggregator_t
-    type(aggregator_handle_t) :: aggregator_handle
-    character(len=20) :: accumulation_frequency
-    character(len=20) :: aggregation_frequency
-  end type
 
   type cable_output_variable_t
     character(len=MAX_LEN_VAR) :: name
@@ -82,7 +77,7 @@ module cable_output_prototype_v2_mod
     logical :: active
     logical :: grid_cell_averaging
     real, dimension(2) :: range
-    type(cable_output_aggregator_t) :: output_aggregator
+    type(aggregator_handle_t) :: aggregator_handle
     class(cable_netcdf_decomp_t), pointer :: decomp => null()
     real(kind=real32), pointer :: temp_buffer_real32_1d(:)       => null()
     real(kind=real32), pointer :: temp_buffer_real32_2d(:, :)    => null()
@@ -96,12 +91,10 @@ module cable_output_prototype_v2_mod
     real :: previous_write_time = 0.0
     integer :: frame = 0
     class(cable_netcdf_file_t), allocatable :: output_file
-    !> List of output aggregators sorted in decreasing accumulation_frequency,
-    ! then aggregation_frequency. Sorting the aggregators this way ensures that
-    ! intermediate aggregators are updated before any aggregators which may be
-    ! dependent on them.
-    type(cable_output_aggregator_t), allocatable :: output_aggregators(:)
     type(cable_output_variable_t), allocatable :: output_variables(:)
+
+    type(aggregator_handle_t), allocatable :: aggregators_accumulate_time_step(:)
+    type(aggregator_handle_t), allocatable :: aggregators_accumulate_daily(:)
   end type
 
   ! Temporary buffers for computing grid-cell averages for each variable class
@@ -121,8 +114,8 @@ module cable_output_prototype_v2_mod
   ! TODO(Sean): once cable_write.F90 is removed, move the output_inclusion_type
   ! from cable_io_vars_module to here (as this would no longer introduce a cyclic
   ! module dependency). Then uncomment declarations below:
-  ! type(output_inclusion_t) :: output_options
-  ! type(output_inclusion_t) :: patchout_options ! do we want patch-specific info
+  ! type(output_inclusion_t) :: output
+  ! type(output_inclusion_t) :: patchout ! do we want patch-specific info
 
   type(cable_output_profile_t), allocatable :: global_profile
 
@@ -145,33 +138,6 @@ contains
       output_grid == 'land' .OR. (output_grid == 'default' .AND. met_grid == 'land') &
     )
   end function
-
-  function compare_aggregators_by_frequency(a, b) result(is_less)
-    type(cable_output_aggregator_t), intent(in) :: a, b
-    logical :: is_less
-
-    ! TODO(Sean): sort frequency by decreasing accumulation_frequency first, then decreasing aggregation_frequency
-
-    is_less = .false.
-
-  end function
-
-  subroutine sort_aggregators_by_frequency(output_aggregators)
-    type(cable_output_aggregator_t), intent(inout) :: output_aggregators(:)
-    integer :: i, j
-    type(cable_output_aggregator_t) :: temp
-
-    do i = 1, size(output_aggregators) - 1
-      do j = i + 1, size(output_aggregators)
-        if (compare_aggregators_by_frequency(output_aggregators(i), output_aggregators(j))) then
-          temp = output_aggregators(i)
-          output_aggregators(i) = output_aggregators(j)
-          output_aggregators(j) = temp
-        end if
-      end do
-    end do
-
-  end subroutine
 
   subroutine cable_output_mod_init()
     class(cable_netcdf_file_t), allocatable :: output_file
@@ -221,7 +187,7 @@ contains
 
   subroutine cable_output_add_variable( &
     name, dims, var_type, units, long_name, active, grid_cell_averaging, &
-    decomp, range, accumulation_frequency, aggregation_frequency, aggregator &
+    decomp, range, accumulation_frequency, aggregator &
   )
     character(len=*), intent(in) :: name
     character(len=*), dimension(:), intent(in) :: dims
@@ -232,8 +198,7 @@ contains
     logical, intent(in) :: grid_cell_averaging
     class(cable_netcdf_decomp_t), intent(in), target :: decomp
     real, dimension(2), intent(in) :: range
-    character(len=*), intent(in) :: accumulation_frequency
-    character(len=*), intent(in) :: aggregation_frequency
+    character(len=*), intent(in), optional :: accumulation_frequency
     class(aggregator_t), intent(in) :: aggregator
 
     type(cable_output_variable_t) :: output_var
@@ -273,8 +238,7 @@ contains
       call cable_output_add_aggregator( &
         aggregator=aggregator, &
         accumulation_frequency=accumulation_frequency, &
-        aggregation_frequency=aggregation_frequency, &
-        output_aggregator=output_var%output_aggregator &
+        aggregator_handle=output_var%aggregator_handle &
       )
     end if
 
@@ -337,22 +301,36 @@ contains
 
   end subroutine cable_output_add_variable
 
-  subroutine cable_output_add_aggregator(aggregator, accumulation_frequency, aggregation_frequency, output_aggregator)
+  subroutine cable_output_add_aggregator(aggregator, accumulation_frequency, aggregator_handle)
     class(aggregator_t), intent(in) :: aggregator
-    character(len=*), intent(in) :: accumulation_frequency
-    character(len=*), intent(in) :: aggregation_frequency
-    type(cable_output_aggregator_t), intent(out) :: output_aggregator
+    character(len=*), intent(in), optional :: accumulation_frequency
+    type(aggregator_handle_t), intent(out) :: aggregator_handle
 
-    output_aggregator = cable_output_aggregator_t( &
-      accumulation_frequency=accumulation_frequency, &
-      aggregation_frequency=aggregation_frequency, &
-      aggregator_handle=store_aggregator(aggregator) &
-    )
+    aggregator_handle = store_aggregator(aggregator)
 
-    if (.not. allocated(global_profile%output_aggregators)) then
-      global_profile%output_aggregators = [output_aggregator]
+    if (.not. present(accumulation_frequency)) then
+      if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
+        global_profile%aggregators_accumulate_time_step = [aggregator_handle]
+      else
+        global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, aggregator_handle]
+      end if
     else
-      global_profile%output_aggregators = [global_profile%output_aggregators, output_aggregator]
+      select case(accumulation_frequency)
+      case("all")
+        if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
+          global_profile%aggregators_accumulate_time_step = [aggregator_handle]
+        else
+          global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, aggregator_handle]
+        end if
+      case("daily")
+        if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
+          global_profile%aggregators_accumulate_daily = [aggregator_handle]
+        else
+          global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, aggregator_handle]
+        end if
+      case default
+        call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
+      end select
     end if
 
   end subroutine cable_output_add_aggregator
@@ -372,9 +350,9 @@ contains
     call output_file%def_dims(["time"], [CABLE_NETCDF_UNLIMITED])
     call output_file%def_dims(["nv"], [2])
 
-    if (requires_x_y_output_grid(output_options%grid, metgrid)) then
+    if (requires_x_y_output_grid(output%grid, metgrid)) then
       call output_file%def_dims(["z"], [1]) ! Atmospheric 'z' dim of size 1 to comply with ALMA grid type
-    else if (requires_land_output_grid(output_options%grid, metgrid)) then
+    else if (requires_land_output_grid(output%grid, metgrid)) then
       call output_file%def_dims(["land"], [mland])
       call output_file%def_var("local_lat", ["land"], CABLE_NETCDF_FLOAT)
       call output_file%put_att("local_lat", "units", "degrees_north")
@@ -437,48 +415,66 @@ contains
 
     global_profile%output_file = output_file
 
-    call sort_aggregators_by_frequency(global_profile%output_aggregators)
+    ! Initialise all aggregators
 
-    ! Initialize all aggregators
-    do i = 1, size(global_profile%output_aggregators)
-      associate(aggregator => global_profile%output_aggregators(i)%aggregator_handle%aggregator)
-        call aggregator%init()
+    do i = 1, size(global_profile%aggregators_accumulate_time_step)
+      associate(aggregator_handle => global_profile%aggregators_accumulate_time_step(i))
+        call aggregator_handle%init()
+      end associate
+    end do
+
+    do i = 1, size(global_profile%aggregators_accumulate_daily)
+      associate(aggregator_handle => global_profile%aggregators_accumulate_daily(i))
+        call aggregator_handle%init()
       end associate
     end do
 
   end subroutine
 
-  subroutine cable_output_update(time_index, dels, leaps, start_year, patch, landpt)
+  subroutine cable_output_update(time_index, dels, leaps, start_year, patch, landpt, met)
     integer, intent(in) :: time_index
     real, intent(in) :: dels
     logical, intent(in) :: leaps
     integer, intent(in) :: start_year
     type(patch_type), intent(in) :: patch(:)
     type(land_type), intent(in) :: landpt(:)
+    type(met_type), intent(in) :: met
 
     real :: current_time
     integer :: i
 
-    do i = 1, size(global_profile%output_aggregators)
-      associate(output_aggregator => global_profile%output_aggregators(i))
-        if (time_step_matches(dels, time_index, output_aggregator%accumulation_frequency, leaps, start_year)) then
-          call output_aggregator%aggregator_handle%accumulate()
-        end if
-        if (time_step_matches(dels, time_index, output_aggregator%aggregation_frequency, leaps, start_year)) then
-          call output_aggregator%aggregator_handle%normalise()
-        end if
+    if (check%ranges == ON_TIMESTEP) then
+      do i = 1, size(global_profile%output_variables)
+        call check_variable_range(global_profile%output_variables(i), time_index, met)
+      end do
+    end if
+
+    do i = 1, size(global_profile%aggregators_accumulate_time_step)
+      associate(aggregator_handle => global_profile%aggregators_accumulate_time_step(i))
+        call aggregator_handle%accumulate()
       end associate
     end do
 
-    if (time_step_matches(dels, time_index, output_options%averaging, leaps, start_year)) then
+    if (time_step_matches(dels, time_index, "daily", leaps, start_year)) then
+      do i = 1, size(global_profile%aggregators_accumulate_daily)
+        associate(aggregator_handle => global_profile%aggregators_accumulate_daily(i))
+          call aggregator_handle%accumulate()
+        end associate
+      end do
+    end if
+
+    if (time_step_matches(dels, time_index, output%averaging, leaps, start_year)) then
 
       do i = 1, size(global_profile%output_variables)
         associate(output_variable => global_profile%output_variables(i))
+          if (check%ranges == ON_WRITE) call check_variable_range(output_variable, time_index, met)
+          call output_variable%aggregator_handle%normalise()
           if (output_variable%grid_cell_averaging) then
             call write_variable_grid_cell_average(output_variable, global_profile%output_file, global_profile%frame + 1, patch, landpt)
           else
             call write_variable(output_variable, global_profile%output_file, global_profile%frame + 1)
           end if
+          call output_variable%aggregator_handle%reset()
         end associate
       end do
 
@@ -490,22 +486,44 @@ contains
 
     end if
 
-    do i = 1, size(global_profile%output_aggregators)
-      associate(output_aggregator => global_profile%output_aggregators(i))
-        if (time_step_matches(dels, time_index, output_aggregator%aggregation_frequency, leaps, start_year)) then
-          call output_aggregator%aggregator_handle%reset()
-        end if
-      end associate
-    end do
-
   end subroutine cable_output_update
+
+  subroutine check_variable_range(output_variable, time_index, met)
+    type(cable_output_variable_t), intent(in) :: output_variable
+    integer, intent(in) :: time_index
+    type(met_type), intent(in) :: met
+
+    select type (aggregator => output_variable%aggregator_handle%aggregator)
+    type is (aggregator_int32_1d_t)
+      ! TODO(Sean): implement range checking for integer types
+    type is (aggregator_int32_2d_t)
+      ! TODO(Sean): implement range checking for integer types
+    type is (aggregator_int32_3d_t)
+      ! TODO(Sean): implement range checking for integer types
+    type is (aggregator_real32_1d_t)
+      call check_range(output_variable%name, aggregator%source_data, output_variable%range, time_index, met)
+    type is (aggregator_real32_2d_t)
+      call check_range(output_variable%name, aggregator%source_data, output_variable%range, time_index, met)
+    type is (aggregator_real32_3d_t)
+      call check_range(output_variable%name, aggregator%source_data, output_variable%range, time_index, met)
+    type is (aggregator_real64_1d_t)
+      ! TODO(Sean): implement range checking for double precision types
+    type is (aggregator_real64_2d_t)
+      ! TODO(Sean): implement range checking for double precision types
+    type is (aggregator_real64_3d_t)
+      ! TODO(Sean): implement range checking for double precision types
+    class default
+      call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
+    end select
+
+  end subroutine check_variable_range
 
   subroutine write_variable(output_variable, output_file, time_index)
     type(cable_output_variable_t), intent(inout) :: output_variable
     class(cable_netcdf_file_t), intent(inout) :: output_file
     integer, intent(in) :: time_index
 
-    select type (aggregator => output_variable%output_aggregator%aggregator_handle%aggregator)
+    select type (aggregator => output_variable%aggregator_handle%aggregator)
     type is (aggregator_int32_1d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
@@ -579,7 +597,7 @@ contains
     type(patch_type), intent(in) :: patch(:)
     type(land_type), intent(in) :: landpt(:)
 
-    select type (aggregator => output_variable%output_aggregator%aggregator_handle%aggregator)
+    select type (aggregator => output_variable%aggregator_handle%aggregator)
     type is (aggregator_real32_1d_t)
       call grid_cell_average( &
             input_array=aggregator%storage, &

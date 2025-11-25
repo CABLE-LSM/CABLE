@@ -768,7 +768,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
               leaps=leaps, &
               start_year=start_year, &
               patch=patch, &
-              landpt=landpt &
+              landpt=landpt, &
+              met=met &
             )
           ENDIF
 
