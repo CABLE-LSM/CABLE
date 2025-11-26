@@ -2,7 +2,7 @@ module cable_output_prototype_v2_mod
   use iso_fortran_env, only: int32, real32, real64
 
   use cable_def_types_mod, only: mp, mp_global
-  use cable_def_types_mod, only: mland
+  use cable_def_types_mod, only: mland, mland_global
   use cable_def_types_mod, only: ms
   use cable_def_types_mod, only: msn
   use cable_def_types_mod, only: nrb
@@ -353,7 +353,7 @@ contains
     if (requires_x_y_output_grid(output%grid, metgrid)) then
       call output_file%def_dims(["z"], [1]) ! Atmospheric 'z' dim of size 1 to comply with ALMA grid type
     else if (requires_land_output_grid(output%grid, metgrid)) then
-      call output_file%def_dims(["land"], [mland])
+      call output_file%def_dims(["land"], [mland_global])
       call output_file%def_var("local_lat", ["land"], CABLE_NETCDF_FLOAT)
       call output_file%put_att("local_lat", "units", "degrees_north")
       call output_file%def_var("local_lon", ["land"], CABLE_NETCDF_FLOAT)
