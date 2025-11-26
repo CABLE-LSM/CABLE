@@ -288,7 +288,6 @@ else()
         src/offline/cable_output.F90
         src/offline/cable_output_prototype_v2.F90
         src/offline/cable_output_definitions.F90
-        src/offline/cable_output_utils.F90
         src/offline/cable_parameters.F90
         src/offline/cable_pft_params.F90
         src/offline/cable_plume_mip.F90
@@ -307,6 +306,7 @@ else()
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
         src/util/cable_array_utils.F90
+        src/util/cable_grid_reductions.F90
         src/util/cable_timing_utils.F90
         src/util/netcdf/cable_netcdf_decomp_util.F90
         src/util/netcdf/cable_netcdf.F90

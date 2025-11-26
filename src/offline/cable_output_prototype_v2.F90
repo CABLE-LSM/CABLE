@@ -47,7 +47,7 @@ module cable_output_prototype_v2_mod
   use cable_netcdf_mod, only: MAX_LEN_VAR => CABLE_NETCDF_MAX_STR_LEN_VAR
   use cable_netcdf_mod, only: MAX_LEN_DIM => CABLE_NETCDF_MAX_STR_LEN_DIM
 
-  use cable_output_utils_mod, only: grid_cell_average
+  use cable_grid_reductions_mod, only: grid_cell_average
 
   implicit none
   private

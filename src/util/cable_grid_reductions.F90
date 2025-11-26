@@ -1,4 +1,4 @@
-module cable_output_utils_mod
+module cable_grid_reductions_mod
 
   use iso_fortran_env, only: real32, real64
 
