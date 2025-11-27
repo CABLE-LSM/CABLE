@@ -78,7 +78,7 @@ module cable_output_prototype_v2_mod
     character(len=100) :: cell_methods
     character(len=10) :: accumulation_frequency
     logical :: active
-    logical :: grid_cell_averaging
+    character(len=50) :: reduction_method
     real, dimension(2) :: range
     type(aggregator_handle_t) :: aggregator_handle
     class(cable_netcdf_decomp_t), pointer :: decomp => null()
@@ -199,7 +199,7 @@ contains
   end subroutine
 
   subroutine cable_output_add_variable( &
-    name, dims, var_type, units, long_name, active, grid_cell_averaging, &
+    name, dims, var_type, units, long_name, active, reduction_method, &
     decomp, range, accumulation_frequency, aggregator &
   )
     character(len=*), intent(in) :: name
@@ -208,7 +208,7 @@ contains
     character(len=*), intent(in) :: units
     character(len=*), intent(in) :: long_name
     logical, intent(in) :: active
-    logical, intent(in) :: grid_cell_averaging
+    character(len=*), intent(in), optional :: reduction_method
     class(cable_netcdf_decomp_t), intent(in), target :: decomp
     real, dimension(2), intent(in) :: range
     character(len=*), intent(in), optional :: accumulation_frequency
@@ -216,36 +216,48 @@ contains
 
     type(cable_output_variable_t) :: output_var
 
-    if (grid_cell_averaging) then
-      select type (aggregator)
-      type is (aggregator_real32_1d_t)
-        if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid cell averaging", __FILE__, __LINE__)
-      type is (aggregator_real32_2d_t)
-        if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid cell averaging", __FILE__, __LINE__)
-      type is (aggregator_real32_3d_t)
-        if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid cell averaging", __FILE__, __LINE__)
-      type is (aggregator_real64_1d_t)
-        if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid cell averaging", __FILE__, __LINE__)
-      type is (aggregator_real64_2d_t)
-        if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid cell averaging", __FILE__, __LINE__)
-      type is (aggregator_real64_3d_t)
-        if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid cell averaging", __FILE__, __LINE__)
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
+    if (present(reduction_method)) then
+      select case (reduction_method)
+      case ("none")
+        ! No additional checks needed for 'none' reduction
+      case ("grid_cell_average")
+        select type (aggregator)
+        type is (aggregator_real32_1d_t)
+          if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid reduction", __FILE__, __LINE__)
+        type is (aggregator_real32_2d_t)
+          if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid reduction", __FILE__, __LINE__)
+        type is (aggregator_real32_3d_t)
+          if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid reduction", __FILE__, __LINE__)
+        type is (aggregator_real64_1d_t)
+          if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid reduction", __FILE__, __LINE__)
+        type is (aggregator_real64_2d_t)
+          if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid reduction", __FILE__, __LINE__)
+        type is (aggregator_real64_3d_t)
+          if (size(aggregator%source_data, 1) /= mp) call cable_abort("Incompatible source data size for grid reduction", __FILE__, __LINE__)
+        class default
+          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
+        end select
+      case default
+        call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end select
     end if
 
-    ! TODO(Sean): determine cell_methods based on grid_cell_averaging and aggregator method
+    ! TODO(Sean): determine cell_methods based on reduction and aggregation method
 
-    output_var%name = trim(adjustl(name))
+    output_var%name = name
     output_var%dims = dims
-    output_var%units = trim(adjustl(units))
-    output_var%long_name = trim(adjustl(long_name))
+    output_var%units = units
+    output_var%long_name = long_name
     output_var%active = active
-    output_var%grid_cell_averaging = grid_cell_averaging
     output_var%range = range
     output_var%decomp => decomp
     output_var%var_type = var_type
+
+    if (present(reduction_method)) then
+      output_var%reduction_method = reduction_method
+    else
+      output_var%reduction_method = "none"
+    end if
 
     if (present(accumulation_frequency)) then
       output_var%accumulation_frequency = accumulation_frequency
@@ -269,19 +281,19 @@ contains
 
     end if
 
-    if (grid_cell_averaging) then
+    if (present(reduction_method)) then
       select type(aggregator)
       type is (aggregator_real32_1d_t)
         if (all(shape(aggregator%source_data) == [mp])) then
           output_var%temp_buffer_real32_1d => temp_buffer_land_real32
         else
-          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
         end if
       type is (aggregator_real64_1d_t)
         if (all(shape(aggregator%source_data) == [mp])) then
           output_var%temp_buffer_real64_1d => temp_buffer_land_real64
         else
-          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
         end if
       type is (aggregator_real32_2d_t)
         if (all(shape(aggregator%source_data) == [mp, ms])) then
@@ -297,7 +309,7 @@ contains
         else if (all(shape(aggregator%source_data) == [mp, ncs])) then
           output_var%temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
         else
-          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
         end if
       type is (aggregator_real64_2d_t)
         if (all(shape(aggregator%source_data) == [mp, ms])) then
@@ -313,7 +325,7 @@ contains
         else if (all(shape(aggregator%source_data) == [mp, ncs])) then
           output_var%temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
         else
-          call cable_abort("Unexpected source data shape for grid cell averaging", __FILE__, __LINE__)
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
         end if
       class default
         call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
@@ -488,11 +500,14 @@ contains
         associate(output_variable => global_profile%output_variables(i))
           if (check%ranges == ON_WRITE) call check_variable_range(output_variable, time_index, met)
           call output_variable%aggregator_handle%normalise()
-          if (output_variable%grid_cell_averaging) then
+          select case (output_variable%reduction_method)
+          case ("grid_cell_average")
             call write_variable_grid_cell_average(output_variable, global_profile%output_file, global_profile%frame + 1, patch, landpt)
-          else
+          case ("none")
             call write_variable(output_variable, global_profile%output_file, global_profile%frame + 1)
-          end if
+          case default
+            call cable_abort("Invalid reduction method", __FILE__, __LINE__)
+          end select
           call output_variable%aggregator_handle%reset()
         end associate
       end do

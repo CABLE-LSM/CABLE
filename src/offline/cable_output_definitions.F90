@@ -159,7 +159,6 @@ contains
       long_name="Surface sensible heat flux", &
       range=ranges%Qh, &
       active=output%Qh .and. (output%patch .OR. patchout%Qh), &
-      grid_cell_averaging=.false., &
       decomp=output_decomp_base_patch_real32, &
       aggregator=new_aggregator( &
         source_data=canopy%fh, &
@@ -175,31 +174,10 @@ contains
       long_name="Surface sensible heat flux", &
       range=ranges%Qh, &
       active=output%Qh .and. .not. (output%patch .OR. patchout%Qh), &
-      grid_cell_averaging=.true., &
+      reduction_method="grid_cell_average", &
       decomp=output_decomp_base_real32, &
       aggregator=new_aggregator( &
         source_data=canopy%fh, &
-        method="mean" &
-      ) &
-    )
-
-    call cable_output_add_variable( &
-      name="Tmx", &
-      dims=[base_dims, "time"], &
-      var_type=CABLE_NETCDF_FLOAT, &
-      units="oC", &
-      long_name="averaged daily maximum screen-level T", &
-      active=( &
-        output%Tex .and. &
-        output%averaging == "monthly" .and. &
-        .not. (output%patch .OR. patchout%Tex) &
-      ), &
-      grid_cell_averaging=.true., &
-      decomp=output_decomp_base_real32, &
-      range=ranges%Tscrn, &
-      accumulation_frequency="daily", &
-      aggregator=new_aggregator( &
-        source_data=canopy%tscrn_max_daily%storage, &
         method="mean" &
       ) &
     )
@@ -215,8 +193,28 @@ contains
         output%averaging == "monthly" .and. &
         (output%patch .OR. patchout%Tex) &
       ), &
-      grid_cell_averaging=.false., &
       decomp=output_decomp_base_patch_real32, &
+      range=ranges%Tscrn, &
+      accumulation_frequency="daily", &
+      aggregator=new_aggregator( &
+        source_data=canopy%tscrn_max_daily%storage, &
+        method="mean" &
+      ) &
+    )
+
+    call cable_output_add_variable( &
+      name="Tmx", &
+      dims=[base_dims, "time"], &
+      var_type=CABLE_NETCDF_FLOAT, &
+      units="oC", &
+      long_name="averaged daily maximum screen-level T", &
+      active=( &
+        output%Tex .and. &
+        output%averaging == "monthly" .and. &
+        .not. (output%patch .OR. patchout%Tex) &
+      ), &
+      reduction_method="grid_cell_average", &
+      decomp=output_decomp_base_real32, &
       range=ranges%Tscrn, &
       accumulation_frequency="daily", &
       aggregator=new_aggregator( &
