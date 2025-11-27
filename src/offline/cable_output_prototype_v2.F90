@@ -265,11 +265,63 @@ contains
     end if
 
     if (active) then
+
       if (check_invalid_frequency( &
         sampling_frequency=output%averaging, &
         accumulation_frequency=output_var%accumulation_frequency &
       )) then
         call cable_abort("Sampling frequency and accumulation frequency are incompatible", __FILE__, __LINE__)
+      end if
+
+      if (present(reduction_method)) then
+        select type(aggregator)
+        type is (aggregator_real32_1d_t)
+          if (all(shape(aggregator%source_data) == [mp])) then
+            output_var%temp_buffer_real32_1d => temp_buffer_land_real32
+          else
+            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+          end if
+        type is (aggregator_real64_1d_t)
+          if (all(shape(aggregator%source_data) == [mp])) then
+            output_var%temp_buffer_real64_1d => temp_buffer_land_real64
+          else
+            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+          end if
+        type is (aggregator_real32_2d_t)
+          if (all(shape(aggregator%source_data) == [mp, ms])) then
+            output_var%temp_buffer_real32_2d => temp_buffer_land_soil_real32
+          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+            output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
+          else if (all(shape(aggregator%source_data) == [mp, msn])) then
+            output_var%temp_buffer_real32_2d => temp_buffer_land_snow_real32
+          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+            output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
+          else if (all(shape(aggregator%source_data) == [mp, ncp])) then
+            output_var%temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
+          else if (all(shape(aggregator%source_data) == [mp, ncs])) then
+            output_var%temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
+          else
+            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+          end if
+        type is (aggregator_real64_2d_t)
+          if (all(shape(aggregator%source_data) == [mp, ms])) then
+            output_var%temp_buffer_real64_2d => temp_buffer_land_soil_real64
+          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+            output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
+          else if (all(shape(aggregator%source_data) == [mp, msn])) then
+            output_var%temp_buffer_real64_2d => temp_buffer_land_snow_real64
+          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+            output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
+          else if (all(shape(aggregator%source_data) == [mp, ncp])) then
+            output_var%temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
+          else if (all(shape(aggregator%source_data) == [mp, ncs])) then
+            output_var%temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
+          else
+            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+          end if
+        class default
+          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
+        end select
       end if
 
       output_var%aggregator_handle = store_aggregator(aggregator)
@@ -291,63 +343,12 @@ contains
         call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
       end select
 
-    end if
+      if (.not. allocated(global_profile%output_variables)) then
+        global_profile%output_variables = [output_var]
+      else
+        global_profile%output_variables = [global_profile%output_variables, output_var]
+      end if
 
-    if (present(reduction_method)) then
-      select type(aggregator)
-      type is (aggregator_real32_1d_t)
-        if (all(shape(aggregator%source_data) == [mp])) then
-          output_var%temp_buffer_real32_1d => temp_buffer_land_real32
-        else
-          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-        end if
-      type is (aggregator_real64_1d_t)
-        if (all(shape(aggregator%source_data) == [mp])) then
-          output_var%temp_buffer_real64_1d => temp_buffer_land_real64
-        else
-          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-        end if
-      type is (aggregator_real32_2d_t)
-        if (all(shape(aggregator%source_data) == [mp, ms])) then
-          output_var%temp_buffer_real32_2d => temp_buffer_land_soil_real32
-        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-          output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
-        else if (all(shape(aggregator%source_data) == [mp, msn])) then
-          output_var%temp_buffer_real32_2d => temp_buffer_land_snow_real32
-        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-          output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
-        else if (all(shape(aggregator%source_data) == [mp, ncp])) then
-          output_var%temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
-        else if (all(shape(aggregator%source_data) == [mp, ncs])) then
-          output_var%temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
-        else
-          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-        end if
-      type is (aggregator_real64_2d_t)
-        if (all(shape(aggregator%source_data) == [mp, ms])) then
-          output_var%temp_buffer_real64_2d => temp_buffer_land_soil_real64
-        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
-        else if (all(shape(aggregator%source_data) == [mp, msn])) then
-          output_var%temp_buffer_real64_2d => temp_buffer_land_snow_real64
-        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
-        else if (all(shape(aggregator%source_data) == [mp, ncp])) then
-          output_var%temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
-        else if (all(shape(aggregator%source_data) == [mp, ncs])) then
-          output_var%temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
-        else
-          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-        end if
-      class default
-        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-      end select
-    end if
-
-    if (.not. allocated(global_profile%output_variables)) then
-      global_profile%output_variables = [output_var]
-    else
-      global_profile%output_variables = [global_profile%output_variables, output_var]
     end if
 
   end subroutine cable_output_add_variable
@@ -403,8 +404,6 @@ contains
     ! TODO(Sean): define remaining coordinate variables
 
     ! TODO(Sean): add global attributes
-
-    global_profile%output_variables = pack(global_profile%output_variables, global_profile%output_variables(:)%active)
 
     do i = 1, size(global_profile%output_variables)
       associate(output_var => global_profile%output_variables(i))
