@@ -55,7 +55,6 @@ module cable_output_prototype_v2_mod
   public :: cable_output_mod_init
   public :: cable_output_mod_end
   public :: cable_output_add_variable
-  public :: cable_output_add_aggregator
   public :: cable_output_commit
   public :: cable_output_update
   public :: output
@@ -273,11 +272,24 @@ contains
         call cable_abort("Sampling frequency and accumulation frequency are incompatible", __FILE__, __LINE__)
       end if
 
-      call cable_output_add_aggregator( &
-        aggregator=aggregator, &
-        accumulation_frequency=output_var%accumulation_frequency, &
-        aggregator_handle=output_var%aggregator_handle &
-      )
+      output_var%aggregator_handle = store_aggregator(aggregator)
+
+      select case(output_var%accumulation_frequency)
+      case("all")
+        if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
+          global_profile%aggregators_accumulate_time_step = [output_var%aggregator_handle]
+        else
+          global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, output_var%aggregator_handle]
+        end if
+      case("daily")
+        if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
+          global_profile%aggregators_accumulate_daily = [output_var%aggregator_handle]
+        else
+          global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, output_var%aggregator_handle]
+        end if
+      case default
+        call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
+      end select
 
     end if
 
@@ -339,32 +351,6 @@ contains
     end if
 
   end subroutine cable_output_add_variable
-
-  subroutine cable_output_add_aggregator(aggregator, accumulation_frequency, aggregator_handle)
-    class(aggregator_t), intent(in) :: aggregator
-    character(len=*), intent(in) :: accumulation_frequency
-    type(aggregator_handle_t), intent(out) :: aggregator_handle
-
-    aggregator_handle = store_aggregator(aggregator)
-
-    select case(accumulation_frequency)
-    case("all")
-      if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
-        global_profile%aggregators_accumulate_time_step = [aggregator_handle]
-      else
-        global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, aggregator_handle]
-      end if
-    case("daily")
-      if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
-        global_profile%aggregators_accumulate_daily = [aggregator_handle]
-      else
-        global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, aggregator_handle]
-      end if
-    case default
-      call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
-    end select
-
-  end subroutine cable_output_add_aggregator
 
   subroutine cable_output_commit()
     class(cable_netcdf_file_t), allocatable :: output_file
