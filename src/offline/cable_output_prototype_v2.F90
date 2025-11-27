@@ -67,6 +67,8 @@ module cable_output_prototype_v2_mod
   real(kind=real32),   parameter :: FILL_VALUE_REAL32 = -1.0e+33_real32
   real(kind=real64),   parameter :: FILL_VALUE_REAL64 = -1.0e+33_real64
 
+  character(len=*), parameter :: DEFAULT_ACCUMULATION_FREQUENCY = "all"
+
   type cable_output_variable_t
     character(len=MAX_LEN_VAR) :: name
     character(len=MAX_LEN_DIM), allocatable :: dims(:)
@@ -74,6 +76,7 @@ module cable_output_prototype_v2_mod
     character(len=50) :: units
     character(len=100) :: long_name
     character(len=100) :: cell_methods
+    character(len=10) :: accumulation_frequency
     logical :: active
     logical :: grid_cell_averaging
     real, dimension(2) :: range
@@ -137,6 +140,16 @@ contains
     requires_land_output_grid = ( &
       output_grid == 'land' .OR. (output_grid == 'default' .AND. met_grid == 'land') &
     )
+  end function
+
+  logical function check_invalid_frequency(sampling_frequency, accumulation_frequency)
+    character(len=*), intent(in) :: sampling_frequency
+    character(len=*), intent(in) :: accumulation_frequency
+
+    check_invalid_frequency = .false.
+
+    ! TODO(Sean): return true if sampling frequency is greater than accumulation frequency
+
   end function
 
   subroutine cable_output_mod_init()
@@ -234,12 +247,26 @@ contains
     output_var%decomp => decomp
     output_var%var_type = var_type
 
+    if (present(accumulation_frequency)) then
+      output_var%accumulation_frequency = accumulation_frequency
+    else
+      output_var%accumulation_frequency = DEFAULT_ACCUMULATION_FREQUENCY
+    end if
+
     if (active) then
+      if (check_invalid_frequency( &
+        sampling_frequency=output%averaging, &
+        accumulation_frequency=output_var%accumulation_frequency &
+      )) then
+        call cable_abort("Sampling frequency and accumulation frequency are incompatible", __FILE__, __LINE__)
+      end if
+
       call cable_output_add_aggregator( &
         aggregator=aggregator, &
-        accumulation_frequency=accumulation_frequency, &
+        accumulation_frequency=output_var%accumulation_frequency, &
         aggregator_handle=output_var%aggregator_handle &
       )
+
     end if
 
     if (grid_cell_averaging) then
@@ -303,35 +330,27 @@ contains
 
   subroutine cable_output_add_aggregator(aggregator, accumulation_frequency, aggregator_handle)
     class(aggregator_t), intent(in) :: aggregator
-    character(len=*), intent(in), optional :: accumulation_frequency
+    character(len=*), intent(in) :: accumulation_frequency
     type(aggregator_handle_t), intent(out) :: aggregator_handle
 
     aggregator_handle = store_aggregator(aggregator)
 
-    if (.not. present(accumulation_frequency)) then
+    select case(accumulation_frequency)
+    case("all")
       if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
         global_profile%aggregators_accumulate_time_step = [aggregator_handle]
       else
         global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, aggregator_handle]
       end if
-    else
-      select case(accumulation_frequency)
-      case("all")
-        if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
-          global_profile%aggregators_accumulate_time_step = [aggregator_handle]
-        else
-          global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, aggregator_handle]
-        end if
-      case("daily")
-        if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
-          global_profile%aggregators_accumulate_daily = [aggregator_handle]
-        else
-          global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, aggregator_handle]
-        end if
-      case default
-        call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
-      end select
-    end if
+    case("daily")
+      if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
+        global_profile%aggregators_accumulate_daily = [aggregator_handle]
+      else
+        global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, aggregator_handle]
+      end if
+    case default
+      call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
+    end select
 
   end subroutine cable_output_add_aggregator
 
