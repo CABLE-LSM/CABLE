@@ -487,7 +487,7 @@ contains
           call output_variable%aggregator_handle%normalise()
           select case (output_variable%reduction_method)
           case ("grid_cell_average")
-            call write_variable_grid_cell_average(output_variable, global_profile%output_file, global_profile%frame + 1, patch, landpt)
+            call write_variable_grid_cell_average(output_variable, global_profile%output_file, patch, landpt, global_profile%frame + 1)
           case ("none")
             call write_variable(output_variable, global_profile%output_file, global_profile%frame + 1)
           case default
@@ -540,7 +540,7 @@ contains
   subroutine write_variable(output_variable, output_file, time_index)
     type(cable_output_variable_t), intent(inout) :: output_variable
     class(cable_netcdf_file_t), intent(inout) :: output_file
-    integer, intent(in) :: time_index
+    integer, intent(in), optional :: time_index
 
     select type (aggregator => output_variable%aggregator_handle%aggregator)
     type is (aggregator_int32_1d_t)
@@ -609,12 +609,12 @@ contains
 
   end subroutine write_variable
 
-  subroutine write_variable_grid_cell_average(output_variable, output_file, time_index, patch, landpt)
+  subroutine write_variable_grid_cell_average(output_variable, output_file, patch, landpt, time_index)
     type(cable_output_variable_t), intent(inout) :: output_variable
     class(cable_netcdf_file_t), intent(inout) :: output_file
-    integer, intent(in) :: time_index
     type(patch_type), intent(in) :: patch(:)
     type(land_type), intent(in) :: landpt(:)
+    integer, intent(in), optional :: time_index
 
     select type (aggregator => output_variable%aggregator_handle%aggregator)
     type is (aggregator_real32_1d_t)
