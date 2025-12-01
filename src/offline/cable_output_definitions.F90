@@ -186,6 +186,40 @@ contains
       ) &
     )
 
+
+    call cable_output_add_variable( &
+      name="albsoil", &
+      dims=[base_dims, "patch", "rad"], &
+      var_type=CABLE_NETCDF_FLOAT, &
+      units="1", &
+      long_name="", &
+      range=ranges%albsoil, &
+      active=output%albsoil .and. (output%patch .OR. patchout%albsoil), &
+      parameter=.true., &
+      decomp=output_decomp_base_patch_rad_real32, &
+      aggregator=new_aggregator( &
+        source_data=soil%albsoil, &
+        method="point" &
+      ) &
+    )
+
+    call cable_output_add_variable( &
+      name="albsoil", &
+      dims=[base_dims, "rad"], &
+      var_type=CABLE_NETCDF_FLOAT, &
+      units="1", &
+      long_name="", &
+      range=ranges%albsoil, &
+      active=output%albsoil .and. .not. (output%patch .OR. patchout%albsoil), &
+      parameter=.true., &
+      reduction_method="grid_cell_average", &
+      decomp=output_decomp_base_rad_real32, &
+      aggregator=new_aggregator( &
+        source_data=soil%albsoil, &
+        method="point" &
+      ) &
+    )
+
     call cable_output_add_variable( &
       name="Qh", &
       dims=[base_dims, "patch", "time"], &
