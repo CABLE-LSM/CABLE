@@ -213,6 +213,30 @@ contains
 
   subroutine point_accumulate(this)
     class(aggregator_t), intent(inout) :: this
+
+    select type (this)
+    type is (aggregator_int32_1d_t)
+      this%storage = this%source_data
+    type is (aggregator_int32_2d_t)
+      this%storage = this%source_data
+    type is (aggregator_int32_3d_t)
+      this%storage = this%source_data
+    type is (aggregator_real32_1d_t)
+      this%storage = this%source_data
+    type is (aggregator_real32_2d_t)
+      this%storage = this%source_data
+    type is (aggregator_real32_3d_t)
+      this%storage = this%source_data
+    type is (aggregator_real64_1d_t)
+      this%storage = this%source_data
+    type is (aggregator_real64_2d_t)
+      this%storage = this%source_data
+    type is (aggregator_real64_3d_t)
+      this%storage = this%source_data
+    end select
+
+    this%counter = this%counter + 1
+
   end subroutine point_accumulate
 
   subroutine min_accumulate(this)
