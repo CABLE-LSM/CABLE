@@ -117,6 +117,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   use cable_output_prototype_v2_mod, only: cable_output_mod_end
   use cable_output_prototype_v2_mod, only: cable_output_commit
   use cable_output_prototype_v2_mod, only: cable_output_update
+  use cable_output_prototype_v2_mod, only: cable_output_write_parameters
   use cable_output_definitions_mod, only: cable_output_definitions_set
   use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
    USE cable_checks_module, ONLY: constant_check_range
@@ -474,7 +475,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
           if (.not. casaonly) then
             call cable_output_mod_init()
-            call cable_output_definitions_set(io_decomp, canopy)
+            call cable_output_definitions_set(io_decomp, canopy, soil)
             call cable_output_commit()
           end if
 
@@ -762,6 +763,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             END SELECT
+            if (ktau == kstart) call cable_output_write_parameters(kstart, patch, landpt, met)
             call cable_output_update( &
               time_index=ktau, &
               dels=dels, &

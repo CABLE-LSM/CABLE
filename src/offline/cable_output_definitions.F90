@@ -2,6 +2,7 @@ module cable_output_definitions_mod
   use cable_abort_module, only: cable_abort
 
   use cable_def_types_mod, only: canopy_type
+  use cable_def_types_mod, only: soil_parameter_type
 
   use cable_io_vars_module, only: metGrid
 
@@ -28,9 +29,10 @@ module cable_output_definitions_mod
 
 contains
 
-  subroutine cable_output_definitions_set(io_decomp, canopy)
+  subroutine cable_output_definitions_set(io_decomp, canopy, soil)
     class(io_decomp_t), intent(in), target :: io_decomp
     type(canopy_type), intent(inout) :: canopy
+    type(soil_parameter_type), intent(in) :: soil
 
     character(len=MAX_LEN_DIM), allocatable :: base_dims(:)
 
@@ -150,6 +152,39 @@ contains
     else
       call cable_abort("Error: Unable to determine output grid type", __FILE__, __LINE__)
     end if
+
+    call cable_output_add_variable( &
+      name="swilt", &
+      dims=[base_dims, "patch"], &
+      var_type=CABLE_NETCDF_FLOAT, &
+      units="1", &
+      long_name="", &
+      range=ranges%swilt, &
+      active=output%swilt .and. (output%patch .OR. patchout%swilt), &
+      parameter=.true., &
+      decomp=output_decomp_base_patch_real32, &
+      aggregator=new_aggregator( &
+        source_data=soil%swilt, &
+        method="point" &
+      ) &
+    )
+
+    call cable_output_add_variable( &
+      name="swilt", &
+      dims=[base_dims], &
+      var_type=CABLE_NETCDF_FLOAT, &
+      units="1", &
+      long_name="", &
+      range=ranges%swilt, &
+      active=output%swilt .and. .not. (output%patch .OR. patchout%swilt), &
+      parameter=.true., &
+      reduction_method="grid_cell_average", &
+      decomp=output_decomp_base_real32, &
+      aggregator=new_aggregator( &
+        source_data=soil%swilt, &
+        method="point" &
+      ) &
+    )
 
     call cable_output_add_variable( &
       name="Qh", &
