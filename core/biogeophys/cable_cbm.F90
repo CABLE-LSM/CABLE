@@ -222,10 +222,10 @@ CONTAINS
       ssnow%rwc_30 =  real((ssnow%wb_30 - soil%swilt_recal)/(soil%sfc_recal - soil%swilt_recal))
       do i = 1, mp
          zsetmp = soil%zse
-         where (layer_depth > veg%zr(i))
+         where (layer_depth > 1.0)
             zsetmp = 0.0
          elsewhere
-            zsetmp = min(real(veg%zr(i)) - layer_depth, soil%zse)
+            zsetmp = min(real(1.0) - layer_depth, soil%zse)
          endwhere
          zsetmp = zsetmp / sum(zsetmp)
          ssnow%wb_depth_rootzone(i) =  sum(ssnow%wb(i,:) * zsetmp)
