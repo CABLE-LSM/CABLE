@@ -266,7 +266,7 @@ contains
       range=ranges%Tscrn, &
       accumulation_frequency="daily", &
       aggregator=new_aggregator( &
-        source_data=canopy%tscrn_max_daily%storage, &
+        source_data=canopy%tscrn_max_daily%aggregated_data, &
         method="mean" &
       ) &
     )
@@ -287,7 +287,7 @@ contains
       range=ranges%Tscrn, &
       accumulation_frequency="daily", &
       aggregator=new_aggregator( &
-        source_data=canopy%tscrn_max_daily%storage, &
+        source_data=canopy%tscrn_max_daily%aggregated_data, &
         method="mean" &
       ) &
     )

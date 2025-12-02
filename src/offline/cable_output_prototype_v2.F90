@@ -615,60 +615,60 @@ contains
     type is (aggregator_int32_1d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             frame=time_index)
     type is (aggregator_int32_2d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             frame=time_index)
     type is (aggregator_int32_3d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             frame=time_index)
     type is (aggregator_real32_1d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             fill_value=FILL_VALUE_REAL32, &
             frame=time_index)
     type is (aggregator_real32_2d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             fill_value=FILL_VALUE_REAL32, &
             frame=time_index)
     type is (aggregator_real32_3d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             fill_value=FILL_VALUE_REAL32, &
             frame=time_index)
     type is (aggregator_real64_1d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             fill_value=FILL_VALUE_REAL64, &
             frame=time_index)
     type is (aggregator_real64_2d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             fill_value=FILL_VALUE_REAL64, &
             frame=time_index)
     type is (aggregator_real64_3d_t)
       call output_file%write_darray( &
             var_name=output_variable%name, &
-            values=aggregator%storage, &
+            values=aggregator%aggregated_data, &
             decomp=output_variable%decomp, &
             fill_value=FILL_VALUE_REAL64, &
             frame=time_index)
@@ -688,7 +688,7 @@ contains
     select type (aggregator => output_variable%aggregator_handle%aggregator)
     type is (aggregator_real32_1d_t)
       call grid_cell_average( &
-            input_array=aggregator%storage, &
+            input_array=aggregator%aggregated_data, &
             output_array=output_variable%temp_buffer_real32_1d, &
             landpt=landpt, &
             patch=patch)
@@ -700,7 +700,7 @@ contains
             frame=time_index)
     type is (aggregator_real32_2d_t)
       call grid_cell_average( &
-            input_array=aggregator%storage, &
+            input_array=aggregator%aggregated_data, &
             output_array=output_variable%temp_buffer_real32_2d, &
             landpt=landpt, &
             patch=patch)
@@ -712,7 +712,7 @@ contains
             frame=time_index)
     type is (aggregator_real32_3d_t)
       call grid_cell_average( &
-            input_array=aggregator%storage, &
+            input_array=aggregator%aggregated_data, &
             output_array=output_variable%temp_buffer_real32_3d, &
             landpt=landpt, &
             patch=patch)
@@ -724,7 +724,7 @@ contains
             frame=time_index)
     type is (aggregator_real64_1d_t)
       call grid_cell_average( &
-            input_array=aggregator%storage, &
+            input_array=aggregator%aggregated_data, &
             output_array=output_variable%temp_buffer_real64_1d, &
             landpt=landpt, &
             patch=patch)
@@ -736,7 +736,7 @@ contains
             frame=time_index)
     type is (aggregator_real64_2d_t)
       call grid_cell_average( &
-            input_array=aggregator%storage, &
+            input_array=aggregator%aggregated_data, &
             output_array=output_variable%temp_buffer_real64_2d, &
             landpt=landpt, &
             patch=patch)
@@ -748,7 +748,7 @@ contains
             frame=time_index)
     type is (aggregator_real64_3d_t)
       call grid_cell_average( &
-            input_array=aggregator%storage, &
+            input_array=aggregator%aggregated_data, &
             output_array=output_variable%temp_buffer_real64_3d, &
             landpt=landpt, &
             patch=patch)

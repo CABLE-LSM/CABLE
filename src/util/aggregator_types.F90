@@ -51,47 +51,47 @@ module aggregator_types_mod
   end type aggregator_handle_t
 
   type, extends(aggregator_t) :: aggregator_int32_1d_t
-    integer(kind=int32), dimension(:), allocatable :: storage
+    integer(kind=int32), dimension(:), allocatable :: aggregated_data
     integer(kind=int32), dimension(:), pointer :: source_data => null()
   end type aggregator_int32_1d_t
 
   type, extends(aggregator_t) :: aggregator_int32_2d_t
-    integer(kind=int32), dimension(:,:), allocatable :: storage
+    integer(kind=int32), dimension(:,:), allocatable :: aggregated_data
     integer(kind=int32), dimension(:,:), pointer :: source_data => null()
   end type aggregator_int32_2d_t
 
   type, extends(aggregator_t) :: aggregator_int32_3d_t
-    integer(kind=int32), dimension(:,:,:), allocatable :: storage
+    integer(kind=int32), dimension(:,:,:), allocatable :: aggregated_data
     integer(kind=int32), dimension(:,:,:), pointer :: source_data => null()
   end type aggregator_int32_3d_t
 
   type, extends(aggregator_t) :: aggregator_real32_1d_t
-    real(kind=real32), dimension(:), allocatable :: storage
+    real(kind=real32), dimension(:), allocatable :: aggregated_data
     real(kind=real32), dimension(:), pointer :: source_data => null()
   end type aggregator_real32_1d_t
 
   type, extends(aggregator_t) :: aggregator_real32_2d_t
-    real(kind=real32), dimension(:,:), allocatable :: storage
+    real(kind=real32), dimension(:,:), allocatable :: aggregated_data
     real(kind=real32), dimension(:,:), pointer :: source_data => null()
   end type aggregator_real32_2d_t
 
   type, extends(aggregator_t) :: aggregator_real32_3d_t
-    real(kind=real32), dimension(:,:,:), allocatable :: storage
+    real(kind=real32), dimension(:,:,:), allocatable :: aggregated_data
     real(kind=real32), dimension(:,:,:), pointer :: source_data => null()
   end type aggregator_real32_3d_t
 
   type, extends(aggregator_t) :: aggregator_real64_1d_t
-    real(kind=real64), dimension(:), allocatable :: storage
+    real(kind=real64), dimension(:), allocatable :: aggregated_data
     real(kind=real64), dimension(:), pointer :: source_data => null()
   end type aggregator_real64_1d_t
 
   type, extends(aggregator_t) :: aggregator_real64_2d_t
-    real(kind=real64), dimension(:,:), allocatable :: storage
+    real(kind=real64), dimension(:,:), allocatable :: aggregated_data
     real(kind=real64), dimension(:,:), pointer :: source_data => null()
   end type aggregator_real64_2d_t
 
   type, extends(aggregator_t) :: aggregator_real64_3d_t
-    real(kind=real64), dimension(:,:,:), allocatable :: storage
+    real(kind=real64), dimension(:,:,:), allocatable :: aggregated_data
     real(kind=real64), dimension(:,:,:), pointer :: source_data => null()
   end type aggregator_real64_3d_t
 
@@ -130,23 +130,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_int32_2d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_int32_3d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_real32_1d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_real32_2d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_real32_3d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_real64_1d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_real64_2d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     type is (aggregator_real64_3d_t)
-      if (.not. allocated(this%storage)) allocate(this%storage, mold=this%source_data)
+      if (.not. allocated(this%aggregated_data)) allocate(this%aggregated_data, mold=this%source_data)
     end select
 
     call this%reset()
@@ -188,17 +188,17 @@ contains
 
     select type (this)
     type is (aggregator_real32_1d_t)
-      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+      this%aggregated_data = this%aggregated_data + (this%source_data - this%aggregated_data) / (this%counter + 1)
     type is (aggregator_real32_2d_t)
-      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+      this%aggregated_data = this%aggregated_data + (this%source_data - this%aggregated_data) / (this%counter + 1)
     type is (aggregator_real32_3d_t)
-      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+      this%aggregated_data = this%aggregated_data + (this%source_data - this%aggregated_data) / (this%counter + 1)
     type is (aggregator_real64_1d_t)
-      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+      this%aggregated_data = this%aggregated_data + (this%source_data - this%aggregated_data) / (this%counter + 1)
     type is (aggregator_real64_2d_t)
-      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+      this%aggregated_data = this%aggregated_data + (this%source_data - this%aggregated_data) / (this%counter + 1)
     type is (aggregator_real64_3d_t)
-      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+      this%aggregated_data = this%aggregated_data + (this%source_data - this%aggregated_data) / (this%counter + 1)
     end select
 
     this%counter = this%counter + 1
@@ -210,23 +210,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_int32_2d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_int32_3d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_real32_1d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_real32_2d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_real32_3d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_real64_1d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_real64_2d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     type is (aggregator_real64_3d_t)
-      this%storage = this%storage + this%source_data
+      this%aggregated_data = this%aggregated_data + this%source_data
     end select
 
     this%counter = this%counter + 1
@@ -238,23 +238,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_int32_2d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_int32_3d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real32_1d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real32_2d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real32_3d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real64_1d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real64_2d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real64_3d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     end select
 
     this%counter = this%counter + 1
@@ -266,23 +266,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_int32_2d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_int32_3d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_real32_1d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_real32_2d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_real32_3d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_real64_1d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_real64_2d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     type is (aggregator_real64_3d_t)
-      this%storage = min(this%storage, this%source_data)
+      this%aggregated_data = min(this%aggregated_data, this%source_data)
     end select
 
     this%counter = this%counter + 1
@@ -294,23 +294,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_int32_2d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_int32_3d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_real32_1d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_real32_2d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_real32_3d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_real64_1d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_real64_2d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     type is (aggregator_real64_3d_t)
-      this%storage = max(this%storage, this%source_data)
+      this%aggregated_data = max(this%aggregated_data, this%source_data)
     end select
 
     this%counter = this%counter + 1
@@ -322,23 +322,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_int32_2d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_int32_3d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_real32_1d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_real32_2d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_real32_3d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_real64_1d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_real64_2d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     type is (aggregator_real64_3d_t)
-      this%storage = this%storage / this%counter
+      this%aggregated_data = this%aggregated_data / this%counter
     end select
 
   end subroutine mean_normalise
@@ -348,23 +348,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_int32_2d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_int32_3d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real32_1d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real32_2d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real32_3d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real64_1d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real64_2d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     type is (aggregator_real64_3d_t)
-      this%storage = this%source_data
+      this%aggregated_data = this%source_data
     end select
 
   end subroutine point_normalise
@@ -382,23 +382,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = huge(int(0_int32))
+      this%aggregated_data = huge(int(0_int32))
     type is (aggregator_int32_2d_t)
-      this%storage = huge(int(0_int32))
+      this%aggregated_data = huge(int(0_int32))
     type is (aggregator_int32_3d_t)
-      this%storage = huge(int(0_int32))
+      this%aggregated_data = huge(int(0_int32))
     type is (aggregator_real32_1d_t)
-      this%storage = huge(real(0.0_real32))
+      this%aggregated_data = huge(real(0.0_real32))
     type is (aggregator_real32_2d_t)
-      this%storage = huge(real(0.0_real32))
+      this%aggregated_data = huge(real(0.0_real32))
     type is (aggregator_real32_3d_t)
-      this%storage = huge(real(0.0_real32))
+      this%aggregated_data = huge(real(0.0_real32))
     type is (aggregator_real64_1d_t)
-      this%storage = huge(real(0.0_real64))
+      this%aggregated_data = huge(real(0.0_real64))
     type is (aggregator_real64_2d_t)
-      this%storage = huge(real(0.0_real64))
+      this%aggregated_data = huge(real(0.0_real64))
     type is (aggregator_real64_3d_t)
-      this%storage = huge(real(0.0_real64))
+      this%aggregated_data = huge(real(0.0_real64))
     end select
 
     this%counter = 0
@@ -410,23 +410,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = -huge(int(0_int32))
+      this%aggregated_data = -huge(int(0_int32))
     type is (aggregator_int32_2d_t)
-      this%storage = -huge(int(0_int32))
+      this%aggregated_data = -huge(int(0_int32))
     type is (aggregator_int32_3d_t)
-      this%storage = -huge(int(0_int32))
+      this%aggregated_data = -huge(int(0_int32))
     type is (aggregator_real32_1d_t)
-      this%storage = -huge(real(0.0_real32))
+      this%aggregated_data = -huge(real(0.0_real32))
     type is (aggregator_real32_2d_t)
-      this%storage = -huge(real(0.0_real32))
+      this%aggregated_data = -huge(real(0.0_real32))
     type is (aggregator_real32_3d_t)
-      this%storage = -huge(real(0.0_real32))
+      this%aggregated_data = -huge(real(0.0_real32))
     type is (aggregator_real64_1d_t)
-      this%storage = -huge(real(0.0_real64))
+      this%aggregated_data = -huge(real(0.0_real64))
     type is (aggregator_real64_2d_t)
-      this%storage = -huge(real(0.0_real64))
+      this%aggregated_data = -huge(real(0.0_real64))
     type is (aggregator_real64_3d_t)
-      this%storage = -huge(real(0.0_real64))
+      this%aggregated_data = -huge(real(0.0_real64))
     end select
 
     this%counter = 0
@@ -438,23 +438,23 @@ contains
 
     select type (this)
     type is (aggregator_int32_1d_t)
-      this%storage = 0_int32
+      this%aggregated_data = 0_int32
     type is (aggregator_int32_2d_t)
-      this%storage = 0_int32
+      this%aggregated_data = 0_int32
     type is (aggregator_int32_3d_t)
-      this%storage = 0_int32
+      this%aggregated_data = 0_int32
     type is (aggregator_real32_1d_t)
-      this%storage = 0.0_real32
+      this%aggregated_data = 0.0_real32
     type is (aggregator_real32_2d_t)
-      this%storage = 0.0_real32
+      this%aggregated_data = 0.0_real32
     type is (aggregator_real32_3d_t)
-      this%storage = 0.0_real32
+      this%aggregated_data = 0.0_real32
     type is (aggregator_real64_1d_t)
-      this%storage = 0.0_real64
+      this%aggregated_data = 0.0_real64
     type is (aggregator_real64_2d_t)
-      this%storage = 0.0_real64
+      this%aggregated_data = 0.0_real64
     type is (aggregator_real64_3d_t)
-      this%storage = 0.0_real64
+      this%aggregated_data = 0.0_real64
     end select
 
     this%counter = 0
