@@ -158,8 +158,8 @@ contains
     character(len=*), intent(in) :: method
 
     if (method == "mean") then
-      this%accumulate => sum_accumulate
-      this%normalise => mean_normalise
+      this%accumulate => mean_accumulate
+      this%normalise => other_normalise
       this%reset => other_reset
     elseif (method == "sum") then
       this%accumulate => sum_accumulate
@@ -182,6 +182,28 @@ contains
     endif
 
   end subroutine aggregator_set_method
+
+  subroutine mean_accumulate(this)
+    class(aggregator_t), intent(inout) :: this
+
+    select type (this)
+    type is (aggregator_real32_1d_t)
+      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+    type is (aggregator_real32_2d_t)
+      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+    type is (aggregator_real32_3d_t)
+      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+    type is (aggregator_real64_1d_t)
+      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+    type is (aggregator_real64_2d_t)
+      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+    type is (aggregator_real64_3d_t)
+      this%storage = this%storage + (this%source_data - this%storage) / (this%counter + 1)
+    end select
+
+    this%counter = this%counter + 1
+
+  end subroutine mean_accumulate
 
   subroutine sum_accumulate(this)
     class(aggregator_t), intent(inout) :: this
