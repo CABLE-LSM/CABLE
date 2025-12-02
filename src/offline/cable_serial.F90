@@ -633,13 +633,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             call canopy%tscrn_max_daily%accumulate()
             call canopy%tscrn_min_daily%accumulate()
 
-            if (mod(ktau - kstart + 1, ktauday) == 0) then
-              ! Normalise daily aggregators if current time step is the end of day
-              call canopy%tscrn_max_daily%normalise()
-              call canopy%tscrn_min_daily%normalise()
-            end if
-
-
           ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
                 koffset, kend, ktauday, logn) ) THEN                ! CLN READ FROM FILE INSTEAD !
             WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))

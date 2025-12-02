@@ -19,7 +19,6 @@ module aggregator_types_mod
   type, abstract :: aggregator_t
     integer :: counter = 0
     procedure(accumulate_data), pointer :: accumulate
-    procedure(normalise_data), pointer :: normalise
     procedure(reset_data), pointer :: reset
   contains
     procedure :: init => aggregator_init
@@ -31,10 +30,6 @@ module aggregator_types_mod
       import aggregator_t
       class(aggregator_t), intent(inout) :: this
     end subroutine accumulate_data
-    subroutine normalise_data(this)
-      import aggregator_t
-      class(aggregator_t), intent(inout) :: this
-    end subroutine normalise_data
     subroutine reset_data(this)
       import aggregator_t
       class(aggregator_t), intent(inout) :: this
@@ -46,7 +41,6 @@ module aggregator_types_mod
   contains
     procedure :: init => aggregator_handle_init
     procedure :: accumulate => aggregator_handle_accumulate
-    procedure :: normalise => aggregator_handle_normalise
     procedure :: reset => aggregator_handle_reset
   end type aggregator_handle_t
 
@@ -111,13 +105,6 @@ contains
 
   end subroutine aggregator_handle_accumulate
 
-  subroutine aggregator_handle_normalise(this)
-    class(aggregator_handle_t), intent(inout) :: this
-
-    call this%aggregator%normalise()
-
-  end subroutine aggregator_handle_normalise
-
   subroutine aggregator_handle_reset(this)
     class(aggregator_handle_t), intent(inout) :: this
 
@@ -159,23 +146,18 @@ contains
 
     if (method == "mean") then
       this%accumulate => mean_accumulate
-      this%normalise => other_normalise
       this%reset => other_reset
     elseif (method == "sum") then
       this%accumulate => sum_accumulate
-      this%normalise => other_normalise
       this%reset => other_reset
     elseif (method == "point") then
       this%accumulate => point_accumulate
-      this%normalise => other_normalise
       this%reset => point_reset
     elseif (method == "min") then
       this%accumulate => min_accumulate
-      this%normalise => other_normalise
       this%reset => min_reset
     elseif (method == "max") then
       this%accumulate => max_accumulate
-      this%normalise => other_normalise
       this%reset => max_reset
     else
       call cable_abort("Aggregation method "//method//" is invalid.")
@@ -316,62 +298,6 @@ contains
     this%counter = this%counter + 1
 
   end subroutine max_accumulate
-
-  subroutine mean_normalise(this)
-    class(aggregator_t), intent(inout) :: this
-
-    select type (this)
-    type is (aggregator_int32_1d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_int32_2d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_int32_3d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_real32_1d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_real32_2d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_real32_3d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_real64_1d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_real64_2d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    type is (aggregator_real64_3d_t)
-      this%aggregated_data = this%aggregated_data / this%counter
-    end select
-
-  end subroutine mean_normalise
-
-  subroutine point_normalise(this)
-    class(aggregator_t), intent(inout) :: this
-
-    select type (this)
-    type is (aggregator_int32_1d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_int32_2d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_int32_3d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_real32_1d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_real32_2d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_real32_3d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_real64_1d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_real64_2d_t)
-      this%aggregated_data = this%source_data
-    type is (aggregator_real64_3d_t)
-      this%aggregated_data = this%source_data
-    end select
-
-  end subroutine point_normalise
-
-  subroutine other_normalise(this)
-    class(aggregator_t), intent(inout) :: this
-  end subroutine other_normalise
 
   subroutine point_reset(this)
     class(aggregator_t), intent(inout) :: this

@@ -553,7 +553,6 @@ contains
       do i = 1, size(global_profile%output_variables)
         associate(output_variable => global_profile%output_variables(i))
           if (check%ranges == ON_WRITE) call check_variable_range(output_variable, time_index, met)
-          call output_variable%aggregator_handle%normalise()
           select case (output_variable%reduction_method)
           case ("grid_cell_average")
             call write_variable_grid_cell_average(output_variable, global_profile%output_file, patch, landpt, global_profile%frame + 1)
