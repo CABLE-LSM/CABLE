@@ -2233,7 +2233,7 @@ CONTAINS
             'hc', 'm', 'Height of canopy', patchout%hc, &
             'real', xID, yID, zID, landID, patchID)
     ENDIF
-     IF(output%params) CALL define_ovar(ncid_out, opid%zr, &
+     IF(output%params .OR. output%zr) CALL define_ovar(ncid_out, opid%zr, &
             'zr', 'm', 'maximum root depth', patchout%zr, &
             'real', xID, yID, zID, landID, patchID,tID)
     IF(output%params .OR. output%canst1) CALL define_ovar(ncid_out, &

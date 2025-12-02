@@ -367,7 +367,7 @@ MODULE cable_IO_vars_module
                                 ! top leaf[mol/m2/s](1e-5 - 3e-4) {use}
          frac4  = .FALSE.,    & ! fraction of c4 plants [-]
          hc = .FALSE.,        & ! height of canopy [m]
-         zr = .FALSE.,        &
+         zr = .TRUE.,        &
          rp20  = .FALSE.,     & ! plant respiration coefficient at
                                 ! 20 C [-] 0.1 - 10 (frp 0 - 15e-6 mol/m2/s)
          g0   = .TRUE.,      & ! Ticket #56
