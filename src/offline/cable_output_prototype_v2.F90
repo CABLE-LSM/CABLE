@@ -78,6 +78,7 @@ module cable_output_prototype_v2_mod
     character(len=100) :: cell_methods
     character(len=10) :: accumulation_frequency
     logical :: active
+    logical :: parameter
     character(len=50) :: reduction_method
     real, dimension(2) :: range
     type(aggregator_handle_t) :: aggregator_handle
@@ -94,7 +95,7 @@ module cable_output_prototype_v2_mod
     real :: previous_write_time = 0.0
     integer :: frame = 0
     class(cable_netcdf_file_t), allocatable :: output_file
-    type(cable_output_variable_t), allocatable :: output_variables(:), output_parameters(:)
+    type(cable_output_variable_t), allocatable :: output_variables(:)
 
     type(aggregator_handle_t), allocatable :: aggregators_accumulate_time_step(:)
     type(aggregator_handle_t), allocatable :: aggregators_accumulate_daily(:)
@@ -215,11 +216,7 @@ contains
     class(aggregator_t), intent(in) :: aggregator
     logical, intent(in), optional :: parameter
 
-    logical :: is_parameter
     type(cable_output_variable_t) :: output_var
-
-    is_parameter = .false.
-    if (present(parameter)) is_parameter = parameter
 
     if (present(reduction_method)) then
       select case (reduction_method)
@@ -257,6 +254,12 @@ contains
     output_var%range = range
     output_var%decomp => decomp
     output_var%var_type = var_type
+
+    if (present(parameter)) then
+      output_var%parameter = parameter
+    else
+      output_var%parameter = .false.
+    end if
 
     if (present(reduction_method)) then
       output_var%reduction_method = reduction_method
@@ -332,14 +335,7 @@ contains
 
       output_var%aggregator_handle = store_aggregator(aggregator)
 
-      if (is_parameter) then
-        call output_var%aggregator_handle%init()
-        if (.not. allocated(global_profile%output_parameters)) then
-          global_profile%output_parameters = [output_var]
-        else
-          global_profile%output_parameters = [global_profile%output_parameters, output_var]
-        end if
-      else
+      if (.not. output_var%parameter) then
         select case(output_var%accumulation_frequency)
         case("all")
           if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
@@ -356,13 +352,12 @@ contains
         case default
           call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
         end select
+      end if
 
-        if (.not. allocated(global_profile%output_variables)) then
-          global_profile%output_variables = [output_var]
-        else
-          global_profile%output_variables = [global_profile%output_variables, output_var]
-        end if
-
+      if (.not. allocated(global_profile%output_variables)) then
+        global_profile%output_variables = [output_var]
+      else
+        global_profile%output_variables = [global_profile%output_variables, output_var]
       end if
 
     end if
@@ -421,33 +416,6 @@ contains
 
     ! TODO(Sean): add global attributes
 
-    ! TODO(Sean): should we just have a single list of output variables instead
-    ! of parameters and variables?
-
-    do i = 1, size(global_profile%output_parameters)
-      associate(output_var => global_profile%output_parameters(i))
-        call output_file%def_var( &
-          var_name=output_var%name, &
-          dim_names=output_var%dims, &
-          type=output_var%var_type &
-        )
-        call output_file%put_att(output_var%name, 'units', output_var%units)
-        call output_file%put_att(output_var%name, 'long_name', output_var%long_name)
-        select case (output_var%var_type)
-        case (CABLE_NETCDF_INT)
-          call output_file%put_att(output_var%name, '_FillValue', FILL_VALUE_INT32)
-          call output_file%put_att(output_var%name, 'missing_value', FILL_VALUE_INT32)
-        case (CABLE_NETCDF_FLOAT)
-          call output_file%put_att(output_var%name, '_FillValue', FILL_VALUE_REAL32)
-          call output_file%put_att(output_var%name, 'missing_value', FILL_VALUE_REAL32)
-        case (CABLE_NETCDF_DOUBLE)
-          call output_file%put_att(output_var%name, '_FillValue', FILL_VALUE_REAL64)
-          call output_file%put_att(output_var%name, 'missing_value', FILL_VALUE_REAL64)
-        end select
-        ! TODO(Sean): set cell_methods attribute
-      end associate
-    end do
-
     do i = 1, size(global_profile%output_variables)
       associate(output_var => global_profile%output_variables(i))
         call output_file%def_var( &
@@ -498,8 +466,9 @@ contains
 
     integer :: i
 
-    do i = 1, size(global_profile%output_parameters)
-      associate(output_variable => global_profile%output_parameters(i))
+    do i = 1, size(global_profile%output_variables)
+      associate(output_variable => global_profile%output_variables(i))
+        if (.not. output_variable%parameter) cycle
         call check_variable_range(output_variable, time_index, met)
         call output_variable%aggregator_handle%accumulate()
         select case (output_variable%reduction_method)
@@ -552,6 +521,7 @@ contains
 
       do i = 1, size(global_profile%output_variables)
         associate(output_variable => global_profile%output_variables(i))
+          if (output_variable%parameter) cycle
           if (check%ranges == ON_WRITE) call check_variable_range(output_variable, time_index, met)
           select case (output_variable%reduction_method)
           case ("grid_cell_average")
