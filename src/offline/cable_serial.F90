@@ -120,13 +120,15 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   use cable_output_prototype_v2_mod, only: cable_output_write_parameters
   use cable_output_definitions_mod, only: cable_output_definitions_set
   use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
+  use cable_restart_mod, only: cable_restart_mod_init, cable_restart_mod_end
+  use cable_restart_write_mod, only: cable_restart_write
    USE cable_checks_module, ONLY: constant_check_range
   USE cable_write_module,   ONLY: nullify_write
   USE cable_IO_vars_module, ONLY: timeunits,calendar
    USE cable_cbm_module, ONLY : cbm
   !mpidiff
   USE cable_climate_mod
-    
+
   ! modules related to CASA-CNP
   USE casadimension,        ONLY: icycle
   USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
@@ -472,6 +474,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
           ENDIF
 
           call cable_io_decomp_init(io_decomp)
+
+          if (output%restart) call cable_restart_mod_init()
 
           if (.not. casaonly) then
             call cable_output_mod_init()
@@ -1049,9 +1053,12 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
   IF ( .NOT. CASAONLY.and. .not. l_landuse ) THEN
     ! Write restart file if requested:
-    IF(output%restart)                                           &
+    IF(output%restart) then
       CALL create_restart( logn, dels, ktau, soil, veg, ssnow,  &
            canopy, rough, rad, bgc, bal, met )
+      CALL cable_restart_write(dels * ktau, soil, veg, ssnow, canopy, rough, rad, bgc, bal, met)
+      CALL cable_restart_mod_end()
+    END IF
     !mpidiff
     IF (cable_user%CALL_climate) &
       CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
