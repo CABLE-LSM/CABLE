@@ -12,7 +12,6 @@ module cable_io_decomp_mod
   use cable_io_vars_module, only: landpt
   use cable_io_vars_module, only: max_vegpatches
   use cable_io_vars_module, only: land_decomp_start
-  use cable_io_vars_module, only: patch_decomp_start
   use cable_io_vars_module, only: output
   use cable_io_vars_module, only: metGrid
 
@@ -73,25 +72,6 @@ module cable_io_decomp_mod
     class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_land_patch_soilcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_land_patch_soilcarbon_real32
     class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_land_patch_soilcarbon_real64
-
-    class(cable_netcdf_decomp_t), allocatable :: patch_to_patch_int32
-    class(cable_netcdf_decomp_t), allocatable :: patch_to_patch_real32
-    class(cable_netcdf_decomp_t), allocatable :: patch_to_patch_real64
-    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_patch_soil_int32
-    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_patch_soil_real32
-    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_patch_soil_real64
-    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_patch_snow_int32
-    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_patch_snow_real32
-    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_patch_snow_real64
-    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_patch_rad_int32
-    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_patch_rad_real32
-    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_patch_rad_real64
-    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_patch_plantcarbon_int32
-    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_patch_plantcarbon_real32
-    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_patch_plantcarbon_real64
-    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_patch_soilcarbon_int32
-    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_patch_soilcarbon_real32
-    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_patch_soilcarbon_real64
 
     class(cable_netcdf_decomp_t), allocatable :: land_to_x_y_int32
     class(cable_netcdf_decomp_t), allocatable :: land_to_x_y_real32
@@ -175,12 +155,6 @@ contains
     type(dim_spec_t), allocatable :: var_shape_land_patch_rad(:)
     type(dim_spec_t), allocatable :: var_shape_land_patch_plantcarbon(:)
     type(dim_spec_t), allocatable :: var_shape_land_patch_soilcarbon(:)
-    type(dim_spec_t), allocatable :: var_shape_patch(:)
-    type(dim_spec_t), allocatable :: var_shape_patch_soil(:)
-    type(dim_spec_t), allocatable :: var_shape_patch_snow(:)
-    type(dim_spec_t), allocatable :: var_shape_patch_rad(:)
-    type(dim_spec_t), allocatable :: var_shape_patch_plantcarbon(:)
-    type(dim_spec_t), allocatable :: var_shape_patch_soilcarbon(:)
 
     logical :: requires_land_output_grid, requires_x_y_output_grid
 
@@ -221,12 +195,6 @@ contains
     var_shape_land_patch_rad         = [dim_spec_t('land', mland_global), dim_spec_t('patch', max_vegpatches), dim_spec_t('rad', nrb)]
     var_shape_land_patch_plantcarbon = [dim_spec_t('land', mland_global), dim_spec_t('patch', max_vegpatches), dim_spec_t('plantcarbon', ncp)]
     var_shape_land_patch_soilcarbon  = [dim_spec_t('land', mland_global), dim_spec_t('patch', max_vegpatches), dim_spec_t('soilcarbon', ncs)]
-    var_shape_patch                  = [dim_spec_t('patch', mp_global)]
-    var_shape_patch_soil             = [dim_spec_t('patch', mp_global), dim_spec_t('soil', ms)]
-    var_shape_patch_snow             = [dim_spec_t('patch', mp_global), dim_spec_t('snow', msn)]
-    var_shape_patch_rad              = [dim_spec_t('patch', mp_global), dim_spec_t('rad', nrb)]
-    var_shape_patch_plantcarbon      = [dim_spec_t('patch', mp_global), dim_spec_t('plantcarbon', ncp)]
-    var_shape_patch_soilcarbon       = [dim_spec_t('patch', mp_global), dim_spec_t('soilcarbon', ncs)]
 
     io_decomp%land_to_x_y_int32                                  = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land, var_shape_x_y, CABLE_NETCDF_INT)
     io_decomp%land_to_x_y_real32                                 = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land, var_shape_x_y, CABLE_NETCDF_FLOAT)
@@ -303,25 +271,6 @@ contains
     io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_int32    = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_land_patch_soilcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real32   = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_land_patch_soilcarbon, CABLE_NETCDF_FLOAT)
     io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real64   = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_land_patch_soilcarbon, CABLE_NETCDF_DOUBLE)
-
-    io_decomp%patch_to_patch_int32                               = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch, var_shape_patch, CABLE_NETCDF_INT)
-    io_decomp%patch_to_patch_real32                              = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch, var_shape_patch, CABLE_NETCDF_FLOAT)
-    io_decomp%patch_to_patch_real64                              = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch, var_shape_patch, CABLE_NETCDF_DOUBLE)
-    io_decomp%patch_soil_to_patch_soil_int32                     = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soil, var_shape_patch_soil, CABLE_NETCDF_INT)
-    io_decomp%patch_soil_to_patch_soil_real32                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soil, var_shape_patch_soil, CABLE_NETCDF_FLOAT)
-    io_decomp%patch_soil_to_patch_soil_real64                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soil, var_shape_patch_soil, CABLE_NETCDF_DOUBLE)
-    io_decomp%patch_snow_to_patch_snow_int32                     = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_snow, var_shape_patch_snow, CABLE_NETCDF_INT)
-    io_decomp%patch_snow_to_patch_snow_real32                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_snow, var_shape_patch_snow, CABLE_NETCDF_FLOAT)
-    io_decomp%patch_snow_to_patch_snow_real64                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_snow, var_shape_patch_snow, CABLE_NETCDF_DOUBLE)
-    io_decomp%patch_rad_to_patch_rad_int32                       = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_rad, var_shape_patch_rad, CABLE_NETCDF_INT)
-    io_decomp%patch_rad_to_patch_rad_real32                      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_rad, var_shape_patch_rad, CABLE_NETCDF_FLOAT)
-    io_decomp%patch_rad_to_patch_rad_real64                      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_rad, var_shape_patch_rad, CABLE_NETCDF_DOUBLE)
-    io_decomp%patch_plantcarbon_to_patch_plantcarbon_int32       = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_plantcarbon, var_shape_patch_plantcarbon, CABLE_NETCDF_INT)
-    io_decomp%patch_plantcarbon_to_patch_plantcarbon_real32      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_plantcarbon, var_shape_patch_plantcarbon, CABLE_NETCDF_FLOAT)
-    io_decomp%patch_plantcarbon_to_patch_plantcarbon_real64      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_plantcarbon, var_shape_patch_plantcarbon, CABLE_NETCDF_DOUBLE)
-    io_decomp%patch_soilcarbon_to_patch_soilcarbon_int32         = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soilcarbon, var_shape_patch_soilcarbon, CABLE_NETCDF_INT)
-    io_decomp%patch_soilcarbon_to_patch_soilcarbon_real32        = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soilcarbon, var_shape_patch_soilcarbon, CABLE_NETCDF_FLOAT)
-    io_decomp%patch_soilcarbon_to_patch_soilcarbon_real64        = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soilcarbon, var_shape_patch_soilcarbon, CABLE_NETCDF_DOUBLE)
 
   end subroutine
 
