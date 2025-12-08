@@ -55,6 +55,7 @@ module cable_netcdf_mod
   contains
     procedure(cable_netcdf_file_close), deferred :: close
     procedure(cable_netcdf_file_end_def), deferred :: end_def
+    procedure(cable_netcdf_file_redef), deferred :: redef
     procedure(cable_netcdf_file_sync), deferred :: sync
     procedure(cable_netcdf_file_def_dims), deferred :: def_dims
     procedure(cable_netcdf_file_def_var), deferred :: def_var
@@ -147,6 +148,10 @@ module cable_netcdf_mod
       class(cable_netcdf_file_t), intent(inout) :: this
     end subroutine
     subroutine cable_netcdf_file_end_def(this)
+      import cable_netcdf_file_t
+      class(cable_netcdf_file_t), intent(inout) :: this
+    end subroutine
+    subroutine cable_netcdf_file_redef(this)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
     end subroutine
