@@ -25,6 +25,7 @@ module cable_netcdf_pio_mod
   use pio, only: pio_read_darray
   use pio, only: pio_strerror
   use pio, only: pio_enddef
+  use pio, only: pio_redef
   use pio, only: pio_inq_dimid
   use pio, only: pio_inquire_dimension
   use pio, only: pio_inq_varid
@@ -70,6 +71,7 @@ module cable_netcdf_pio_mod
   contains
     procedure :: close => cable_netcdf_pio_file_close
     procedure :: end_def => cable_netcdf_pio_file_end_def
+    procedure :: redef => cable_netcdf_pio_file_redef
     procedure :: sync => cable_netcdf_pio_file_sync
     procedure :: def_dims => cable_netcdf_pio_file_def_dims
     procedure :: def_var => cable_netcdf_pio_file_def_var
@@ -249,6 +251,11 @@ contains
   subroutine cable_netcdf_pio_file_end_def(this)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     call check_pio(pio_enddef(this%pio_file_desc))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_redef(this)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    call check_pio(pio_redef(this%pio_file_desc))
   end subroutine
 
   subroutine cable_netcdf_pio_file_sync(this)

@@ -23,6 +23,7 @@ module cable_netcdf_nf90_mod
   use netcdf, only: nf90_inquire_dimension
   use netcdf, only: nf90_inquire_variable
   use netcdf, only: nf90_enddef
+  use netcdf, only: nf90_redef
   use netcdf, only: NF90_NOERR
   use netcdf, only: NF90_NETCDF4
   use netcdf, only: NF90_UNLIMITED
@@ -55,6 +56,7 @@ module cable_netcdf_nf90_mod
   contains
     procedure :: close => cable_netcdf_nf90_file_close
     procedure :: end_def => cable_netcdf_nf90_file_end_def
+    procedure :: redef => cable_netcdf_nf90_file_redef
     procedure :: sync => cable_netcdf_nf90_file_sync
     procedure :: def_dims => cable_netcdf_nf90_file_def_dims
     procedure :: def_var => cable_netcdf_nf90_file_def_var
@@ -185,6 +187,11 @@ contains
   subroutine cable_netcdf_nf90_file_end_def(this)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     call check_nf90(nf90_enddef(this%ncid))
+  end subroutine
+
+  subroutine cable_netcdf_nf90_file_redef(this)
+    class(cable_netcdf_nf90_file_t), intent(inout) :: this
+    call check_nf90(nf90_redef(this%ncid))
   end subroutine
 
   subroutine cable_netcdf_nf90_file_sync(this)

@@ -26,6 +26,7 @@ module cable_netcdf_stub_types_mod
   contains
     procedure :: close => cable_netcdf_stub_file_close
     procedure :: end_def => cable_netcdf_stub_file_end_def
+    procedure :: redef => cable_netcdf_stub_file_redef
     procedure :: sync => cable_netcdf_stub_file_sync
     procedure :: def_dims => cable_netcdf_stub_file_def_dims
     procedure :: def_var => cable_netcdf_stub_file_def_var
@@ -127,6 +128,10 @@ contains
   end subroutine
 
   subroutine cable_netcdf_stub_file_end_def(this)
+    class(cable_netcdf_stub_file_t), intent(inout) :: this
+  end subroutine
+
+  subroutine cable_netcdf_stub_file_redef(this)
     class(cable_netcdf_stub_file_t), intent(inout) :: this
   end subroutine
 
