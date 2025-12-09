@@ -579,8 +579,8 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
             patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
             SF%FAPAR(i) = SF%FAPAR(i) + real(climate%fapar_ann_max_last_year(patch_index)*patch(patch_index)%frac)
          ENDDO
-         !constrain %FAPAR - should not be needed
-         SF%FAPAR(i) = MIN(MAX(SF%FAPAR(i),0.0),1.0)
+         !constrain %FAPAR and apply scaling factor to account for mismatch between CABLE-POP and RSensing
+         SF%FAPAR(i) = 0.5*MIN(MAX(SF%FAPAR(i),0.0),1.0)
          
       ENDDO
 
@@ -655,9 +655,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       ELSE
          !seasonality comes in through using current Nesterov
-         AB(i) = AB(i) / 365.0
+         !AB(i) = AB(i) / 365.0
          !looks like we still need to push AB into the correct month
-         !AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
+         AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       END IF 
 
    END DO
