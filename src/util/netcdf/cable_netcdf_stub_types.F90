@@ -147,7 +147,8 @@ contains
 
   subroutine cable_netcdf_stub_file_def_var(this, var_name, dim_names, type)
     class(cable_netcdf_stub_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name, dim_names(:)
+    character(len=*), intent(in) :: var_name
+    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
   end subroutine
 

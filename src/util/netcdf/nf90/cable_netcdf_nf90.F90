@@ -215,15 +215,23 @@ contains
 
   subroutine cable_netcdf_nf90_file_def_var(this, var_name, dim_names, type)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name, dim_names(:)
+    character(len=*), intent(in) :: var_name
+    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
     integer, allocatable :: dimids(:)
     integer :: i, tmp
+
+    if (.not. present(dim_names)) then
+      call check_nf90(nf90_def_var(this%ncid, var_name, type_nf90(type), tmp))
+      return
+    end if
+
     allocate(dimids(size(dim_names)))
     do i = 1, size(dimids)
       call check_nf90(nf90_inq_dimid(this%ncid, dim_names(i), dimids(i)))
     end do
     call check_nf90(nf90_def_var(this%ncid, var_name, type_nf90(type), dimids, tmp))
+
   end subroutine
 
   subroutine cable_netcdf_nf90_file_put_att_global_string(this, att_name, att_value)

@@ -279,16 +279,24 @@ contains
 
   subroutine cable_netcdf_pio_file_def_var(this, var_name, dim_names, type)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name, dim_names(:)
+    character(len=*), intent(in) :: var_name
+    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
     integer, allocatable :: dimids(:)
     integer :: i
     type(pio_var_desc_t) :: tmp
+
+    if (.not. present(dim_names)) then
+      call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), tmp))
+      return
+    end if
+
     allocate(dimids(size(dim_names)))
     do i = 1, size(dimids)
       call check_pio(pio_inq_dimid(this%pio_file_desc, dim_names(i), dimids(i)))
     end do
     call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), dimids, tmp))
+
   end subroutine
 
   subroutine cable_netcdf_pio_file_put_att_global_string(this, att_name, att_value)
