@@ -1119,7 +1119,7 @@ PROGRAM cable_offline_driver
                     !Only create output if BLAZE active to some extent CALL_BLAZE>1
                     if (cable_user%CALL_BLAZE>1 .and. (TRIM(BLAZE%OUTTSTEP) .eq. "ascasa")) then
                         call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
-                        call zero_blaze(sumBLAZE)
+                        call zero_blaze(sumBLAZE,climate%doy)
                     end if 
 
                     count_sum_casa = 0

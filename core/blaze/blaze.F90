@@ -3,7 +3,7 @@ MODULE BLAZE_MOD
 TYPE TYPE_BLAZE
    INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
    REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA, w_prior, FDI
-   REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf
+   REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf,annAB
    REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac, k_tune_litter
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, ABM, TO, AGC_g, AGC_w
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AGLit_w, AGLit_g, BGLit_w, BGLit_g
@@ -157,8 +157,9 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%FTYPE   ( np ) )
   ALLOCATE ( BLAZE%K_TUNE_LITTER  ( np ) )
   BLAZE%FTYPE(:) = "Seeder"
-  ALLOCATE ( BLAZE%AB      ( np ) )
-  ALLOCATE ( BLAZE%AREA    ( np ) )
+  ALLOCATE ( BLAZE%AB      ( np ) )    !burnt area on each call to BLAZE
+  ALLOCATE ( BLAZE%annAB   ( np ) )    !cumulative burnt area - typically annual/over fire season
+  ALLOCATE ( BLAZE%AREA    ( np ) )    !INH - variable is redundant
   ALLOCATE ( BLAZE%U10     ( np ) )
   ALLOCATE ( BLAZE%RH      ( np ) )
   ALLOCATE ( BLAZE%LAT     ( np ) )
@@ -180,7 +181,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%TO      ( np, NTO ) )
   ALLOCATE ( BLAZE%AnnRainf( np, 366 ) )
   ALLOCATE ( BLAZE%AvgAnnRAINF(np, 5))
-  ALLOCATE ( BLAZE%CAvgAnnRainf(np))
+  ALLOCATE ( BLAZE%CAvgAnnRainf(np))   !INH - variable likely redundant
   ALLOCATE ( BLAZE%DEADWOOD( np ) )
   ALLOCATE ( BLAZE%SHOOTFRAC( np ) )
   ! POP related vars
@@ -193,7 +194,8 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE( BLAZE%BGLit_g(np,NPOOLS),BLAZE%BGLit_w(np,NPOOLS) )
   ALLOCATE( BLAZE%CPLANT_g(np,NPOOLS),BLAZE%CPLANT_w(np,NPOOLS) )
 
-  call zero_blaze(BLAZE)
+  !call zero_blaze as if it is operating at end of year - triggers zero'ing of %annAB
+  call zero_blaze(BLAZE,365)
   
   BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
   BLAZE%OUTMODE = TRIM(OutputMode)
@@ -267,14 +269,15 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 END SUBROUTINE INI_BLAZE
 
 
-subroutine zero_blaze(blaze)
+subroutine zero_blaze(blaze,doy)
 
   type(type_blaze), intent(inout) :: blaze
+  integer, intent(in) :: doy
 
   !integers
   blaze%DSLR          = 0
-  blaze%ilon          = 0
-  blaze%jlat          = 0
+  blaze%ilon          = 0        !INH - var likely redundant
+  blaze%jlat          = 0        !INH - var likely redundant
   blaze%Flix          = 0
 
   ! reals
@@ -298,7 +301,8 @@ subroutine zero_blaze(blaze)
   blaze%LAT           = 0.0
   blaze%LON           = 0.0
   blaze%DFLI          = 0.0
-  blaze%AB            = 0.0
+  blaze%AB            = 0.0           !zero %AB each call to zero_blaze (typically monthly)
+  if (doy > 360) blaze%annAB = 0.0    !zero %annAB only every year
   Blaze%CAvgAnnRainf  = 0.0
   blaze%DEADWOOD      = 0.0
   blaze%POP_TO        = 0.0
@@ -981,14 +985,14 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      WRITE(*,*)'GFED4 BA not available. Set cable_user%BURNT_AREA == "SIMFIRE"'
      STOP -1
      IF ( TRIM(BLAZE%FSTEP) .EQ. "none" ) THEN
-        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, climate, BLAZE%faparsource, BLAZE%FSTEP, T1,T2,T3,T4 )
+        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP, T1,T2,T3,T4 )
         popd = SF%POPD
         mnest= SF%MAX_NESTEROV
         BLAZE%FSTEP = "annual"
      ENDIF
   ELSEIF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "SIMFIRE" ) THEN
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
-     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate, BLAZE%faparsource, BLAZE%FSTEP,  T1,T2,T3,T4  )
+     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP,  T1,T2,T3,T4  )
 
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:), &
@@ -1348,6 +1352,9 @@ END SUBROUTINE RUN_BLAZE
    sumBLAZE%D     = ( real(count-1)*sumBLAZE%D     + BLAZE%D)     / real(count)
    sumBLAZE%w     = ( real(count-1)*sumBLAZE%w     + BLAZE%w)     / real(count)
    sumBLAZE%w_prior = ( real(count-1)*sumBLAZE%w_prior  + BLAZE%w_prior)  / real(count)
+
+   !cumulative AB - resets via zero_blaze(sumBLAZE,climate%doy)
+   sumBLAZE%annAB = sumBLAZE%annAB + BLAZE%AB
    
    !running averages - mland arrays
    sumBLAZE%CPLANT_w  = ( real(count-1)*sumBLAZE%CPLANT_w  + BLAZE%CPLANT_w) / real(count)

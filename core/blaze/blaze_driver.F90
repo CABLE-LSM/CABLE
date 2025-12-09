@@ -161,6 +161,9 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
      STOP "Wrong MODE in blaze_driver.f90!"
   ENDIF
 
+  !update annual accumulating AB for the BLAZE% type - sumBLAZE%annAB done in update_sumBLAZE
+  BLAZE%annAB = BLAZE%annAB + BLAZE%AB
+
   !CVH
   ! set casa fire turnover rates and partitioning of fire losses here!  
   casaflux%kplant_fire   = 0.0_r_2

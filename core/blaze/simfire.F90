@@ -544,7 +544,7 @@ ENDIF
 !END FUNCTION ANNUAL_BA
 END SUBROUTINE GET_ANNUAL_BA
 
-SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOURCE, FSTEP, T1,T2,T3,T4 )
+SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FAPARSOURCE, FSTEP, T1,T2,T3,T4 )
 
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
   USE cable_IO_vars_module, ONLY:  landpt, patch
@@ -555,7 +555,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
   IMPLICIT NONE
 
   TYPE (TYPE_SIMFIRE) :: SF
-  REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
+  REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*), annAB(*)
   REAL,    INTENT(OUT):: AB(*)
   REAL,    INTENT(OUT):: T1(*), T2(*), T3(*), T4(*)
   INTEGER, INTENT(IN) :: YEAR, MM
@@ -610,11 +610,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
      CALL GET_ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i), &
                          AB(i), T1(i), T2(i), T3(i), T4(i) )
 
-     !apply randomness to AB
-     !IF (SF%STOCH_AREA) THEN
-     !AB(i) = STOCH_AREA(AB(i),grid_area,patch(i)%latitude,patch(i)%longitude,YEAR,MM,DOY)
-     !END IF
-
+     !catch out-of-bounds issues
      AB(i) = MAX( 0., MIN(AB(i),.99) )
      !write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
      !write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
@@ -648,17 +644,25 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
       !   AB(i) = 0.8        ! test vh
       !endif
 
+      !apply randomness to AB
+      !IF (SF%STOCH_AREA) THEN
+      !AB(i) = STOCH_AREA(AB(i),grid_area,patch(i)%latitude,patch(i)%longitude,YEAR,MM,DOY)
+      !END IF
+
       ! Daily Burned Area
-      !INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
+      ! INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
       ! - defaults to using annual max.  Daily Nesterov should pick up seasonality.
       IF (TRIM(FSTEP) .eq. "annual") THEN
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       ELSE
-         !seasonality comes in through using current Nesterov
+         !seasonality comes in through using current day Nesterov
          !AB(i) = AB(i) / 365.0
          !looks like we still need to push AB into the correct month
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       END IF 
+
+      !enforce that annAB can't exceed 1.0 through year - accumulation done in blaze_driver and update_sumblaze
+      !AB(i) = MAX( 0., MIN(AB(i),1.0-annAB(i)) )
 
    END DO
 

@@ -1120,6 +1120,7 @@ CONTAINS
                       if (cable_user%call_blaze>0) then
                          !par recv blaze_out_ts
                          call master_receive(ocomm, oktau, blaze_out_ts)
+                         !INH 2025-12-08 - why are we updating %time here - done in BLAZE_driver (because MPI and %time not passed?)
                          BLAZE%time =  BLAZE%time + 86400.0
                          if ((cable_user%call_blaze>1) .and. (TRIM(BLAZE%OUTTSTEP) .eq. "daily") ) then
                               call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
@@ -1223,7 +1224,7 @@ CONTAINS
                       !Only create output if BLAZE active to some extent CALL_BLAZE>1
                       if (cable_user%CALL_BLAZE>1 .and. (TRIM(BLAZE%OUTTSTEP) .eq. "ascasa")) then
                          call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
-                         call zero_blaze(sumBLAZE)
+                         call zero_blaze(sumBLAZE,climate%doy)
                       end if 
 
                       if (casa_time) then
@@ -1327,6 +1328,7 @@ CONTAINS
                 if (cable_user%call_blaze>0) then
                   !par recv blaze_out_ts
                   call master_receive(ocomm, oktau, blaze_out_ts)
+                  !INH 2025-12-08 - why are we updating %time here - done in BLAZE_driver (because MPI and %time not passed?)
                   BLAZE%time =  BLAZE%time + 86400.0
                   call update_sumBLAZE(blaze, sumBLAZE, count_sum_casa)
                   if (cable_user%call_blaze>1) then
