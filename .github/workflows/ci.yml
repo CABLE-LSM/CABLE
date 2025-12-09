@@ -12,15 +12,17 @@ jobs:
         spack-manifest-path:
           - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
-    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@v3
+    uses: access-nri/build-ci/.github/workflows/ci.yml@v3
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       # spack-config-ref: main
-      # builtin-spack-packages-ref: main
+      # builtin-spack-packages-ref: develop
       # access-spack-packages-ref: api-v2
-      # spack-ref: releases/v1.0
+      # spack-ref: releases/v1.1
       allow-ssh-into-spack-install: false
-      container-image-version: :rocky-v1.0-2025.11.001  # https://github.com/ACCESS-NRI/build-ci/pkgs/container/build-ci-upstream/572613242?tag=rocky-v1.0-2025.11.001
       spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache  # https://github.com/CABLE-LSM/CABLE/pkgs/container/build-ci-buildcache
+      # container-image-version: :rocky  # https://github.com/ACCESS-NRI/build-ci/pkgs/container/build-ci-upstream/572613242?tag=rocky
+      # Since CABLE-LSM can't access ACCESS-NRI's self-hosted runners, we use a GitHub-hosted version
+      run-self-hosted: false
     permissions:
       packages: write
