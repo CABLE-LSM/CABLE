@@ -36,8 +36,13 @@ module cable_netcdf_pio_mod
   use pio, only: PIO_REAL
   use pio, only: PIO_DOUBLE
   use pio, only: PIO_REARR_BOX
+  use pio, only: PIO_IOTYPE_NETCDF
   use pio, only: PIO_IOTYPE_NETCDF4C
+  use pio, only: PIO_IOTYPE_NETCDF4P
   use pio, only: PIO_CLOBBER
+  use pio, only: PIO_NOCLOBBER
+  use pio, only: PIO_WRITE
+  use pio, only: PIO_NOWRITE
   use pio, only: PIO_UNLIMITED
   use pio, only: PIO_NOERR
   use pio, only: PIO_GLOBAL
@@ -153,6 +158,45 @@ contains
     end select
   end function type_pio
 
+  function iotype_pio(iotype)
+    integer, intent(in) :: iotype
+    integer :: iotype_pio
+    select case(iotype)
+    case(CABLE_NETCDF_IOTYPE_CLASSIC)
+      iotype_pio = PIO_IOTYPE_NETCDF
+    case(CABLE_NETCDF_IOTYPE_NETCDF4C)
+      iotype_pio = PIO_IOTYPE_NETCDF4C
+    case(CABLE_NETCDF_IOTYPE_NETCDF4P)
+      iotype_pio = PIO_IOTYPE_NETCDF4P
+    case default
+      call cable_abort("cable_netcdf_pio_mod: Error: iotype not supported")
+    end select
+  end function iotype_pio
+
+  function mode_pio(mode)
+    integer, intent(in), optional :: mode
+    integer :: mode_pio
+
+    if (.not. present(mode)) then
+      mode_pio = PIO_WRITE
+      return
+    end if
+
+    select case(mode)
+    case(CABLE_NETCDF_MODE_CLOBBER)
+      mode_pio = PIO_CLOBBER
+    case(CABLE_NETCDF_MODE_NOCLOBBER)
+      mode_pio = PIO_NOCLOBBER
+    case(CABLE_NETCDF_MODE_WRITE)
+      mode_pio = PIO_WRITE
+    case(CABLE_NETCDF_MODE_NOWRITE)
+      mode_pio = PIO_NOWRITE
+    case default
+      call cable_abort("Error: mode not supported", __FILE__, __LINE__)
+    end select
+
+  end function mode_pio
+
   subroutine check_pio(status)
     integer, intent(in) :: status
     integer :: strerror_status
@@ -209,21 +253,25 @@ contains
   end subroutine
 
 
-  function cable_netcdf_pio_io_create_file(this, path) result(file)
+  function cable_netcdf_pio_io_create_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     type(pio_file_desc_t) :: pio_file_desc
-    call check_pio(pio_createfile(this%pio_iosystem_desc, pio_file_desc, PIO_IOTYPE_NETCDF4C, path, PIO_CLOBBER))
+    call check_pio(pio_createfile(this%pio_iosystem_desc, pio_file_desc, iotype_pio(iotype), path, mode_pio(mode)))
     file = cable_netcdf_pio_file_t(pio_file_desc)
   end function
 
-  function cable_netcdf_pio_io_open_file(this, path) result(file)
+  function cable_netcdf_pio_io_open_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     type(pio_file_desc_t) :: pio_file_desc
-    call check_pio(pio_openfile(this%pio_iosystem_desc, pio_file_desc, PIO_IOTYPE_NETCDF4C, path))
+    call check_pio(pio_openfile(this%pio_iosystem_desc, pio_file_desc, iotype_pio(iotype), path, mode_pio(mode)))
     file = cable_netcdf_pio_file_t(pio_file_desc)
   end function
 
