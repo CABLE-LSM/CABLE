@@ -30,13 +30,35 @@ module cable_netcdf_mod
     CABLE_NETCDF_MAX_STR_LEN_VAR, &
     CABLE_NETCDF_MAX_STR_LEN_DIM, &
     CABLE_NETCDF_MAX_RANK, &
-    CABLE_NETCDF_UNLIMITED
+    CABLE_NETCDF_UNLIMITED, &
+    CABLE_NETCDF_IOTYPE_CLASSIC, &
+    CABLE_NETCDF_IOTYPE_NETCDF4C, &
+    CABLE_NETCDF_IOTYPE_NETCDF4P, &
+    CABLE_NETCDF_MODE_CLOBBER, &
+    CABLE_NETCDF_MODE_NOCLOBBER, &
+    CABLE_NETCDF_MODE_WRITE, &
+    CABLE_NETCDF_MODE_NOWRITE
 
   enum, bind(c)
     enumerator :: &
       CABLE_NETCDF_INT, &
       CABLE_NETCDF_FLOAT, &
       CABLE_NETCDF_DOUBLE
+  end enum
+
+  enum, bind(c)
+    enumerator :: &
+      CABLE_NETCDF_IOTYPE_CLASSIC, &
+      CABLE_NETCDF_IOTYPE_NETCDF4C, &
+      CABLE_NETCDF_IOTYPE_NETCDF4P
+  end enum
+
+  enum, bind(c)
+    enumerator :: &
+      CABLE_NETCDF_MODE_CLOBBER, &
+      CABLE_NETCDF_MODE_NOCLOBBER, &
+      CABLE_NETCDF_MODE_WRITE, &
+      CABLE_NETCDF_MODE_NOWRITE
   end enum
 
   integer, parameter :: CABLE_NETCDF_MAX_STR_LEN_FILE = 200
@@ -613,16 +635,20 @@ module cable_netcdf_mod
       import cable_netcdf_io_t
       class(cable_netcdf_io_t), intent(inout) :: this
     end subroutine
-    function cable_netcdf_io_create_file(this, path) result(file)
+    function cable_netcdf_io_create_file(this, path, iotype, mode) result(file)
       import cable_netcdf_io_t, cable_netcdf_file_t
       class(cable_netcdf_io_t), intent(inout) :: this
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
-    function cable_netcdf_io_open_file(this, path) result(file)
+    function cable_netcdf_io_open_file(this, path, iotype, mode) result(file)
       import cable_netcdf_io_t, cable_netcdf_file_t
       class(cable_netcdf_io_t), intent(inout) :: this
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
     function cable_netcdf_io_create_decomp(this, compmap, dims, type) result(decomp)
@@ -640,12 +666,16 @@ module cable_netcdf_mod
     end subroutine
     module subroutine cable_netcdf_mod_end()
     end subroutine
-    module function cable_netcdf_create_file(path) result(file)
+    module function cable_netcdf_create_file(path, iotype, mode) result(file)
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
-    module function cable_netcdf_open_file(path) result(file)
+    module function cable_netcdf_open_file(path, iotype, mode) result(file)
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
     module function cable_netcdf_create_decomp(compmap, dims, type) result(decomp)

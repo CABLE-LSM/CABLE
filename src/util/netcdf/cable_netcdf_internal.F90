@@ -19,16 +19,20 @@ contains
     call cable_netcdf_io_handler%finalise()
   end subroutine
 
-  module function cable_netcdf_create_file(path) result(file)
+  module function cable_netcdf_create_file(path, iotype, mode) result(file)
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
-    file = cable_netcdf_io_handler%create_file(path)
+    file = cable_netcdf_io_handler%create_file(path, iotype, mode)
   end function
 
-  module function cable_netcdf_open_file(path) result(file)
+  module function cable_netcdf_open_file(path, iotype, mode) result(file)
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
-    file = cable_netcdf_io_handler%open_file(path)
+    file = cable_netcdf_io_handler%open_file(path, iotype, mode)
   end function
 
   module function cable_netcdf_create_decomp(compmap, dims, type) result(decomp)

@@ -101,16 +101,20 @@ contains
     class(cable_netcdf_stub_io_t), intent(inout) :: this
   end subroutine
 
-  function cable_netcdf_stub_io_create_file(this, path) result(file)
+  function cable_netcdf_stub_io_create_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_stub_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     file = cable_netcdf_stub_file_t()
   end function
 
-  function cable_netcdf_stub_io_open_file(this, path) result(file)
+  function cable_netcdf_stub_io_open_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_stub_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     file = cable_netcdf_stub_file_t()
   end function
