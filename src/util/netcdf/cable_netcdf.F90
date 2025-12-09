@@ -168,7 +168,8 @@ module cable_netcdf_mod
     subroutine cable_netcdf_file_def_var(this, var_name, dim_names, type)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
-      character(len=*), intent(in) :: var_name, dim_names(:)
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in), optional :: dim_names(:)
       integer, intent(in) :: type
     end subroutine
     subroutine cable_netcdf_file_put_att_global_string(this, att_name, att_value)
