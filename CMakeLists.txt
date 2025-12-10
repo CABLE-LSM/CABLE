@@ -292,6 +292,8 @@ else()
         src/offline/cable_pft_params.F90
         src/offline/cable_plume_mip.F90
         src/offline/cable_read.F90
+        src/offline/cable_restart.F90
+        src/offline/cable_restart_write.F90
         src/offline/cable_site.F90
         src/offline/cable_serial.F90
         src/offline/cable_soil_params.F90
