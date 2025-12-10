@@ -423,6 +423,8 @@ contains
       end associate
     end do
 
+    call output_file%end_def()
+
     global_profile%output_file = output_file
 
     ! Initialise aggregators and accumulation lists
