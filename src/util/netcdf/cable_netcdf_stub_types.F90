@@ -26,6 +26,7 @@ module cable_netcdf_stub_types_mod
   contains
     procedure :: close => cable_netcdf_stub_file_close
     procedure :: end_def => cable_netcdf_stub_file_end_def
+    procedure :: redef => cable_netcdf_stub_file_redef
     procedure :: sync => cable_netcdf_stub_file_sync
     procedure :: def_dims => cable_netcdf_stub_file_def_dims
     procedure :: def_var => cable_netcdf_stub_file_def_var
@@ -100,16 +101,20 @@ contains
     class(cable_netcdf_stub_io_t), intent(inout) :: this
   end subroutine
 
-  function cable_netcdf_stub_io_create_file(this, path) result(file)
+  function cable_netcdf_stub_io_create_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_stub_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     file = cable_netcdf_stub_file_t()
   end function
 
-  function cable_netcdf_stub_io_open_file(this, path) result(file)
+  function cable_netcdf_stub_io_open_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_stub_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     file = cable_netcdf_stub_file_t()
   end function
@@ -130,6 +135,10 @@ contains
     class(cable_netcdf_stub_file_t), intent(inout) :: this
   end subroutine
 
+  subroutine cable_netcdf_stub_file_redef(this)
+    class(cable_netcdf_stub_file_t), intent(inout) :: this
+  end subroutine
+
   subroutine cable_netcdf_stub_file_sync(this)
     class(cable_netcdf_stub_file_t), intent(inout) :: this
   end subroutine
@@ -142,7 +151,8 @@ contains
 
   subroutine cable_netcdf_stub_file_def_var(this, var_name, dim_names, type)
     class(cable_netcdf_stub_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name, dim_names(:)
+    character(len=*), intent(in) :: var_name
+    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
   end subroutine
 

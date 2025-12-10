@@ -23,8 +23,14 @@ module cable_netcdf_nf90_mod
   use netcdf, only: nf90_inquire_dimension
   use netcdf, only: nf90_inquire_variable
   use netcdf, only: nf90_enddef
+  use netcdf, only: nf90_redef
   use netcdf, only: NF90_NOERR
   use netcdf, only: NF90_NETCDF4
+  use netcdf, only: NF90_CLASSIC_MODEL
+  use netcdf, only: NF90_CLOBBER
+  use netcdf, only: NF90_NOCLOBBER
+  use netcdf, only: NF90_WRITE
+  use netcdf, only: NF90_NOWRITE
   use netcdf, only: NF90_UNLIMITED
   use netcdf, only: NF90_INT
   use netcdf, only: NF90_FLOAT
@@ -55,6 +61,7 @@ module cable_netcdf_nf90_mod
   contains
     procedure :: close => cable_netcdf_nf90_file_close
     procedure :: end_def => cable_netcdf_nf90_file_end_def
+    procedure :: redef => cable_netcdf_nf90_file_redef
     procedure :: sync => cable_netcdf_nf90_file_sync
     procedure :: def_dims => cable_netcdf_nf90_file_def_dims
     procedure :: def_var => cable_netcdf_nf90_file_def_var
@@ -136,6 +143,34 @@ contains
     end select
   end function type_nf90
 
+  function cmode_nf90(iotype, mode)
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
+    integer :: cmode_nf90
+    select case(iotype)
+    case (CABLE_NETCDF_IOTYPE_CLASSIC)
+      cmode_nf90 = NF90_CLASSIC_MODEL
+    case (CABLE_NETCDF_IOTYPE_NETCDF4C, CABLE_NETCDF_IOTYPE_NETCDF4P)
+      cmode_nf90 = NF90_NETCDF4
+    case default
+      call cable_abort("Error: iotype not supported", __FILE__, __LINE__)
+    end select
+    if (present(mode)) then
+      select case(mode)
+      case (CABLE_NETCDF_MODE_NOCLOBBER)
+        cmode_nf90 = ior(cmode_nf90, NF90_NOCLOBBER)
+      case (CABLE_NETCDF_MODE_CLOBBER)
+        cmode_nf90 = ior(cmode_nf90, NF90_CLOBBER)
+      case (CABLE_NETCDF_MODE_WRITE)
+        cmode_nf90 = ior(cmode_nf90, NF90_WRITE)
+      case (CABLE_NETCDF_MODE_NOWRITE)
+        cmode_nf90 = ior(cmode_nf90, NF90_NOWRITE)
+      case default
+        call cable_abort("Error: mode not supported", __FILE__, __LINE__)
+      end select
+    end if
+  end function cmode_nf90
+
   subroutine check_nf90(status)
     integer, intent ( in) :: status
     if(status /= NF90_NOERR) then
@@ -151,21 +186,25 @@ contains
     class(cable_netcdf_nf90_io_t), intent(inout) :: this
   end subroutine
 
-  function cable_netcdf_nf90_io_create_file(this, path) result(file)
+  function cable_netcdf_nf90_io_create_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_nf90_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     integer :: ncid
-    call check_nf90(nf90_create(path, NF90_NETCDF4, ncid))
+    call check_nf90(nf90_create(path, cmode_nf90(iotype, mode), ncid))
     file = cable_netcdf_nf90_file_t(ncid=ncid)
   end function
 
-  function cable_netcdf_nf90_io_open_file(this, path) result(file)
+  function cable_netcdf_nf90_io_open_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_nf90_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     integer :: ncid
-    call check_nf90(nf90_open(path, NF90_NETCDF4, ncid))
+    call check_nf90(nf90_open(path, cmode_nf90(iotype, mode), ncid))
     file = cable_netcdf_nf90_file_t(ncid=ncid)
   end function
 
@@ -185,6 +224,11 @@ contains
   subroutine cable_netcdf_nf90_file_end_def(this)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     call check_nf90(nf90_enddef(this%ncid))
+  end subroutine
+
+  subroutine cable_netcdf_nf90_file_redef(this)
+    class(cable_netcdf_nf90_file_t), intent(inout) :: this
+    call check_nf90(nf90_redef(this%ncid))
   end subroutine
 
   subroutine cable_netcdf_nf90_file_sync(this)
@@ -208,15 +252,23 @@ contains
 
   subroutine cable_netcdf_nf90_file_def_var(this, var_name, dim_names, type)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name, dim_names(:)
+    character(len=*), intent(in) :: var_name
+    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
     integer, allocatable :: dimids(:)
     integer :: i, tmp
+
+    if (.not. present(dim_names)) then
+      call check_nf90(nf90_def_var(this%ncid, var_name, type_nf90(type), tmp))
+      return
+    end if
+
     allocate(dimids(size(dim_names)))
     do i = 1, size(dimids)
       call check_nf90(nf90_inq_dimid(this%ncid, dim_names(i), dimids(i)))
     end do
     call check_nf90(nf90_def_var(this%ncid, var_name, type_nf90(type), dimids, tmp))
+
   end subroutine
 
   subroutine cable_netcdf_nf90_file_put_att_global_string(this, att_name, att_value)

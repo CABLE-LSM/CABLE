@@ -286,7 +286,7 @@ CONTAINS
     out_settings = output_par_settings_type(met=met, restart=.FALSE.)
 
     ! Create output file:
-    ok = NF90_CREATE(filename%out, NF90_CLOBBER, ncid_out)
+    ok = NF90_CREATE(filename%out, IOR(NF90_CLOBBER, NF90_NETCDF4), ncid_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
          //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
     ! Put the file in define mode:
