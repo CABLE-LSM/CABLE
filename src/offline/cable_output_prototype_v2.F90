@@ -254,6 +254,7 @@ contains
     output_var%range = range
     output_var%decomp => decomp
     output_var%var_type = var_type
+    output_var%aggregator_handle = store_aggregator(aggregator)
 
     if (present(parameter)) then
       output_var%parameter = parameter
@@ -273,93 +274,61 @@ contains
       output_var%accumulation_frequency = DEFAULT_ACCUMULATION_FREQUENCY
     end if
 
-    if (active) then
+    if (reduction_method /= "none") then
+      select type(aggregator)
+      type is (aggregator_real32_1d_t)
+        if (all(shape(aggregator%source_data) == [mp])) then
+          output_var%temp_buffer_real32_1d => temp_buffer_land_real32
+        else
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+        end if
+      type is (aggregator_real64_1d_t)
+        if (all(shape(aggregator%source_data) == [mp])) then
+          output_var%temp_buffer_real64_1d => temp_buffer_land_real64
+        else
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+        end if
+      type is (aggregator_real32_2d_t)
+        if (all(shape(aggregator%source_data) == [mp, ms])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_soil_real32
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
+        else if (all(shape(aggregator%source_data) == [mp, msn])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_snow_real32
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
+        else if (all(shape(aggregator%source_data) == [mp, ncp])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
+        else if (all(shape(aggregator%source_data) == [mp, ncs])) then
+          output_var%temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
+        else
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+        end if
+      type is (aggregator_real64_2d_t)
+        if (all(shape(aggregator%source_data) == [mp, ms])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_soil_real64
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
+        else if (all(shape(aggregator%source_data) == [mp, msn])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_snow_real64
+        else if (all(shape(aggregator%source_data) == [mp, nrb])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
+        else if (all(shape(aggregator%source_data) == [mp, ncp])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
+        else if (all(shape(aggregator%source_data) == [mp, ncs])) then
+          output_var%temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
+        else
+          call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
+        end if
+      class default
+        call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
+      end select
+    end if
 
-      if (check_invalid_frequency( &
-        sampling_frequency=output%averaging, &
-        accumulation_frequency=output_var%accumulation_frequency &
-      )) then
-        call cable_abort("Sampling frequency and accumulation frequency are incompatible", __FILE__, __LINE__)
-      end if
-
-      if (present(reduction_method)) then
-        select type(aggregator)
-        type is (aggregator_real32_1d_t)
-          if (all(shape(aggregator%source_data) == [mp])) then
-            output_var%temp_buffer_real32_1d => temp_buffer_land_real32
-          else
-            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-          end if
-        type is (aggregator_real64_1d_t)
-          if (all(shape(aggregator%source_data) == [mp])) then
-            output_var%temp_buffer_real64_1d => temp_buffer_land_real64
-          else
-            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-          end if
-        type is (aggregator_real32_2d_t)
-          if (all(shape(aggregator%source_data) == [mp, ms])) then
-            output_var%temp_buffer_real32_2d => temp_buffer_land_soil_real32
-          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-            output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
-          else if (all(shape(aggregator%source_data) == [mp, msn])) then
-            output_var%temp_buffer_real32_2d => temp_buffer_land_snow_real32
-          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-            output_var%temp_buffer_real32_2d => temp_buffer_land_rad_real32
-          else if (all(shape(aggregator%source_data) == [mp, ncp])) then
-            output_var%temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
-          else if (all(shape(aggregator%source_data) == [mp, ncs])) then
-            output_var%temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
-          else
-            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-          end if
-        type is (aggregator_real64_2d_t)
-          if (all(shape(aggregator%source_data) == [mp, ms])) then
-            output_var%temp_buffer_real64_2d => temp_buffer_land_soil_real64
-          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-            output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
-          else if (all(shape(aggregator%source_data) == [mp, msn])) then
-            output_var%temp_buffer_real64_2d => temp_buffer_land_snow_real64
-          else if (all(shape(aggregator%source_data) == [mp, nrb])) then
-            output_var%temp_buffer_real64_2d => temp_buffer_land_rad_real64
-          else if (all(shape(aggregator%source_data) == [mp, ncp])) then
-            output_var%temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
-          else if (all(shape(aggregator%source_data) == [mp, ncs])) then
-            output_var%temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
-          else
-            call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-          end if
-        class default
-          call cable_abort("Unexpected aggregator type", __FILE__, __LINE__)
-        end select
-      end if
-
-      output_var%aggregator_handle = store_aggregator(aggregator)
-
-      if (.not. output_var%parameter) then
-        select case(output_var%accumulation_frequency)
-        case("all")
-          if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
-            global_profile%aggregators_accumulate_time_step = [output_var%aggregator_handle]
-          else
-            global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, output_var%aggregator_handle]
-          end if
-        case("daily")
-          if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
-            global_profile%aggregators_accumulate_daily = [output_var%aggregator_handle]
-          else
-            global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, output_var%aggregator_handle]
-          end if
-        case default
-          call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
-        end select
-      end if
-
-      if (.not. allocated(global_profile%output_variables)) then
-        global_profile%output_variables = [output_var]
-      else
-        global_profile%output_variables = [global_profile%output_variables, output_var]
-      end if
-
+    if (.not. allocated(global_profile%output_variables)) then
+      global_profile%output_variables = [output_var]
+    else
+      global_profile%output_variables = [global_profile%output_variables, output_var]
     end if
 
   end subroutine cable_output_add_variable
@@ -416,6 +385,19 @@ contains
 
     ! TODO(Sean): add global attributes
 
+    global_profile%output_variables = pack(global_profile%output_variables, global_profile%output_variables(:)%active)
+
+    do i = 1, size(global_profile%output_variables)
+      associate(output_var => global_profile%output_variables(i))
+        if (check_invalid_frequency( &
+          sampling_frequency=output%averaging, &
+          accumulation_frequency=output_var%accumulation_frequency &
+        )) then
+          call cable_abort("Sampling frequency and accumulation frequency are incompatible", __FILE__, __LINE__)
+        end if
+      end associate
+    end do
+
     do i = 1, size(global_profile%output_variables)
       associate(output_var => global_profile%output_variables(i))
         call output_file%def_var( &
@@ -442,17 +424,28 @@ contains
 
     global_profile%output_file = output_file
 
-    ! Initialise all aggregators
+    ! Initialise aggregators and accumulation lists
 
-    do i = 1, size(global_profile%aggregators_accumulate_time_step)
-      associate(aggregator_handle => global_profile%aggregators_accumulate_time_step(i))
-        call aggregator_handle%init()
-      end associate
-    end do
-
-    do i = 1, size(global_profile%aggregators_accumulate_daily)
-      associate(aggregator_handle => global_profile%aggregators_accumulate_daily(i))
-        call aggregator_handle%init()
+    do i = 1, size(global_profile%output_variables)
+      associate(output_var => global_profile%output_variables(i))
+        call output_var%aggregator_handle%init()
+        if (output_var%parameter) cycle ! Register only time-varying variables for accumulation
+        select case(output_var%accumulation_frequency)
+        case("all")
+          if (.not. allocated(global_profile%aggregators_accumulate_time_step)) then
+            global_profile%aggregators_accumulate_time_step = [output_var%aggregator_handle]
+          else
+            global_profile%aggregators_accumulate_time_step = [global_profile%aggregators_accumulate_time_step, output_var%aggregator_handle]
+          end if
+        case("daily")
+          if (.not. allocated(global_profile%aggregators_accumulate_daily)) then
+            global_profile%aggregators_accumulate_daily = [output_var%aggregator_handle]
+          else
+            global_profile%aggregators_accumulate_daily = [global_profile%aggregators_accumulate_daily, output_var%aggregator_handle]
+          end if
+        case default
+          call cable_abort("Invalid accumulation frequency", __FILE__, __LINE__)
+        end select
       end associate
     end do
 
