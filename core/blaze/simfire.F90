@@ -7,6 +7,7 @@ TYPE TYPE_SIMFIRE
    INTEGER   :: SYEAR, EYEAR, NCELLS
    REAL      :: RES, RESF
    CHARACTER :: IGBPFILE*120, HYDEPATH*100, OUTMODE*6, BA_CLIM_FILE*100
+   LOGICAL   :: STOCH_AREA
 END TYPE TYPE_SIMFIRE
 
 ! IGBP2BIOME MAPPING:
@@ -70,8 +71,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   REAL, DIMENSION(720):: lon_BA
   REAL, DIMENSION(360):: lat_BA
   integer :: status
+  LOGICAL :: STOCHFLAG = .false.
 
-  NAMELIST /SIMFIRENML/ SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
+  NAMELIST /SIMFIRENML/ SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile, STOCHFLAG
 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -120,6 +122,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   SF%BA_CLIM_FILE = TRIM(BurnedAreaClimatologyFile)
   !WRITE(*,*)"SIMFIRENML :", SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
   SF%IGBP = modis_igbp
+  SF%STOCH_AREA = STOCHFLAG
 
   DO i = 1, NCELLS
      IF ( SF%IGBP(i) .LT. 1 .OR. SF%IGBP(i) .GT. 16 ) THEN
@@ -176,7 +179,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   STATUS = NF90_CLOSE(F_ID)
 
-
+  WRITE(*,*) "application of stochastic burnt area is", SF%STOCH_AREA
 
 END SUBROUTINE INI_SIMFIRE
 
@@ -403,7 +406,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            DO jy = jy0, jy0+dxy
               DO ix = ix0, ix0+dxy
                  IF ( RVAL(ix,jy) .LT. 0. ) CYCLE
-                 !9/2025 popc data is humans per grid cell 
+                 !9/2025 popc data is humans per HYDE grid cell 
                  !- need population density humans / km2 
                  wPOPD = wPOPD + RVAL(ix,jy) !* LAND_AREA(ix,jy)
                  wTOT  = wTOT  + LAND_AREA(ix,jy)
@@ -644,10 +647,10 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       !   AB(i) = 0.8        ! test vh
       !endif
 
-      !apply randomness to AB
-      !IF (SF%STOCH_AREA) THEN
-      !AB(i) = STOCH_AREA(AB(i),grid_area,patch(i)%latitude,patch(i)%longitude,YEAR,MM,DOY)
-      !END IF
+      !apply randomness to AB - likely should be gridcell area dependent - currently hardwired to BIOS@0.025 degrees
+      IF (SF%STOCH_AREA) THEN
+         CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,0.025,0.025,DOY)
+      END IF
 
       ! Daily Burned Area
       ! INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
@@ -662,7 +665,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       END IF 
 
       !enforce that annAB can't exceed 1.0 through year - accumulation done in blaze_driver and update_sumblaze
-      !AB(i) = MAX( 0., MIN(AB(i),1.0-annAB(i)) )
+      AB(i) = MAX( 0., MIN(AB(i),1.0-annAB(i)) )
 
    END DO
 
@@ -670,33 +673,84 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
 
 END SUBROUTINE SIMFIRE
 
-!SUBROUTINE STOCH_AREA(AB,gca,lat,lon,YR,MON,DAY)
-!
-!simple function to aply some deterministic randomness to burnt area 
-!
-!IMPLICIT NONE
-!
-!REAL, INTENT(INOUT) :: AB
-!REAL, INTENT(IN)    :: gca, lat, lon, ktau, dels
-!INTEGER, INTENT(IN) :: YEAR, MON, DAY
-!REAL                :: ref_gca = 25.0, eps = 1.0
+SUBROUTINE STOCH_AREA(AB,lat,lon,dlat,dlon,DAY)
 
-!working vars
-!REAL                :: dtime, lambda, x, y
+   !simple, empircal function to apply some deterministic randomness to the burnt area 
+   !while preserving the time/ensemble average
+   ! needs to be gridcell area dependent since (conceptually) more likely to be 0 or 1 AB for small cells
+   !
+   !function is:  ABout = ABin - dx + (dx+dy)/2 ( 1 + tanh( (seed - 1 + AB)/ ABx))
+   !
+   !interpretation - 2 parts - given a seed on 0-1
+   !               a) ABout1 = ABin - dx + (dx+dy)/2 (1 - sign( (seed - 1 + AB) ) )
+   !where (1-AB)*dx = dy*BA.  
+   !
+   !This function randomises AB so that ABout=0 with a probability of (1-AB) and =1 with a probability of AB
+   !The expected value of ABout = ABin
+   !
+   !               b) ABout2 = ABout1 + (dx+dy)/2 (1 + tanh ((seed - 1 + AB)/ABx) )
+   !
+   !This blurs the step function nature of ABout1 over a range of seed of scale ABx, centred on seed = 1-AB
 
-!create a randome numbr seed that is deterministic but varies in time, space
-!dtime = 365.*REAL(year) + 30.*REAL(MON)  + REAL(DAY)
-!y = (ABS(lat)+eps)*(ABS(lon)+eps)*dtime/86400.0
+      IMPLICIT NONE
 
-!create lambda parameter for exponential distribution
-! will be small for AB large and cell area small
-!lambda = gca / AB / ref_gca
-!x = (5.0/lambda) * RANDOM_NUMBER(y)
+   !in/outs
+   REAL, INTENT(INOUT) :: AB
+   REAL, INTENT(IN)    :: lat, lon, dlat, dlon
+   INTEGER, INTENT(IN) :: DAY
 
-!stochastically disturbed AB
-!AB = AB*lambda*lambda*EXP(-lambda*x)
+   !parameters: eps needed to ensure randmomisation occurs globally, beta>=3 scaling within function 
+   !ref_gca = nominal resolution (degrees squared) below which randomisation occurs - 0.01~100kmx100km 
+   REAL                :: ref_gca = 0.0025, eps = 1.0, beta = 3.0
 
-!END SUBROUTINE STOCH_AREA
+   !working vars
+   REAL                :: dx, dy, ABx, seed
+   INTEGER             :: ncount
+   !INTEGER, DIMENSION(:), ALLOCATABLE :: intseed
 
+   IF ((AB .le. 0.0) .or. (abs(dlat*dlon)/ref_gca .ge. 1.0) ) THEN
+      !satisfy INOUT requirement
+      AB = 1.0*AB
+
+   ELSE
+      !create a real random number that is deterministic but varies in time, space
+      seed = REAL(DAY)*(ABS(lat)+eps)*(ABS(lon)+eps)/86400.0
+
+      !convert this real number to a random number on (0,1) using fortran intrinsics
+      !call RANDOM_SEED(size=ncount)
+      !ALLOCATE(intseed(ncount))
+      !intseed = INT(seed * 100000.0)
+      !call RANDOM_SEED(put=intseed)
+      !DEALLOCATE(intseed)
+      !call RANDOM_NUMBER(seed)
+
+      !use alternate lcg_generator - doesn't require the repeated ALLOCATION
+      ncount = INT(seed * 100000.0)
+      CALL lcg_random(ncount,seed)
+
+      !apply function using seed - note dx includes the gridcell size dependence
+      dx = min(1.0-abs(dlat*dlon)/ref_gca,1.0)*AB
+      dy = dx* (1.0-AB)/AB
+      ABx = min(AB/beta,(1.-AB)/beta,0.2/beta)
+
+      !apply randomisation
+      AB = AB - dx + (dx+dy)*(1.0 + tanh( (seed-1.0+AB)/ABx) )/2.0
+
+   END IF
+
+END SUBROUTINE STOCH_AREA
+
+SUBROUTINE lcg_random(x,seed)
+   ! Linear congruential generator for single precision random numbers on (0,1)
+   ! https://en.wikipedia.org/wiki/Linear_congruential_generator
+
+   real, intent(out) :: seed
+   integer, intent(in) :: x
+   integer :: work
+
+   work = modulo(x*48271, 2147483647)
+   seed = work / real(2147483647)
+
+END SUBROUTINE lcg_random
 
 END MODULE SIMFIRE_MOD

@@ -238,7 +238,7 @@ contains
              CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY , idoy)
 
              call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                  casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+                  casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE, cable_user%CALL_POP)
 
           endif
 
@@ -499,7 +499,7 @@ contains
                 CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE, cable_user%CALL_POP)
 
                 ! BLAZE output - only daily output is possible from spincasacnp (MPI considerations)
                 if ((nloop==mloop) .and. BLAZE%OUTTSTEP .eq. "daily") then
