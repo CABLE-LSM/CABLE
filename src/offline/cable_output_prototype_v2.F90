@@ -44,6 +44,7 @@ module cable_output_prototype_v2_mod
   use cable_netcdf_mod, only: CABLE_NETCDF_FLOAT
   use cable_netcdf_mod, only: CABLE_NETCDF_DOUBLE
   use cable_netcdf_mod, only: CABLE_NETCDF_UNLIMITED
+  use cable_netcdf_mod, only: CABLE_NETCDF_IOTYPE_NETCDF4P
   use cable_netcdf_mod, only: MAX_LEN_VAR => CABLE_NETCDF_MAX_STR_LEN_VAR
   use cable_netcdf_mod, only: MAX_LEN_DIM => CABLE_NETCDF_MAX_STR_LEN_DIM
 
@@ -337,7 +338,7 @@ contains
     class(cable_netcdf_file_t), allocatable :: output_file
     integer :: i
 
-    output_file = cable_netcdf_create_file("test_output.nc") ! TODO(Sean): use filename from namelist
+    output_file = cable_netcdf_create_file("test_output.nc", iotype=CABLE_NETCDF_IOTYPE_NETCDF4P) ! TODO(Sean): use filename from namelist
 
     call output_file%def_dims(["x", "y"], [xdimsize, ydimsize])
     call output_file%def_dims(["patch"], [max_vegpatches])
