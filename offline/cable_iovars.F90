@@ -414,7 +414,7 @@ MODULE cable_IO_vars_module
          psi_soil = .FALSE.,       & 
          kmax = .TRUE.,    &
          psi_rootzone = .FALSE.,       & 
-         psix = .FALSE.,       & 
+         psix = .TRUE.,       & 
          psi_can_sl = .FALSE.,       & 
          psi_can_sh = .FALSE.,       &
          abs_deltpsil_sl = .FALSE.,       & 

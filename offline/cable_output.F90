@@ -4923,7 +4923,21 @@ CONTAINS
    END IF
 
    ! mgk576, 19/2/2019
-   IF(output%veg) THEN
+   IF(output%veg .or. output%psix) THEN
+      ! Add current timestep's value to total of temporary output variable:
+      out%psix = out%psix+ REAL(canopy%psix, 4)
+      IF(writenow) THEN
+         ! Divide accumulated variable by number of accumulated time steps:
+         out%psix = out%psix / REAL(output%interval, 4)
+         ! Write value to file:
+         CALL write_ovar(out_timestep, ncid_out, ovid%psix, &
+                        'psix', &
+                         out%psix, ranges%psix, &
+                         patchout%psix, &
+                        'default', met)
+         ! Reset temporary output variable:
+         out%psix = 0.0
+      END IF
    !IF(output%veg) THEN
       ! Add current timestep's value to total of temporary output variable:
       out%psi_can_sl = out%psi_can_sl + REAL(canopy%psi_can(:,1), 4)
@@ -5367,22 +5381,7 @@ CONTAINS
 
    ! mgk576, 19/2/2019
    !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-   IF(output%veg) THEN
-      ! Add current timestep's value to total of temporary output variable:
-      out%psix = out%psix+ REAL(canopy%psix, 4)
-      IF(writenow) THEN
-         ! Divide accumulated variable by number of accumulated time steps:
-         out%psix = out%psix / REAL(output%interval, 4)
-         ! Write value to file:
-         CALL write_ovar(out_timestep, ncid_out, ovid%psix, &
-                        'psix', &
-                         out%psix, ranges%psix, &
-                         patchout%psix, &
-                        'default', met)
-         ! Reset temporary output variable:
-         out%psix = 0.0
-      END IF
-   END IF
+
   END SUBROUTINE write_output
 
   !=============================================================================
