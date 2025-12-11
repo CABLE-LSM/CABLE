@@ -1019,16 +1019,23 @@ CONTAINS
      CALL define_ovar(ncid_out, ovid%psi_rootmean, 'psi_rootmean', 'Mpa', &
      'Average root surface water potential (whole soil column)', patchout%psi_rootmean, &
      'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%kplant, &
+                      'kplant', 'kg m-2 s-1 Mpa-1', 'actual conductivity', &
+                      patchout%kplant, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     
      ALLOCATE(out%kroot(mp,ms))
      ALLOCATE(out%krootmean(mp))
      ALLOCATE(out%ksoilmean(mp))
      ALLOCATE(out%kbelowmean(mp))
      ALLOCATE(out%psi_rootmean(mp))
+     ALLOCATE(out%kplant(mp))
      out%kroot = zero4 ! initialise
      out%krootmean = zero4 
      out%ksoilmean = zero4 
      out%kbelowmean = zero4 
      out%psi_rootmean = zero4 
+     out%kplant = zero4 ! initialise
     END IF
     IF(output%soil .OR. output%SoilTemp) THEN
        CALL define_ovar(ncid_out, ovid%SoilTemp, 'SoilTemp', 'K', &
@@ -1090,12 +1097,7 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sh(mp))
      out%psi_can_sh = 0.0 ! initialise
-     CALL define_ovar(ncid_out, ovid%kplant, &
-                      'kplant', 'kg m-2 s-1 Mpa-1', 'actual conductivity', &
-                      patchout%kplant, 'dummy', xID, yID, zID, &
-                      landID, patchID, tID)
-     ALLOCATE(out%kplant(mp))
-     out%kplant = 0.0 ! initialise
+
   END IF
 
   IF(output%veg .OR. output%abs_deltpsil_sl) THEN
@@ -3485,6 +3487,9 @@ CONTAINS
       toreal4(sum(1.0_r_2 / toreal4(ssnow%rootR),2)) + toreal4(canopy%psix)
      ! out%psi_soilmean1= out%psi_soilmean1 +sum((1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR))) &
      ! * toreal4(ssnow%psi_soil) ,2) / toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2))
+             ! Add current timestep's value to total of temporary output variable:         
+     out%kplant = out%kplant + REAL(canopy%kplant, 4)
+
      IF(writenow) THEN
         ! Divide accumulated variable by number of accumulated time steps:
         out%ksoil = out%ksoil * rinterval
@@ -3513,7 +3518,15 @@ CONTAINS
         CALL write_ovar(out_timestep, ncid_out, ovid%ksoilmean, 'ksoilmean', &
         out%ksoilmean, ranges%kplant, patchout%ksoilmean, 'default', met)
         out%ksoilmean = zero4
-
+          out%kplant = out%kplant / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%kplant, &
+                         'kplant', &
+                         out%kplant, ranges%kplant, &
+                         patchout%kplant, &
+                         'default', met)
+          ! Reset temporary output variable:
+          out%kplant = 0.0
 
 
         !CALL write_ovar(out_timestep, ncid_out, ovid%rwc_soilmean, 'rwc_soilmean', &
@@ -4940,20 +4953,7 @@ CONTAINS
            ! Reset temporary output variable:
            out%psi_can_sh = 0.0
         END IF
-             ! Add current timestep's value to total of temporary output variable:
-             out%kplant = out%kplant + REAL(canopy%kplant, 4)
-             IF(writenow) THEN
-                ! Divide accumulated variable by number of accumulated time steps:
-                out%kplant = out%kplant / REAL(output%interval, 4)
-                ! Write value to file:
-                CALL write_ovar(out_timestep, ncid_out, ovid%kplant, &
-                               'kplant', &
-                                out%kplant, ranges%kplant, &
-                                patchout%kplant, &
-                               'default', met)
-                ! Reset temporary output variable:
-                out%kplant = 0.0
-             END IF
+
      END IF
      IF(output%veg .OR. output%abs_deltpsil_sl) THEN
           !IF(output%veg) THEN
