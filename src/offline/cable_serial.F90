@@ -311,7 +311,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
       YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
         
         ts_start = datetime(year=YYYY, month=1, day=1)
-        ts_end = ts_start + dt
 
         LOY = daysInYear(YYYY)
 
@@ -499,6 +498,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
         ! time step loop over ktau
         DO ktau=kstart, kend
 
+          ts_end = ts_start + dt
+          WRITE(logn,*) 'Current time: ', ts_start
           WRITE(logn,*) 'Progress -',REAL(ktau)/REAL(kend)*100.0
 
           ! increment total timstep counter

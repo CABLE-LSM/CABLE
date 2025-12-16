@@ -1019,6 +1019,23 @@ contains
   end function isLeapYear
 
 
+  pure function nDeltas(d0, d1, t)
+    ! Given start and end `datetime` instances `d0` and `d1` and time
+    ! increment as `timedelta` instance `t`, return the number of `timedelta`
+    ! instances `t` between d0 and d1.
+    type(datetime), intent(in) :: d0, d1
+    type(timedelta), intent(in) :: t
+    real(real64) :: datenum0, datenum1, eps, increment
+    integer :: nDeltas
+
+    eps = 1e-10_real64
+    datenum0 = date2num(d0)
+    datenum1 = date2num(d1)
+    increment = t%total_seconds() * s2d
+    nDeltas = floor((datenum1 - datenum0 + eps) / increment) + 1
+  end function nDeltas
+
+
   pure function datetimeRange(d0, d1, t)
     ! Given start and end `datetime` instances `d0` and `d1` and time
     ! increment as `timedelta` instance `t`, returns an array of
@@ -1084,6 +1101,36 @@ contains
       end if
     end if
   end function daysInYear
+
+  
+  pure elemental logical function isNewDay(d)
+    ! Determines whether the given `datetime` `d` is a the start of a month.
+    type(datetime), intent(in) :: d
+
+    isNewDay = (d%getHour() == 0 .and. d%getMinute() == 0 .and.&
+      d%getSecond() == 0 .and. d%getMillisecond() == 0)
+
+  end function isNewDay
+
+
+  pure elemental logical function isNewMonth(d)
+    ! Determines whether the given `datetime` `d` is the start of a month.
+    type(datetime), intent(in) :: d
+
+    isNewYear = (d%getDay() == 1 .and. d%getHour() == 0 .and.&
+      d%getMinute() == 0 .and. d%getSecond() == 0 .and.&
+      d%getMillisecond() == 0)
+  end function isNewYear
+
+
+  pure elemental logical function isNewYear(d)
+    ! Determines whether the given `datetime` `d` is the start of a year.
+    type(datetime), intent(in) :: d
+
+    isNewYear = (d%getMonth() == 1 .and. d%getDay() == 1 .and.&
+      d%getHour() == 0 .and. d%getMinute() == 0 .and.&
+      d%getSecond() == 0 .and. d%getMillisecond() == 0)
+  end function isNewYear
 
 
   pure elemental real(real64) function date2num(d)
