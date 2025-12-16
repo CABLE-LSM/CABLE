@@ -268,6 +268,33 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
+  type(datetime) :: ts_start, ts_end
+  type(timedelta) :: dt
+
+  dt = timedelta(seconds=dels)
+  ktauday = nint(d2s / dels)
+
+  ! Set the calendar- some forcing cases have special rules
+  select case (trim(cable_user%mettype))
+  case ("plum")
+    if (plume%leapyears) then
+      call setcalendar("gregorian")
+    else
+      call setcalendar("noleaps")
+    endif
+  
+  case ("cru")
+    call setcalendar("noleaps")
+
+  case default
+    if (leaps) then
+      call setcalendar("gregorian")
+    else
+      call setcalendar("noleaps")
+    endif
+
+  end select
+
 ! END header
 
 ! INISTUFF
@@ -280,19 +307,25 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
     NREP: DO RRRR = 1, NRRRR
 
       YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
+        
+        ts_start = datetime(year=YYYY, month=1, day=1)
+        ts_end = ts_start + dt
 
-        CurYear = YYYY
+        LOY = daysInYear(YYYY)
+
+        ! Set kend for all cases bar princeton and gswp
+        kend = ktauday * LOY
 
         !ccc Set "calendar" for netcdf time attribute and
         ! number of days in the year
-        calendar = "noleap"
-        LOY = 365
-        IF ( leaps ) THEN
-          calendar = "standard"
-        END IF
-        IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
-          LOY = 366
-        END IF
+        !calendar = "noleap"
+        !LOY = 365
+        !IF ( leaps ) THEN
+          !calendar = "standard"
+        !END IF
+        !IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
+          !LOY = 366
+        !END IF
 
         ! Check for gswp run
         SELECT CASE (TRIM(cable_user%MetType))
@@ -307,7 +340,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           IF ( RRRR .EQ. 1 ) THEN
             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-            IF (leaps.AND.is_leapyear(YYYY).AND.kend.EQ.2920) THEN
+            IF (is_leapyear(YYYY).AND.kend.EQ.2920) THEN
               STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
             ENDIF
             IF ( NRRRR .GT. 1 ) THEN
@@ -332,23 +365,12 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
             kend      = ktauday * LOY
           ENDIF
 
-        CASE ('plum')
-          ! PLUME experiment setup using WATCH
-          IF ( .NOT. PLUME%LeapYears ) LOY = 365
-          kend = NINT(24.0*3600.0/dels) * LOY
-
-        CASE ('cru')
-          ! TRENDY experiment using CRU-NCEP
-          LOY = 365
-          kend = NINT(24.0*3600.0/dels) * LOY
-
         CASE ('gswp3')
           ncciy = CurYear
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
         CASE ('site')
           ! site experiment eg AmazonFace (spinup or  transient run type)
-          kend = NINT(24.0*3600.0/dels) * LOY
           ! get koffset to add to time-step of sitemet
           SELECT CASE (TRIM(site%RunType))
           CASE ('historical')
@@ -372,9 +394,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           ENDIF
 
         END SELECT
-
-        ! somethings (e.g. CASA-CNP) only need to be done once per day
-        ktauday=INT(24.0*3600.0/dels)
 
         ! Checks where parameters and initialisations should be loaded from.
         ! If they can be found in either the met file or restart file, they will
