@@ -6,7 +6,7 @@ module datetime_module
 
   implicit none
 
-  private
+  !private
 
   public :: datetime, timedelta, clock
   public :: date2num
@@ -24,7 +24,7 @@ module datetime_module
   public :: tm_struct
   public :: c_strftime
   public :: c_strptime
-  public :: set_calendar
+  public :: setcalendar
 
   real(real64), parameter :: zero = 0._real64, one = 1._real64
 
@@ -53,7 +53,7 @@ module datetime_module
     enumerator :: three60day = 4
   end enum
 
-  integer(kind(calendarType)) :: calendar = gregorian
+  integer(kind(calendarType)), private :: calendar = gregorian
 
   type :: datetime
 
@@ -255,7 +255,7 @@ contains
     if (self % currentTime >= self % stopTime) self % stopped = .true.
   end subroutine tick
 
-  subroutine set_calendar(calendarString)
+  subroutine setcalendar(calendarString)
     ! Set the calendar for the module
     character(len=*), intent(in) :: calendarString
 
@@ -272,7 +272,7 @@ contains
         "Valid calendars are gregorian, julian, noleaps or 360day."
     end if
 
-  end subroutine set_calendar
+  end subroutine setcalendar
 
   pure elemental type(datetime) function datetime_constructor( &
     year, month, day, hour, minute, second, millisecond, tz)

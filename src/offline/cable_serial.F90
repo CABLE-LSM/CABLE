@@ -150,6 +150,8 @@ USE landuse_constant, ONLY: mstate,mvmax,mharvw
 USE landuse_variable
 USE bgcdriver_mod, ONLY : bgcdriver
 USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
+
+use datetime_module
   IMPLICIT NONE
 
   PRIVATE
@@ -271,7 +273,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   type(datetime) :: ts_start, ts_end
   type(timedelta) :: dt
 
-  dt = timedelta(seconds=dels)
+  dt = timedelta(seconds=int(dels))
   ktauday = nint(d2s / dels)
 
   ! Set the calendar- some forcing cases have special rules
