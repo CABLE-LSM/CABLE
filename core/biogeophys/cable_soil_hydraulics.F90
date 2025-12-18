@@ -114,11 +114,11 @@ CONTAINS
       ! another method to calculate root biomass
       leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
       shoot_biomass = ((casapool%cplant(i,1)+casapool%cplant(i,2))/casapool%cplant(i,1)) * leaf_biomass
-      root_biomass = veg%root_shoot(i) * shoot_biomass * gC2DM
+      !root_biomass = veg%root_shoot(i) * shoot_biomass * gC2DM
       !print*, 'root_biomass new: ', root_biomass
       !root_biomass = 318.9 * gC2DM ! Spruce experiment
             leaf_biomass = 2.50 / casabiome%sla(veg%iveg(i)) ! gc m-2
-      root_biomass = 2.0 * leaf_biomass * gC2DM
+      root_biomass = veg%root_shoot(i) * leaf_biomass * gC2DM
       ! sensitivity experiment values
       !root_biomass = 200. * gC2DM ! Range from Williams 2001, 200-1000
       !root_biomass = 400. * gC2DM ! Range from Williams 2001, 200-1000
