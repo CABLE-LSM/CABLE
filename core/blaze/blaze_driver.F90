@@ -162,7 +162,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   ENDIF
 
   !update annual accumulating AB for the BLAZE% type - sumBLAZE%annAB done in update_sumBLAZE
-  BLAZE%annAB = BLAZE%annAB + BLAZE%AB
+  !now done in SIMFIRE
+  !BLAZE%annAB = BLAZE%annAB + BLAZE%AB
 
   !CVH
   ! set casa fire turnover rates and partitioning of fire losses here!  
@@ -531,31 +532,12 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
         ENDIF  ! casamet%lnonwood = 0/1
 
-        !IF (MOD(i,50)==0) THEN
-        ! WRITE(*,*) "new calcs"
-        ! WRITE(*,*) i, p, pidx, patch_index, BLAZE%AB(i), BLAZE%FLIx(i), BLAZE%w(i)
-        ! WRITE(*,*) "turnovers"
-        ! WRITE(*,*) TO(i,LEAF)%TO_ATM, TO(i,LEAF)%TO_STR
-        ! WRITE(*,*) TO(i,FROOT)%TO_ATM, TO(i,FROOT)%TO_STR
-        ! WRITE(*,*) TO(i, WOOD)%TO_ATM,  TO(i, WOOD)%TO_STR, TO(i, WOOD)%TO_CWD
-        ! WRITE(*,*) "krates normal"
-        ! WRITE(*,*) (casaflux%kplant(patch_index,j), j=1,3)
-        ! WRITE(*,*) (casaflux%klitter(patch_index,j), j=1,3)
-        ! WRITE(*,*) "krates fires"
-        ! WRITE(*,*) (casaflux%kplant_fire(patch_index,j), j=1,3)
-        ! WRITE(*,*) (casaflux%klitter_fire(patch_index,j), j=1,3)
-        ! DO j=1,3
-        !    WRITE(*,*) (casaflux%fromPtoL_fire(patch_index,j,MM), MM=1,3)
-        ! ENDDO
-        ! WRITE(*,*) "fluxes"
-        ! WRITE(*,*) (BLAZE%FLUXES(i,j),j=1,10)
-        ! WRITE(*,*) " "
-        ! WRITE(*,*) " "
-      !ENDIF
-
      END DO    ! number of active patches 
   END DO       ! number of grid cells
 
-  !STOP
+  !for the BLAZE type - reset cumulative BA at end of year - could be made latitude/biome dependent in future
+  IF (idoy .ge. 365) THEN
+     BLAZE%annAB = 0.0
+  END IF
 
 END SUBROUTINE BLAZE_DRIVER

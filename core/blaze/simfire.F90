@@ -2,7 +2,7 @@ MODULE SIMFIRE_MOD
 
 TYPE TYPE_SIMFIRE
    INTEGER, DIMENSION(:), ALLOCATABLE    :: IGBP, BIOME, REGION, NDAY
-   REAL,    DIMENSION(:), ALLOCATABLE    :: POPD, MAX_NESTEROV, CNEST, LAT, LON, FLI, FAPAR, POPDENS
+   REAL,    DIMENSION(:), ALLOCATABLE    :: POPD, MAX_NESTEROV, CNEST, LAT, LON, FLI, FAPAR, POPDENS, AREA
    REAL,    DIMENSION(:,:), ALLOCATABLE  :: SAV_NESTEROV, SAV_FAPAR, BA_MONTHLY_CLIM
    INTEGER   :: SYEAR, EYEAR, NCELLS
    REAL      :: RES, RESF
@@ -90,6 +90,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ALLOCATE( SF%FAPAR       (NCELLS) )
   ALLOCATE( SF%LAT         (NCELLS) )
   ALLOCATE( SF%LON         (NCELLS) )
+  ALLOCATE( SF%AREA        (NCELLS) )
   ALLOCATE( SF%SAV_NESTEROV(NCELLS,12) )
   ALLOCATE( SF%SAV_FAPAR(NCELLS,FAPAR_AVG_INT) )
   ALLOCATE( SF%POPDENS     (NCELLS) )
@@ -100,6 +101,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   SF%IGBP = modis_igbp
   SF%LAT  = LATITUDE
   SF%LON  = LONGITUDE
+
+  !get effective grid cell area - dummy until robust solution determined
+  CALL get_grid_areakm2(NCELLS,SF%LAT,SF%LON,SF%AREA)
 
   !=============================================================================
   ! VEGTYPE from IGBP dataset
@@ -558,8 +562,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   IMPLICIT NONE
 
   TYPE (TYPE_SIMFIRE) :: SF
-  REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*), annAB(*)
+  REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
+  REAL,    INTENT(INOUT) :: annAB(*)
   REAL,    INTENT(OUT):: T1(*), T2(*), T3(*), T4(*)
   INTEGER, INTENT(IN) :: YEAR, MM
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
@@ -615,6 +620,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
 
      !catch out-of-bounds issues
      AB(i) = MAX( 0., MIN(AB(i),.99) )
+
      !write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
      !write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
 
@@ -647,110 +653,177 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       !   AB(i) = 0.8        ! test vh
       !endif
 
-      !apply randomness to AB - likely should be gridcell area dependent - currently hardwired to BIOS@0.025 degrees
+      !apply randomness to AB annual - currently hardwired to BIOS@0.025 degrees
+      !IF (SF%STOCH_AREA) THEN
+      !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,365)
+      !END IF
+
+      ! Monthly Burned Area
+      ! use BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
+      ! Both options use monthly_clim information to go from annual->monthly
+      AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) 
+
+      !apply randomness to AB monthly - currently hardwired to BIOS@0.025 degrees
       IF (SF%STOCH_AREA) THEN
-         CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,0.025,0.025,DOY)
+         CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,DOM(MM))
       END IF
 
-      ! Daily Burned Area
-      ! INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
-      ! - defaults to using annual max.  Daily Nesterov should pick up seasonality.
-      IF (TRIM(FSTEP) .eq. "annual") THEN
-         AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
-      ELSE
-         !seasonality comes in through using current day Nesterov
-         !AB(i) = AB(i) / 365.0
-         !looks like we still need to push AB into the correct month
-         AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
-      END IF 
+      !Daily burned area
+      AB(i) = AB(i) / DOM(MM)
 
-      !enforce that annAB can't exceed 1.0 through year - accumulation done in blaze_driver and update_sumblaze
-      AB(i) = MAX( 0., MIN(AB(i),1.0-annAB(i)) )
+      !apply randomness to AB daily - currently hardwired to BIOS@0.025 degrees
+      !INH I think randomisation/ignition goes here. We should use BLAZE%AREA for the area scaling.
+      !IF (SF%STOCH_AREA) THEN
+      !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,1)
+      !END IF
+
+      !enforce that annAB can't exceed 1.0 through year - and convert from monthly to daily
+      !sumBLAZE accumulation done in update_sumblaze
+      AB(i) = MAX( 0., MIN(AB(i),0.99-annAB(i)) )
+      annAB(i) = annAB(i) + AB(i)
 
    END DO
 
-
-
 END SUBROUTINE SIMFIRE
 
-SUBROUTINE STOCH_AREA(AB,lat,lon,dlat,dlon,DAY)
+SUBROUTINE STOCH_AREA(AB,lat,lon,gca,DAY,YEAR,NDAY)
 
-   !simple, empircal function to apply some deterministic randomness to the burnt area 
-   !while preserving the time/ensemble average
+   !simple, empirical function to apply some deterministic randomness to the burnt area 
+   ! while preserving the time/ensemble average.  this is a surrogate for ignition
    ! needs to be gridcell area dependent since (conceptually) more likely to be 0 or 1 AB for small cells
    !
-   !function is:  ABout = ABin - dx + (dx+dy)/2 ( 1 + tanh( (seed - 1 + AB)/ ABx))
+   !function is:  ABout = ABin ( 1 + tanh( (seed - gamma AB)/ ABx)) / denom
    !
    !interpretation - 2 parts - given a seed on 0-1
-   !               a) ABout1 = ABin - dx + (dx+dy)/2 (1 - sign( (seed - 1 + AB) ) )
-   !where (1-AB)*dx = dy*BA.  
+   !               a) ABout1 = mx (1 - sign( (seed - gamma ABin) ) ) / 2
+   !where (1-gamma ABin)*mx = AB and mx is maxBA permitted per call to randmiser 
    !
-   !This function randomises AB so that ABout=0 with a probability of (1-AB) and =1 with a probability of AB
-   !The expected value of ABout = ABin
+   !This function randomises AB so that ABout=0 with a probability of gamma ABin and =mx with a probability of ABin
+   !The mean value of ABout (for x in 0,1) is ABin
    !
-   !               b) ABout2 = ABout1 + (dx+dy)/2 (1 + tanh ((seed - 1 + AB)/ABx) )
+   !               b) ABout2 = mx (1 + tanh ((seed - gamma ABin)/ABx) ) / denom
    !
-   !This blurs the step function nature of ABout1 over a range of seed of scale ABx, centred on seed = 1-AB
+   !This blurs the step function nature of ABout1 over a range of seed of scale ABx, centred on seed = gamma AB
+   !denom is needed to ensure that mean value of ABout (for x in 0,1) is ABin
 
       IMPLICIT NONE
 
    !in/outs
    REAL, INTENT(INOUT) :: AB
-   REAL, INTENT(IN)    :: lat, lon, dlat, dlon
-   INTEGER, INTENT(IN) :: DAY
+   REAL, INTENT(IN)    :: lat, lon, gca
+   INTEGER, INTENT(IN) :: DAY, YEAR, NDAY
 
    !parameters: eps needed to ensure randmomisation occurs globally, beta>=3 scaling within function 
-   !ref_gca = nominal resolution (degrees squared) below which randomisation occurs - 0.01~100kmx100km 
-   REAL                :: ref_gca = 0.0025, eps = 1.0, beta = 3.0
+   !max_ba = maxBA possible per day ~200km2  
+   REAL, PARAMETER     :: max_ba = 200., eps = 1.0, beta = 3.0
 
    !working vars
-   REAL                :: dx, dy, ABx, seed
-   INTEGER             :: ncount
-   !INTEGER, DIMENSION(:), ALLOCATABLE :: intseed
+   REAL                :: mx, ABx, seed, denom, gamma
+   INTEGER             :: intseed
 
-   IF ((AB .le. 0.0) .or. (abs(dlat*dlon)/ref_gca .ge. 1.0) ) THEN
+   IF ( (AB .le. 0.0) ) THEN
       !satisfy INOUT requirement
       AB = 1.0*AB
 
    ELSE
-      !create a real random number that is deterministic but varies in time, space
-      seed = REAL(DAY)*(ABS(lat)+eps)*(ABS(lon)+eps)/86400.0
+      !create a 'random' integer that is deterministic but varies in time, space (and ~randomly)
+      !need intseed to differ for each grid cell, day and year 
+      ! - note expected min resolution is 0.05 degrees so YEAR factor ensures cells do not align
+      intseed = INT(REAL(DAY*YEAR)*(ABS(lat/10.0)+eps)*(ABS(lon/10.0)+2.5*eps))
 
-      !convert this real number to a random number on (0,1) using fortran intrinsics
-      !call RANDOM_SEED(size=ncount)
-      !ALLOCATE(intseed(ncount))
-      !intseed = INT(seed * 100000.0)
-      !call RANDOM_SEED(put=intseed)
-      !DEALLOCATE(intseed)
-      !call RANDOM_NUMBER(seed)
+      !use alternate lcg_generator to generate REAL seed on (0,1) - doesn't require the repeated ALLOCATION
+      CALL seeded_random(intseed,seed)
 
-      !use alternate lcg_generator - doesn't require the repeated ALLOCATION
-      ncount = INT(seed * 100000.0)
-      CALL lcg_random(ncount,seed)
+      !apply function using seed - dx is max_BA per call to randomiser = ndays*max_ba/grid_cell_area
+      mx = MAX(MIN(REAL(NDAY) * max_ba / gca, 1.0), AB)
 
-      !apply function using seed - note dx includes the gridcell size dependence
-      dx = min(1.0-abs(dlat*dlon)/ref_gca,1.0)*AB
-      dy = dx* (1.0-AB)/AB
-      ABx = min(AB/beta,(1.-AB)/beta,0.2/beta)
+      !gamma*AB is positioning of max steepness
+      gamma = (1.0-AB/mx)/AB
+
+      !ABx is scale of curve - needs to take a maximum and minimum value
+      ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, 0.2/beta), 0.025)
+
+      !normalising factor to ensure mean (over seed=0,1) is AB
+      denom = 1.0 + ABx*( log(cosh((gamma*AB-1.0)/ABx))-log(cosh(gamma*AB/ABx)))
 
       !apply randomisation
-      AB = AB - dx + (dx+dy)*(1.0 + tanh( (seed-1.0+AB)/ABx) )/2.0
-
+      AB = AB*(1.0 + tanh( (seed-gamma*AB)/ABx) ) / denom
+   
    END IF
 
 END SUBROUTINE STOCH_AREA
 
-SUBROUTINE lcg_random(x,seed)
+SUBROUTINE seeded_random(x,seed)
    ! Linear congruential generator for single precision random numbers on (0,1)
+   ! uses the matlab incarnation of coefficients (random0, Chapman 2015)
    ! https://en.wikipedia.org/wiki/Linear_congruential_generator
 
    real, intent(out) :: seed
    integer, intent(in) :: x
    integer :: work
 
-   work = modulo(x*48271, 2147483647)
-   seed = work / real(2147483647)
+   !use matlab/fortran coeffs
+   work = modulo (8121*x+28411, 134456)
+   seed = work / real(134456)
 
-END SUBROUTINE lcg_random
+END SUBROUTINE seeded_random
+
+SUBROUTINE get_minlatlon_increment(NCELLS,latlon,dlatlon)
+
+   !routine determines the effective resolution of input from SF TYPE 
+   !dummy routine while a more robust solution found
+
+   INTEGER, iNTENT(IN) :: NCELLS 
+   REAL, INTENT(IN)    :: latlon(NCELLS)
+   REAL, INTENT(OUT)   :: dlatlon
+   
+   INTEGER :: i, j 
+
+   !initial value
+   dlatlon = 360.0
+
+   IF (NCELLS .eq. 1) THEN
+      dlatlon = 0.0
+   ELSE
+      DO i = 1,NCELLS 
+         DO j = i,NCELLS 
+            !loop over cells to find smallest dlat or dlon
+            IF ( (abs(latlon(i)-latlon(j)) < dlatlon) .and. (latlon(i) .ne. latlon(j)) ) THEN
+               dlatlon = abs(latlon(i)-latlon(j))
+            END IF
+         END DO
+      END DO
+   END IF
+
+   !enforce a minimum value
+   dlatlon = MAX(dlatlon,0.01)
+
+END SUBROUTINE get_minlatlon_increment
+
+SUBROUTINE get_grid_areakm2(NCELLS,lat,lon,area)
+
+   !NB assumes that lat,lon are given as grid cell centres
+   INTEGER, INTENT(IN) :: NCELLS
+   REAL, INTENT(IN)    :: lat(NCELLS), lon(NCELLS)
+   REAL, INTENT(OUT)   :: area(NCELLS)
+
+   REAL :: dlat, dlon, PI, rEarth=6371.0
+   INTEGER :: i
+
+   CALL get_minlatlon_increment(NCELLS,lat,dlat)
+   CALL get_minlatlon_increment(NCELLS,lon,dlon)
+
+   WRITE(*,*) "SIMFIRE: resolution of CABLE simulation, dlat: ", dlat, " dlon: ", dlon
+
+   PI = 4.0*ATAN(1.0)
+             
+   piR2 = PI*rEarth*rEarth/180.0
+   deg2rad = PI/180.0
+   DO i=1,NCELLS
+      area(i) = piR2*dlon*ABS( sin(deg2rad*(lat(i)-dlat/2.0))-sin(deg2rad*(lat(i)+dlat/2.0)))
+   END DO
+
+END SUBROUTINE get_grid_areakm2
+
 
 END MODULE SIMFIRE_MOD

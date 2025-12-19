@@ -301,8 +301,8 @@ subroutine zero_blaze(blaze,doy)
   blaze%LAT           = 0.0
   blaze%LON           = 0.0
   blaze%DFLI          = 0.0
-  blaze%AB            = 0.0           !zero %AB each call to zero_blaze (typically monthly)
-  if (doy > 360) blaze%annAB = 0.0    !zero %annAB only every year
+  blaze%AB            = 0.0              !zero %AB each call to zero_blaze (typically monthly)
+  if (doy .ge. 365) blaze%annAB = 0.0    !zero %annAB only every year (sumBLAZE type and initialisation)
   Blaze%CAvgAnnRainf  = 0.0
   blaze%DEADWOOD      = 0.0
   blaze%POP_TO        = 0.0
