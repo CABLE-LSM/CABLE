@@ -340,7 +340,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           END IF
 
           IF ( RRRR .EQ. 1 ) THEN
-            CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+            CALL open_met_file( dt, koffset, kend, spinup, CTFRZ )
             IF (is_leapyear(YYYY).AND.kend.EQ.2920) THEN
               STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
             ENDIF
@@ -368,7 +368,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
         CASE ('gswp3')
           ncciy = CurYear
-          CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+          CALL open_met_file( dt, koffset, kend, spinup, CTFRZ )
 
         CASE ('site')
           ! site experiment eg AmazonFace (spinup or  transient run type)
@@ -499,7 +499,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
         DO ktau=kstart, kend
 
           ts_end = ts_start + dt
-          WRITE(logn,*) 'Current time: ', ts_start
+          WRITE(logn,*) 'Current time: ', isoformat(ts_start)
           WRITE(logn,*) 'Progress -',REAL(ktau)/REAL(kend)*100.0
 
           ! increment total timstep counter
@@ -508,7 +508,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl = ktau_tot
 
-          idoy =INT( MOD(REAL(CEILING(REAL((ktau+koffset)/ktauday))),REAL(LOY)))
+          !idoy =INT( MOD(REAL(CEILING(REAL((ktau+koffset)/ktauday))),REAL(LOY)))
+          idoy = ts_start%getday()
           IF ( idoy .EQ. 0 ) idoy = LOY
 
           ! needed for CASA-CNP
@@ -569,14 +570,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           END SELECT
 
-          IF (TRIM(cable_user%MetType).EQ.'' ) THEN
-            CurYear = met%year(1)
-            IF ( leaps .AND. IS_LEAPYEAR( CurYear ) ) THEN
-              LOY = 366
-            ELSE
-              LOY = 365
-            ENDIF
-          ENDIF
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
           ! Zero out lai where there is no vegetation acc. to veg. index
@@ -584,7 +577,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           ! At first time step of year, set tile area according to updated LU areas
           ! and zero casa fluxes
-          IF (ktau == 1) THEN
+          if (startofyear(ts_start)) then
+          !IF (ktau == 1) THEN
             IF (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
             IF ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
           ENDIF
@@ -616,8 +610,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
 
 
-          ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
-                koffset, kend, ktauday, logn) ) THEN                ! CLN READ FROM FILE INSTEAD !
+          !ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
+                !koffset, kend, ktauday, logn) ) THEN                ! CLN READ FROM FILE INSTEAD !
+          else if (is_casa_time(ts_Start, "dread", logn)) then
             WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
             ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
             casa_it = NINT( REAL(ktau / ktauday) )
@@ -637,7 +632,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
                  CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                  LALLOC )
 
-            IF(MOD((ktau-kstart+1),ktauday)==0) THEN
+            !IF(MOD((ktau-kstart+1),ktauday)==0) THEN
+            if (isnewday(ts_end)) then
 
               !mpidiff
               ! update time-aggregates of casa pools and fluxes
@@ -647,8 +643,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
             ENDIF
 
 
-            IF( ((MOD((ktau-kstart+1),ktauday)==0) .AND.  &
-                  MOD((ktau-kstart+1)/ktauday,LOY)==0) )THEN ! end of year
+            !IF( ((MOD((ktau-kstart+1),`ktauday)==0) .AND.  &
+                  !MOD((ktau-kstart+1)/ktauday,LOY)==0) )THEN ! end of year
+            if (isnewyear(ts_end)) then
               IF (CABLE_USER%POPLUC) THEN
                 ! Dynamic LUC
                 CALL LUCdriver( casabiome,casapool,casaflux,POP,     &
@@ -672,23 +669,29 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           IF(icycle >0) THEN
 
 
-            IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                 koffset, kend, ktauday, logn) ) THEN
+            !IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
+                 !koffset, kend, ktauday, logn) ) THEN
+            if (is_casa_time(ts_start, "write", logn)) then
               ctime = ctime +1
               !mpidiff
               CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                    .FALSE. , .TRUE. , count_sum_casa)
-              CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
-                   CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.               &
-                   cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
+              !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                   !CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.               &
+                   !cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
+              call write_casa_output_nc(veg, casamet, sum_casapool, casabal,&
+                  sum_casaflux, CASAONLY, ctime, isnewday(ts_start) .and.&
+                  ts_start%getyear() == cable_user%YearEnd .and. RRRR == NRRRR)
               !mpidiff
               count_sum_casa = 0
               CALL zero_sum_casa(sum_casapool, sum_casaflux)
             ENDIF
 
 
-            IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
-                 MOD((ktau-kstart+1),ktauday)==0) THEN
+            !IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
+                 !MOD((ktau-kstart+1),ktauday)==0) THEN
+            if (((.not. spinup) .or. (spinup .and. spinConv)) .and.&
+                isnewday(ts_end)) then
               IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
 
                 SELECT CASE (TRIM(cable_user%MetType))
@@ -789,7 +792,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 !$
 !$          enddo
 
-            IF( ktau == kend ) THEN
+            !IF( ktau == kend ) THEN
+            if (isnewyear(ts_end)) then
               nkend = nkend+1
               PRINT *, "NB. Offline-serial runs spinup cycles:", nkend
               CALL compare_consistency_check_values(new_sumbal)
