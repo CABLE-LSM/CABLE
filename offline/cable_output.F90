@@ -81,7 +81,7 @@ MODULE cable_output_module
           vcmax, ejmax, hc, &
           GPP_sl, GPP_sh, GPP_slC, GPP_shC, GPP_slJ, GPP_shJ, &
           eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
-          An_sl, An_sh, ci_sl, ci_sh, cs_sl, cs_sh, scalex_sl, scalex_sh, dlf, &
+          An_sl, An_sh, ci_sl, ci_sh, cs_sl, cs_sh, scalex_sl, scalex_sh, dlf, dva, &
           vcmax_ts, jmax_ts, qcan_sl, qcan_sh, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
@@ -265,6 +265,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sl => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sh => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dlf => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dva => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_TVeg_cs => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dGPPdcs => null()
@@ -764,6 +765,13 @@ CONTAINS
           ALLOCATE(out%epotref1(mp))
           out%epotref1 = zero4 ! initialise
      END IF
+     IF(output%met .OR. output%dva) THEN
+            CALL define_ovar(ncid_out, ovid%dva, 'dva', 'Pa', &
+            'atomosphere vpd', patchout%TVeg, 'dummy', &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%dva(mp))
+       out%dva = zero4 ! initialise
+       end if
     IF(output%flux .OR. output%dlf) THEN
 
 !       CALL define_ovar(ncid_out, ovid%gsw_epotvpd_sl, 'gsw_epotvpd_sl', 'mol/m^2/s', &
@@ -3966,12 +3974,31 @@ CONTAINS
           out%GPP = zero4
        END IF
     END IF
-
+     if (output%flux .OR. output%dlf) then
+          out%dlf         = out%dlf         + toreal4(canopy%dlf)
+          IF (writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%dlf         = out%dlf         * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%dlf, 'leaf to air vpd', out%dlf, &
+               ranges%GPP, patchout%GPP, 'default', met)
+          out%dlf         = zero4
+          end if
+     end if
+     if (output%met .OR. output%dva) then
+          out%dva         = out%dva         + toreal4(met%dva)
+          IF (writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%dva         = out%dva         * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%dva, 'dva', out%dva, &
+               ranges%GPP, patchout%GPP, 'default', met)
+          out%dva         = zero4
+          end if
+     end if
     ! components of GPP
     IF (output%GPP_components) THEN
        out%scalex_sl   = out%scalex_sl   + toreal4(rad%scalex(:,1))
        out%scalex_sh   = out%scalex_sh   + toreal4(rad%scalex(:,2))
-       out%dlf         = out%dlf         + toreal4(canopy%dlf)
+       
        out%An_sl       = out%An_sl       + toreal4(canopy%A_sl*1.0e6_r_2)
        out%An_sh       = out%An_sh       + toreal4(canopy%A_sh*1.0e6_r_2)
        out%ci_sl       = out%ci_sl       + toreal4(canopy%ci(:,1)*1.0e6_r_2)
@@ -4010,7 +4037,7 @@ CONTAINS
           ! Divide accumulated variable by number of accumulated time steps:
           out%scalex_sl   = out%scalex_sl   * rinterval
           out%scalex_sh   = out%scalex_sh   * rinterval
-          out%dlf         = out%dlf         * rinterval
+          
           out%An_sl       = out%An_sl       * rinterval
           out%An_sh       = out%An_sh       * rinterval
           out%ci_sl       = out%ci_sl       * rinterval
@@ -4038,8 +4065,7 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%scalex_sh, 'scalex_sh', out%scalex_sh, &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%dlf, 'leaf to air vpd', out%dlf, &
-               ranges%GPP, patchout%GPP, 'default', met)
+
 
           CALL write_ovar(out_timestep, ncid_out, ovid%An_sl, 'Anet_sl', out%An_sl, &
                ranges%GPP, patchout%GPP, 'default', met)
@@ -4112,7 +4138,7 @@ CONTAINS
           ! Reset temporary output variable:
           out%scalex_sl   = zero4
           out%scalex_sh   = zero4
-          out%dlf         = zero4
+          
           out%An_sl       = zero4
           out%An_sh       = zero4
           out%ci_sl       = zero4
