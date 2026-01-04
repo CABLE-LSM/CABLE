@@ -2,6 +2,9 @@ spack:
   specs:
   - cable@git.{{ ref }}
   packages:
+    python:
+      require:
+        - '@3.11.14'
     intel-oneapi-compilers-classic:
       require:
       - '@2021.10.0'
