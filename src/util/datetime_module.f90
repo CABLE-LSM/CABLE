@@ -1117,10 +1117,10 @@ contains
     ! Determines whether the given `datetime` `d` is the start of a month.
     type(datetime), intent(in) :: d
 
-    isNewYear = (d%getDay() == 1 .and. d%getHour() == 0 .and.&
+    isNewMonth = (d%getDay() == 1 .and. d%getHour() == 0 .and.&
       d%getMinute() == 0 .and. d%getSecond() == 0 .and.&
       d%getMillisecond() == 0)
-  end function isNewYear
+  end function isNewMonth
 
 
   pure elemental logical function isNewYear(d)
