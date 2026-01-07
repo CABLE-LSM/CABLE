@@ -301,7 +301,7 @@ CONTAINS
 
     IMPLICIT NONE
     ! Input arguments
-    type(timedelta), intent(out) :: dt
+    REAL, INTENT(OUT) :: dels   ! time step size
     REAL, INTENT(IN) :: TFRZ
     INTEGER, INTENT(INOUT)      :: koffset ! offset between met file and desired period
     INTEGER, INTENT(OUT)        :: kend   ! number of time steps in simulation
@@ -353,7 +353,6 @@ CONTAINS
          precipTot,              & ! used for spinup adj
          avPrecipInMet             ! used for spinup adj
     CHARACTER(LEN=10)                :: todaydate, nowtime ! used to timestamp log file
-    REAL :: dels   ! time step size
     REAL(4),DIMENSION(1)             :: data1 ! temp variable for netcdf reading
     REAL(4),DIMENSION(1,1)           :: data2 ! temp variable for netcdf reading
     REAL(4), DIMENSION(:),     ALLOCATABLE :: temparray1  ! temp read in variable
@@ -1598,7 +1597,6 @@ CONTAINS
             ' some synthesised (as above).'
     END IF
 
-    dt = timedelta(seconds=dels)
     !=================^^ End met variables search^^=======================
   END SUBROUTINE open_met_file
   !==============================================================================
@@ -1680,7 +1678,7 @@ CONTAINS
           END SELECT
        ELSE
           ! increment hour-of-day by time step size:
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + dt%total_seconds()/3600.0
+          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + dels/3600.0
        END IF
        !
        IF(met%hod(landpt(i)%cstart)<0.0) THEN ! may be -ve since longitude

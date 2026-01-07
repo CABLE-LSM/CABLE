@@ -340,8 +340,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           END IF
 
           IF ( RRRR .EQ. 1 ) THEN
-            CALL open_met_file( dt, koffset, kend, spinup, CTFRZ )
-            IF (is_leapyear(YYYY).AND.kend.EQ.2920) THEN
+            CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+            dt = timedelta(seconds=dels)
+            IF (isleapyear(YYYY).AND.kend.EQ.2920) THEN
               STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
             ENDIF
             IF ( NRRRR .GT. 1 ) THEN
@@ -368,7 +369,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
         CASE ('gswp3')
           ncciy = CurYear
-          CALL open_met_file( dt, koffset, kend, spinup, CTFRZ )
+          CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+          dt = timedelta(seconds=dels)
 
         CASE ('site')
           ! site experiment eg AmazonFace (spinup or  transient run type)
@@ -577,7 +579,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           ! At first time step of year, set tile area according to updated LU areas
           ! and zero casa fluxes
-          if (startofyear(ts_start)) then
+          if (isnewyear(ts_start)) then
           !IF (ktau == 1) THEN
             IF (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
             IF ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
