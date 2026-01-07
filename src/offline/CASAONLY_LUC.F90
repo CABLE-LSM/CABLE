@@ -66,8 +66,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
   CHARACTER(LEN=99)        :: ncfile
   CHARACTER(LEN=4)         :: cyear
-  INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  INTEGER, SAVE            :: ndays
+  INTEGER                  :: ktau,ktauday,idoy,ktaux,ktauy,nloop
   REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
@@ -98,7 +97,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   ENDIF
 
   ktauday=INT(24.0*3600.0/dels)
-  nday=(kend-kstart+1)/ktauday
   ctime = 0
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
   count_sum_casa = 0
