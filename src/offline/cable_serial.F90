@@ -608,12 +608,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
             ssnow%rnof2 = ssnow%rnof2*dels
             ssnow%runoff = ssnow%runoff*dels
 
-
-
-
-
-          !ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
-                !koffset, kend, ktauday, logn) ) THEN                ! CLN READ FROM FILE INSTEAD !
           else if (is_casa_time(ts_Start, "dread", logn)) then
             WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
             ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
@@ -670,10 +664,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           ! WRITE CASA OUTPUT
           IF(icycle >0) THEN
 
-
-            !IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                 !koffset, kend, ktauday, logn) ) THEN
-            if (is_casa_time(ts_start, "write", logn)) then
+            if (is_casa_time("write", ts_start, logn)) then
               ctime = ctime +1
               !mpidiff
               CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &

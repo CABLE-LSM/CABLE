@@ -404,7 +404,7 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
 
   END SUBROUTINE DOYSOD2YMDHMS
 
-  FUNCTION IS_CASA_TIME(currtime, iotype, logn)
+  FUNCTION IS_CASA_TIME(iotype, curr_time, logn)
 
   USE cable_common_module, ONLY: CABLE_USER 
     ! Correctly determine if it is time to dump-read or standard-write
@@ -418,7 +418,7 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
     IMPLICIT NONE
 
     LOGICAL   :: IS_CASA_TIME
-    type(datetime), intent(in) :: currtime
+    type(datetime), intent(in) :: curr_time
     INTEGER  ,INTENT(IN) :: logn
     CHARACTER,INTENT(IN) :: iotype*5
 
@@ -432,9 +432,9 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
     ELSE IF ( iotype .EQ. "write" ) THEN
 
        SELECT CASE ( TRIM(CABLE_USER%CASA_OUT_FREQ) )
-       CASE ("daily"   ) ; IS_CASA_TIME = isnewday(currtime)
-       CASE ("monthly" ) ; IS_CASA_TIME = isnewmonth(currtime)
-       CASE ("annually") ; IS_CASA_TIME = isnewyear(currtime)
+       CASE ("daily"   ) ; IS_CASA_TIME = isnewday(curr_time)
+       CASE ("monthly" ) ; IS_CASA_TIME = isnewmonth(curr_time)
+       CASE ("annually") ; IS_CASA_TIME = isnewyear(curr_time)
        END SELECT
     ELSE
        WRITE(logn,*)"Wrong statement 'iotype'", iotype, "in call to IS_CASA_TIME"

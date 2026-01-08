@@ -1,4 +1,4 @@
-SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, &
+SUBROUTINE CASAONLY_LUC(dels, curr_time, ktauday, veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
      sum_casapool, sum_casaflux )
 
@@ -63,9 +63,10 @@ SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, 
   REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
-  INTEGER                  :: myearspin,nyear, yyyy, nyear_dump, cyear
+  INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
   CHARACTER(LEN=99)        :: ncfile
-  INTEGER                  :: ktau,idoy
+  CHARACTER(LEN=4)         :: cyear
+  INTEGER                  :: idoy
   REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
@@ -95,7 +96,6 @@ SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, 
      Iw = POP%Iwood
   ENDIF
 
-  ktauday=INT(24.0*3600.0/dels)
   ctime = 0
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
   count_sum_casa = 0
@@ -127,7 +127,6 @@ SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, 
      CALL read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
      !!CLN901  format(A99)
      DO idoy=1,mdyear
-        ktau=(idoy-1)*ktauday +ktauday
 
         casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
         casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
@@ -266,7 +265,7 @@ SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, 
         ENDIF  ! end of year
 
 
-        IF ( IS_CASA_TIME(ts_start, "write", logn) ) THEN
+        IF ( IS_CASA_TIME("write", curr_time, logn) ) THEN
            ctime = ctime +1
 
            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
