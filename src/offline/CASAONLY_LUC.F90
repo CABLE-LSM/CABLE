@@ -63,9 +63,9 @@ SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, 
   REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
-  INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
+  INTEGER                  :: myearspin,nyear, yyyy, nyear_dump, cyear
   CHARACTER(LEN=99)        :: ncfile
-  INTEGER                  :: ktau,ktauday,idoy
+  INTEGER                  :: ktau,idoy
   REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
