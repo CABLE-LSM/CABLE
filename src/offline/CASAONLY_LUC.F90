@@ -154,7 +154,7 @@ SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, 
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
 
-        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+        CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &

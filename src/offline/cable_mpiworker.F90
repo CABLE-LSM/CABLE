@@ -7042,7 +7042,7 @@ CONTAINS
        DO idoy=1,mdyear
           ktau=(idoy-1)*ktauday +1
           CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr)
-          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+          CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
                xksoil,xkleaf,xkleafcold,xkleafdry,&
                cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -7210,7 +7210,7 @@ CONTAINS
              ktau=(idoy-1)*ktauday +1
              CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr)
 
-             CALL biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+             CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                   casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                   xkleafcold,xkleafdry,&
                   cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -7332,7 +7332,7 @@ CONTAINS
           CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr)
 
 
-          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+          CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
                xksoil,xkleaf,xkleafcold,xkleafdry,&
                cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
