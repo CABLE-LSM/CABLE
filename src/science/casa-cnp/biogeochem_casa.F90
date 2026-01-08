@@ -18,7 +18,6 @@ USE POP_TYPES,            ONLY: POP_TYPE
 USE casa_rplant_module, ONLY: casa_rplant 
 
 IMPLICIT NONE
-INTEGER, INTENT(IN)    :: ktau
 REAL,    INTENT(IN)    :: dels
 INTEGER, INTENT(IN)    :: idoy
 INTEGER, INTENT(IN)    :: LALLOC
