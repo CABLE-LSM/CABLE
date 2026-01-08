@@ -468,7 +468,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           ELSEIF ( casaonly .AND. (.NOT. spincasa) ) THEN !.AND. cable_user%popluc) THEN
 
-            CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
+            CALL CASAONLY_LUC(dels, ts_start, ktauday ,veg,soil,casabiome,casapool, &
                  casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                  sum_casapool, sum_casaflux)
             SPINon = .FALSE.

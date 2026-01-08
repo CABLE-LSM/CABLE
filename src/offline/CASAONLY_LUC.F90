@@ -1,4 +1,4 @@
-SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
+SUBROUTINE CASAONLY_LUC( dels, curr_time, ktauday, veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
      sum_casapool, sum_casaflux )
 
@@ -24,14 +24,13 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE casa_cable
   USE casa_inout_module
   USE biogeochem_mod, ONLY : biogeochem 
-USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC 
+  USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
+  use datetime_module, only: datetime
 
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
-  REAL,    INTENT(IN)    :: dels
-  INTEGER, INTENT(IN)    :: kstart
-  INTEGER, INTENT(IN)    :: kend
+  REAL,    INTENT(IN)    :: dels, ktauday
   INTEGER, INTENT(IN)    :: LALLOC
   TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
   TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
@@ -48,6 +47,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
   TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
 
+  type(datetime), intent(in) :: curr_time
 
 
   TYPE (casa_met)  :: casaspin
@@ -65,8 +65,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   ! local variables
   INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
   CHARACTER(LEN=99)        :: ncfile
-  CHARACTER(LEN=4)         :: cyear
-  INTEGER                  :: ktau,ktauday,idoy,ktaux,ktauy,nloop
+  INTEGER                  :: ktau,ktauday,idoy
   REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
@@ -105,7 +104,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
   yyyy = CABLE_USER%YEARSTART - 1
 
-  DO nyear=1,myearspin
      yyyy  = yyyy+1
 
      WRITE(*,*) 'casaonly_LUC', YYYY
@@ -268,8 +266,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
         ENDIF  ! end of year
 
 
-        IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-             0, kend, ktauday, logn) ) THEN
+        IF ( IS_CASA_TIME(ts_start, "write", logn) ) THEN
            ctime = ctime +1
 
            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
