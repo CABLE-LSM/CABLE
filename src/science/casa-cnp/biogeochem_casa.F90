@@ -4,7 +4,7 @@ IMPLICIT NONE
 
 CONTAINS
 
-  SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+  SUBROUTINE biogeochem(dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux, &
        casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,xkleafcold,xkleafdry,&
        cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
        nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
