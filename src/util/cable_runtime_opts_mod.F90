@@ -120,6 +120,8 @@ TYPE kbl_user_switches
   ! #338 https://github.com/CABLE-LSM/CABLE/issues/338
   LOGICAL :: l_ice_consistency = .FALSE.
 
+  LOGICAL :: mpi_legacy = .TRUE. !! Enable the legacy MPI implementation of CABLE
+
 END TYPE kbl_user_switches
 
 ! instantiate internal switches
