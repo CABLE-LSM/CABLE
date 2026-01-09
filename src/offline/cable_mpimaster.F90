@@ -907,8 +907,8 @@ CONTAINS
 
             CALL master_receive (ocomm, oktau, casa_ts)
 
-            IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
-                 ( IS_CASA_TIME("dwrit", ts_start, logn) THEN
+            IF (((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
+                 ( IS_CASA_TIME("dwrit", ts_start, logn))) THEN
               CALL master_receive ( ocomm, oktau, casa_dump_ts )
 
             ENDIF

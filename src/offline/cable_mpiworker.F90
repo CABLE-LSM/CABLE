@@ -292,7 +292,7 @@ CONTAINS
           ! MPI: bcast to workers so that they don't need to open the met
           ! file themselves
           CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
-          dt = timedelta(second=int(dels))
+          dt = timedelta(seconds=int(dels))
 
           ! MPI: need to know extents before creating datatypes
           CALL find_extents
@@ -492,7 +492,7 @@ CONTAINS
             CALL MPI_Recv (MPI_BOTTOM, 1, inp_t, 0, ktau_gl, icomm, stat, ierr)
 
             ! MPI: receive casa_dump_data for this step from the master
-          ELSEIF ( IS_CASA_TIME("dread", curr_time, logn) ) THEN
+          ELSEIF ( IS_CASA_TIME("dread", ts_start, logn) ) THEN
             CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
           END IF
 
