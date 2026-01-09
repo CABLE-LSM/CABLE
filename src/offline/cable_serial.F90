@@ -396,7 +396,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
         END SELECT
 
         ! Set the timestep here, after any met specific modifications of dels
-        dt = timedelta(second=int(dels))
+        dt = timedelta(seconds=int(dels))
 
         ! Checks where parameters and initialisations should be loaded from.
         ! If they can be found in either the met file or restart file, they will
