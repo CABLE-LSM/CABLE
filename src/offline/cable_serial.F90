@@ -275,27 +275,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
   ktauday = nint(d2s / dels)
 
-  ! Set the calendar- some forcing cases have special rules
-  select case (trim(cable_user%mettype))
-  case ("plum")
-    if (plume%leapyears) then
-      call setcalendar("gregorian")
-    else
-      call setcalendar("noleaps")
-    endif
-  
-  case ("cru")
-    call setcalendar("noleaps")
-
-  case default
-    if (leaps) then
-      call setcalendar("gregorian")
-    else
-      call setcalendar("noleaps")
-    endif
-
-  end select
-
 ! END header
 
 ! INISTUFF

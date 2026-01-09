@@ -334,28 +334,6 @@ CONTAINS
     type(datetime) :: ts_start, ts_end
     type(timedelta) :: dt
 
-    ! Set the calendar- some forcing cases have special rules
-    select case (trim(cable_user%mettype))
-    case ("plum")
-      if (plume%leapyears) then
-        call setcalendar("gregorian")
-      else
-        call setcalendar("noleaps")
-      endif
-    
-    case ("cru")
-      call setcalendar("noleaps")
-
-    case default
-      if (leaps) then
-        call setcalendar("gregorian")
-      else
-        call setcalendar("noleaps")
-      endif
-
-    end select
-
-
     ! END header
 
     ! outer loop - spinup loop no. ktau_tot :
