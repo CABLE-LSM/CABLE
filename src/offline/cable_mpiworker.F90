@@ -159,6 +159,8 @@ CONTAINS
     USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
 
     USE cbl_soil_snow_init_special_module
+
+    use datetime_module
     IMPLICIT NONE
 
     ! MPI:
