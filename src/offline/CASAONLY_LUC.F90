@@ -104,6 +104,7 @@ SUBROUTINE CASAONLY_LUC(dels, curr_time, ktauday, veg,soil,casabiome,casapool, &
   myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
   yyyy = CABLE_USER%YEARSTART - 1
 
+  DO nyear=1,myearspin
      yyyy  = yyyy+1
 
      WRITE(*,*) 'casaonly_LUC', YYYY
