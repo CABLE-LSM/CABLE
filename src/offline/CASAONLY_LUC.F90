@@ -30,8 +30,8 @@ SUBROUTINE CASAONLY_LUC(dels, curr_time, ktauday, veg,soil,casabiome,casapool, &
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
-  REAL,    INTENT(IN)    :: dels, ktauday
-  INTEGER, INTENT(IN)    :: LALLOC
+  REAL,    INTENT(IN)    :: dels
+  INTEGER, INTENT(IN)    :: LALLOC, ktauday
   TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
   TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
   TYPE (casa_biome),            INTENT(INOUT) :: casabiome
