@@ -273,7 +273,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   type(datetime) :: ts_start, ts_end
   type(timedelta) :: dt
 
-  dt = timedelta(seconds=int(dels))
   ktauday = nint(d2s / dels)
 
   ! Set the calendar- some forcing cases have special rules
@@ -341,7 +340,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           IF ( RRRR .EQ. 1 ) THEN
             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-            dt = timedelta(seconds=dels)
             IF (isleapyear(YYYY).AND.kend.EQ.2920) THEN
               STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
             ENDIF
@@ -370,7 +368,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
         CASE ('gswp3')
           ncciy = CurYear
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-          dt = timedelta(seconds=dels)
 
         CASE ('site')
           ! site experiment eg AmazonFace (spinup or  transient run type)
@@ -397,6 +394,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
           ENDIF
 
         END SELECT
+
+        ! Set the timestep here, after any met specific modifications of dels
+        dt = timedelta(second=int(dels))
 
         ! Checks where parameters and initialisations should be loaded from.
         ! If they can be found in either the met file or restart file, they will
@@ -608,7 +608,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
             ssnow%rnof2 = ssnow%rnof2*dels
             ssnow%runoff = ssnow%runoff*dels
 
-          else if (is_casa_time(ts_Start, "dread", logn)) then
+          else if (is_casa_time("dread", ts_start, logn)) then
             WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
             ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
             casa_it = NINT( REAL(ktau / ktauday) )
