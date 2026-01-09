@@ -1,4 +1,4 @@
-SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
+SUBROUTINE CASAONLY_LUC(dels, curr_time, ktauday, veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
      sum_casapool, sum_casaflux )
 
@@ -24,15 +24,14 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE casa_cable
   USE casa_inout_module
   USE biogeochem_mod, ONLY : biogeochem 
-USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC 
+  USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
+  use datetime_module, only: datetime
 
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
   REAL,    INTENT(IN)    :: dels
-  INTEGER, INTENT(IN)    :: kstart
-  INTEGER, INTENT(IN)    :: kend
-  INTEGER, INTENT(IN)    :: LALLOC
+  INTEGER, INTENT(IN)    :: LALLOC, ktauday
   TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
   TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
   TYPE (casa_biome),            INTENT(INOUT) :: casabiome
@@ -48,6 +47,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
   TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
 
+  type(datetime), intent(in) :: curr_time
 
 
   TYPE (casa_met)  :: casaspin
@@ -66,8 +66,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
   INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
   CHARACTER(LEN=99)        :: ncfile
   CHARACTER(LEN=4)         :: cyear
-  INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  INTEGER, SAVE            :: ndays
+  INTEGER                  :: idoy
   REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
@@ -97,8 +96,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
      Iw = POP%Iwood
   ENDIF
 
-  ktauday=INT(24.0*3600.0/dels)
-  nday=(kend-kstart+1)/ktauday
   ctime = 0
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
   count_sum_casa = 0
@@ -131,7 +128,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
      CALL read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
      !!CLN901  format(A99)
      DO idoy=1,mdyear
-        ktau=(idoy-1)*ktauday +ktauday
 
         casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
         casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
@@ -158,7 +154,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
 
-        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+        CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -270,8 +266,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC
         ENDIF  ! end of year
 
 
-        IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-             0, kend, ktauday, logn) ) THEN
+        IF ( IS_CASA_TIME("write", curr_time, logn) ) THEN
            ctime = ctime +1
 
            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &

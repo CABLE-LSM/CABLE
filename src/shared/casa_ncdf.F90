@@ -36,6 +36,8 @@
 !#define UM_BUILD YES
 MODULE casa_ncdf_module
    
+  use datetime_module, only: datetime, isnewday, isnewmonth, isnewyear
+
    IMPLICIT NONE
 
 #ifndef UM_BUILD
@@ -402,7 +404,7 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
 
   END SUBROUTINE DOYSOD2YMDHMS
 
-  FUNCTION IS_CASA_TIME(iotype, yyyy, ktau, kstart, koffset, kend, ktauday, logn)
+  FUNCTION IS_CASA_TIME(iotype, curr_time, logn)
 
   USE cable_common_module, ONLY: CABLE_USER 
     ! Correctly determine if it is time to dump-read or standard-write
@@ -413,33 +415,12 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
     !applications. iovars is an offline module and so not appropriate to include
     !here. Suggested FIX is to move decs of vars needed (e.g. leaps) to here, and
     !then use common in iovars
-#ifdef Vanessas_common
-    USE cable_IO_vars_module, ONLY: leaps
-#endif
     IMPLICIT NONE
 
     LOGICAL   :: IS_CASA_TIME
-    INTEGER  ,INTENT(IN) :: yyyy, ktau, kstart, koffset, kend, ktauday, logn
+    type(datetime), intent(in) :: curr_time
+    INTEGER  ,INTENT(IN) :: logn
     CHARACTER,INTENT(IN) :: iotype*5
-    LOGICAL   :: is_eod, is_eom, is_eoy
-    INTEGER   :: doy, m
-    INTEGER, DIMENSION(12) :: MONTH
-
-    is_eom       = .FALSE.
-    is_eoy       = .FALSE.
-    IS_CASA_TIME = .FALSE.
-
-    MONTH = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
-    is_eod = ( MOD((ktau-kstart+1+koffset),ktauday).EQ.0 )
-    IF ( .NOT. is_eod ) RETURN    ! NO if it is not end of day
-
-#ifdef Vanessas_common
-    IF ( IS_LEAPYEAR( YYYY ) .AND. leaps ) THEN
-       MONTH(2) = 29
-    ELSE
-       MONTH(2) = 28
-    ENDIF
-#endif
 
     ! Check for reading from dump-file (hard-wired to daily casa-timestep)
     IF ( iotype .EQ. "dread" ) THEN
@@ -450,19 +431,10 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
        ! Check for writing of casa standard output
     ELSE IF ( iotype .EQ. "write" ) THEN
 
-       doy = NINT(REAL(ktau-kstart+1+koffset)/REAL(ktauday))
-       DO m = 1, 12
-          IF ( doy .EQ. SUM(MONTH(1:m)) ) THEN
-             is_eom = .TRUE.
-             IF ( m .EQ. 12 ) is_eoy = .TRUE.
-             EXIT
-          ENDIF
-       END DO
-
        SELECT CASE ( TRIM(CABLE_USER%CASA_OUT_FREQ) )
-       CASE ("daily"   ) ; IS_CASA_TIME = .TRUE.
-       CASE ("monthly" ) ; IF ( is_eom ) IS_CASA_TIME = .TRUE.
-       CASE ("annually") ; IF ( is_eoy ) IS_CASA_TIME = .TRUE.
+       CASE ("daily"   ) ; IS_CASA_TIME = isnewday(curr_time)
+       CASE ("monthly" ) ; IS_CASA_TIME = isnewmonth(curr_time)
+       CASE ("annually") ; IS_CASA_TIME = isnewyear(curr_time)
        END SELECT
     ELSE
        WRITE(logn,*)"Wrong statement 'iotype'", iotype, "in call to IS_CASA_TIME"
@@ -471,8 +443,6 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
     ENDIF
 
   END FUNCTION IS_CASA_TIME
-
-
 
 END MODULE casa_ncdf_module
 

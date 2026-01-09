@@ -243,6 +243,7 @@ else()
         src/params/cable_maths_constants_mod.F90
         src/util/cable_runtime_opts_mod.F90
         src/util/cable_common.F90
+	src/util/datetime_module.f90
         src/shared/casa_offline_inout.F90
         src/shared/casa_ncdf.F90
         src/offline/cable_iovars.F90

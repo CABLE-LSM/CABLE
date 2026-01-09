@@ -18,6 +18,8 @@ PROGRAM cable_offline_driver
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE
   USE CABLE_CRU, ONLY : CRU_TYPE
   USE CABLE_site, ONLY : site_TYPE
+  use cable_io_vars_module, only: leaps
+  use datetime_module, only: setcalendar
 
   IMPLICIT NONE
 
@@ -58,6 +60,13 @@ PROGRAM cable_offline_driver
     STOP
   END SELECT
 
+  ! Set the calendar
+  if (leaps) then
+    call setcalendar("gregorian")
+  else
+    call setcalendar("noleaps")
+  endif
+    
   IF (mpi_grp%size == 1) THEN
     CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   ELSE

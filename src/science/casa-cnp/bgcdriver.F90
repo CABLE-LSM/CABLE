@@ -105,7 +105,7 @@ IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current C
             ENDIF
 #     endif
 
-            CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+            CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
                 xkleaf,xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -146,7 +146,7 @@ ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
 
       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
 
-         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+         CALL biogeochem(dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
               xkleafcold,xkleafdry,&
               cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
