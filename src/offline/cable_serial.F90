@@ -796,6 +796,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           CALL1 = .FALSE.
 
+          ! Set time of new timestep
+          ts_start = ts_end
+
         END DO ! END Do loop over timestep ktau
 
         CALL1 = .FALSE.

@@ -224,6 +224,8 @@ CONTAINS
     USE landuse_variable
     USE bgcdriver_mod, ONLY : bgcdriver
     USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC
+
+    use datetime_module
     IMPLICIT NONE
 
     ! MPI:
@@ -329,6 +331,29 @@ CONTAINS
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
 
+    type(datetime) :: ts_start, ts_end
+    type(timedelta) :: dt
+
+    ! Set the calendar- some forcing cases have special rules
+    select case (trim(cable_user%mettype))
+    case ("plum")
+      if (plume%leapyears) then
+        call setcalendar("gregorian")
+      else
+        call setcalendar("noleaps")
+      endif
+    
+    case ("cru")
+      call setcalendar("noleaps")
+
+    case default
+      if (leaps) then
+        call setcalendar("gregorian")
+      else
+        call setcalendar("noleaps")
+      endif
+
+    end select
 
 
     ! END header
@@ -340,16 +365,12 @@ CONTAINS
 
         CurYear = YYYY
 
-        !ccc Set calendar attribute: dependant on the value of `leaps`
-        ! dependant on the MetType and set during initialisation.
-        calendar = "noleap"
-        LOY = 365
-        IF ( leaps ) THEN
-          calendar = "standard"
-        ENDIF
-        IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
-          LOY = 366
-        ENDIF
+        ts_start = datetime(year=YYYY, month=1, day=1)
+
+        LOY = daysInYear(YYYY)
+
+        ! Set kend for all cases bar princeton and gswp
+        kend = ktauday * LOY
 
         SELECT CASE (TRIM(cable_user%MetType))
         CASE ('gswp', 'prin')
@@ -457,6 +478,8 @@ CONTAINS
           ! MPI: bcast to workers so that they don't need to open the met
           ! file themselves
           CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
+
+          dt = timedelta(seconds=int(dels))
 
           ! MPI: need to know extents before creating datatypes
           CALL find_extents
@@ -673,14 +696,6 @@ CONTAINS
         ENDIF
 
 
-        !  IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
-        !       kend, ktauday, logn) ) THEN
-        !     WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
-        !     ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-        !     casa_it = NINT( REAL(iktau / ktauday) )
-        !     CALL read_casa_dump( ncfile, casamet, casaflux,phen, casa_it, kend, .FALSE. )
-        !  ENDIF
-
         canopy%oldcansto=canopy%cansto
 
         ! Zero out lai where there is no vegetation acc. to veg. index
@@ -710,6 +725,7 @@ CONTAINS
           iktau = iktau + 1
           oktau = oktau + 1
 
+          ts_end = ts_start + dt
           WRITE(logn,*) 'Progress -',REAL(ktau)/REAL(kend)*100.0
 
           met%year = imet%year
@@ -748,15 +764,6 @@ CONTAINS
                (TRIM(cable_user%MetType) .NE. 'gswp3') .AND. &
                (TRIM(cable_user%MetType) .NE. 'prin' )) CurYear = met%year(1)
 
-!$        IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
-!$              kend, ktauday, logn) )  THEN
-!$          ! CLN READ FROM FILE INSTEAD !
-!$          WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
-!$          ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!$          casa_it = NINT( REAL(iktau / ktauday) )
-!$          CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
-!$        ENDIF
-
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
@@ -775,8 +782,7 @@ CONTAINS
               CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
               ! receive casa dump requirements from worker
               IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
-                    ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-                    koffset, kend, ktauday, logn) ) ) THEN
+                    ( IS_CASA_TIME("dwrit", ts_start, logn) ) ) THEN
                 CALL master_receive ( ocomm, oktau, casa_dump_ts )
 
                 ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
@@ -791,16 +797,6 @@ CONTAINS
             ! MPI: scatter input data to the workers
             CALL master_send_input (icomm, inp_ts, iktau)
             !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
-
-!$          IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
-!$                ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-!$                               koffset, kend, ktauday, logn) ) ) THEN
-!$            WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!$            ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!$            CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!$                kend/ktauday )
-!$
-!$          ENDIF
 
             IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
                   MOD((ktau-kstart+1),ktauday)==0) THEN
@@ -838,8 +834,7 @@ CONTAINS
 
           IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
             IF (icycle >0) THEN
-              IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
-                                koffset, kend, ktauday, logn) ) THEN
+              IF ( IS_CASA_TIME("write", ts_start, logn) ) THEN
                 ctime = ctime +1
 
 
@@ -935,8 +930,7 @@ CONTAINS
             CALL master_receive (ocomm, oktau, casa_ts)
 
             IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
-                 ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-                 koffset, kend, ktauday, logn) ) ) THEN
+                 ( IS_CASA_TIME("dwrit", ts_start, logn) THEN
               CALL master_receive ( ocomm, oktau, casa_dump_ts )
 
             ENDIF

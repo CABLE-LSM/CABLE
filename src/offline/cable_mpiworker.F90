@@ -224,6 +224,10 @@ CONTAINS
     REAL,ALLOCATABLE, SAVE :: c1(:,:)
     REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
     REAL,ALLOCATABLE, SAVE :: xk(:,:)
+
+    type(datetime) :: ts_start, ts_end
+    type(timedelta) :: dt
+
     ! END header
 
     ! Maciej: make sure the variable does not go out of scope
@@ -264,16 +268,37 @@ CONTAINS
     !                      bal, logn, vegparmnew, casabiome, casapool,           &
     !                      casaflux, casamet, casabal, phen, C%EMSOIL,        &
     !                      C%TFRZ )
+    ! Set the calendar- some forcing cases have special rules
+    select case (trim(cable_user%mettype))
+    case ("plum")
+      if (plume%leapyears) then
+        call setcalendar("gregorian")
+      else
+        call setcalendar("noleaps")
+      endif
+    
+    case ("cru")
+      call setcalendar("noleaps")
+
+    case default
+      if (leaps) then
+        call setcalendar("gregorian")
+      else
+        call setcalendar("noleaps")
+      endif
+
+    end select
 
     SPINLOOP:DO
       YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
         CurYear = YYYY
 
-        IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
-          LOY = 366
-        ELSE
-          LOY = 365
-        ENDIF
+        ts_start = datetime(year=YYYY, month=1, day=1)
+
+        LOY = daysInYear(YYYY)
+
+        ! Set kend for all cases bar princeton and gswp
+        kend = ktauday * LOY
 
         ! MPI: receive from master ending time fields
         CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
@@ -285,6 +310,7 @@ CONTAINS
           ! MPI: bcast to workers so that they don't need to open the met
           ! file themselves
           CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
+          dt = timedelta(second=int(dels))
 
           ! MPI: need to know extents before creating datatypes
           CALL find_extents
@@ -442,6 +468,7 @@ CONTAINS
         KTAULOOP:DO ktau=kstart, kend
 
           ! increment total timstep counter
+          ts_end = ts_start + dt
           ktau_tot = ktau_tot + 1
 
           WRITE(logn,*) 'ktau -',ktau_tot
@@ -459,7 +486,7 @@ CONTAINS
 !$          nyear =INT((kend-kstart+1)/(365*ktauday))
 
           ! some things (e.g. CASA-CNP) only need to be done once per day
-          idoy =INT( MOD((REAL(ktau+koffset)/REAL(ktauday)),REAL(LOY)))
+          idoy = ts_start%getday()
           IF ( idoy .EQ. 0 ) idoy = LOY
 
           ! needed for CASA-CNP
@@ -483,8 +510,7 @@ CONTAINS
             CALL MPI_Recv (MPI_BOTTOM, 1, inp_t, 0, ktau_gl, icomm, stat, ierr)
 
             ! MPI: receive casa_dump_data for this step from the master
-          ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, &
-                   kend, ktauday, logn) ) THEN
+          ELSEIF ( IS_CASA_TIME("dread", curr_time, logn) ) THEN
             CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
           END IF
 
@@ -533,17 +559,9 @@ CONTAINS
 
             !  ENDIF
 
-            IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                 koffset, kend, ktauday, logn) ) THEN
-              ! write(logn,*) 'IN IS_CASA', casapool%cplant(:,1)
-              !      CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
-            ENDIF
-
-
             ! MPI: send the results back to the master
             IF( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
-                IS_CASA_TIME("dwrit", yyyy, ktau, kstart, &
-                koffset, kend, ktauday, logn))  &
+                IS_CASA_TIME("dwrit", ts_start, logn))  &
                 CALL MPI_Send (MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, ocomm, ierr)
 
           ENDIF
@@ -567,6 +585,9 @@ CONTAINS
 
 
           CALL1 = .FALSE.
+
+          ! Update the time
+          ts_start = ts_end
 
         END DO KTAULOOP ! END Do loop over timestep ktau
         ! ELSE
@@ -599,20 +620,6 @@ CONTAINS
 
         ENDIF
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
              CABLE_USER%CALL_POP) THEN
 
@@ -620,9 +627,7 @@ CONTAINS
 
         ENDIF
 
-
       END DO YEAR
-
 
       IF (spincasa .OR. casaonly) THEN
         EXIT
