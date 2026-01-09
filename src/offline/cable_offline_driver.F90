@@ -64,7 +64,7 @@ PROGRAM cable_offline_driver
   if (leaps) then
     call setcalendar("gregorian")
   else
-    call setcalender("noleaps")
+    call setcalendar("noleaps")
   endif
     
   IF (mpi_grp%size == 1) THEN
