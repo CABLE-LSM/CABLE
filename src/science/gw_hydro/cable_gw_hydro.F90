@@ -423,7 +423,7 @@ CONTAINS
     !---  glacier formation
     rnof5= 0.
 
-!$    IF (sli_call .OR. cable_runtime%UM) THEN
+!    IF (sli_call .OR. cable_runtime%UM) THEN
 ! added by rk4417 to conform with MMY modifications
     IF (sli_call .OR. cable_runtime%UM .OR. cable_user%gw_model) THEN   ! FEEDBACK (MMY asks: why cable_user%gw_model=True doesn't need to consider snow melting) --rk4417
        nglacier = 0
@@ -989,7 +989,7 @@ CONTAINS
 
     !> 6. set heat cap lower limit
     IF (cable_user%soil_thermal_fix) THEN
-!$       soil%heat_cap_lower_limit(:,:) = 0.01  !never allow /0   ! FEEDBACK (MMY asks: I guess we should delete this line since someone changed it on purpose) --rk4417
+!       soil%heat_cap_lower_limit(:,:) = 0.01  !never allow /0   ! FEEDBACK (MMY asks: I guess we should delete this line since someone changed it on purpose) --rk4417
        soil%heat_cap_lower_limit(:,:) = 0._r_2  !allow /0 to show bugs  ! FEEDBACK (MMY asks: I don't know how it shows bugs, can anyone check it???) --rk4417
     ELSE
        print *, "MMY testing soil%css_vec(:,:) =",soil%css_vec(:,:), "soil%rhosoil_vec(:,:) = ", soil%rhosoil_vec(:,:) !MMY@18May2023
@@ -1007,37 +1007,37 @@ CONTAINS
 !               However, I don't know whether we should keep ssnow%snowd = max_glacier_snowd for soil%isoilm=9.
 !               Please check with Claire and Jhan if possible.
 
-!$       ! MMY??? should we keep wb & wbice setting for soil%isoilm==9 (permanent ice) and snow covering region
-!$
-!$       ! after discussion with BP                                     ! block commented out by rk4417 as missing from MMY
-!$       ! N.B. snmin should exceed sum of layer depths, i.e. .11 m     ! need to discuss with MMY
-!$       ssnow%wbtot = 0.0
-!$       ssnow%wb(:,:)  = MIN( soil%ssat_vec(:,:), MAX ( ssnow%wb(:,:), 0.5*soil%swilt_vec(:,:) ) )
-!$
-!$       DO k = 1, ms
-!$
-!$          WHERE( ssnow%tgg(:,k) <= CTFRZ .AND. ssnow%wbice(:,k) <= 0.001*ssnow%wb(:,k) )   &
-!$               ssnow%wbice(:,k) = 0.5 * ssnow%wb(:,k)
-!$
-!$          !WHERE( ssnow%tgg(:,k) < CTFRZ)                                    &
-!$          !   ssnow%wbice(:,k) = 0.8 * ssnow%wb(:,k)
-!$
-!$       END DO
-!$       WHERE ( soil%isoilm .EQ. 9)! .and. ssnow%snowd .le. 0.1*max_glacier_snowd)
-!$
-!$          ! permanent ice: fix hard-wired number in next version
-!$          ssnow%snowd = max_glacier_snowd
-!$          ssnow%osnowd = max_glacier_snowd
-!$          ssnow%tgg(:,1) = ssnow%tgg(:,1) - 1.0
-!$
-!$       END WHERE
-!$
-!$       WHERE ( SPREAD(soil%isoilm,2,ms) .EQ. 9 )
-!$
-!$          ssnow%wb    = 0.95 * soil%ssat_vec
-!$          ssnow%wbice = 0.95 * ssnow%wb
-!$
-!$       END WHERE
+!       ! MMY??? should we keep wb & wbice setting for soil%isoilm==9 (permanent ice) and snow covering region
+!
+!       ! after discussion with BP                                     ! block commented out by rk4417 as missing from MMY
+!       ! N.B. snmin should exceed sum of layer depths, i.e. .11 m     ! need to discuss with MMY
+!       ssnow%wbtot = 0.0
+!       ssnow%wb(:,:)  = MIN( soil%ssat_vec(:,:), MAX ( ssnow%wb(:,:), 0.5*soil%swilt_vec(:,:) ) )
+!
+!       DO k = 1, ms
+!
+!          WHERE( ssnow%tgg(:,k) <= CTFRZ .AND. ssnow%wbice(:,k) <= 0.001*ssnow%wb(:,k) )   &
+!               ssnow%wbice(:,k) = 0.5 * ssnow%wb(:,k)
+!
+!          !WHERE( ssnow%tgg(:,k) < CTFRZ)                                    &
+!          !   ssnow%wbice(:,k) = 0.8 * ssnow%wb(:,k)
+!
+!       END DO
+!       WHERE ( soil%isoilm .EQ. 9)! .and. ssnow%snowd .le. 0.1*max_glacier_snowd)
+!
+!          ! permanent ice: fix hard-wired number in next version
+!          ssnow%snowd = max_glacier_snowd
+!          ssnow%osnowd = max_glacier_snowd
+!          ssnow%tgg(:,1) = ssnow%tgg(:,1) - 1.0
+!
+!       END WHERE
+!
+!       WHERE ( SPREAD(soil%isoilm,2,ms) .EQ. 9 )
+!
+!          ssnow%wb    = 0.95 * soil%ssat_vec
+!          ssnow%wbice = 0.95 * ssnow%wb
+!
+!       END WHERE
 ! END DELETE
     END IF
 
@@ -1194,11 +1194,11 @@ CONTAINS
                                    zi_smpc,tmp_const,voleq2
     INTEGER :: k,i
 
-!$    IF (gw_params%ssgw_ice_switch) THEN  ! FEEDBACK (MMY asks: ask Claire or Anna what ssgw_ice_switch is for and whether to keep it) --rk4417  
-!$       smp_cor = 8.0
-!$    ELSE
-!$       smp_cor = 0.0
-!$    END IF
+!    IF (gw_params%ssgw_ice_switch) THEN  ! FEEDBACK (MMY asks: ask Claire or Anna what ssgw_ice_switch is for and whether to keep it) --rk4417  
+!       smp_cor = 8.0
+!    ELSE
+!       smp_cor = 0.0
+!    END IF
 
     !make code cleaner define these here
     zimm(:,:) = 0._r_2
@@ -1207,23 +1207,23 @@ CONTAINS
        zmm(:,k)  = zimm(:,k-1) + 0.5_r_2*m2mm*soil%zse_vec(:,k)
     END DO
 
-!$    IF (.NOT.gw_params%ssgw_ice_switch) THEN       ! FEEDBACK (MMY asks: ask Claire or Anna what ssgw_ice_switch is for and whether to keep it) --rk4417  
-!$       ice_correction(:,:) = 1._r_2
-!$
-!$    ELSE
-!$
-!$       DO k=1,ms
-!$          DO i=1,mp
-!$             ice_correction(i,k)    = 1._r_2 + smp_cor * ssnow%wbice(i,k)
-!$             ice_correction(i,k)    =  ice_correction(i,k)**(2.0/soil%bch_vec(i,k))
-!$          END DO
-!$       END DO
-!$       DO i=1,mp
-!$          ice_correction(i,ms+1)    = 1._r_2 + smp_cor * ssnow%wbice(i,ms)
-!$          ice_correction(i,ms+1)    =  ice_correction(i,ms+1)**(2.0/soil%GWbch_vec(i))
-!$       END DO
-!$
-!$    END IF
+!    IF (.NOT.gw_params%ssgw_ice_switch) THEN       ! FEEDBACK (MMY asks: ask Claire or Anna what ssgw_ice_switch is for and whether to keep it) --rk4417  
+!       ice_correction(:,:) = 1._r_2
+!
+!    ELSE
+!
+!       DO k=1,ms
+!          DO i=1,mp
+!             ice_correction(i,k)    = 1._r_2 + smp_cor * ssnow%wbice(i,k)
+!             ice_correction(i,k)    =  ice_correction(i,k)**(2.0/soil%bch_vec(i,k))
+!          END DO
+!       END DO
+!       DO i=1,mp
+!          ice_correction(i,ms+1)    = 1._r_2 + smp_cor * ssnow%wbice(i,ms)
+!          ice_correction(i,ms+1)    =  ice_correction(i,ms+1)**(2.0/soil%GWbch_vec(i))
+!       END DO
+!
+!    END IF
 
     do i=1,mp                                     
        GWzimm(i) = zimm(i,ms)+m2mm*soil%GWdz(i)   
@@ -1578,15 +1578,15 @@ CONTAINS
           kk = MIN(k+1,ms)
           DO i=1,mp
              IF (soil%isoilm(i) .EQ. 9) THEN
-!$                hk_ice_factor(i,k) = 10.0**(-gw_params%ice_impedence)                   ! replaced as per MMY -- rk4417 ! MMY@23Apr2023 I don't know why the sign is changed, need to test its impact ...
+!                hk_ice_factor(i,k) = 10.0**(-gw_params%ice_impedence)                   ! replaced as per MMY -- rk4417 ! MMY@23Apr2023 I don't know why the sign is changed, need to test its impact ...
                 !hk_ice_factor(i,k) = (1.0-soil%ssat_vec(i,k))**(gw_params%ice_impedence)
                 hk_ice_factor(i,k) = 10.0**(gw_params%ice_impedence)
 
              ELSE
-!$                hk_ice_factor(i,k) = 10.0**(-gw_params%ice_impedence* &                 ! replaced as per MMY -- rk4417 ! MMY@23Apr2023 keep the commented lines as a reminder for future check
-!$                     ( 0.5*(ssnow%wbice(i,k)/MAX(1.0e-8,ssnow%wb(i,k)) + &
-!$                     ssnow%wbice(i,kk)/MAX(1.0e-8,ssnow%wb(i,kk))) ) &
-!$                     )
+!                hk_ice_factor(i,k) = 10.0**(-gw_params%ice_impedence* &                 ! replaced as per MMY -- rk4417 ! MMY@23Apr2023 keep the commented lines as a reminder for future check
+!                     ( 0.5*(ssnow%wbice(i,k)/MAX(1.0e-8,ssnow%wb(i,k)) + &
+!                     ssnow%wbice(i,kk)/MAX(1.0e-8,ssnow%wb(i,kk))) ) &
+!                     )
                 !hk_ice_factor(i,k) = sqrt((1.0-ssnow%wbice(i,k))**(gw_params%ice_impedence) *&
                 !                     (1.0-ssnow%wbice(i,kk))**(gw_params%ice_impedence))
                 hk_ice_factor(i,k) = min(10.0**(gw_params%ice_impedence*ssnow%wbice(i,k)/(soil%ssat_vec(i,k)-soil%watr(i,k))) ,& ! MMY@23Apr2023 I don't know why the eq is changed, need to test its impact ...
@@ -1922,7 +1922,7 @@ CONTAINS
     ! Need a matching array of ones to use in Mark's call to the intrinsic
     ! sign func below
     ! mgk, 24/07/2018
-!$    REAL(r_2), DIMENSION(mp,ms) :: ones
+!    REAL(r_2), DIMENSION(mp,ms) :: ones
     REAL(r_2), DIMENSION(mp,ms) :: minus_ones  ! rk4417 as per MMY
     
     INTEGER :: i

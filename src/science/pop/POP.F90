@@ -264,34 +264,34 @@ CONTAINS
                    ENDDO
                 ENDDO
 
-!$        ! set first disturbance year for first dist interval class
-!$        idist = 1
-!$        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
-!$        DO c = 1,PATCH_REPS1
-!$           tmp2(c) = max(disturbance_interval*c/(PATCH_REPS1),1)
-!$        ENDDO
-!$        DO c = 1,PATCH_REPS1
-!$           i = 0
-!$           DO j = 1,PATCH_REPS2
-!$              ipatch = (j-1)*PATCH_REPS1 + c
-!$              i = i+1
-!$              IF (i.gt.PATCH_REPS1) then
-!$                 i = 1
-!$              ENDIF
-!$              do while ((tmp2(i+1).eq. tmp2(i)).and.(i.lt.PATCH_REPS1))
-!$                 i = i+1
-!$                 IF (i.gt.PATCH_REPS1) then
-!$                    i = 1
-!$                 ENDIF
-!$
-!$              ENDDO
-!$
-!$
-!$              write(*,*) i, tmp2(i)
-!$              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(i)
-!$
-!$           ENDDO
-!$        ENDDO
+!        ! set first disturbance year for first dist interval class
+!        idist = 1
+!        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
+!        DO c = 1,PATCH_REPS1
+!           tmp2(c) = max(disturbance_interval*c/(PATCH_REPS1),1)
+!        ENDDO
+!        DO c = 1,PATCH_REPS1
+!           i = 0
+!           DO j = 1,PATCH_REPS2
+!              ipatch = (j-1)*PATCH_REPS1 + c
+!              i = i+1
+!              IF (i.gt.PATCH_REPS1) then
+!                 i = 1
+!              ENDIF
+!              do while ((tmp2(i+1).eq. tmp2(i)).and.(i.lt.PATCH_REPS1))
+!                 i = i+1
+!                 IF (i.gt.PATCH_REPS1) then
+!                    i = 1
+!                 ENDIF
+!
+!              ENDDO
+!
+!
+!              write(*,*) i, tmp2(i)
+!              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(i)
+!
+!           ENDDO
+!        ENDDO
 
 
                 ! set first disturbance year for first 2nd interval class
@@ -366,11 +366,11 @@ CONTAINS
     DO g=1,np
        it(g) =  MAXVAL(pop%pop_grid(g)%patch(:)%age(1)) + 1
     ENDDO
-!$    DO idisturb = 1,NDISTURB
-!$       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)
-!$    ENDDO
-!$
-!$    CALL GetPatchFrequencies(POP,it)
+!    DO idisturb = 1,NDISTURB
+!       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)
+!    ENDDO
+!
+!    CALL GetPatchFrequencies(POP,it)
 
     IF (PRESENT(precip)) THEN
        IF(PRESENT(StemNPP_av)) THEN
@@ -2360,13 +2360,13 @@ CONTAINS
        POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
             freq_age(iage)*sapwood_area_age(iage)
 
-!$if (g==2) then
-!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
-!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-!$endif
+!if (g==2) then
+!write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
+! crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
+!endif
 
-!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
        POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
             freq_age(iage)*stress_mort_age(iage)
        POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
@@ -2383,13 +2383,13 @@ CONTAINS
        pop%pop_grid(g)%biomass_age(iage) = cmass_age(iage)
 
     ENDDO
-!$if (it.gt.400) then
-!$   write(*,*) 'it, nage', it, nage
-!$   write(591, "(350e16.6)") freq_age
-!$   write(601,"(350e16.6)") cmass_age
-!$   write(602,"(350e16.6)") stress_mort_age
-!$   write(603,"(350e16.6)") real(age)
-!$endif
+!if (it.gt.400) then
+!   write(*,*) 'it, nage', it, nage
+!   write(591, "(350e16.6)") freq_age
+!   write(601,"(350e16.6)") cmass_age
+!   write(602,"(350e16.6)") stress_mort_age
+!   write(603,"(350e16.6)") real(age)
+!endif
     DEALLOCATE(age)
     DEALLOCATE(freq_age)
     DEALLOCATE(cmass_age)

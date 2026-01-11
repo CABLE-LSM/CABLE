@@ -1138,9 +1138,9 @@ CONTAINS
             (ok,'Error finding LWdown units in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        ! vh_js ! fixed bug in logic
-!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
-!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
-!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
+!       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
+!            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
+!            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
        IF(.NOT.(metunits%LWdown(1:4)/='W/m2'.OR.metunits%LWdown(1:5) &
             /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &
             .OR.metunits%LWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN

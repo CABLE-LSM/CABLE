@@ -369,7 +369,7 @@ CONTAINS
     ! TIME
     STATUS = NF90_GET_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", RSTDATE )
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$
+!!
     WRITE(CYEAR, FMT="(I4)") CurYear
     CDATE = '01/01/'//CYEAR
     ! compare current year with restart year (only for non-site type met data)

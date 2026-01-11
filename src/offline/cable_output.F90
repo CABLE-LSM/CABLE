@@ -2695,24 +2695,24 @@ CONTAINS
          'Vegetation type', .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
     CALL define_ovar(ncid_restart, rpid%isoil, 'isoil', '-',                   &
          'Soil type', .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%clay, 'clay', '-',                     &
-!$                     'Fraction of soil which is clay',                         &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%sand, 'sand', '-',                     &
-!$                     'Fraction of soil which is sand',                         &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%silt, 'silt', '-',                     &
-!$                     'Fraction of soil which is silt',                         &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%ssat, 'ssat', '-',                     &
-!$                     'Fraction of soil volume which is water @ saturation',    &
-!$                    .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%sfc, 'sfc', '-',                       &
-!$                    'Fraction of soil volume which is water @ field capacity', &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &
-!$                     'Fraction of soil volume which is water @ wilting point', &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%clay, 'clay', '-',                     &
+!                     'Fraction of soil which is clay',                         &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%sand, 'sand', '-',                     &
+!                     'Fraction of soil which is sand',                         &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%silt, 'silt', '-',                     &
+!                     'Fraction of soil which is silt',                         &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%ssat, 'ssat', '-',                     &
+!                     'Fraction of soil volume which is water @ saturation',    &
+!                    .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%sfc, 'sfc', '-',                       &
+!                    'Fraction of soil volume which is water @ field capacity', &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &
+!                     'Fraction of soil volume which is water @ wilting point', &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! zse (depth of each soil layer):
     ok = NF90_DEF_VAR(ncid_restart, 'zse', NF90_FLOAT, (/soilID/), rpid%zse)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
@@ -2721,136 +2721,136 @@ CONTAINS
     ok = NF90_PUT_ATT(ncid_restart, rpid%zse, "long_name",                     &
          "Depth of each soil layer")
     ok = NF90_PUT_ATT(ncid_restart, rpid%zse, "units", "m")
-!$    CALL define_ovar(ncid_restart, rpid%froot, 'froot', '-',                   &
-!$                     'Fraction of roots in each soil layer',                   &
-!$                      .TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%bch, 'bch', '-',                       &
-!$                     'Parameter b, Campbell eqn 1985',                         &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%hyds, 'hyds', 'm/s',                   &
-!$                     'Hydraulic conductivity @ saturation',                    &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%sucs, 'sucs', 'm',                     &
-!$                     'Suction @ saturation', .TRUE.,                           &
-!$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%css, 'css', 'J/kg/C',                  &
-!$                     'Heat capacity of soil minerals',                         &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%rhosoil, 'rhosoil', 'kg/m^3',          &
-!$                     'Density of soil minerals',                               &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &
-!$                     'Soil respiration coefficient at 20C',                    &
-!$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%froot, 'froot', '-',                   &
+!                     'Fraction of roots in each soil layer',                   &
+!                      .TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%bch, 'bch', '-',                       &
+!                     'Parameter b, Campbell eqn 1985',                         &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%hyds, 'hyds', 'm/s',                   &
+!                     'Hydraulic conductivity @ saturation',                    &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%sucs, 'sucs', 'm',                     &
+!                     'Suction @ saturation', .TRUE.,                           &
+!                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%css, 'css', 'J/kg/C',                  &
+!                     'Heat capacity of soil minerals',                         &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%rhosoil, 'rhosoil', 'kg/m^3',          &
+!                     'Density of soil minerals',                               &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &
+!                     'Soil respiration coefficient at 20C',                    &
+!                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     CALL define_ovar(ncid_restart, rpid%albsoil, 'albsoil', '-',               &
          'Soil reflectance', .TRUE.,                               &
          radID, 'radiation', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%hc, 'hc', 'm',                         &
-!$                     'Height of canopy', .TRUE.,                               &
-!$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%canst1, 'canst1', 'mm/LAI',            &
-!$                     'Max water intercepted by canopy',                        &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%dleaf, 'dleaf', 'm',                   &
-!$                     'Chararacteristic length of leaf',                        &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%frac4, 'frac4', '-',                   &
-!$                     'Fraction of plants which are C4',                        &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%ejmax, 'ejmax', 'mol/m^2/s',           &
-!$                     'Max potential electron transport rate top leaf', .TRUE., &
-!$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%vcmax, 'vcmax', 'mol/m^2/s',           &
-!$                     'Maximum RuBP carboxylation rate top leaf', .TRUE.,       &
-!$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%rp20, 'rp20', '-',                     &
-!$                     'Plant respiration coefficient at 20C', .TRUE., 'real',   &
-!$                     0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%g0, 'g0', '-',                     &
-!$                     'g0 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
-!$                     0, 0, 0, mpID, dummy, .TRUE.) ! Ticket #56
-!$    CALL define_ovar(ncid_restart, rpid%g1, 'g1', '-',                     &
-!$                     'g1 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
-!$                     0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56
-!$    CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C',               &
-!$                     'Temperature coef nonleaf plant respiration', .TRUE.,     &
-!$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%shelrb, 'shelrb', '-',                 &
-!$              'Sheltering factor', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%xfang, 'xfang', '-',                   &
-!$           'Leaf angle parameter', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%wai, 'wai', '-',                       &
-!$                'Wood area index', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%vegcf, 'vegcf', '-',                   &
-!$                     'vegcf', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-',                   &
-!$                     'Extinction coef for vertical nitrogen profile',          &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C',                 &
-!$                     'Min temperature for the start of photosynthesis',        &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%tmaxvj, 'tmaxvj', 'C',                 &
-!$                     'Max temperature for the start of photosynthesis',        &
-!$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%vbeta, 'vbeta', '-',                   &
-!$                     'Stomatal sensitivity to soil water',                     &
-!$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%xalbnir, 'xalbnir', '-',               &
-!$                     'modifier for albedo in near ir band',                    &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    ! ratecp (Plant carbon rate constant):
-!$    ok = NF90_DEF_VAR(ncid_restart, 'ratecp', NF90_FLOAT, (/plantcarbID/),     &
-!$                      rpid%ratecp)
-!$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-!$                     (ok, 'Error defining ratecp variable in restart file. '// &
-!$                      '(SUBROUTINE create_restart)')
-!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "long_name",                  &
-!$                      "Plant carbon rate constant")
-!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "units", "1/year")
-!$    ! ratecs (Soil carbon rate constant):
-!$    ok = NF90_DEF_VAR(ncid_restart, 'ratecs', NF90_FLOAT, (/soilcarbID/),      &
-!$                      rpid%ratecs)
-!$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-!$                     (ok, 'Error defining ratecs variable in restart file. '// &
-!$                      '(SUBROUTINE create_restart)')
-!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "long_name",                  &
-!$                      "Soil carbon rate constant")
-!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "units", "1/year")
-!$    CALL define_ovar(ncid_restart, rpid%meth, 'meth', '-',                     &
-!$                     'Canopy turbulence parameterisation switch',              &
-!$                     .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%za_uv, 'za_uv', 'm',                   &
-!$                    'Reference height (lowest atm. model layer) for momentum', &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-!$    CALL define_ovar(ncid_restart, rpid%za_tq, 'za_tq', 'm',                   &
-!$                     'Reference height (lowest atm. model layer) for scalars', &
-!$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%hc, 'hc', 'm',                         &
+!                     'Height of canopy', .TRUE.,                               &
+!                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%canst1, 'canst1', 'mm/LAI',            &
+!                     'Max water intercepted by canopy',                        &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%dleaf, 'dleaf', 'm',                   &
+!                     'Chararacteristic length of leaf',                        &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%frac4, 'frac4', '-',                   &
+!                     'Fraction of plants which are C4',                        &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%ejmax, 'ejmax', 'mol/m^2/s',           &
+!                     'Max potential electron transport rate top leaf', .TRUE., &
+!                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%vcmax, 'vcmax', 'mol/m^2/s',           &
+!                     'Maximum RuBP carboxylation rate top leaf', .TRUE.,       &
+!                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%rp20, 'rp20', '-',                     &
+!                     'Plant respiration coefficient at 20C', .TRUE., 'real',   &
+!                     0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%g0, 'g0', '-',                     &
+!                     'g0 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
+!                     0, 0, 0, mpID, dummy, .TRUE.) ! Ticket #56
+!    CALL define_ovar(ncid_restart, rpid%g1, 'g1', '-',                     &
+!                     'g1 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
+!                     0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56
+!    CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C',               &
+!                     'Temperature coef nonleaf plant respiration', .TRUE.,     &
+!                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%shelrb, 'shelrb', '-',                 &
+!              'Sheltering factor', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%xfang, 'xfang', '-',                   &
+!           'Leaf angle parameter', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%wai, 'wai', '-',                       &
+!                'Wood area index', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%vegcf, 'vegcf', '-',                   &
+!                     'vegcf', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-',                   &
+!                     'Extinction coef for vertical nitrogen profile',          &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C',                 &
+!                     'Min temperature for the start of photosynthesis',        &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%tmaxvj, 'tmaxvj', 'C',                 &
+!                     'Max temperature for the start of photosynthesis',        &
+!                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%vbeta, 'vbeta', '-',                   &
+!                     'Stomatal sensitivity to soil water',                     &
+!                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%xalbnir, 'xalbnir', '-',               &
+!                     'modifier for albedo in near ir band',                    &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    ! ratecp (Plant carbon rate constant):
+!    ok = NF90_DEF_VAR(ncid_restart, 'ratecp', NF90_FLOAT, (/plantcarbID/),     &
+!                      rpid%ratecp)
+!    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
+!                     (ok, 'Error defining ratecp variable in restart file. '// &
+!                      '(SUBROUTINE create_restart)')
+!    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "long_name",                  &
+!                      "Plant carbon rate constant")
+!    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "units", "1/year")
+!    ! ratecs (Soil carbon rate constant):
+!    ok = NF90_DEF_VAR(ncid_restart, 'ratecs', NF90_FLOAT, (/soilcarbID/),      &
+!                      rpid%ratecs)
+!    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
+!                     (ok, 'Error defining ratecs variable in restart file. '// &
+!                      '(SUBROUTINE create_restart)')
+!    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "long_name",                  &
+!                      "Soil carbon rate constant")
+!    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "units", "1/year")
+!    CALL define_ovar(ncid_restart, rpid%meth, 'meth', '-',                     &
+!                     'Canopy turbulence parameterisation switch',              &
+!                     .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%za_uv, 'za_uv', 'm',                   &
+!                    'Reference height (lowest atm. model layer) for momentum', &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+!    CALL define_ovar(ncid_restart, rpid%za_tq, 'za_tq', 'm',                   &
+!                     'Reference height (lowest atm. model layer) for scalars', &
+!                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     CALL define_ovar(ncid_restart, gwID, 'GWwb', 'mm3/mm3','GW water content', &
          .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
-!$    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-!$      CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
-!$            'Parameter in root efficiency function (Lai and Katul 2000)', &
-!$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-!$    ENDIF
+!    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+!      CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
+!            'Parameter in root efficiency function (Lai and Katul 2000)', &
+!            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+!    ENDIF
     ! Soil-Litter-Iso soil model
     IF(cable_user%SOIL_STRUC=='sli') THEN
        ! Parameters for SLI:
-!$       CALL define_ovar(ncid_restart,rpid%nhorizons,'nhorizons','-', &
-!$            'Number of soil horizons',.TRUE.,'integer',0,0,0,mpID,dummy,.TRUE.)
-!$       CALL define_ovar(ncid_restart,rpid%zeta,'zeta','[ ]', &
-!$            'exponent factor in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-!$       CALL define_ovar(ncid_restart,rpid%fsatmax,'fsatmax','[ ]', &
-!$            'param in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-!$       CALL define_ovar(ncid_restart,rpid%ishorizon,'ishorizon','-', &
-!$            'Horizon number',.TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
-!$       CALL define_ovar(ncid_restart,rpid%clitt,'clitt','tC/ha', &
-!$            'Litter layer carbon content',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-!$       CALL define_ovar(ncid_restart,rpid%ZR,'ZR','cm', &
-!$            'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-!$       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &
-!$            'Fraction of roots in top 10 cm', &
-!$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%nhorizons,'nhorizons','-', &
+!            'Number of soil horizons',.TRUE.,'integer',0,0,0,mpID,dummy,.TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%zeta,'zeta','[ ]', &
+!            'exponent factor in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%fsatmax,'fsatmax','[ ]', &
+!            'param in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%ishorizon,'ishorizon','-', &
+!            'Horizon number',.TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%clitt,'clitt','tC/ha', &
+!            'Litter layer carbon content',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%ZR,'ZR','cm', &
+!            'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+!       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &
+!            'Fraction of roots in top 10 cm', &
+!            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
        ! Variables for SLI:
        CALL define_ovar(ncid_restart,SID,'S','-',&
             'Fractional soil moisture content relative to saturated value', &
@@ -2942,37 +2942,37 @@ CONTAINS
     CALL check_and_write(rpid%isoil, 'isoil', REAL(soil%isoilm, 4), &
                          ranges%isoil, patchout_var, out_settings)
     out_settings%dimswitch = "real"
-!$  CALL check_and_write(rpid%bch, 'bch', REAL(soil%bch, 4), &
-!$                       ranges%bch, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%bch, 'bch', REAL(soil%bch, 4), &
-!$                       ranges%bch, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%clay, 'clay', REAL(soil%clay, 4), &
-!$                       ranges%clay, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%sand, 'sand', REAL(soil%sand, 4), &
-!$                       ranges%sand, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%silt, 'silt', REAL(soil%silt, 4), &
-!$                       ranges%silt, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%css, 'css', REAL(soil%css, 4), &
-!$                       ranges%css, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%rhosoil, 'rhosoil', &
-!$                       REAL(soil%rhosoil, 4), ranges%rhosoil, patchout_var, &
-!$                       out_settings)
-!$  CALL check_and_write(rpid%hyds, 'hyds', REAL(soil%hyds, 4), &
-!$                       ranges%hyds, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%sucs, 'sucs', REAL(soil%sucs, 4), &
-!$                       ranges%sucs, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%rs20, 'rs20', REAL(veg%rs20, 4), &
-!$                       ranges%rs20, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%ssat, 'ssat', REAL(soil%ssat, 4), &
-!$                       ranges%ssat, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%sfc, 'sfc', REAL(soil%sfc, 4), &
-!$                       ranges%sfc, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%swilt, 'swilt', REAL(soil%swilt, 4), &
-!$                       ranges%swilt, patchout_var, out_settings)
+!  CALL check_and_write(rpid%bch, 'bch', REAL(soil%bch, 4), &
+!                       ranges%bch, patchout_var, out_settings)
+!  CALL check_and_write(rpid%bch, 'bch', REAL(soil%bch, 4), &
+!                       ranges%bch, patchout_var, out_settings)
+!  CALL check_and_write(rpid%clay, 'clay', REAL(soil%clay, 4), &
+!                       ranges%clay, patchout_var, out_settings)
+!  CALL check_and_write(rpid%sand, 'sand', REAL(soil%sand, 4), &
+!                       ranges%sand, patchout_var, out_settings)
+!  CALL check_and_write(rpid%silt, 'silt', REAL(soil%silt, 4), &
+!                       ranges%silt, patchout_var, out_settings)
+!  CALL check_and_write(rpid%css, 'css', REAL(soil%css, 4), &
+!                       ranges%css, patchout_var, out_settings)
+!  CALL check_and_write(rpid%rhosoil, 'rhosoil', &
+!                       REAL(soil%rhosoil, 4), ranges%rhosoil, patchout_var, &
+!                       out_settings)
+!  CALL check_and_write(rpid%hyds, 'hyds', REAL(soil%hyds, 4), &
+!                       ranges%hyds, patchout_var, out_settings)
+!  CALL check_and_write(rpid%sucs, 'sucs', REAL(soil%sucs, 4), &
+!                       ranges%sucs, patchout_var, out_settings)
+!  CALL check_and_write(rpid%rs20, 'rs20', REAL(veg%rs20, 4), &
+!                       ranges%rs20, patchout_var, out_settings)
+!  CALL check_and_write(rpid%ssat, 'ssat', REAL(soil%ssat, 4), &
+!                       ranges%ssat, patchout_var, out_settings)
+!  CALL check_and_write(rpid%sfc, 'sfc', REAL(soil%sfc, 4), &
+!                       ranges%sfc, patchout_var, out_settings)
+!  CALL check_and_write(rpid%swilt, 'swilt', REAL(soil%swilt, 4), &
+!                       ranges%swilt, patchout_var, out_settings)
     ! Soil dimensioned variables/parameters:
     out_settings%dimswitch = "soil"
-!$  CALL check_and_write(rpid%froot, 'froot', REAL(veg%froot, 4), &
-!$                       ranges%froot, patchout_var, out_settings)
+!  CALL check_and_write(rpid%froot, 'froot', REAL(veg%froot, 4), &
+!                       ranges%froot, patchout_var, out_settings)
 
     !~ ssnow
     !~~ Soil dimensioned variables/parameters:
@@ -3012,64 +3012,64 @@ CONTAINS
     out_settings%dimswitch = "radiation"
     CALL check_and_write(rpid%albsoil, 'albsoil', &
                          REAL(soil%albsoil, 4), ranges%albsoil, patchout_var, out_settings)
-!$  out_settings%dimswitch = "real"
-!$  CALL check_and_write(rpid%canst1, 'canst1', REAL(veg%canst1, 4), &
-!$                       ranges%canst1, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%dleaf, 'dleaf', REAL(veg%dleaf, 4), &
-!$                       ranges%dleaf, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%ejmax, 'ejmax', REAL(veg%ejmax, 4), &
-!$                       ranges%ejmax, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%vcmax, 'vcmax', REAL(veg%vcmax, 4), &
-!$                       ranges%vcmax, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%frac4, 'frac4', REAL(veg%frac4, 4), &
-!$                       ranges%frac4, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%hc, 'hc', REAL(veg%hc, 4), &
-!$                       ranges%hc, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%rp20, 'rp20', REAL(veg%rp20, 4), &
-!$                       ranges%rp20, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%g0, 'g0', REAL(veg%g0, 4), &
-!$                       ranges%g0, patchout_var, out_settings) ! Ticket #56
-!$  CALL check_and_write(rpid%g1, 'g1', REAL(veg%g1, 4), &
-!$                       ranges%g1, patchout_var, out_settings) ! Ticket #56
-!$  CALL check_and_write(rpid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &
-!$                       ranges%rpcoef, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &
-!$                       ranges%shelrb, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%xfang, 'xfang', REAL(veg%xfang, 4), &
-!$                       ranges%xfang, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%wai, 'wai', REAL(veg%wai, 4), &
-!$                       ranges%wai, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%vegcf, 'vegcf', REAL(veg%vegcf, 4), &
-!$                       ranges%vegcf, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%extkn, 'extkn', REAL(veg%extkn, 4), &
-!$                       ranges%extkn, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &
-!$                       ranges%tminvj, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
-!$                       ranges%tmaxvj, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%vbeta, 'vbeta', REAL(veg%vbeta, 4), &
-!$                       ranges%vbeta, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%xalbnir, 'xalbnir', &
-!$                       REAL(veg%xalbnir, 4), ranges%xalbnir, patchout_var, &
-!$                       out_settings)
-!$  CALL check_and_write(rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
-!$                       ranges%tmaxvj, patchout_var, out_settings)
-!$  ok = NF90_PUT_VAR(rpid%ratecp, REAL(bgc%ratecp, 4))
-!$  IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
-!$                                      'Error writing ratecp parameter to ' &
-!$                                      //TRIM(frst_out)//'(SUBROUTINE create_restart)')
-!$  ok = NF90_PUT_VAR(rpid%ratecs, REAL(bgc%ratecs, 4))
-!$  IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
-!$                                      'Error writing ratecs parameter to ' &
-!$                                      //TRIM(frst_out)//'(SUBROUTINE create_restart)')
-!$  out_settings%dimswitch = "integer"
-!$  CALL check_and_write(rpid%meth, 'meth', REAL(veg%meth, 4), &
-!$                       ranges%meth, patchout_var, out_settings)
-!$  out_settings%dimswitch = "real"
-!$  CALL check_and_write(rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4), &
-!$                       ranges%za, patchout_var, out_settings)
-!$  CALL check_and_write(rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4), &
-!$                       ranges%za, patchout_var, out_settings)
+!  out_settings%dimswitch = "real"
+!  CALL check_and_write(rpid%canst1, 'canst1', REAL(veg%canst1, 4), &
+!                       ranges%canst1, patchout_var, out_settings)
+!  CALL check_and_write(rpid%dleaf, 'dleaf', REAL(veg%dleaf, 4), &
+!                       ranges%dleaf, patchout_var, out_settings)
+!  CALL check_and_write(rpid%ejmax, 'ejmax', REAL(veg%ejmax, 4), &
+!                       ranges%ejmax, patchout_var, out_settings)
+!  CALL check_and_write(rpid%vcmax, 'vcmax', REAL(veg%vcmax, 4), &
+!                       ranges%vcmax, patchout_var, out_settings)
+!  CALL check_and_write(rpid%frac4, 'frac4', REAL(veg%frac4, 4), &
+!                       ranges%frac4, patchout_var, out_settings)
+!  CALL check_and_write(rpid%hc, 'hc', REAL(veg%hc, 4), &
+!                       ranges%hc, patchout_var, out_settings)
+!  CALL check_and_write(rpid%rp20, 'rp20', REAL(veg%rp20, 4), &
+!                       ranges%rp20, patchout_var, out_settings)
+!  CALL check_and_write(rpid%g0, 'g0', REAL(veg%g0, 4), &
+!                       ranges%g0, patchout_var, out_settings) ! Ticket #56
+!  CALL check_and_write(rpid%g1, 'g1', REAL(veg%g1, 4), &
+!                       ranges%g1, patchout_var, out_settings) ! Ticket #56
+!  CALL check_and_write(rpid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &
+!                       ranges%rpcoef, patchout_var, out_settings)
+!  CALL check_and_write(rpid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &
+!                       ranges%shelrb, patchout_var, out_settings)
+!  CALL check_and_write(rpid%xfang, 'xfang', REAL(veg%xfang, 4), &
+!                       ranges%xfang, patchout_var, out_settings)
+!  CALL check_and_write(rpid%wai, 'wai', REAL(veg%wai, 4), &
+!                       ranges%wai, patchout_var, out_settings)
+!  CALL check_and_write(rpid%vegcf, 'vegcf', REAL(veg%vegcf, 4), &
+!                       ranges%vegcf, patchout_var, out_settings)
+!  CALL check_and_write(rpid%extkn, 'extkn', REAL(veg%extkn, 4), &
+!                       ranges%extkn, patchout_var, out_settings)
+!  CALL check_and_write(rpid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &
+!                       ranges%tminvj, patchout_var, out_settings)
+!  CALL check_and_write(rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
+!                       ranges%tmaxvj, patchout_var, out_settings)
+!  CALL check_and_write(rpid%vbeta, 'vbeta', REAL(veg%vbeta, 4), &
+!                       ranges%vbeta, patchout_var, out_settings)
+!  CALL check_and_write(rpid%xalbnir, 'xalbnir', &
+!                       REAL(veg%xalbnir, 4), ranges%xalbnir, patchout_var, &
+!                       out_settings)
+!  CALL check_and_write(rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
+!                       ranges%tmaxvj, patchout_var, out_settings)
+!  ok = NF90_PUT_VAR(rpid%ratecp, REAL(bgc%ratecp, 4))
+!  IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
+!                                      'Error writing ratecp parameter to ' &
+!                                      //TRIM(frst_out)//'(SUBROUTINE create_restart)')
+!  ok = NF90_PUT_VAR(rpid%ratecs, REAL(bgc%ratecs, 4))
+!  IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
+!                                      'Error writing ratecs parameter to ' &
+!                                      //TRIM(frst_out)//'(SUBROUTINE create_restart)')
+!  out_settings%dimswitch = "integer"
+!  CALL check_and_write(rpid%meth, 'meth', REAL(veg%meth, 4), &
+!                       ranges%meth, patchout_var, out_settings)
+!  out_settings%dimswitch = "real"
+!  CALL check_and_write(rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4), &
+!                       ranges%za, patchout_var, out_settings)
+!  CALL check_and_write(rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4), &
+!                       ranges%za, patchout_var, out_settings)
     out_settings%dimswitch = "r2"
     CALL check_and_write(dgdtgID, 'dgdtg', REAL(canopy%dgdtg, 4), &
                          ranges%default_l, patchout_var, out_settings)
@@ -3125,33 +3125,33 @@ CONTAINS
     CALL check_and_write(tradID, 'trad', &
                          REAL(rad%trad, 4), ranges%RadT, patchout_var, out_settings)
 
-!$  IF (cable_user%SOIL_STRUC == 'sli' .OR. cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
-!$    CALL check_and_write(rpid%gamma, 'gamma', &
-!$                         REAL(veg%gamma, 4), ranges%default_s, patchout_var, out_settings)
-!$  END IF
-!$
+!  IF (cable_user%SOIL_STRUC == 'sli' .OR. cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
+!    CALL check_and_write(rpid%gamma, 'gamma', &
+!                         REAL(veg%gamma, 4), ranges%default_s, patchout_var, out_settings)
+!  END IF
+!
 
     IF (cable_user%SOIL_STRUC == 'sli') THEN
       ! Write SLI parameters:
       out_settings%dimswitch = "integer"
-!$    CALL check_and_write(rpid%nhorizons, 'nhorizons', &
-!$                         REAL(soil%nhorizons, 4), ranges%default_s, patchout_var, out_settings)
+!    CALL check_and_write(rpid%nhorizons, 'nhorizons', &
+!                         REAL(soil%nhorizons, 4), ranges%default_s, patchout_var, out_settings)
       CALL check_and_write(nsnowID, 'nsnow', REAL(ssnow%nsnow, 4), &
                            ranges%default_s, patchout_var, out_settings)
       out_settings%dimswitch = "soil"
-!$    CALL check_and_write(rpid%ishorizon, 'ishorizon', &
-!$                         REAL(soil%ishorizon, 4), ranges%default_s, patchout_var, out_settings)
+!    CALL check_and_write(rpid%ishorizon, 'ishorizon', &
+!                         REAL(soil%ishorizon, 4), ranges%default_s, patchout_var, out_settings)
       CALL check_and_write(SID, 'S', REAL(ssnow%S, 4), &
                          ranges%S, patchout_var, out_settings)
       CALL check_and_write(TsoilID, 'Tsoil', REAL(ssnow%Tsoil, 4), &
                          ranges%Tsoil, patchout_var, out_settings)
       out_settings%dimswitch = "real"
-!$    CALL check_and_write(rpid%clitt, 'clitt', &
-!$                         REAL(veg%clitt, 4), ranges%default_s, patchout_var, out_settings)
-!$    CALL check_and_write(rpid%ZR, 'ZR', &
-!$                         REAL(veg%ZR, 4), ranges%default_s, patchout_var, out_settings)
-!$    CALL check_and_write(rpid%F10, 'F10', &
-!$                         REAL(veg%F10, 4), ranges%default_s, patchout_var, out_settings)
+!    CALL check_and_write(rpid%clitt, 'clitt', &
+!                         REAL(veg%clitt, 4), ranges%default_s, patchout_var, out_settings)
+!    CALL check_and_write(rpid%ZR, 'ZR', &
+!                         REAL(veg%ZR, 4), ranges%default_s, patchout_var, out_settings)
+!    CALL check_and_write(rpid%F10, 'F10', &
+!                         REAL(veg%F10, 4), ranges%default_s, patchout_var, out_settings)
       CALL check_and_write(TsurfaceID, 'Tsurface', REAL(ssnow%Tsurface, 4), &
                            ranges%default_s, patchout_var, out_settings)
       CALL check_and_write(h0ID, 'h0', REAL(ssnow%h0, 4), &

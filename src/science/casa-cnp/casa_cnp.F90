@@ -395,19 +395,19 @@ CONTAINS
           ! , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
           ! causing spikes in tree mortality and lack of model convergence in productive
           ! regions where LAI is hitting LAImax.
-!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
-!$        ! Q.Zhang 17/03/2011
-!$        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
-!$           casaflux%fracCalloc(:,leaf)  = 0.0
-!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
-!$                /(casaflux%fracCalloc(:,froot) &
-!$                +casaflux%fracCalloc(:,wood))
-!$           WHERE (casamet%lnonwood==0)
-!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
-!$           ELSEWHERE
-!$              casaflux%fracCalloc(:,wood) = 0.0
-!$           ENDWHERE
-!$        ENDWHERE
+!        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
+!        ! Q.Zhang 17/03/2011
+!        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
+!           casaflux%fracCalloc(:,leaf)  = 0.0
+!           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
+!                /(casaflux%fracCalloc(:,froot) &
+!                +casaflux%fracCalloc(:,wood))
+!           WHERE (casamet%lnonwood==0)
+!              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
+!           ELSEWHERE
+!              casaflux%fracCalloc(:,wood) = 0.0
+!           ENDWHERE
+!        ENDWHERE
 
           WHERE(casamet%glai(:)<casabiome%glaimin(veg%iveg(:)))
              casaflux%fracCalloc(:,leaf)  = 0.8
@@ -1412,14 +1412,14 @@ END SUBROUTINE casa_delplant
                   - casaflux%Nupland(nland)
 
           ENDIF
-!$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &
-!$                                 casaflux%Nlittermin(nland),  &
-!$                                 casaflux%Nsmin(nland),   &
-!$                                 casaflux%Nsimm(nland)
-!$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &
-!$                                 , casaflux%Nminloss(nland)   &
-!$                                 , casaflux%Nminleach(nland)   &
-!$                                 , casaflux%Nupland(nland)
+!if (nland==1) write(59,91) casaflux%Nsnet(nland) , &
+!                                 casaflux%Nlittermin(nland),  &
+!                                 casaflux%Nsmin(nland),   &
+!                                 casaflux%Nsimm(nland)
+!                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &
+!                                 , casaflux%Nminloss(nland)   &
+!                                 , casaflux%Nminleach(nland)   &
+!                                 , casaflux%Nupland(nland)
 
 91        FORMAT(20(e12.4,2x))
           IF(icycle >2) THEN

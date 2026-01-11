@@ -160,9 +160,9 @@ CONTAINS
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize
 
-!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
-!$               start=(/1,1,1/) )
-!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+!          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
+!               start=(/1,1,1/) )
+!          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
 
 
 
@@ -310,9 +310,9 @@ CONTAINS
     END WHERE
 
 
-!$    WHERE (LUC_EXPT%ivegp == 14)
-!$       LUC_EXPT%prim_only = .TRUE.
-!$    END WHERE
+!    WHERE (LUC_EXPT%ivegp == 14)
+!       LUC_EXPT%prim_only = .TRUE.
+!    END WHERE
 
   END SUBROUTINE LUC_EXPT_INIT
 
