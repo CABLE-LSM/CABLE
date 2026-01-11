@@ -452,11 +452,11 @@ CONTAINS
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
           ktauday=INT(24.0*3600.0/dels)
-!$        idoy = mod(ktau/ktauday,365)
-!$        IF(idoy==0) idoy=365
-!$
-!$          ! needed for CASA-CNP
-!$          nyear =INT((kend-kstart+1)/(365*ktauday))
+!        idoy = mod(ktau/ktauday,365)
+!        IF(idoy==0) idoy=365
+!
+!          ! needed for CASA-CNP
+!          nyear =INT((kend-kstart+1)/(365*ktauday))
 
           ! some things (e.g. CASA-CNP) only need to be done once per day
           idoy =INT( MOD((REAL(ktau+koffset)/REAL(ktauday)),REAL(LOY)))
@@ -1159,7 +1159,7 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%Tsoil, displs(bidx), ierr)
     blen(bidx) = ms * r2len
-!$
+!
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%thetai, displs(bidx), ierr)
     blen(bidx) = ms * r2len
@@ -6308,7 +6308,7 @@ CONTAINS
     types(bidx)  = MPI_BYTE
 
 
-!$types = MPI_BYTE
+!types = MPI_BYTE
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker: invalid number of climate fields, fix it!'
@@ -6350,7 +6350,7 @@ CONTAINS
     RETURN
 
   END SUBROUTINE worker_climate_types
-!$
+!
   ! MPI: creates restart_t type to send to the master the fields
   ! that are only required for the restart file but not included in the
   ! results sent at the end of each time step
@@ -6634,13 +6634,13 @@ CONTAINS
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!$ ! if anything went wrong the master will mpi_abort
-!$ ! which mpi_recv below is going to catch...
-!$ ! so, now receive all the parameters
-!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!$
-!$ ! finally free the MPI type
-!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+! ! if anything went wrong the master will mpi_abort
+! ! which mpi_recv below is going to catch...
+! ! so, now receive all the parameters
+! CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+!
+! ! finally free the MPI type
+! CALL MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -6768,13 +6768,13 @@ CONTAINS
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!$ ! if anything went wrong the master will mpi_abort
-!$ ! which mpi_recv below is going to catch...
-!$ ! so, now receive all the parameters
-!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!$
-!$ ! finally free the MPI type
-!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+! ! if anything went wrong the master will mpi_abort
+! ! which mpi_recv below is going to catch...
+! ! so, now receive all the parameters
+! CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+!
+! ! finally free the MPI type
+! CALL MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -7050,7 +7050,7 @@ CONTAINS
                pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
           IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
-!$           ! accumulate annual variables for use in POP
+!           ! accumulate annual variables for use in POP
              IF(MOD(ktau/ktauday,LOY)==1 ) THEN
                 casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
                 casabal%LAImax = casamet%glai
@@ -7365,11 +7365,11 @@ CONTAINS
              CALL MPI_Comm_rank (icomm, rank, ierr)
              WRITE(logn,*)
              WRITE(logn,*) 'rank receiving pop_grid from master', rank
-!$           write(logn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-!$           write(logn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
+!           write(logn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!           write(logn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
              CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
-!$           write(logn,*)
-!$           write(logn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!           write(logn,*)
+!           write(logn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
              WRITE(logn,*) 'after MPI_Recv, pop_t '
              CALL flush(logn)
              IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
@@ -7377,8 +7377,8 @@ CONTAINS
                 CALL POPdriver(casaflux,casabal,veg, POP)
 
              ENDIF
-!$           write(logn,*)
-!$           write(logn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
+!           write(logn,*)
+!           write(logn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
              WRITE(logn,*) 'after POPstep ',  POP%pop_grid%cmass_sum
              CALL flush(logn)
              CALL worker_send_pop (POP, ocomm)

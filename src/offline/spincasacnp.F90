@@ -211,9 +211,9 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         ENDIF ! CALL_POP
 
 
-!!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
-!!$           xkNlimiting = 0.001
-!!$        END WHERE
+!!        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
+!!           xkNlimiting = 0.001
+!!        END WHERE
         nptx=8173
 
         ! Calculate average allocation fractions  (-) for the plant pools
@@ -328,8 +328,8 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc,                  &
        avg_af, avg_aw, avg_ar, avg_lf, avg_lw, avg_lr, avg_annual_cnpp)
 
-!!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+!!  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
+!!       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
 
   nloop1= MAX(1,mloop-3)
 
@@ -420,9 +420,9 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
      ENDDO   ! end of nyear
 
 
-!!$  if(nloop>=nloop1) &
-!!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+!!  if(nloop>=nloop1) &
+!!       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
+!!       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
 
   ENDDO     ! end of nloop
 

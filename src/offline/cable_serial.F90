@@ -744,28 +744,28 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
 
             ! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
-!$          do kk=1,mp
-!$            if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
-!$              write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
-!$                   met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
-!$                   canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
-!$
-!$
-!$              stop
-!$            endif
-!$            if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
-!$              write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
-!$              stop
-!$
-!$            endif
-!$
-!$
-!$            !if (canopy%fwsoil(kk).eq.0.0) then
-!$            !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
-!$            !endif
-!$
-!$
-!$          enddo
+!          do kk=1,mp
+!            if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
+!              write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
+!                   met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
+!                   canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
+!
+!
+!              stop
+!            endif
+!            if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
+!              write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
+!              stop
+!
+!            endif
+!
+!
+!            !if (canopy%fwsoil(kk).eq.0.0) then
+!            !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
+!            !endif
+!
+!
+!          enddo
 
             IF( ktau == kend ) THEN
               nkend = nkend+1
@@ -795,9 +795,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
 
           ! IF not 1st run through whole dataset:
-!$        IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
-!$             YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
-!$             RRRR.EQ. NRRRR) ) THEN
+!        IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
+!             YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
+!             RRRR.EQ. NRRRR) ) THEN
 
           IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
                YYYY.EQ. CABLE_USER%YearEnd ) THEN

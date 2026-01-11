@@ -748,22 +748,22 @@ CONTAINS
                (TRIM(cable_user%MetType) .NE. 'gswp3') .AND. &
                (TRIM(cable_user%MetType) .NE. 'prin' )) CurYear = met%year(1)
 
-!$        IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
-!$              kend, ktauday, logn) )  THEN
-!$          ! CLN READ FROM FILE INSTEAD !
-!$          WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
-!$          ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!$          casa_it = NINT( REAL(iktau / ktauday) )
-!$          CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
-!$        ENDIF
+!        IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
+!              kend, ktauday, logn) )  THEN
+!          ! CLN READ FROM FILE INSTEAD !
+!          WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
+!          ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+!          casa_it = NINT( REAL(iktau / ktauday) )
+!          CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
+!        ENDIF
 
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
-!$        ! At first time step of year, set tile area according to updated LU areas
-!$        IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
-!$          CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
-!$        ENDIF
+!        ! At first time step of year, set tile area according to updated LU areas
+!        IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
+!          CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
+!        ENDIF
 
 
           IF ( .NOT. CASAONLY ) THEN
@@ -792,15 +792,15 @@ CONTAINS
             CALL master_send_input (icomm, inp_ts, iktau)
             !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
-!$          IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
-!$                ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-!$                               koffset, kend, ktauday, logn) ) ) THEN
-!$            WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!$            ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!$            CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!$                kend/ktauday )
-!$
-!$          ENDIF
+!          IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
+!                ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
+!                               koffset, kend, ktauday, logn) ) ) THEN
+!            WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+!            ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+!            CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
+!                kend/ktauday )
+!
+!          ENDIF
 
             IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
                   MOD((ktau-kstart+1),ktauday)==0) THEN
@@ -877,12 +877,12 @@ CONTAINS
             new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
             new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
             new_sumfe = new_sumfe + SUM(canopy%fe)/mp
-!$                    if (ktau == kend-1) PRINT*, "time-space-averaged energy & water balances"
-!$                    if (ktau == kend-1) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm]", &
-!$                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-!$                    if (ktau == kend-1) PRINT*, "time-space-averaged latent heat and net photosynthesis"
-!$                    if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
-!$                         new_sumfe/count_bal, new_sumfpn/count_bal
+!                    if (ktau == kend-1) PRINT*, "time-space-averaged energy & water balances"
+!                    if (ktau == kend-1) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm]", &
+!                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
+!                    if (ktau == kend-1) PRINT*, "time-space-averaged latent heat and net photosynthesis"
+!                    if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+!                         new_sumfe/count_bal, new_sumfpn/count_bal
 
             ! check for Nans in biophysical outputs and abort if there are any
             IF (ANY( canopy%fe.NE. canopy%fe)) THEN
@@ -1022,14 +1022,14 @@ CONTAINS
             ENDIF
           END IF
 
-!$        IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
-!$          !CLN CHECK FOR LEAP YEAR
-!$          WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!$          ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!$          CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!$               kend/ktauday )
-!$
-!$        ENDIF
+!        IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
+!          !CLN CHECK FOR LEAP YEAR
+!          WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+!          ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+!          CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
+!               kend/ktauday )
+!
+!        ENDIF
 
           IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
                MOD((ktau-kstart+1),ktauday)==0) THEN
@@ -1212,8 +1212,8 @@ CONTAINS
 
       !CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
-!$     CALL casa_poolout( ktau, veg, soil, casabiome,                           &
-!$          casapool, casaflux, casamet, casabal, phen )
+!     CALL casa_poolout( ktau, veg, soil, casabiome,                           &
+!          casapool, casaflux, casamet, casabal, phen )
       CALL casa_fluxout( nyear, veg, soil, casabal, casamet)
 
       if(.not.l_landuse) then
@@ -1886,7 +1886,7 @@ CONTAINS
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blen(bidx) = 1
-!$
+!
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%thetai(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
@@ -7518,14 +7518,14 @@ CONTAINS
        CALL MPI_Abort (comm, 0, ierr)
     END IF
 
-!$  DO rank = 1, wnp
-!$
-!$     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &
-!$          &               inp_req(rank), ierr)
-!$
-!$  END DO
-!$
-!$  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+!  DO rank = 1, wnp
+!
+!     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &
+!          &               inp_req(rank), ierr)
+!
+!  END DO
+!
+!  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   END SUBROUTINE master_casa_dump_types
   ! #############################################################################################################
@@ -8193,21 +8193,21 @@ CONTAINS
 
     INTEGER :: k, j, l
     INTEGER :: rank, off, cnt, ierr
-!$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
-!$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
-!$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
-!$  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
-!$  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
-!$
-!$  IF (cable_user%CALL_POP) THEN
-!$     Iw = POP%Iwood
-!$  ENDIF
+!  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
+!  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
+!  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
+!  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
+!  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+!
+!  IF (cable_user%CALL_POP) THEN
+!     Iw = POP%Iwood
+!  ENDIF
 
     ktauday=INT(24.0*3600.0/dels)
     nday=(kend-kstart+1)/ktauday
-!$  ctime = 0
-!$  CALL zero_sum_casa(sum_casapool, sum_casaflux)
-!$       count_sum_casa = 0
+!  ctime = 0
+!  CALL zero_sum_casa(sum_casapool, sum_casaflux)
+!       count_sum_casa = 0
 
 
     myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
@@ -8262,35 +8262,35 @@ CONTAINS
 
 
 
-!$        ! zero annual sums
-!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
+!        ! zero annual sums
+!        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
 
-!$        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-!$             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
-!$             xksoil,xkleaf,xkleafcold,xkleafdry,&
-!$             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-!$             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-!$             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-!$
-!$        ! update time-aggregates of casa pools and fluxes
-!$        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-!$                            & .TRUE. , .FALSE., 1)
-!$        count_sum_casa = count_sum_casa + 1
+!        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+!             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
+!             xksoil,xkleaf,xkleafcold,xkleafdry,&
+!             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
+!             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+!             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+!
+!        ! update time-aggregates of casa pools and fluxes
+!        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+!                            & .TRUE. , .FALSE., 1)
+!        count_sum_casa = count_sum_casa + 1
 
 
 
-!$           ! accumulate annual variables for use in POP
-!$           IF(idoy==1 ) THEN
-!$              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
-!$              LAImax = casamet%glai
-!$              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
-!$              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
-!$           ELSE
-!$              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-!$              LAImax = max(casamet%glai, LAImax)
-!$              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
-!$              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
-!$           ENDIF
+!           ! accumulate annual variables for use in POP
+!           IF(idoy==1 ) THEN
+!              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
+!              LAImax = casamet%glai
+!              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
+!              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
+!           ELSE
+!              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+!              LAImax = max(casamet%glai, LAImax)
+!              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
+!              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
+!           ENDIF
 
           IF(idoy==mdyear) THEN ! end of year
 
@@ -8376,7 +8376,7 @@ CONTAINS
 
              ! workers call POP here
 
-!$           CALL POPdriver(casaflux,casabal,veg, POP)
+!           CALL POPdriver(casaflux,casabal,veg, POP)
 
              CALL master_receive_pop(POP, ocomm)
 

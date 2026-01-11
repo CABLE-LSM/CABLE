@@ -417,10 +417,10 @@ CONTAINS
        ssnow%GWwb = 0.95*soil%ssat
     END IF
 
-!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
-!$           max_vegpatches,'def',from_restart,mp)
-!$   ENDIF
+!   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+!      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+!           max_vegpatches,'def',from_restart,mp)
+!   ENDIF
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
        CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
@@ -437,23 +437,23 @@ CONTAINS
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
-!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
-!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-!$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
-!$            max_vegpatches,'def',from_restart,mp)
-!$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
-!$            max_vegpatches,'def',from_restart,mp)
-!$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
-!$            max_vegpatches,'def',from_restart,mp)
-!$       ALLOCATE(var_r2(mp,ms))
-!$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
-!$            max_vegpatches,'ms',from_restart,mp)
-!$       soil%ishorizon = int(var_r2)
-!$       DEALLOCATE(var_r2)
-!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
-!$            max_vegpatches,'def',from_restart,mp)
+!       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
+!            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
+!            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
+!            max_vegpatches,'def',from_restart,mp)
+!       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
+!            max_vegpatches,'def',from_restart,mp)
+!       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
+!            max_vegpatches,'def',from_restart,mp)
+!       ALLOCATE(var_r2(mp,ms))
+!       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
+!            max_vegpatches,'ms',from_restart,mp)
+!       soil%ishorizon = int(var_r2)
+!       DEALLOCATE(var_r2)
+!       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
+!            max_vegpatches,'def',from_restart,mp)
     ENDIF
     CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
          max_vegpatches,'def',from_restart,mp)
