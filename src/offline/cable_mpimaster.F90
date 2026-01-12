@@ -886,6 +886,8 @@ CONTAINS
 
           CALL1 = .FALSE.
 
+          ts_start = ts_end
+
           !WRITE(*,*) " ktauloop end ", ktau, CurYear
 
 
