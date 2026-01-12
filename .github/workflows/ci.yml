@@ -12,11 +12,13 @@ jobs:
         spack-manifest-path:
           - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
-    uses: access-nri/build-ci/.github/workflows/ci.yml@v3
+    uses: access-nri/build-ci/.github/workflows/ci.yml@268-github-hosted-pull-fix
     with:
       # For defaults for args not specified here (eg. spack/packages/config refs), see https://github.com/ACCESS-NRI/build-ci/blob/v3/.github/workflows/README.md
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
-      allow-ssh-into-spack-install: false
+      # We need to install the compilers manually here because the upstream image is too large to run on GitHub-hosted runners
+      spack-compiler-manifest-path: .github/build-ci/compilers/spack.yaml
+      allow-ssh-into-spack-install: true
       spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache  # https://github.com/CABLE-LSM/CABLE/pkgs/container/build-ci-buildcache
       # Since CABLE-LSM can't access ACCESS-NRI's self-hosted runners, we use a GitHub-hosted version
       run-self-hosted: false
