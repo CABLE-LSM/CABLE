@@ -104,6 +104,7 @@ module cable_netcdf_mod
       get_att_global_string, get_att_global_int32, get_att_global_real32, get_att_global_real64, &
       get_att_var_string, get_att_var_int32, get_att_var_real32, get_att_var_real64
     procedure(cable_netcdf_file_inq_dim_len), deferred :: inq_dim_len
+    procedure(cable_netcdf_file_inq_var_ndims), deferred :: inq_var_ndims
     procedure(cable_netcdf_file_put_var_int32_0d), deferred :: put_var_int32_0d
     procedure(cable_netcdf_file_put_var_int32_1d), deferred :: put_var_int32_1d
     procedure(cable_netcdf_file_put_var_int32_2d), deferred :: put_var_int32_2d
@@ -293,6 +294,12 @@ module cable_netcdf_mod
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: dim_name
       integer, intent(out) :: dim_len
+    end subroutine
+    subroutine cable_netcdf_file_inq_var_ndims(this, var_name, ndims)
+      import cable_netcdf_file_t
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      integer, intent(out) :: ndims
     end subroutine
     subroutine cable_netcdf_file_put_var_int32_0d(this, var_name, values, start, count)
       import cable_netcdf_file_t, CABLE_NETCDF_INT32_KIND

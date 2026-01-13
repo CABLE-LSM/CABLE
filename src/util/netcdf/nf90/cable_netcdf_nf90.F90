@@ -82,6 +82,7 @@ module cable_netcdf_nf90_mod
     procedure :: get_att_var_real32 => cable_netcdf_nf90_file_get_att_var_real32
     procedure :: get_att_var_real64 => cable_netcdf_nf90_file_get_att_var_real64
     procedure :: inq_dim_len => cable_netcdf_nf90_file_inq_dim_len
+    procedure :: inq_var_ndims => cable_netcdf_nf90_file_inq_var_ndims
     procedure :: put_var_int32_0d => cable_netcdf_nf90_file_put_var_int32_0d
     procedure :: put_var_int32_1d => cable_netcdf_nf90_file_put_var_int32_1d
     procedure :: put_var_int32_2d => cable_netcdf_nf90_file_put_var_int32_2d
@@ -404,6 +405,15 @@ contains
     integer :: dimid
     call check_nf90(nf90_inq_dimid(this%ncid, dim_name, dimid))
     call check_nf90(nf90_inquire_dimension(this%ncid, dimid, len=dim_len))
+  end subroutine
+
+  subroutine cable_netcdf_nf90_file_inq_var_ndims(this, var_name, ndims)
+    class(cable_netcdf_nf90_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name
+    integer, intent(out) :: ndims
+    integer :: varid
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, ndims=ndims))
   end subroutine
 
   subroutine cable_netcdf_nf90_file_put_var_int32_0d(this, var_name, values, start, count)

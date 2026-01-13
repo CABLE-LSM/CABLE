@@ -47,6 +47,7 @@ module cable_netcdf_stub_types_mod
     procedure :: get_att_var_real32 => cable_netcdf_stub_file_get_att_var_real32
     procedure :: get_att_var_real64 => cable_netcdf_stub_file_get_att_var_real64
     procedure :: inq_dim_len => cable_netcdf_stub_file_inq_dim_len
+    procedure :: inq_var_ndims => cable_netcdf_stub_file_inq_var_ndims
     procedure :: put_var_int32_0d => cable_netcdf_stub_file_put_var_int32_0d
     procedure :: put_var_int32_1d => cable_netcdf_stub_file_put_var_int32_1d
     procedure :: put_var_int32_2d => cable_netcdf_stub_file_put_var_int32_2d
@@ -263,6 +264,13 @@ contains
     character(len=*), intent(in) :: dim_name
     integer, intent(out) :: dim_len
     dim_len = 0
+  end subroutine
+
+  subroutine cable_netcdf_stub_file_inq_var_ndims(this, var_name, ndims)
+    class(cable_netcdf_stub_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name
+    integer, intent(out) :: ndims
+    ndims = 0
   end subroutine
 
   subroutine cable_netcdf_stub_file_put_var_int32_0d(this, var_name, values, start, count)

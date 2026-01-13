@@ -28,6 +28,7 @@ module cable_netcdf_pio_mod
   use pio, only: pio_redef
   use pio, only: pio_inq_dimid
   use pio, only: pio_inquire_dimension
+  use pio, only: pio_inquire_variable
   use pio, only: pio_inq_varid
   use pio, only: pio_finalize
   use pio, only: PIO_MAX_NAME
@@ -97,6 +98,7 @@ module cable_netcdf_pio_mod
     procedure :: get_att_var_real32 => cable_netcdf_pio_file_get_att_var_real32
     procedure :: get_att_var_real64 => cable_netcdf_pio_file_get_att_var_real64
     procedure :: inq_dim_len => cable_netcdf_pio_file_inq_dim_len
+    procedure :: inq_var_ndims => cable_netcdf_pio_file_inq_var_ndims
     procedure :: put_var_int32_0d => cable_netcdf_pio_file_put_var_int32_0d
     procedure :: put_var_int32_1d => cable_netcdf_pio_file_put_var_int32_1d
     procedure :: put_var_int32_2d => cable_netcdf_pio_file_put_var_int32_2d
@@ -480,6 +482,15 @@ contains
     integer :: dimid
     call check_pio(pio_inq_dimid(this%pio_file_desc, dim_name, dimid))
     call check_pio(pio_inquire_dimension(this%pio_file_desc, dimid, len=dim_len))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_inq_var_ndims(this, var_name, ndims)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name
+    integer, intent(out) :: ndims
+    integer :: varid
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, varid))
+    call check_pio(pio_inquire_variable(this%pio_file_desc, varid, ndims=ndims))
   end subroutine
 
   subroutine cable_netcdf_pio_file_put_var_int32_0d(this, var_name, values, start, count)
