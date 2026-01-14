@@ -247,7 +247,9 @@ CONTAINS
          ctime = 0,  &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
-         maxdiff(2)     ! location of maximum in convergence test
+         maxdiff(2), &  ! location of maximum in convergence test
+         count_sum_casa ! number of time steps over which casa pools &
+                                !and fluxes are aggregated (for output)
 
     CHARACTER :: dum*9, str1*9, str2*9, str3*9  ! dummy char for fileName generation
 
@@ -607,8 +609,8 @@ CONTAINS
             CALL master_restart_types (comm, canopy, air, bgc)
           END IF
 
-          !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
-          !  count_sum_casa = 0
+          CALL zero_sum_casa(sum_casapool, sum_casaflux)
+          count_sum_casa = 0
 
           ! CALL master_sumcasa_types(comm, sum_casapool, sum_casaflux)
           IF( icycle>0 .AND. spincasa) THEN
@@ -772,6 +774,13 @@ CONTAINS
               ! receive casa update from worker
               CALL master_receive (ocomm, oktau, casa_ts)
 
+              IF(MOD((oktau-kstart+1),ktauday)==0) THEN
+                ! update time-aggregates of casa pools and fluxes
+                CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                    & .TRUE. , .FALSE., 1)
+                count_sum_casa = count_sum_casa + 1
+              END IF
+
               CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
               ! receive casa dump requirements from worker
               IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
@@ -841,11 +850,12 @@ CONTAINS
               IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
                                 koffset, kend, ktauday, logn) ) THEN
                 ctime = ctime +1
-
-
-                CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-                     CASAONLY, ctime, &
-                     ( ktau.EQ.kend .AND. YYYY .EQ.cable_user%YearEnd ) )
+                CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                    .FALSE. , .TRUE. , count_sum_casa)
+                CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                    CASAONLY, ctime, ( oktau == kend .AND. YYYY == cable_user%YearEnd ) )
+                count_sum_casa = 0
+                CALL zero_sum_casa(sum_casapool, sum_casaflux)
               ENDIF
             ENDIF
 
@@ -934,6 +944,13 @@ CONTAINS
 
             CALL master_receive (ocomm, oktau, casa_ts)
 
+            IF(MOD((oktau-kstart+1),ktauday)==0) THEN
+              ! update time-aggregates of casa pools and fluxes
+              CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                  & .TRUE. , .FALSE., 1)
+              count_sum_casa = count_sum_casa + 1
+            END IF
+
             IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
                  ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
                  koffset, kend, ktauday, logn) ) ) THEN
@@ -1006,9 +1023,12 @@ CONTAINS
         IF((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
           IF(icycle >0) THEN
             ctime = ctime +1
-            CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-                 CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.               &
-                 cable_user%YearEnd ) )
+            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                .FALSE. , .TRUE. , count_sum_casa)
+            CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                CASAONLY, ctime, ( oktau == kend .AND. YYYY == cable_user%YearEnd ) )
+            count_sum_casa = 0
+            CALL zero_sum_casa(sum_casapool, sum_casaflux)
             IF ( cable_user%CALL_POP ) THEN
 
               ! CALL master_receive_pop(POP, ocomm)
@@ -6636,6 +6656,38 @@ CONTAINS
 
        bidx = bidx + 1
        CALL MPI_Get_address (casaflux%Cplant_turnover_resource_limitation(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%Pupland(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%Plittermin(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%Psmin(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%Psimm(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%kplab(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%kpsorb(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%kpocc(off), displs(bidx), ierr)
+       blocks(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (casaflux%FluxCtoco2(off), displs(bidx), ierr)
        blocks(bidx) = r2len
 
        types(last2d+1:bidx) = MPI_BYTE
