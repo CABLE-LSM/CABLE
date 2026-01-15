@@ -741,8 +741,8 @@ END MODULE landuse_variable
                                   soil_parameter_type, soil_snow_type, veg_parameter_type, &
                                   balances_type, canopy_type, bgc_pool_type, radiation_type
   USE casadimension,        ONLY: icycle,mplant,mlitter,msoil,mwood,mso
-  USE casavariable,         ONLY: casa_pool,casa_balance,casa_met,casa_biome,casa_flux
-  USE phenvariable,         ONLY: phen_variable
+  USE casavariable,         ONLY: casa_pool,casa_balance,casa_met,casa_biome,casa_flux, &
+                                  phen_variable
   USE landuse_variable
   IMPLICIT NONE
   TYPE (soil_snow_type)          :: ssnow   ! soil and snow variables

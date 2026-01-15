@@ -24,7 +24,6 @@
 !   casadimension
 !   casaparm
 !   casavariable with subroutine alloc_casavariable
-!   phenvariable with subroutine alloc_phenvariable
 
 MODULE casadimension
 
