@@ -31,7 +31,6 @@
 !                 cable_cbm_module
 !                 casadimension
 !                 casavariable
-!                 phenvariable
 !                 casa_cable
 !                 casa_inout_module
 !
@@ -199,8 +198,7 @@ CONTAINS
     ! modules related to CASA-CNP
     USE casadimension,        ONLY: icycle,mplant,mlitter,msoil,mwood
     USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
-         casa_met, casa_balance, zero_sum_casa, update_sum_casa
-    USE phenvariable,         ONLY: phen_variable
+         casa_met, casa_balance, phen_variable, zero_sum_casa, update_sum_casa
     USE casa_cable
     USE casa_inout_module
 
@@ -3252,7 +3250,6 @@ CONTAINS
     USE cable_def_types_mod
 
     USE casavariable
-    USE phenvariable
 
     IMPLICIT NONE
 
@@ -6045,7 +6042,6 @@ CONTAINS
     USE cable_def_types_mod
     USE casadimension
     USE casavariable
-    USE phenvariable
 
     IMPLICIT NONE
 
@@ -7357,9 +7353,8 @@ CONTAINS
 
     USE mpi
 
-    USE casavariable, ONLY: casa_met, casa_flux
+    USE casavariable, ONLY: casa_met, casa_flux, phen_variable
     USE cable_def_types_mod, ONLY: climate_type
-    USE phenvariable
     IMPLICIT NONE
 
     INTEGER,INTENT(IN) :: comm
@@ -7997,7 +7992,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     USE POP_Types,  ONLY: POP_TYPE
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
@@ -8151,7 +8145,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     USE POP_Types,  ONLY: POP_TYPE
     USE POPMODULE,            ONLY: POPStep, POP_init_single
     USE TypeDef,              ONLY: i4b, dp

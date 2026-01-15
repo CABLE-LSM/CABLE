@@ -11,7 +11,6 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE casadimension
   USE casaparm
   USE casavariable
-  USE phenvariable
   USE POP_Types,  ONLY: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
   USE TypeDef,              ONLY: i4b, dp
