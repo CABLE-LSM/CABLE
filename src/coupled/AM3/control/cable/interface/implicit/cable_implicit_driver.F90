@@ -36,7 +36,6 @@ USE cable_common_module, ONLY : cable_runtime, cable_user !jhan:have to sort thi
   
 !jhan: Leave for reference
 !USE casavariable
-!USE phenvariable
 !USE casa_types_mod
 !USE casa_um_inout_mod
 !use POP_TYPES, only : pop_type

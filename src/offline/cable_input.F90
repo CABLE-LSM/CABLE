@@ -26,7 +26,6 @@
 !               netcdf
 !               casadimension
 !               casavariable
-!               phenvariable
 !               cable_param_module
 !               cable_checks_module
 !               cable_radiation_module
@@ -42,7 +41,6 @@ MODULE cable_input_module
   USE casadimension,     ONLY: icycle
   USE casavariable
   USE casaparm, ONLY: forest, shrub
-  USE phenvariable
   ! vh_js !
   USE POP_Types,               ONLY: POP_TYPE
   USE POPLUC_Types,               ONLY: POPLUC_TYPE
@@ -2702,7 +2700,6 @@ CONTAINS
   ! CALLs: get_default_params
   !        allocate_cable_vars
   !        alloc_casavariable
-  !        alloc_phenvariable
   !        write_default_params
   !        write_cnp_params
   !        casa_readbiome
@@ -2834,12 +2831,9 @@ CONTAINS
 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) &
          CALL alloc_casavariable(casabiome,casapool,casaflux, &
-         casamet,casabal,mp)
+         casamet,casabal,phen, mp)
     !mpdiff
     CALL alloc_sum_casavariable(sum_casapool,sum_casaflux,mp)
-    IF (icycle > 0) THEN
-       CALL alloc_phenvariable(phen,mp)
-    ENDIF
 
     !> 3. Assign the loaded parameter values to CABLE's parameter variables
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &

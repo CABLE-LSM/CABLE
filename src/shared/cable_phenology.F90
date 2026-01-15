@@ -42,7 +42,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
 !data
 USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    

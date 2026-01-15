@@ -24,7 +24,6 @@
 !   casadimension
 !   casaparm
 !   casavariable with subroutine alloc_casavariable
-!   phenvariable with subroutine alloc_phenvariable
 
 MODULE casavariable
   USE casadimension
@@ -264,6 +263,20 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:),POINTER   :: clabilelast
   END TYPE casa_balance
 
+  TYPE phen_variable
+     INTEGER,   DIMENSION(:),  POINTER :: phase
+     REAL(r_2), DIMENSION(:),  POINTER :: TKshed
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphase
+     REAL, DIMENSION(:),  POINTER :: phen   ! fraction of max LAI
+     REAL, DIMENSION(:),  POINTER :: aphen  ! annual leaf on sum
+     INTEGER,   DIMENSION(:,:),POINTER :: phasespin
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_1
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_2
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_3
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_4
+
+  END TYPE phen_variable
+
   ! The following declarations are removed and have to be passed using
   ! parameter list for each subroutine (BP apr2010)
   !  TYPE (casa_biome)              :: casabiome
@@ -297,15 +310,16 @@ MODULE casavariable
 CONTAINS
 
   SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
-       casamet,casabal,arraysize)
+       casamet,casabal,phen,arraysize)
 
     USE casaparm, ONLY : leaf
     IMPLICIT NONE
-    TYPE (casa_biome)  , INTENT(INOUT) :: casabiome
-    TYPE (casa_pool)   , INTENT(INOUT) :: casapool
-    TYPE (casa_flux)   , INTENT(INOUT) :: casaflux
-    TYPE (casa_met)    , INTENT(INOUT) :: casamet
-    TYPE (casa_balance), INTENT(INOUT) :: casabal
+    TYPE (casa_biome)   , INTENT(INOUT) :: casabiome
+    TYPE (casa_pool)    , INTENT(INOUT) :: casapool
+    TYPE (casa_flux)    , INTENT(INOUT) :: casaflux
+    TYPE (casa_met)     , INTENT(INOUT) :: casamet
+    TYPE (casa_balance) , INTENT(INOUT) :: casabal
+    TYPE (phen_variable), INTENT(INOUT) :: phen
     INTEGER,             INTENT(IN) :: arraysize
 
     ! r_2 type arrays
@@ -604,12 +618,29 @@ CONTAINS
          casabal%sumpbal(arraysize),             &
          casabal%clabilelast(arraysize),         &
          SOURCE=0.0_r_2)
+
+    ALLOCATE(phen%Tkshed(mvtype), SOURCE=0.0_r_2)
+    
+    ALLOCATE(phen%phase(arraysize),         &
+         phen%doyphase(arraysize,mphase),   &
+         SOURCE=0)
+
+    ALLOCATE(phen%phen(arraysize), &
+         phen%aphen(arraysize), &
+         SOURCE=0.0_r_2)
+
+    ALLOCATE(phen%phasespin(arraysize,mdyear),  &
+         phen%doyphasespin_1(arraysize,mdyear), &
+         phen%doyphasespin_2(arraysize,mdyear), &
+         phen%doyphasespin_3(arraysize,mdyear), &
+         phen%doyphasespin_4(arraysize,mdyear)
+         SOURCE=0)
+
   END SUBROUTINE alloc_casavariable
 
   SUBROUTINE alloc_sum_casavariable(  sum_casapool, sum_casaflux &
        ,arraysize)
 
-    USE casaparm, ONLY : leaf
     IMPLICIT NONE
     TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
     TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
@@ -841,9 +872,6 @@ CONTAINS
     sum_casaflux%FluxPtosoil = 0
 
     sum_casaflux%FluxCtoco2 = 0
-
-
-
 
   END SUBROUTINE zero_sum_casa
 
@@ -1094,8 +1122,6 @@ CONTAINS
 
        sum_casaflux%FluxCtoco2 =  sum_casaflux%FluxCtoco2/REAL(nsteps)
     ENDIF
-
-
 
   END SUBROUTINE update_sum_casa
 
