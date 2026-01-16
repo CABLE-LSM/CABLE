@@ -570,8 +570,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
   CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
+  INTEGER, PARAMETER :: stoch_trig = 30                 !number of days between call to stoch generator
 
-  INTEGER :: i, DOM(12), DOY, p, patch_index
+  INTEGER :: i, DOM(12), DOY, p, patch_index, iSTOCH
 
   DOM = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
   IF ( IS_LEAPYEAR(YEAR) ) DOM(2) = 29
@@ -653,7 +654,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       !   AB(i) = 0.8        ! test vh
       !endif
 
-      !apply randomness to AB annual - currently hardwired to BIOS@0.025 degrees
+      !apply randomness to AB annual
       !IF (SF%STOCH_AREA) THEN
       !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,365)
       !END IF
@@ -663,22 +664,27 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       ! Both options use monthly_clim information to go from annual->monthly
       AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) 
 
-      !apply randomness to AB monthly - currently hardwired to BIOS@0.025 degrees
+      !apply randomness to AB monthly 
       IF (SF%STOCH_AREA) THEN
-         CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,DOM(MM))
+         !iSTOCH increments by 1 each stoch_trip days 
+         !- if stoch_trig>1 then allow some fires to last multiple days
+         iSTOCH = INT( REAL(DOY)/REAL(stoch_trig)) + 1
+         
+         !STOCH_AREA is deterministic, if iSTOCH is the same then the same AB will be produced.
+         CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),iSTOCH,YEAR,DOM(MM))
       END IF
 
       !Daily burned area
       AB(i) = AB(i) / DOM(MM)
 
-      !apply randomness to AB daily - currently hardwired to BIOS@0.025 degrees
-      !INH I think randomisation/ignition goes here. We should use BLAZE%AREA for the area scaling.
+      !apply randomness to AB daily 
+      !INH I think randomisation/ignition goes here. We should use SF%AREA for the area scaling.
       !IF (SF%STOCH_AREA) THEN
       !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,1)
       !END IF
 
-      !enforce that annAB can't exceed 1.0 through year - and convert from monthly to daily
-      !sumBLAZE accumulation done in update_sumblaze
+      !enforce that annAB can't exceed 1.0 through year
+      !sumBLAZE accumulation (equiv to annAB) is done in update_sumblaze
       AB(i) = MAX( 0., MIN(AB(i),0.99-annAB(i)) )
       annAB(i) = annAB(i) + AB(i)
 
@@ -686,7 +692,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
 
 END SUBROUTINE SIMFIRE
 
-SUBROUTINE STOCH_AREA(AB,lat,lon,gca,DAY,YEAR,NDAY)
+SUBROUTINE STOCH_AREA(AB,lat,lon,gca,iSTOCH,YEAR,NDAY)
 
    !simple, empirical function to apply some deterministic randomness to the burnt area 
    ! while preserving the time/ensemble average.  this is a surrogate for ignition
@@ -711,7 +717,7 @@ SUBROUTINE STOCH_AREA(AB,lat,lon,gca,DAY,YEAR,NDAY)
    !in/outs
    REAL, INTENT(INOUT) :: AB
    REAL, INTENT(IN)    :: lat, lon, gca
-   INTEGER, INTENT(IN) :: DAY, YEAR, NDAY
+   INTEGER, INTENT(IN) :: iSTOCH, YEAR, NDAY
 
    !parameters: eps needed to ensure randmomisation occurs globally, beta>=3 scaling within function 
    !max_ba = maxBA possible per day ~200km2  
@@ -727,21 +733,30 @@ SUBROUTINE STOCH_AREA(AB,lat,lon,gca,DAY,YEAR,NDAY)
 
    ELSE
       !create a 'random' integer that is deterministic but varies in time, space (and ~randomly)
-      !need intseed to differ for each grid cell, day and year 
+      !need intseed to differ for each grid cell, year and call (as given by iSTOCH)
       ! - note expected min resolution is 0.05 degrees so YEAR factor ensures cells do not align
-      intseed = INT(REAL(DAY*YEAR)*(ABS(lat/10.0)+eps)*(ABS(lon/10.0)+2.5*eps))
+      !intseed = INT(REAL(iSTOCH*YEAR)*(ABS(lat/10.0)+eps)*(ABS(lon/10.0)+2.5*eps))
+      
+      !edit 16/1/2025 - this appears to work better (factor 2 within maximum unsigned integer)
+      intseed = INT(REAL(iSTOCH*YEAR)*ABS(lat + lon + eps)*ABS(lat - lon + eps)/2.0)
 
       !use alternate lcg_generator to generate REAL seed on (0,1) - doesn't require the repeated ALLOCATION
       CALL seeded_random(intseed,seed)
 
-      !apply function using seed - dx is max_BA per call to randomiser = ndays*max_ba/grid_cell_area
-      mx = MAX(MIN(REAL(NDAY) * max_ba / gca, 1.0), AB)
+      !apply function using seed - dx is max_BA per call to randomiser = nday_fire*max_ba_per_day/grid_cell_area
+      mx = MAX(MIN(REAL(MIN(NDAY,5)) * max_ba / gca, 1.0), AB)
 
       !gamma*AB is positioning of max steepness
       gamma = (1.0-AB/mx)/AB
 
-      !ABx is scale of curve - needs to take a maximum and minimum value
-      ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, 0.2/beta), 0.025)
+      !ABx is scale of curve - needs to take a maximum and minimum value 
+      !ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, 0.2/beta), 0.025)
+
+      !edit 16/1/2025 - this appears to work better
+      ! - denom here is a representative delta latitude, more variation in AB for larger grid cells
+      !   gca in km2, beta~3 required to ensure that AB reaches max/min values for seed in (0,1)
+      denom = SQRT(gca/100.0/100.0)
+      ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, denom/beta), 0.025)
 
       !normalising factor to ensure mean (over seed=0,1) is AB
       denom = 1.0 + ABx*( log(cosh((gamma*AB-1.0)/ABx))-log(cosh(gamma*AB/ABx)))
