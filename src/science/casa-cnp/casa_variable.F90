@@ -264,13 +264,19 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:),POINTER   :: clabilelast
   END TYPE casa_balance
 
-  ! The following declarations are removed and have to be passed using
-  ! parameter list for each subroutine (BP apr2010)
-  !  TYPE (casa_biome)              :: casabiome
-  !  TYPE (casa_pool)               :: casapool
-  !  TYPE (casa_flux)               :: casaflux
-  !  TYPE (casa_met)                :: casamet
-  !  TYPE (casa_balance)            :: casabal
+  TYPE phen_variable
+     INTEGER,   DIMENSION(:),  POINTER :: phase
+     REAL(r_2), DIMENSION(:),  POINTER :: TKshed
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphase
+     REAL, DIMENSION(:),  POINTER :: phen   ! fraction of max LAI
+     REAL, DIMENSION(:),  POINTER :: aphen  ! annual leaf on sum
+     INTEGER,   DIMENSION(:,:),POINTER :: phasespin
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_1
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_2
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_3
+     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_4
+
+  END TYPE phen_variable
 
   ! Added filename type for casaCNP (BP apr2010)
   TYPE casafiles_type
@@ -605,6 +611,27 @@ CONTAINS
          casabal%clabilelast(arraysize),         &
          SOURCE=0.0_r_2)
   END SUBROUTINE alloc_casavariable
+
+  SUBROUTINE alloc_phenvariable(phen,arraysize)
+    !* Allocate phen derived type instance.
+    ! Allocated arrays are initialised to zero.
+
+    TYPE(phen_variable), INTENT(INOUT) :: phen
+    INTEGER,             INTENT(IN   ) :: arraysize
+
+    ALLOCATE(phen%Tkshed(mvtype), source=0.0_r_2)
+    ALLOCATE(phen%phen(arraysize), phen%aphen(arraysize), source=0.0)
+    ALLOCATE(                                &
+      phen%phase(arraysize),                 &
+      phen%doyphase(arraysize,mphase),       &
+      phen%phasespin(arraysize,mdyear),      &
+      phen%doyphasespin_1(arraysize,mdyear), &
+      phen%doyphasespin_2(arraysize,mdyear), &
+      phen%doyphasespin_3(arraysize,mdyear), &
+      phen%doyphasespin_4(arraysize,mdyear), &
+      source=0                               &
+    )
+  END SUBROUTINE alloc_phenvariable
 
   SUBROUTINE alloc_sum_casavariable(  sum_casapool, sum_casaflux &
        ,arraysize)

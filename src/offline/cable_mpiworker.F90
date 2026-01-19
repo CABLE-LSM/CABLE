@@ -32,7 +32,6 @@
 !                 cable_cbm_module
 !                 casadimension
 !                 casavariable
-!                 phenvariable
 !                 casa_cable
 !                 casa_inout_module
 !
@@ -149,8 +148,7 @@ CONTAINS
     ! modules related to CASA-CNP
     USE casadimension,        ONLY: icycle
     USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
-         casa_met, casa_balance
-    USE phenvariable,         ONLY: phen_variable
+         casa_met, casa_balance, phen_variable
 
     !CLN added
     ! modules related to POP
@@ -2401,7 +2399,6 @@ CONTAINS
     USE cable_def_types_mod
 
     USE casavariable
-    USE phenvariable
 
     IMPLICIT NONE
 
@@ -5560,7 +5557,6 @@ CONTAINS
     USE casavariable
     !  gol124: commented out because casa_poolout in this version
     !  is no longer writing phen%phase
-    USE phenvariable
 
     IMPLICIT NONE
 
@@ -6541,9 +6537,9 @@ CONTAINS
 
     USE mpi
 
-    USE casavariable, ONLY: casa_met, casa_flux, mplant
+    use casadimension, only: mphase, mplant
+    USE casavariable, ONLY: casa_met, casa_flux, phen_variable
     USE cable_def_types_mod, ONLY: climate_type
-    USE phenvariable
 
     IMPLICIT NONE
 
@@ -6948,7 +6944,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     USE POP_Types,  ONLY: POP_TYPE
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
@@ -7303,7 +7298,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     USE POP_Types,  ONLY: POP_TYPE
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
