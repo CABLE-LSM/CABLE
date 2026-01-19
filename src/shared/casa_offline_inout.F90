@@ -34,18 +34,19 @@
 MODULE casa_offline_inout_module
 
 USE casavariable, ONLY : casafile
+use casadimension, only: r_2
 
 CONTAINS
 
 #ifndef UM_BUILD
   SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
 
-    USE casavariable, ONLY : casa_met, casa_pool, casa_flux, icycle, mplant, mlitter, msoil
+    USE casavariable, ONLY : casa_met, casa_pool, casa_flux, phen_variable,&
+                             icycle, mplant, mlitter, msoil
     USE cable_common_module
   USE casa_ncdf_module, ONLY: HANDLE_ERR
    
     USE cable_def_types_mod, ONLY: met_type, mp
-    USE phenvariable
     USE netcdf
 
     IMPLICIT NONE
