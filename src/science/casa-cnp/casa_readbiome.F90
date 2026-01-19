@@ -41,7 +41,6 @@ USE casavariable, ONLY :  casa_pool
 USE casavariable, ONLY :  casa_flux
 USE casavariable, ONLY :  casa_met
    
-    USE phenvariable
     !! vh_js !!
     USE cable_common_module, ONLY: cable_user
     IMPLICIT NONE
