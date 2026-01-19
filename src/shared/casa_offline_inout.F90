@@ -262,7 +262,6 @@ CONTAINS
   SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
 
     USE CASAVARIABLE
-    USE phenvariable
     USE CABLE_COMMON_MODULE
     USE casa_ncdf_module, ONLY: HANDLE_ERR
     USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE, r_2, mp
