@@ -6537,7 +6537,8 @@ CONTAINS
 
     USE mpi
 
-    USE casavariable, ONLY: casa_met, casa_flux, mplant, phen_variable
+    use casadimension, only: mphase, mplant
+    USE casavariable, ONLY: casa_met, casa_flux, phen_variable
     USE cable_def_types_mod, ONLY: climate_type
 
     IMPLICIT NONE

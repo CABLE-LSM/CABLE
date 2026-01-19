@@ -7405,6 +7405,7 @@ CONTAINS
 
     USE mpi
 
+    use casadimension, only: mphase
     USE casavariable, ONLY: casa_met, casa_flux, phen_variable
     USE cable_def_types_mod, ONLY: climate_type
     IMPLICIT NONE
