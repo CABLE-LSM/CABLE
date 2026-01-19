@@ -26,7 +26,6 @@
 !               netcdf
 !               casadimension
 !               casavariable
-!               phenvariable
 !               cable_param_module
 !               cable_checks_module
 !               cable_radiation_module
@@ -42,7 +41,6 @@ MODULE cable_input_module
   USE casadimension,     ONLY: icycle
   USE casavariable
   USE casaparm, ONLY: forest, shrub
-  USE phenvariable
   ! vh_js !
   USE POP_Types,               ONLY: POP_TYPE
   USE POPLUC_Types,               ONLY: POPLUC_TYPE

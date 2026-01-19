@@ -34,7 +34,6 @@ SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
   USE casadimension
   USE casaparm
   USE casavariable
-  USE phenvariable
   USE cable_common_module,  ONLY: CurYear, CABLE_USER
   USE TypeDef,              ONLY: i4b, dp
   USE POPMODULE,            ONLY: POPStep
@@ -92,7 +91,6 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
       USE cable_def_types_mod,   ONLY : r_2,ms,mp, climate_type
       USE casadimension,         ONLY : mplant,mdyear
       USE casavariable,          ONLY : casa_met, casa_flux
-      USE phenvariable
       USE cable_common_module,  ONLY:  CABLE_USER
       USE casa_ncdf_module,     ONLY : get_var_ncr2, &
                                         get_var_ncr3, stderr_nc
@@ -261,9 +259,8 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   USE casa_ncdf_module,     ONLY : def_dims, def_vars, def_var_atts, &
        put_var_ncr1, put_var_ncr2,       &
        put_var_ncr3, stderr_nc
-  USE casavariable,          ONLY : CASA_MET, CASA_FLUX
+  USE casavariable,          ONLY : CASA_MET, CASA_FLUX, phen_variable
   USE casadimension,         ONLY : mplant
-  USE phenvariable
   USE cable_common_module,  ONLY:  CABLE_USER
 
   IMPLICIT NONE
@@ -640,7 +637,6 @@ END SUBROUTINE sumcflux
   USE casadimension
   USE casaparm
   USE casavariable
-  USE phenvariable
   IMPLICIT NONE
   INTEGER, INTENT(IN)    :: kend
   TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
