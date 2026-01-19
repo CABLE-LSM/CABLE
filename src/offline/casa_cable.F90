@@ -90,7 +90,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
       USE netcdf
       USE cable_def_types_mod,   ONLY : r_2,ms,mp, climate_type
       USE casadimension,         ONLY : mplant,mdyear
-      USE casavariable,          ONLY : casa_met, casa_flux
+      USE casavariable,          ONLY : casa_met, casa_flux, phen_variable
       USE cable_common_module,  ONLY:  CABLE_USER
       USE casa_ncdf_module,     ONLY : get_var_ncr2, &
                                         get_var_ncr3, stderr_nc
