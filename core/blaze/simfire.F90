@@ -656,32 +656,26 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
 
       !apply randomness to AB annual
       !IF (SF%STOCH_AREA) THEN
-      !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,365)
+      !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),1,YEAR,365)
       !END IF
 
       ! Monthly Burned Area
-      ! use BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
-      ! Both options use monthly_clim information to go from annual->monthly
+      ! Both BLAZE%FSTEP options use monthly_clim information to go from annual->monthly
       AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) 
 
       !apply randomness to AB monthly 
       IF (SF%STOCH_AREA) THEN
-         !iSTOCH increments by 1 each stoch_trip days 
+         !iSTOCH increments by 1 each stoch_trig days 
          !- if stoch_trig>1 then allow some fires to last multiple days
+         !- to get daily stochaticity set stoch_trig=1
          iSTOCH = INT( REAL(DOY)/REAL(stoch_trig)) + 1
-         
+        
          !STOCH_AREA is deterministic, if iSTOCH is the same then the same AB will be produced.
          CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),iSTOCH,YEAR,DOM(MM))
       END IF
 
       !Daily burned area
       AB(i) = AB(i) / DOM(MM)
-
-      !apply randomness to AB daily 
-      !INH I think randomisation/ignition goes here. We should use SF%AREA for the area scaling.
-      !IF (SF%STOCH_AREA) THEN
-      !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),DOY,YEAR,1)
-      !END IF
 
       !enforce that annAB can't exceed 1.0 through year
       !sumBLAZE accumulation (equiv to annAB) is done in update_sumblaze
@@ -724,7 +718,7 @@ SUBROUTINE STOCH_AREA(AB,lat,lon,gca,iSTOCH,YEAR,NDAY)
    REAL, PARAMETER     :: max_ba = 200., eps = 1.0, beta = 3.0
 
    !working vars
-   REAL                :: mx, ABx, seed, denom, gamma
+   REAL                :: mx, ABx, seed, denom, gamma, dlta
    INTEGER             :: intseed
 
    IF ( (AB .le. 0.0) ) THEN
@@ -735,28 +729,26 @@ SUBROUTINE STOCH_AREA(AB,lat,lon,gca,iSTOCH,YEAR,NDAY)
       !create a 'random' integer that is deterministic but varies in time, space (and ~randomly)
       !need intseed to differ for each grid cell, year and call (as given by iSTOCH)
       ! - note expected min resolution is 0.05 degrees so YEAR factor ensures cells do not align
-      !intseed = INT(REAL(iSTOCH*YEAR)*(ABS(lat/10.0)+eps)*(ABS(lon/10.0)+2.5*eps))
-      
-      !edit 16/1/2025 - this appears to work better (factor 2 within maximum unsigned integer)
       intseed = INT(REAL(iSTOCH*YEAR)*ABS(lat + lon + eps)*ABS(lat - lon + eps)/2.0)
 
       !use alternate lcg_generator to generate REAL seed on (0,1) - doesn't require the repeated ALLOCATION
       CALL seeded_random(intseed,seed)
 
-      !apply function using seed - dx is max_BA per call to randomiser = nday_fire*max_ba_per_day/grid_cell_area
+      !apply function using seed - mx is max_BA per call to randomiser = nday_fire*max_ba_per_day/grid_cell_area
       mx = MAX(MIN(REAL(MIN(NDAY,5)) * max_ba / gca, 1.0), AB)
 
       !gamma*AB is positioning of max steepness
       gamma = (1.0-AB/mx)/AB
 
-      !ABx is scale of curve - needs to take a maximum and minimum value 
-      !ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, 0.2/beta), 0.025)
-
-      !edit 16/1/2025 - this appears to work better
-      ! - denom here is a representative delta latitude, more variation in AB for larger grid cells
-      !   gca in km2, beta~3 required to ensure that AB reaches max/min values for seed in (0,1)
-      denom = SQRT(gca/100.0/100.0)
-      ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, denom/beta), 0.025)
+      ! 16/1/2025 - dlta is a representative grd scale in degrees
+      ! allows more variation in AB with larger grid cells, more bimodal (burn/no burn) at small cells
+      ! gca in km2, beta~3 required to ensure that AB reaches max/min values for seed in (0,1)
+      ! smaller minimum value allows larger ABout at small values of ABin but can break the average
+      !
+      ! important note: if AB < 1 - 89.5*ABx then single precision numerics fail (cosh(89.5)->infty)
+      ! minimum value needs to be >~ 0.011 (resolution and stoch_trig invariant)
+      dlta = SQRT(gca/100.0/100.0)
+      ABx = max( min(gamma*AB/beta,(1.-gamma*AB)/beta, dlta/beta), 0.0125)
 
       !normalising factor to ensure mean (over seed=0,1) is AB
       denom = 1.0 + ABx*( log(cosh((gamma*AB-1.0)/ABx))-log(cosh(gamma*AB/ABx)))
@@ -787,19 +779,17 @@ SUBROUTINE get_minlatlon_increment(NCELLS,latlon,dlatlon)
 
    !routine determines the effective resolution of input from SF TYPE 
    !dummy routine while a more robust solution found
-
    INTEGER, iNTENT(IN) :: NCELLS 
    REAL, INTENT(IN)    :: latlon(NCELLS)
    REAL, INTENT(OUT)   :: dlatlon
    
    INTEGER :: i, j 
 
-   !initial value
-   dlatlon = 360.0
-
-   IF (NCELLS .eq. 1) THEN
-      dlatlon = 0.0
+   IF ((NCELLS .eq. 1) .or. (MAXVAL(latlon) .eq. MINVAL(latlon)) ) THEN
+      dlatlon = 0.05
    ELSE
+      !initial value
+      dlatlon = 360.0
       DO i = 1,NCELLS 
          DO j = i,NCELLS 
             !loop over cells to find smallest dlat or dlon
@@ -810,8 +800,8 @@ SUBROUTINE get_minlatlon_increment(NCELLS,latlon,dlatlon)
       END DO
    END IF
 
-   !enforce a minimum value
-   dlatlon = MAX(dlatlon,0.01)
+   !enforce a minimum value (single site runs)
+   dlatlon = MAX(dlatlon,0.05)
 
 END SUBROUTINE get_minlatlon_increment
 
