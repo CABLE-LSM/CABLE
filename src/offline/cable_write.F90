@@ -45,7 +45,7 @@
 MODULE cable_write_module
 
 
-  USE cable_abort_module, ONLY: nc_abort, abort
+  USE cable_abort_module, ONLY: nc_abort, cable_abort
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: landpt, patch, max_vegpatches, parID_type,           &
        metGrid, land_x, land_y, logn, output,               &
@@ -257,7 +257,7 @@ CONTAINS
           IF( .NOT. ASSOCIATED(otmp2lt)) ALLOCATE(otmp2lt(mland, 1))
        END IF
     ELSE
-       CALL abort('Unknown grid specification (INTERFACE define_ovar)')
+       CALL cable_abort('Unknown grid specification (INTERFACE define_ovar)')
     END IF
     ! Define variable units:
     ok = NF90_PUT_ATT(ncid, varID, 'units', vunits)
@@ -340,7 +340,7 @@ CONTAINS
              IF( .NOT. ASSOCIATED(otmp5xypsct))                                   &
                   ALLOCATE(otmp5xypsct(xdimsize, ydimsize, max_vegpatches, ncs, 1))
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch// &
                   ' - in SUBROUTINE define_output_variable_r2')
           END IF
@@ -378,7 +378,7 @@ CONTAINS
              IF( .NOT. ASSOCIATED(otmp4xysct))                                    &
                   ALLOCATE(otmp4xysct(xdimsize, ydimsize, ncs, 1))
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch// &
                   ' - in SUBROUTINE define_output_variable_r2')
           END IF
@@ -424,7 +424,7 @@ CONTAINS
              IF( .NOT. ASSOCIATED(otmp4xysct))                                    &
                   ALLOCATE(otmp4xysct(mland, max_vegpatches, ncs, 1))
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch// &
                   ' - in SUBROUTINE define_output_variable_r2')
           END IF
@@ -457,13 +457,13 @@ CONTAINS
              ! of this dim:
              IF( .NOT. ASSOCIATED(otmp3lsct)) ALLOCATE(otmp3lsct(mland, ncs, 1))
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch// &
                   ' - in SUBROUTINE define_output_variable_r2')
           END IF
        END IF
     ELSE
-       CALL abort('Unknown grid specification (SUBROUTINE '//                   &
+       CALL cable_abort('Unknown grid specification (SUBROUTINE '//                   &
             'define_output_variable_r2)')
     END IF
     ! Define variable units:
@@ -589,7 +589,7 @@ CONTAINS
           IF(.NOT. ASSOCIATED(otmp1l)) ALLOCATE(otmp1l(mland))
        END IF
     ELSE
-       CALL abort('Unknown grid specification '//                              &
+       CALL cable_abort('Unknown grid specification '//                              &
             '(SUBROUTINE define_output_parameter_r1)')
     END IF
     ! Define variable units:
@@ -777,7 +777,7 @@ CONTAINS
           END IF
        END IF
     ELSE
-       CALL abort('Unknown grid specification '//                              &
+       CALL cable_abort('Unknown grid specification '//                              &
             '(SUBROUTINE define_output_parameter_r2)')
     END IF
     ! Define variable units:
@@ -917,7 +917,7 @@ CONTAINS
                start = (/1, ktau/), count = (/mland, 1/)) ! write data to file
        END IF
     ELSE
-       CALL abort('Unknown grid specification '//                               &
+       CALL cable_abort('Unknown grid specification '//                               &
             '(SUBROUTINE write_output_variable_r1)')
     END IF
     ! Check writing was successful:
@@ -1051,7 +1051,7 @@ CONTAINS
                   start = (/1, 1, 1, 1, ktau/),                      &
                   count = (/xdimsize, ydimsize, max_vegpatches, ncs, 1/))
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in INTERFACE write_ovar')
           END IF
@@ -1142,7 +1142,7 @@ CONTAINS
                   start = (/1, 1, 1, ktau/),                         &
                   count = (/xdimsize, ydimsize, ncs, 1/)) ! write data to file
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in INTERFACE write_ovar')
           END IF
@@ -1221,7 +1221,7 @@ CONTAINS
                   start = (/1, 1, 1, ktau/),                         &
                   count = (/mland, max_vegpatches, ncs, 1/))
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in INTERFACE write_ovar')
           END IF
@@ -1291,13 +1291,13 @@ CONTAINS
                   start = (/1, 1, ktau/),                            &
                   count = (/mland, ncs, 1/)) ! write data to file
           ELSE
-             CALL abort('Variable '//vname//                                      &
+             CALL cable_abort('Variable '//vname//                                      &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in SUBROUTINE write_output_variable_r2')
           END IF
        END IF ! patch info or no patch info
     ELSE
-       CALL abort('Unknown grid specification '//                               &
+       CALL cable_abort('Unknown grid specification '//                               &
             '(SUBROUTINE write_output_variable_r2)')
     END IF ! grid type
 
@@ -1437,7 +1437,7 @@ CONTAINS
           END IF ! If writing restart
        END IF ! If writing with a patch dimension in output file
     ELSE
-       CALL abort('Unknown grid specification '//                              &
+       CALL cable_abort('Unknown grid specification '//                              &
             '(SUBROUTINE write_output_parameter_r1)')
     END IF  ! mask x-y or land-only grid
     ! Check writing was successful:
@@ -1592,7 +1592,7 @@ CONTAINS
                   start = (/1, 1, 1, 1/),                            &
                   count = (/xdimsize, ydimsize, max_vegpatches, nrb/))
           ELSE
-             CALL abort('Parameter '//pname//                                     &
+             CALL cable_abort('Parameter '//pname//                                     &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in INTERFACE write_ovar')
           END IF
@@ -1659,7 +1659,7 @@ CONTAINS
                   start = (/1, 1, 1/),                               &
                   count = (/xdimsize, ydimsize, 4/)) ! write data to file
           ELSE
-             CALL abort('Parameter '//pname//                                     &
+             CALL cable_abort('Parameter '//pname//                                     &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in SUBROUTINE write_output_parameter_r2')
           END IF
@@ -1733,7 +1733,7 @@ CONTAINS
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsn(:, :, :), 4),          &
                   start = (/1, 1, 1/), count = (/mland, max_vegpatches, msn/))
           ELSE
-             CALL abort('Parameter '//pname//                                     &
+             CALL cable_abort('Parameter '//pname//                                     &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in SUBROUTINE write_output_parameter_r2')
           END IF
@@ -1813,13 +1813,13 @@ CONTAINS
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsf, 4),                    &
                   start = (/1, 1/), count = (/mland, 4/)) ! write data to file
           ELSE
-             CALL abort('Parameter '//pname//                                     &
+             CALL cable_abort('Parameter '//pname//                                     &
                   ' defined with unknown dimension switch - '//dimswitch//  &
                   ' - in SUBROUTINE write_output_parameter_r2')
           END IF
        END IF
     ELSE
-       CALL abort('Unknown grid specification '//                               &
+       CALL cable_abort('Unknown grid specification '//                               &
             '(SUBROUTINE write_output_parameter_r2)')
     END IF
     ! Check writing was successful:
@@ -1866,7 +1866,7 @@ CONTAINS
           DEALLOCATE(tmpout)
        END IF
     ELSE
-       CALL abort('Parameter '//pname//                                        &
+       CALL cable_abort('Parameter '//pname//                                        &
             ' defined with unknown dimension switch - '//dimswitch//     &
             ' - in SUBROUTINE write_output_parameter_r2d')
     END IF
