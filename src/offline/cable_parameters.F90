@@ -950,21 +950,29 @@ CONTAINS
     INTEGER, INTENT(IN) :: nlon, nlat
 
     ! local variables
-    REAL :: lon2, distance, newLength
-    INTEGER :: ii, jj, kk, tt, ncount
+    REAL :: tmp_lon, distance, newLength
+    INTEGER :: ii, jj, kk
 
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
-    ncount = 0
+
+    ! This search is not a nearest neighbour in the true sense, due to the latitude dependence on
+    ! arc length. It is only a nearest neighbour in the latitute/longitude coordinate space.
     DO kk = 1, mland
-       distance = 5300.0 ! initialise, units are degrees
+       ! This is the maximum distance in degrees^2 for a gridinfo point to be considered valid for
+       ! the nearest neighbour search. If no valid neighbours are found within this 12 degree radius,
+       ! consider the search failed and crash out.
+       distance = 144.0 ! initialise, units are degrees^2
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0) THEN
-                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
-                     + (inLat(jj) -  latitude(kk))**2)
+                tmp_lon = inLon(ii) - longitude(kk)
+                if (tmp_lon > 180.0) then
+                  tmp_lon = 360 - tmp_lon
+                end if
+                newLength = (tmp_lon)**2 + (inLat(jj) -  latitude(kk))**2
                 IF (newLength < distance) THEN
                    distance = newLength
                    landpt(kk)%ilon = ii
@@ -1012,7 +1020,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: nlon, nlat, npatch
 
     ! local variables
-    REAL :: lon2, distance, newLength
+    REAL :: tmp_lon, distance, newLength
     INTEGER :: ii, jj, kk, tt, ncount
 
 ! mpatch setting below introduced by rk4417 - phase2    
@@ -1026,13 +1034,22 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     ncount = 0
+
+    ! This search is not a nearest neighbour in the true sense, due to the latitude dependence on
+    ! arc length. It is only a nearest neighbour in the latitute/longitude coordinate space.
     DO kk = 1, mland
-       distance = 300.0 ! initialise, units are degrees
+       ! This is the maximum distance in degrees^2 for a gridinfo point to be considered valid for
+       ! the nearest neighbour search. If no valid neighbours are found within this 12 degree radius,
+       ! consider the search failed and crash out.
+       distance = 144.0 ! initialise, units are degrees^2
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0) THEN
-                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
-                     + (inLat(jj) -  latitude(kk))**2)
+                tmp_lon = inLon(ii) - longitude(kk)
+                if (tmp_lon > 180.0) then
+                  tmp_lon = 360.0 - tmp_lon
+                end if
+                newLength = tmp_lon**2 + (inLat(jj) -  latitude(kk))**2
                 IF (newLength < distance) THEN
                    distance = newLength
                    landpt(kk)%ilon = ii
