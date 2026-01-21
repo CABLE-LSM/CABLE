@@ -277,6 +277,7 @@ else()
         src/offline/spincasacnp.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+        src/util/netcdf_utils.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
