@@ -22,7 +22,6 @@ MODULE cable_driver_common_mod
     verbose,                       &
     leaps,                         &
     logn,                          &
-    fixedCO2,                      &
     ncciy,                         &
     gswpfile,                      &
     globalMetfile,                 &
@@ -42,6 +41,16 @@ MODULE cable_driver_common_mod
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
   USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
   USE CABLE_site, ONLY : site_TYPE, site_INIT
+USE read_namelists_mod_cbl, ONLY: read_cable_namelists
+
+USE temp_module, ONLY: spincasa,      &
+                       spinup,        &
+                       CASAONLY,      &
+                       l_casacnp,     &
+                       l_laiFeedbk,   &
+                       l_vcmaxFeedbk, &
+                       LALLOC
+
   IMPLICIT NONE
   PRIVATE
 
@@ -50,56 +59,8 @@ MODULE cable_driver_common_mod
     !! Number of GSWP met forcing variables (rain, snow, lw, sw, ps, qa, ta, wd)
   REAL, PARAMETER :: CONSISTENCY_CHECK_TOLERANCE = 1.e-7
     !! Max tolerance value for quasi-bit reproducibility checks
-
-  LOGICAL, SAVE, PUBLIC :: vegparmnew    = .FALSE. ! using new format input file (BP dec 2007)
-  LOGICAL, SAVE, PUBLIC :: spinup        = .FALSE. ! model spinup to soil state equilibrium?
-  LOGICAL, SAVE, PUBLIC :: spincasa      = .FALSE. ! TRUE: CASA-CNP Will spin mloop times, FALSE: no spin up
-  LOGICAL, SAVE, PUBLIC :: CASAONLY      = .FALSE. ! ONLY Run CASA-CNP
-  LOGICAL, SAVE, PUBLIC :: l_casacnp     = .FALSE. ! using CASA-CNP with CABLE
-  LOGICAL, SAVE, PUBLIC :: l_landuse     = .FALSE. ! using CASA-CNP with CABLE
-  LOGICAL, SAVE, PUBLIC :: l_laiFeedbk   = .FALSE. ! using prognostic LAI
-  LOGICAL, SAVE, PUBLIC :: l_vcmaxFeedbk = .FALSE. ! using prognostic Vcmax
-
-  REAL, SAVE, PUBLIC :: delsoilM ! allowed variation in soil moisture for spin up
-  REAL, SAVE, PUBLIC :: delsoilT ! allowed variation in soil temperature for spin up
-  REAL, SAVE, PUBLIC :: delgwM = 1e-4
-
-  INTEGER, SAVE, PUBLIC :: LALLOC = 0 ! allocation coefficient for passing to spincasa
-
-  NAMELIST /CABLE/  &
-    filename,       & ! TYPE, containing input filenames
-    vegparmnew,     & ! use new soil param. method
-    soilparmnew,    & ! use new soil param. method
-    calcsoilalbedo, & ! albedo considers soil color Ticket #27
-    spinup,         & ! spinup model (soil) to steady state
-    delsoilM,       &
-    delsoilT,       &
-    delgwM,         &
-    output,         &
-    patchout,       &
-    check,          &
-    verbose,        &
-    leaps,          &
-    logn,           &
-    fixedCO2,       &
-    spincasa,       &
-    l_casacnp,      &
-    l_landuse,      &
-    l_laiFeedbk,    &
-    l_vcmaxFeedbk,  &
-    CASAONLY,       &
-    icycle,         &
-    casafile,       &
-    ncciy,          &
-    gswpfile,       &
-    globalMetfile,  &
-    redistrb,       &
-    wiltParam,      &
-    satuParam,      &
-    snmin,          &
-    cable_user,     & ! additional USER switches
-    gw_params
-
+INTEGER, PARAMETER    :: nmlunitnumber = 88813 ! this is to satisfy UM method 
+                                               ! where a shared_unitnumber is used
   PUBLIC :: cable_driver_init
   PUBLIC :: cable_driver_init_gswp
   PUBLIC :: cable_driver_init_plume
@@ -131,12 +92,9 @@ CONTAINS
       WRITE(*,*) "THE NAME LIST IS ", CABLE_NAMELIST
     END IF
 
-    ! Open, read and close the namelist file.
-    OPEN(NEWUNIT=unit, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ")
-    READ(unit, NML=CABLE)
-    CLOSE(unit)
-
     cable_runtime%offline = .TRUE.
+
+    CALL read_cable_namelists( nmlunitnumber )
 
     ! Open log file:
     IF (mpi_grp%rank == 0) THEN
