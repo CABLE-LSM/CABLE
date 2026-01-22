@@ -30,8 +30,9 @@ MODULE cable_checks_module
   ! particular sections of the code - largely for diagnostics/fault finding.
   ! rh_sh - converts relative to sensible humidity if met file units require it
   !
-  USE cable_IO_vars_module, ONLY: patch
-  USE cable_abort_module, ONLY: range_abort
+  USE iso_fortran_env, ONLY: error_unit
+  USE cable_IO_vars_module, ONLY: patch, check, logn
+  USE cable_abort_module, ONLY: cable_abort
   USE cable_def_types_mod
   USE cable_common_module, ONLY: cable_user
 
@@ -211,6 +212,52 @@ MODULE cable_checks_module
   END INTERFACE check_range
 
 CONTAINS
+
+  SUBROUTINE range_abort(vname, ktau, met, value, var_range, i, xx, yy)
+    !! Prints an error message and localisation information then stops the code
+
+    CHARACTER(LEN=*), INTENT(IN) :: vname
+
+    INTEGER, INTENT(IN) :: &
+      ktau, & ! time step
+      i       ! tile number along mp
+
+    REAL, INTENT(IN) :: &
+      xx, & ! coordinates of erroneous grid square
+      yy    ! coordinates of erroneous grid square
+
+    TYPE(met_type), INTENT(IN) :: met  ! met data
+
+    REAL(4), INTENT(IN) :: value ! value deemed to be out of range
+
+    REAL, INTENT(IN) :: var_range(2) ! appropriate var range
+
+    INTEGER :: iunit
+
+    IF (check%exit) THEN
+      iunit = error_unit
+    ELSE
+      iunit = logn ! warning
+    END IF
+
+    WRITE (iunit, *) "in SUBR range_abort: Out of range"
+    WRITE (iunit, *) "for var ", vname ! error from subroutine
+
+    ! patch(i)%latitude, patch(i)%longitude
+    WRITE (iunit, *) 'Site lat, lon:', xx, yy
+    WRITE (iunit, *) 'Output timestep', ktau, &
+      ', or ', met%hod(i), ' hod, ', &
+      INT(met%doy(i)), 'doy, ', &
+      INT(met%year(i))
+
+    WRITE (iunit, *) 'Specified acceptable range (cable_checks.f90):', &
+      var_range(1), 'to', var_range(2)
+
+    WRITE (iunit, *) 'Value:', value
+
+    IF (check%exit) CALL cable_abort("Aborting...")
+
+  END SUBROUTINE range_abort
 
   SUBROUTINE check_range_d1(vname, parameter_r1, parameter_range, ktau, met)
 

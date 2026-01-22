@@ -299,14 +299,23 @@ else()
         src/offline/cbl_model_driver_offline.F90
         src/offline/landuse_inout.F90
         src/offline/spincasacnp.F90
+        src/util/aggregator.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
         src/util/cable_array_utils.F90
+        src/util/cable_enum.F90
+        src/util/cable_grid_reductions.F90
+        src/util/cable_timing_utils.F90
         src/util/netcdf/cable_netcdf_decomp_util.F90
         src/util/netcdf/cable_netcdf.F90
         src/util/netcdf/cable_netcdf_internal.F90
         src/util/netcdf/cable_netcdf_stub_types.F90
         src/util/netcdf/nf90/cable_netcdf_nf90.F90
+        src/util/io/output/cable_output_core.F90
+        src/util/io/output/cable_output_definitions.F90
+        src/util/io/output/cable_output_types.F90
+        src/util/io/output/cable_output_utils.F90
+        src/util/io/output/cable_output.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)

@@ -30,13 +30,35 @@ module cable_netcdf_mod
     CABLE_NETCDF_MAX_STR_LEN_VAR, &
     CABLE_NETCDF_MAX_STR_LEN_DIM, &
     CABLE_NETCDF_MAX_RANK, &
-    CABLE_NETCDF_UNLIMITED
+    CABLE_NETCDF_UNLIMITED, &
+    CABLE_NETCDF_IOTYPE_CLASSIC, &
+    CABLE_NETCDF_IOTYPE_NETCDF4C, &
+    CABLE_NETCDF_IOTYPE_NETCDF4P, &
+    CABLE_NETCDF_MODE_CLOBBER, &
+    CABLE_NETCDF_MODE_NOCLOBBER, &
+    CABLE_NETCDF_MODE_WRITE, &
+    CABLE_NETCDF_MODE_NOWRITE
 
   enum, bind(c)
     enumerator :: &
       CABLE_NETCDF_INT, &
       CABLE_NETCDF_FLOAT, &
       CABLE_NETCDF_DOUBLE
+  end enum
+
+  enum, bind(c)
+    enumerator :: &
+      CABLE_NETCDF_IOTYPE_CLASSIC, &
+      CABLE_NETCDF_IOTYPE_NETCDF4C, &
+      CABLE_NETCDF_IOTYPE_NETCDF4P
+  end enum
+
+  enum, bind(c)
+    enumerator :: &
+      CABLE_NETCDF_MODE_CLOBBER, &
+      CABLE_NETCDF_MODE_NOCLOBBER, &
+      CABLE_NETCDF_MODE_WRITE, &
+      CABLE_NETCDF_MODE_NOWRITE
   end enum
 
   integer, parameter :: CABLE_NETCDF_MAX_STR_LEN_FILE = 200
@@ -55,6 +77,7 @@ module cable_netcdf_mod
   contains
     procedure(cable_netcdf_file_close), deferred :: close
     procedure(cable_netcdf_file_end_def), deferred :: end_def
+    procedure(cable_netcdf_file_redef), deferred :: redef
     procedure(cable_netcdf_file_sync), deferred :: sync
     procedure(cable_netcdf_file_def_dims), deferred :: def_dims
     procedure(cable_netcdf_file_def_var), deferred :: def_var
@@ -81,6 +104,7 @@ module cable_netcdf_mod
       get_att_global_string, get_att_global_int32, get_att_global_real32, get_att_global_real64, &
       get_att_var_string, get_att_var_int32, get_att_var_real32, get_att_var_real64
     procedure(cable_netcdf_file_inq_dim_len), deferred :: inq_dim_len
+    procedure(cable_netcdf_file_inq_var_ndims), deferred :: inq_var_ndims
     procedure(cable_netcdf_file_put_var_int32_0d), deferred :: put_var_int32_0d
     procedure(cable_netcdf_file_put_var_int32_1d), deferred :: put_var_int32_1d
     procedure(cable_netcdf_file_put_var_int32_2d), deferred :: put_var_int32_2d
@@ -150,6 +174,10 @@ module cable_netcdf_mod
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
     end subroutine
+    subroutine cable_netcdf_file_redef(this)
+      import cable_netcdf_file_t
+      class(cable_netcdf_file_t), intent(inout) :: this
+    end subroutine
     subroutine cable_netcdf_file_sync(this)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
@@ -163,7 +191,8 @@ module cable_netcdf_mod
     subroutine cable_netcdf_file_def_var(this, var_name, dim_names, type)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
-      character(len=*), intent(in) :: var_name, dim_names(:)
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in), optional :: dim_names(:)
       integer, intent(in) :: type
     end subroutine
     subroutine cable_netcdf_file_put_att_global_string(this, att_name, att_value)
@@ -265,6 +294,12 @@ module cable_netcdf_mod
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: dim_name
       integer, intent(out) :: dim_len
+    end subroutine
+    subroutine cable_netcdf_file_inq_var_ndims(this, var_name, ndims)
+      import cable_netcdf_file_t
+      class(cable_netcdf_file_t), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      integer, intent(out) :: ndims
     end subroutine
     subroutine cable_netcdf_file_put_var_int32_0d(this, var_name, values, start, count)
       import cable_netcdf_file_t, CABLE_NETCDF_INT32_KIND
@@ -607,16 +642,20 @@ module cable_netcdf_mod
       import cable_netcdf_io_t
       class(cable_netcdf_io_t), intent(inout) :: this
     end subroutine
-    function cable_netcdf_io_create_file(this, path) result(file)
+    function cable_netcdf_io_create_file(this, path, iotype, mode) result(file)
       import cable_netcdf_io_t, cable_netcdf_file_t
       class(cable_netcdf_io_t), intent(inout) :: this
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
-    function cable_netcdf_io_open_file(this, path) result(file)
+    function cable_netcdf_io_open_file(this, path, iotype, mode) result(file)
       import cable_netcdf_io_t, cable_netcdf_file_t
       class(cable_netcdf_io_t), intent(inout) :: this
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
     function cable_netcdf_io_create_decomp(this, compmap, dims, type) result(decomp)
@@ -634,12 +673,16 @@ module cable_netcdf_mod
     end subroutine
     module subroutine cable_netcdf_mod_end()
     end subroutine
-    module function cable_netcdf_create_file(path) result(file)
+    module function cable_netcdf_create_file(path, iotype, mode) result(file)
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
-    module function cable_netcdf_open_file(path) result(file)
+    module function cable_netcdf_open_file(path, iotype, mode) result(file)
       character(len=*), intent(in) :: path
+      integer, intent(in) :: iotype
+      integer, intent(in), optional :: mode
       class(cable_netcdf_file_t), allocatable :: file
     end function
     module function cable_netcdf_create_decomp(compmap, dims, type) result(decomp)

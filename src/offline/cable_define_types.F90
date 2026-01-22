@@ -24,7 +24,8 @@
 !#define UM_BUILD yes
 MODULE cable_def_types_mod
 
-USE cable_climate_type_mod, ONLY: climate_type
+  USE cable_climate_type_mod, ONLY: climate_type
+  USE aggregator_mod, ONLY: aggregator_real32_1d_t, new_aggregator
 
   ! Contains all variables which are not subroutine-internal
 
@@ -531,6 +532,8 @@ USE cable_climate_type_mod, ONLY: climate_type
      ! vh_js ! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
 
+     type(aggregator_real32_1d_t), allocatable :: tscrn_max_daily
+     type(aggregator_real32_1d_t), allocatable :: tscrn_min_daily
 
   END TYPE canopy_type
 
@@ -1186,6 +1189,9 @@ CONTAINS
     ALLOCATE (var % kthLitt(mp))
     ALLOCATE (var % DvLitt(mp))
 
+    var%tscrn_max_daily = new_aggregator(source_data=var%tscrn); CALL var%tscrn_max_daily%init(method="max")
+    var%tscrn_min_daily = new_aggregator(source_data=var%tscrn); CALL var%tscrn_min_daily%init(method="min")
+
   END SUBROUTINE alloc_canopy_type
 
   ! ------------------------------------------------------------------------------
@@ -1810,6 +1816,9 @@ CONTAINS
     ! vh_js ! liiter resistances to heat and vapour transfer
     DEALLOCATE (var % kthLitt)
     DEALLOCATE (var % DvLitt)
+
+    DEALLOCATE(var%tscrn_max_daily)
+    DEALLOCATE(var%tscrn_min_daily)
 
   END SUBROUTINE dealloc_canopy_type
 

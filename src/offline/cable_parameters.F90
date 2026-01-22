@@ -194,6 +194,12 @@ CONTAINS
     ! count to obtain 'landpt_global', 'max_vegpatches' and 'mp_global'
     CALL countPatch(nlon, nlat, npatch)
 
+    ! TODO(Sean): this a pretty odd place to call init_local_structure_variables,
+    ! it's definitely a sign we need to pull some things out of load_parameters.
+    ! This was put here because init_local_structure_variables requires to be
+    ! called after countPatch is called, as this initialises the rest of the
+    ! global structure variables, and before allocate_cable_vars, which require
+    ! the local structure variables to be initialised to allocate cable arrays.
     CALL init_local_structure_variables(mpi_grp)
 
   END SUBROUTINE get_default_params
