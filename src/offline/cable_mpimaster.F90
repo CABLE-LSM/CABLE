@@ -787,6 +787,12 @@ CONTAINS
               ENDIF
             ENDIF
 
+            if (ktau > kstart .and. mod(ktau - kstart, ktauday) == 0) then
+              ! Reset daily aggregators if previous time step was the end of day
+              call canopy%tscrn_max_daily%reset()
+              call canopy%tscrn_min_daily%reset()
+            end if
+
             ! MPI: receive this time step's results from the workers
             CALL master_receive (ocomm, oktau, recv_ts)
             ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
@@ -819,6 +825,9 @@ CONTAINS
 
               ENDIF
             ENDIF
+
+            call canopy%tscrn_max_daily%accumulate()
+            call canopy%tscrn_min_daily%accumulate()
 
           ELSE IF ( MOD((ktau-kstart+1+koffset),ktauday)==0 ) THEN
 
