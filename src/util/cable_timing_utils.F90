@@ -25,16 +25,20 @@ contains
     integer, intent(in) :: start_year !! Start year of the simulation
     logical :: match
     integer :: i
-    integer :: time_steps_per_day
+    integer :: time_steps_per_interval
+    integer :: interval_in_hours
     integer :: last_day_of_month_in_accumulated_days(months_in_year) ! TODO(Sean): better variable name?
 
     select case (frequency)
-    ! TODO(Sean): implement case for custom hourly frequencies
+    case ('user')
+      read(frequency(5:7), *) interval_in_hours
+      time_steps_per_interval = seconds_per_hour * interval_in_hours / int(dels)
+      match = mod(ktau, time_steps_per_interval) == 0
     case ('all')
       match = .true.
     case ('daily')
-      time_steps_per_day = seconds_per_hour * hours_per_day / int(dels)
-      match = mod(ktau, time_steps_per_day) == 0
+      time_steps_per_interval = seconds_per_hour * hours_per_day / int(dels)
+      match = mod(ktau, time_steps_per_interval) == 0
     case ('monthly')
       ! TODO(Sean): is there a better algorithm for monthly matching that doesn't involve looping over years?
       last_day_of_month_in_accumulated_days = 0
