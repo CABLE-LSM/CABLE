@@ -249,8 +249,15 @@ contains
       end do
 
       current_time = time_index * dels
-      call global_profile%output_file%put_var("time", (current_time + global_profile%previous_write_time) / 2.0, start=[global_profile%frame + 1])
+
+      if (global_profile%sampling_frequency == "all") then
+        call global_profile%output_file%put_var("time", current_time, start=[global_profile%frame + 1])
+      else
+        call global_profile%output_file%put_var("time", (current_time + global_profile%previous_write_time) / 2.0, start=[global_profile%frame + 1])
+      end if
+
       call global_profile%output_file%put_var("time_bnds", [global_profile%previous_write_time, current_time], start=[1, global_profile%frame + 1])
+
       global_profile%previous_write_time = current_time
       global_profile%frame = global_profile%frame + 1
 
