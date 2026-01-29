@@ -27,7 +27,7 @@
 !   phenvariable with subroutine alloc_phenvariable
 
 MODULE casavariable
-  USE casadimension !inherits icycle for e.g through here
+  USE casadimension 
   IMPLICIT NONE
 
   SAVE
