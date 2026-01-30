@@ -27,7 +27,7 @@
 !   phenvariable with subroutine alloc_phenvariable
 
 MODULE casavariable
-  USE casadimension 
+  USE casadimension
   IMPLICIT NONE
 
   SAVE
