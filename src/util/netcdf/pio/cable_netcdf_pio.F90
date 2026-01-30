@@ -25,8 +25,10 @@ module cable_netcdf_pio_mod
   use pio, only: pio_read_darray
   use pio, only: pio_strerror
   use pio, only: pio_enddef
+  use pio, only: pio_redef
   use pio, only: pio_inq_dimid
   use pio, only: pio_inquire_dimension
+  use pio, only: pio_inquire_variable
   use pio, only: pio_inq_varid
   use pio, only: pio_finalize
   use pio, only: PIO_MAX_NAME
@@ -35,8 +37,13 @@ module cable_netcdf_pio_mod
   use pio, only: PIO_REAL
   use pio, only: PIO_DOUBLE
   use pio, only: PIO_REARR_BOX
+  use pio, only: PIO_IOTYPE_NETCDF
   use pio, only: PIO_IOTYPE_NETCDF4C
+  use pio, only: PIO_IOTYPE_NETCDF4P
   use pio, only: PIO_CLOBBER
+  use pio, only: PIO_NOCLOBBER
+  use pio, only: PIO_WRITE
+  use pio, only: PIO_NOWRITE
   use pio, only: PIO_UNLIMITED
   use pio, only: PIO_NOERR
   use pio, only: PIO_GLOBAL
@@ -70,6 +77,7 @@ module cable_netcdf_pio_mod
   contains
     procedure :: close => cable_netcdf_pio_file_close
     procedure :: end_def => cable_netcdf_pio_file_end_def
+    procedure :: redef => cable_netcdf_pio_file_redef
     procedure :: sync => cable_netcdf_pio_file_sync
     procedure :: def_dims => cable_netcdf_pio_file_def_dims
     procedure :: def_var => cable_netcdf_pio_file_def_var
@@ -90,6 +98,7 @@ module cable_netcdf_pio_mod
     procedure :: get_att_var_real32 => cable_netcdf_pio_file_get_att_var_real32
     procedure :: get_att_var_real64 => cable_netcdf_pio_file_get_att_var_real64
     procedure :: inq_dim_len => cable_netcdf_pio_file_inq_dim_len
+    procedure :: inq_var_ndims => cable_netcdf_pio_file_inq_var_ndims
     procedure :: put_var_int32_0d => cable_netcdf_pio_file_put_var_int32_0d
     procedure :: put_var_int32_1d => cable_netcdf_pio_file_put_var_int32_1d
     procedure :: put_var_int32_2d => cable_netcdf_pio_file_put_var_int32_2d
@@ -151,6 +160,45 @@ contains
     end select
   end function type_pio
 
+  function iotype_pio(iotype)
+    integer, intent(in) :: iotype
+    integer :: iotype_pio
+    select case(iotype)
+    case(CABLE_NETCDF_IOTYPE_CLASSIC)
+      iotype_pio = PIO_IOTYPE_NETCDF
+    case(CABLE_NETCDF_IOTYPE_NETCDF4C)
+      iotype_pio = PIO_IOTYPE_NETCDF4C
+    case(CABLE_NETCDF_IOTYPE_NETCDF4P)
+      iotype_pio = PIO_IOTYPE_NETCDF4P
+    case default
+      call cable_abort("cable_netcdf_pio_mod: Error: iotype not supported")
+    end select
+  end function iotype_pio
+
+  function mode_pio(mode)
+    integer, intent(in), optional :: mode
+    integer :: mode_pio
+
+    if (.not. present(mode)) then
+      mode_pio = PIO_WRITE
+      return
+    end if
+
+    select case(mode)
+    case(CABLE_NETCDF_MODE_CLOBBER)
+      mode_pio = PIO_CLOBBER
+    case(CABLE_NETCDF_MODE_NOCLOBBER)
+      mode_pio = PIO_NOCLOBBER
+    case(CABLE_NETCDF_MODE_WRITE)
+      mode_pio = PIO_WRITE
+    case(CABLE_NETCDF_MODE_NOWRITE)
+      mode_pio = PIO_NOWRITE
+    case default
+      call cable_abort("Error: mode not supported", __FILE__, __LINE__)
+    end select
+
+  end function mode_pio
+
   subroutine check_pio(status)
     integer, intent(in) :: status
     integer :: strerror_status
@@ -207,21 +255,25 @@ contains
   end subroutine
 
 
-  function cable_netcdf_pio_io_create_file(this, path) result(file)
+  function cable_netcdf_pio_io_create_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     type(pio_file_desc_t) :: pio_file_desc
-    call check_pio(pio_createfile(this%pio_iosystem_desc, pio_file_desc, PIO_IOTYPE_NETCDF4C, path, PIO_CLOBBER))
+    call check_pio(pio_createfile(this%pio_iosystem_desc, pio_file_desc, iotype_pio(iotype), path, mode_pio(mode)))
     file = cable_netcdf_pio_file_t(pio_file_desc)
   end function
 
-  function cable_netcdf_pio_io_open_file(this, path) result(file)
+  function cable_netcdf_pio_io_open_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
     character(len=*), intent(in) :: path
+    integer, intent(in) :: iotype
+    integer, intent(in), optional :: mode
     class(cable_netcdf_file_t), allocatable :: file
     type(pio_file_desc_t) :: pio_file_desc
-    call check_pio(pio_openfile(this%pio_iosystem_desc, pio_file_desc, PIO_IOTYPE_NETCDF4C, path))
+    call check_pio(pio_openfile(this%pio_iosystem_desc, pio_file_desc, iotype_pio(iotype), path, mode_pio(mode)))
     file = cable_netcdf_pio_file_t(pio_file_desc)
   end function
 
@@ -251,6 +303,11 @@ contains
     call check_pio(pio_enddef(this%pio_file_desc))
   end subroutine
 
+  subroutine cable_netcdf_pio_file_redef(this)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    call check_pio(pio_redef(this%pio_file_desc))
+  end subroutine
+
   subroutine cable_netcdf_pio_file_sync(this)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     call pio_syncfile(this%pio_file_desc)
@@ -272,16 +329,24 @@ contains
 
   subroutine cable_netcdf_pio_file_def_var(this, var_name, dim_names, type)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name, dim_names(:)
+    character(len=*), intent(in) :: var_name
+    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
     integer, allocatable :: dimids(:)
     integer :: i
     type(pio_var_desc_t) :: tmp
+
+    if (.not. present(dim_names)) then
+      call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), tmp))
+      return
+    end if
+
     allocate(dimids(size(dim_names)))
     do i = 1, size(dimids)
       call check_pio(pio_inq_dimid(this%pio_file_desc, dim_names(i), dimids(i)))
     end do
     call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), dimids, tmp))
+
   end subroutine
 
   subroutine cable_netcdf_pio_file_put_att_global_string(this, att_name, att_value)
@@ -417,6 +482,15 @@ contains
     integer :: dimid
     call check_pio(pio_inq_dimid(this%pio_file_desc, dim_name, dimid))
     call check_pio(pio_inquire_dimension(this%pio_file_desc, dimid, len=dim_len))
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_inq_var_ndims(this, var_name, ndims)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name
+    integer, intent(out) :: ndims
+    integer :: varid
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, varid))
+    call check_pio(pio_inquire_variable(this%pio_file_desc, varid, ndims=ndims))
   end subroutine
 
   subroutine cable_netcdf_pio_file_put_var_int32_0d(this, var_name, values, start, count)
