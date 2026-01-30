@@ -1138,8 +1138,6 @@ END SUBROUTINE landuse_getdata
     use cable_abort_module,         ONLY : nc_abort
     USE cable_IO_vars_module,       ONLY : latitude,longitude,timeunits,calendar,time_coord, timevar
     USE cable_checks_module,        ONLY : ranges
-    USE cable_output_module,        ONLY: check_and_write, output_par_settings_type
-    USE cable_write_module
     USE cable_common_module,        ONLY : filename,CurYear,cable_user
     USE landuse_variable,           ONLY : landuse_mp
 
@@ -1159,7 +1157,6 @@ END SUBROUTINE landuse_getdata
 
     INTEGER           :: ncid_restart ! netcdf restart file ID
     ! REAL, POINTER,DIMENSION(:,:) :: surffrac ! fraction of each surf type
-    INTEGER           :: dummy ! dummy argument in subroutine call
     INTEGER           :: mlandID, mpID, radID, soilID, napID,                       &
                          soilcarbID, plantcarbID, tID, snowID ! dimension IDs
 
@@ -1180,14 +1177,6 @@ END SUBROUTINE landuse_getdata
 
     INTEGER              ok
 
-    TYPE(output_par_settings_type) :: out_settings
-
-    LOGICAL, PARAMETER :: patchout_var = .TRUE.
-
-    out_settings = output_par_settings_type(met=met, restart=.TRUE.)
-
-    dummy = 0 ! initialise
-
     WRITE(logn, '(A24)') ' Writing restart file...'
     IF ( TRIM(filename%path) .EQ. '' ) filename%path = './'
     frst_out = TRIM(filename%path)//'/'//TRIM(filename%restart_out)
@@ -1201,7 +1190,7 @@ END SUBROUTINE landuse_getdata
     ! Create output file:
     ok = NF90_CREATE(frst_out, NF90_CLOBBER, ncid_restart)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating restart file '      &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Put the file in define mode:
     ok = NF90_REDEF(ncid_restart)
@@ -1209,276 +1198,451 @@ END SUBROUTINE landuse_getdata
     ok = NF90_DEF_DIM(ncid_restart, 'mland', mland, mlandID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining mland dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'mp', mpx, mpID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining mp dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'soil', ms, soilID) ! number of soil layers
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining vertical soil dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'snow', 3, snowID) ! number of snow layers
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining vertical snow dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'rad', nrb, radID) ! number of rad. bands
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining radiation dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'soil_carbon_pools', ncs, soilcarbID)
     ! number of soil carbon pools
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining soil carbon pool dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'plant_carbon_pools', ncp, plantcarbID)
     ! number of plant carbon pools
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining plant carbon pool dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_DEF_DIM(ncid_restart, 'time', 1, tID)
     IF (ok /= NF90_NOERR) CALL nc_abort &
          (ok, 'Error defining time dimension in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Define "time" variable and its attributes:
     ok=NF90_DEF_VAR(ncid_restart,'time',NF90_DOUBLE,(/tID/),tvarID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining time variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, tvarID, 'units', timeunits)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining time variable attributes in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, tvarID, 'coordinate', time_coord)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining time variable attributes in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, tvarID, 'calendar', calendar)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining time variable attribute calendar in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Define latitude and longitude variable:
     ok=NF90_DEF_VAR(ncid_restart, 'latitude', NF90_FLOAT, (/mlandID/), latID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining latitude variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart,latID,'units','degrees_north')
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining latitude variable attributes in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ok=NF90_DEF_VAR(ncid_restart, 'longitude', NF90_FLOAT, (/mlandID/), lonID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining longitude variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, lonID, 'units', 'degrees_east')
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining longitude variable attributes in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ! Define number of active patches variable:
     ok = NF90_DEF_VAR(ncid_restart, 'nap', NF90_FLOAT, (/mlandID/), napID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining nap variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, napID, 'long_name',                        &
          'Number of active patches')
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok,'Error defining nap variable attributes in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Define patch fraction variable:
     ok=NF90_DEF_VAR(ncid_restart, 'patchfrac', NF90_FLOAT, (/mpID/),           &
          patchfrac_id)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining patchfrac variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, patchfrac_id, 'long_name',               &
          'Fraction of vegetated grid cell area occupied by a '//  &
          'vegetation/soil patch')
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining patchfrac variable attributes in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
 
     ! mvtype (Number of vegetation types):
     ok = NF90_DEF_VAR(ncid_restart, 'mvtype', NF90_INT, mvtype_id)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining mvtype variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, mvtype_id, "long_name",                  &
          "Number of vegetation types")
     ! mstype (Number of soil types):
     ok = NF90_DEF_VAR(ncid_restart, 'mstype', NF90_INT, mstype_id)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining mstype variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, mstype_id, "long_name",                  &
          "Number of soil types")
 
-    !======begin defining state variables=======================================
-    ! Interface arguments: netcdf file ID, variableID, variable name, variable
-    ! units, variable long name, YES to write patch info (as this is a restart
-    ! file), OPTIONAL extra dimension ID (e.g. for soil dimensioned variables),
-    ! dimension switch to indicate what extra dimension is real or integer for
-    ! single dim variables, xdimID,ydimID, zdimID (all three not used here),
-    ! land dim ID, patch dim ID, YES we're writing a restart file.
     !------------------define soil states---------------------------------------
-    CALL define_ovar(ncid_restart, tggID, 'tgg', 'K',                          &
-         'Average layer soil temperature',                         &
-         .TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, wbID, 'wb', 'vol/vol',                      &
-         'Average layer volumetric soil moisture',                 &
-         .TRUE., soilID, 'r2soil', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, wbiceID, 'wbice', 'vol/vol',                &
-         'Average layer volumetric soil ice',                      &
-         .TRUE., soilID, 'r2soil', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, tssID, 'tss', 'K',                          &
-         'Combined soil/snow temperature',                         &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, albsoilsnID, 'albsoilsn', '-',              &
-         'Combined soil/snow albedo',                              &
-         .TRUE., radID, 'radiation', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rtsoilID, 'rtsoil', '??',                   &
-         'Turbulent resistance for soil', &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, gammzzID, 'gammzz', 'J/kg/C',               &
-         'Heat capacity for each soil layer',                      &
-         .TRUE., soilID, 'r2soil', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, runoffID, 'runoff', 'mm/timestep',          &
-         'Total runoff', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rnof1ID, 'rnof1', 'mm/timestep',            &
-         'Surface runoff', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rnof2ID, 'rnof2', 'mm/timestep',            &
-         'Subsurface runoff', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+    ok = NF90_DEF_VAR(ncid_restart, 'tgg', NF90_FLOAT, (/mpID, soilID/), tggID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tgg variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tggID, 'long_name', 'Average layer soil temperature')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tgg variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tggID, 'units', 'K')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tgg variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'wb', NF90_DOUBLE, (/mpID, soilID/), wbID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wb variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, wbID, 'long_name', 'Average layer volumetric soil moisture')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wb variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, wbID, 'units', 'vol/vol')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wb variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'wbice', NF90_DOUBLE, (/mpID, soilID/), wbiceID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wbice variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, wbiceID, 'long_name', 'Average layer volumetric soil ice')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wbice variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, wbiceID, 'units', 'vol/vol')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wbice variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'tss', NF90_FLOAT, (/mpID/), tssID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tss variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tssID, 'long_name', 'Combined soil/snow temperature')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tss variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tssID, 'units', 'K')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tss variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'albsoilsn', NF90_FLOAT, (/mpID, radID/), albsoilsnID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albsoilsn variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, albsoilsnID, 'long_name', 'Combined soil/snow albedo')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albsoilsn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, albsoilsnID, 'units', '-')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albsoilsn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'rtsoil', NF90_FLOAT, (/mpID/), rtsoilID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rtsoil variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rtsoilID, 'long_name', 'Turbulent resistance for soil')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rtsoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rtsoilID, 'units', '??')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rtsoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'gammzz', NF90_DOUBLE, (/mpID, soilID/), gammzzID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining gammzz variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, gammzzID, 'long_name', 'Heat capacity for each soil layer')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining gammzz variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, gammzzID, 'units', 'J/kg/C')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining gammzz variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'runoff', NF90_FLOAT, (/mpID/), runoffID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining runoff variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, runoffID, 'long_name', 'Total runoff')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining runoff variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, runoffID, 'units', 'mm/timestep')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining runoff variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'rnof1', NF90_FLOAT, (/mpID/), rnof1ID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rnof1 variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rnof1ID, 'long_name', 'Surface runoff')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rnof1 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rnof1ID, 'units', 'mm/timestep')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rnof1 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'rnof2', NF90_FLOAT, (/mpID/), rnof2ID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rnof2 variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rnof2ID, 'long_name', 'Subsurface runoff')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rnof2 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rnof2ID, 'units', 'mm/timestep')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining rnof2 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     !---------------define snow states------------------------------------------
-    CALL define_ovar(ncid_restart, tggsnID, 'tggsn', 'K',                      &
-         'Average layer snow temperature',                         &
-         .TRUE., snowID, 'snow', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, ssdnnID, 'ssdnn', 'kg/m^3',                 &
-         'Average snow density', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, ssdnID, 'ssdn', 'kg/m^3',                   &
-         'Average layer snow density',                             &
-         .TRUE., snowID, 'snow', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, snowdID, 'snowd', 'mm',                     &
-         'Liquid water eqivalent snow depth',                      &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, snageID, 'snage', '??',                     &
-         'Snow age', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, smassID, 'smass', 'kg/m^2',                 &
-         'Average layer snow mass',                                &
-         .TRUE., snowID, 'snow', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, sdepthID, 'sdepth', 'm',                    &
-         'Snow layer depth', .TRUE., snowID, 'snow', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, osnowdID, 'osnowd', 'mm',                   &
-         'Previous time step snow depth in water equivalent',      &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, isflagID, 'isflag', '-',                    &
-         'Snow layer scheme flag', .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
+
+    ok = NF90_DEF_VAR(ncid_restart, 'tggsn', NF90_FLOAT, (/mpID, snowID/), tggsnID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tggsn variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tggsnID, 'long_name', 'Average layer snow temperature')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tggsn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tggsnID, 'units', 'K')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining tggsn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'ssdnn', NF90_FLOAT, (/mpID/), ssdnnID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ssdnn variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, ssdnnID, 'long_name', 'Average snow density')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ssdnn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, ssdnnID, 'units', 'kg/m^3')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ssdnn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'ssdn', NF90_FLOAT, (/mpID, snowID/), ssdnID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ssdn variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, ssdnID, 'long_name', 'Average layer snow density')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ssdn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, ssdnID, 'units', 'kg/m^3')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ssdn variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'snowd', NF90_FLOAT, (/mpID/), snowdID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snowd variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, snowdID, 'long_name', 'Liquid water equivalent snow depth')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snowd variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, snowdID, 'units', 'mm')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snowd variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'snage', NF90_FLOAT, (/mpID/), snageID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snage variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, snageID, 'long_name', 'Snow age')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snage variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, snageID, 'units', '??')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snage variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'smass', NF90_FLOAT, (/mpID, snowID/), smassID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining smass variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, smassID, 'long_name', 'Average layer snow mass')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining smass variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, smassID, 'units', 'kg/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining smass variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'sdepth', NF90_FLOAT, (/mpID, snowID/), sdepthID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sdepth variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, sdepthID, 'long_name', 'Snow layer depth')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sdepth variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, sdepthID, 'units', 'm')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sdepth variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'osnowd', NF90_FLOAT, (/mpID/), osnowdID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining osnowd variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, osnowdID, 'long_name', 'Previous time step snow depth in water equivalent')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining osnowd variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, osnowdID, 'units', 'mm')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining osnowd variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'isflag', NF90_INT, (/mpID/), isflagID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining isflag variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, isflagID, 'long_name', 'Snow layer scheme flag')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining isflag variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, isflagID, 'units', '-')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining isflag variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     !----------------define canopy states----------------------------------
-    CALL define_ovar(ncid_restart, canstoID, 'cansto', 'mm',                   &
-         'Canopy surface water storage', .TRUE., 'real', 0, 0, 0,              &
-         mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, ghfluxID, 'ghflux', 'W/m^2?',               &
-         '????', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, sghfluxID, 'sghflux', 'W/m^2?',             &
-         '????', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, gaID, 'ga', 'W/m^2',                        &
-         'Ground heat flux', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, dgdtgID, 'dgdtg', 'W/m^2/K',                &
-         'Derivative of ground heat flux wrt soil temperature', .TRUE.,        &
-         'r2', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, fevID, 'fev', 'W/m^2',                      &
-         'Latent heat flux from vegetation', &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, fesID, 'fes', 'W/m^2',                      &
-         'Latent heat flux from soil',                                         &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, fhsID, 'fhs', 'W/m^2',                      &
-         'Sensible heat flux from soil',                                       &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    ok = NF90_DEF_VAR(ncid_restart, 'cansto', NF90_FLOAT, (/mpID/), canstoID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining cansto variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, canstoID, 'long_name', 'Canopy surface water storage')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining cansto variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, canstoID, 'units', 'mm')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining cansto variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'ghflux', NF90_FLOAT, (/mpID/), ghfluxID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ghflux variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, ghfluxID, 'long_name', '????')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ghflux variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, ghfluxID, 'units', 'W/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ghflux variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'sghflux', NF90_FLOAT, (/mpID/), sghfluxID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sghflux variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, sghfluxID, 'long_name', '????')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sghflux variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, sghfluxID, 'units', 'W/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sghflux variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'ga', NF90_FLOAT, (/mpID/), gaID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ga variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, gaID, 'long_name', 'Ground heat flux')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ga variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, gaID, 'units', 'W/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining ga variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'dgdtg', NF90_DOUBLE, (/mpID/), dgdtgID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining dgdtg variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, dgdtgID, 'long_name', 'Derivative of ground heat flux wrt soil temperature')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining dgdtg variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, dgdtgID, 'units', 'W/m^2/K')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining dgdtg variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'fev', NF90_FLOAT, (/mpID/), fevID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fev variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, fevID, 'long_name', 'Latent heat flux from vegetation')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fev variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, fevID, 'units', 'W/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fev variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'fes', NF90_FLOAT, (/mpID/), fesID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fes variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, fesID, 'long_name', 'Latent heat flux from soil')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fes variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, fesID, 'units', 'W/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fes variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'fhs', NF90_FLOAT, (/mpID/), fhsID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fhs variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, fhsID, 'long_name', 'Sensible heat flux from soil')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fhs variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, fhsID, 'units', 'W/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining fhs variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     !--------------biogeochemical variables------------------------
-    CALL define_ovar(ncid_restart, cplantID, 'cplant', 'gC/m^2',               &
-         'Plant carbon stores',                                    &
-         .TRUE., plantcarbID, 'plantcarbon', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, csoilID, 'csoil', 'gC/m^2',                 &
-         'Soil carbon stores',                                     &
-         .TRUE., soilcarbID, 'soilcarbon', 0, 0, 0, mpID, dummy, .TRUE.)
+
+    ok = NF90_DEF_VAR(ncid_restart, 'cplant', NF90_FLOAT, (/mpID, plantcarbID/), cplantID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining cplant variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, cplantID, 'long_name', 'Plant carbon stores')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining cplant variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, cplantID, 'units', 'gC/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining cplant variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'csoil', NF90_FLOAT, (/mpID, soilcarbID/), csoilID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining csoil variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, csoilID, 'long_name', 'Soil carbon stores')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining csoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, csoilID, 'units', 'gC/m^2')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining csoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     !-------------------others---------------------------------
-    CALL define_ovar(ncid_restart, wbtot0ID, 'wbtot0', 'mm',                   &
-         'Initial time step soil water total',                     &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, osnowd0ID, 'osnowd0', 'mm',                 &
-         'Initial time step snow water total',                     &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, albedoID, 'albedo', '-',                    &
-         'Albedo for shortwave and NIR radiation',                 &
-         .TRUE., radID, 'radiation', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, tradID, 'trad', 'K',                        &
-         'Surface radiative temperature (soil/snow/veg inclusive)', &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
+    ok = NF90_DEF_VAR(ncid_restart, 'wbtot0', NF90_FLOAT, (/mpID/), wbtot0ID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wbtot0 variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, wbtot0ID, 'long_name', 'Initial time step soil water total')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wbtot0 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, wbtot0ID, 'units', 'mm')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining wbtot0 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'osnowd0', NF90_FLOAT, (/mpID/), osnowd0ID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining osnowd0 variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, osnowd0ID, 'long_name', 'Initial time step snow water total')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining osnowd0 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, osnowd0ID, 'units', 'mm')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining osnowd0 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'albedo', NF90_FLOAT, (/mpID, radID/), albedoID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albedo variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, albedoID, 'long_name', 'Albedo for shortwave and NIR radiation')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albedo variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, albedoID, 'units', '-')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albedo variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+    ok = NF90_DEF_VAR(ncid_restart, 'trad', NF90_FLOAT, (/mpID/), tradID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining trad variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tradID, 'long_name', 'Surface radiative temperature (soil/snow/veg inclusive)')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining trad variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tradID, 'units', 'K')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining trad variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     !---------------------MODEL PARAMETERS---------------------------------
     WRITE(logn,'(A43)') '   Writing model parameters to restart file'
 
-    CALL define_ovar(ncid_restart, iveg_id, 'iveg', '-',                     &
-         'Vegetation type', .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
+    ok = NF90_DEF_VAR(ncid_restart, 'iveg', NF90_INT, (/mpID/), iveg_id)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining iveg variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, iveg_id, 'long_name', 'Vegetation type')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining iveg variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, iveg_id, 'units', '-')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining iveg variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
-    CALL define_ovar(ncid_restart, isoil_id, 'isoil', '-',                   &
-         'Soil type', .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
+    ok = NF90_DEF_VAR(ncid_restart, 'isoil', NF90_INT, (/mpID/), isoil_id)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining isoil variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, isoil_id, 'long_name', 'Soil type')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining isoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, isoil_id, 'units', '-')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining isoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     ! zse (depth of each soil layer):
     ok = NF90_DEF_VAR(ncid_restart, 'zse', NF90_FLOAT, (/soilID/), zse_id)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining zse variable in restart file. '// &
-         '(SUBROUTINE create_restart)')
+         '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, zse_id, "long_name",                     &
          "Depth of each soil layer")
     ok = NF90_PUT_ATT(ncid_restart, zse_id, "units", "m")
 
-    CALL define_ovar(ncid_restart, albsoil_id, 'albsoil', '-',               &
-         'Soil reflectance', .TRUE.,                               &
-         radID, 'radiation', 0, 0, 0, mpID, dummy, .TRUE.)
+    ok = NF90_DEF_VAR(ncid_restart, 'albsoil', NF90_FLOAT, (/mpID, radID/), albsoil_id)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albsoil variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, albsoil_id, 'long_name', 'Soil reflectance')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albsoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, albsoil_id, 'units', '-')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining albsoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
-    CALL define_ovar(ncid_restart, gwID, 'GWwb', 'mm3/mm3','GW water content', &
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    ok = NF90_DEF_VAR(ncid_restart, 'GWwb', NF90_FLOAT, (/mpID/), gwID)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining GWwb variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, gwID, 'long_name', 'GW water content')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining GWwb variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, gwID, 'units', 'mm3/mm3')
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining GWwb variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
 
     ! Soil-Litter-Iso soil model
     IF(cable_user%SOIL_STRUC=='sli') THEN
        ! Parameters for SLI:
-       CALL define_ovar(ncid_restart,SID,'S','-',&
-            'Fractional soil moisture content relative to saturated value', &
-            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,TsoilID,'Tsoil','degC',&
-            'Tsoil', &
-            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,snowliqID,'snowliq','mm',&
-            'liquid water content of snowpack', &
-            .TRUE.,snowID,'snow',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,scondsID,'sconds','Wm-1K-1',&
-            'thermal cond of snowpack', &
-            .TRUE.,snowID,'snow',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,h0ID,'h0','m',&
-            'Pond height above soil', &
-            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,nsnowID,'nsnow','-',&
-            'number of snow layers', &
-            .TRUE.,'integer',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,TsurfaceID,'Tsurface','degC',&
-            'soil or snow surface T', &
-            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+       ok = NF90_DEF_VAR(ncid_restart, 'S', NF90_FLOAT, (/mpID, soilID/), SID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining S variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, SID, 'long_name', 'Fractional soil moisture content relative to saturated value')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining S variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, SID, 'units', '-')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining S variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+       ok = NF90_DEF_VAR(ncid_restart, 'Tsoil', NF90_FLOAT, (/mpID, soilID/), TsoilID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining Tsoil variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, TsoilID, 'long_name', 'Tsoil')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining Tsoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, TsoilID, 'units', 'degC')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining Tsoil variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+       ok = NF90_DEF_VAR(ncid_restart, 'snowliq', NF90_FLOAT, (/mpID, snowID/), snowliqID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snowliq variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, snowliqID, 'long_name', 'liquid water content of snowpack')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snowliq variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, snowliqID, 'units', 'mm')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining snowliq variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+       ok = NF90_DEF_VAR(ncid_restart, 'sconds', NF90_FLOAT, (/mpID, snowID/), scondsID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sconds variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, scondsID, 'long_name', 'thermal cond of snowpack')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sconds variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, scondsID, 'units', 'Wm-1K-1')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining sconds variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+       ok = NF90_DEF_VAR(ncid_restart, 'h0', NF90_FLOAT, (/mpID/), h0ID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining h0 variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, h0ID, 'long_name', 'Pond height above soil')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining h0 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, h0ID, 'units', 'm')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining h0 variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+       ok = NF90_DEF_VAR(ncid_restart, 'nsnow', NF90_INT, (/mpID/), nsnowID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining nsnow variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, nsnowID, 'long_name', 'number of snow layers')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining nsnow variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, nsnowID, 'units', '-')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining nsnow variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+
+       ok = NF90_DEF_VAR(ncid_restart, 'Tsurface', NF90_FLOAT, (/mpID/), TsurfaceID)
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining Tsurface variable in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, TsurfaceID, 'long_name', 'soil or snow surface T')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining Tsurface variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
+       ok = NF90_PUT_ATT(ncid_restart, TsurfaceID, 'units', 'degC')
+       if (ok /= NF90_NOERR) call nc_abort(ok, 'Error defining Tsurface variable attributes in restart file. (SUBROUTINE create_landuse_cable_restart)')
     END IF ! SLI soil model
 
     ! Write global attributes for file:
@@ -1488,158 +1652,154 @@ END SUBROUTINE landuse_getdata
     ok = NF90_PUT_ATT(ncid_restart, NF90_GLOBAL, "Production",                 &
          TRIM(todaydate)//' at '//TRIM(nowtime))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing global detail to '   &
-         //TRIM(frst_out)// ' (SUBROUTINE create_restart)')
+         //TRIM(frst_out)// ' (SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, NF90_GLOBAL, "Source",                     &
          'CABLE LSM restart file')
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing global detail to '   &
-         //TRIM(frst_out)// ' (SUBROUTINE create_restart)')
+         //TRIM(frst_out)// ' (SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_ATT(ncid_restart, NF90_GLOBAL, "CABLE_input_file",           &
          TRIM(filename%met))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing global detail to '   &
-         //TRIM(frst_out)// ' (SUBROUTINE create_restart)')
+         //TRIM(frst_out)// ' (SUBROUTINE create_landuse_cable_restart)')
 
     ! End netcdf define mode:
     ok = NF90_ENDDEF(ncid_restart)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating restart file '      &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Write time variable:
     ok = NF90_PUT_VAR(ncid_restart, tvarID, REAL(REAL(ktau) * dels, r_2))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error time variable to '           &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Write latitude and longitude variables:
     ok = NF90_PUT_VAR(ncid_restart, latID, latitude)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing latitude variable to '   &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ok = NF90_PUT_VAR(ncid_restart, lonID, longitude)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing longitude variable to '  &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Write number of active patches for each land grid cell:
     ok = NF90_PUT_VAR(ncid_restart, napID, nap)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing nap variable to '        &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Write vegetated patch fractions
     ok = NF90_PUT_VAR(ncid_restart, patchfrac_id,                            &
          lucmp%patchfrac, start = (/1/), count = (/mpx/))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing patchfrac to '       &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
 
     ! Write number of veg and soil types
     ok = NF90_PUT_VAR(ncid_restart, mvtype_id,mvtype)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing mvtype parameter to '    &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_VAR(ncid_restart, mstype_id,mstype)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing mstype parameter to '    &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
-     
+         //TRIM(frst_out)// '(SUBROUTINE create_landuse_cable_restart)')
+
 
     ! Write parameters:
-    out_settings%dimswitch = "integer"
-    CALL check_and_write(iveg_id, 'iveg', REAL(lucmp%iveg, 4), ranges%iveg, &
-                         patchout_var, out_settings)
-    CALL check_and_write(isoil_id, 'isoil', REAL(lucmp%tgg, 4), ranges%isoil, &
-                         patchout_var, out_settings)
-    CALL check_and_write(isflagID, 'isflag', REAL(lucmp%isflag, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    out_settings%dimswitch = "soil"
-    CALL check_and_write(tggID, 'tgg', REAL(lucmp%tgg, 4), &
-                         ranges%SoilTemp, patchout_var, out_settings)
-    CALL check_and_write(wbID, 'wb', REAL(lucmp%wb, 4), ranges%SoilMoist, &
-                         patchout_var, out_settings)
-    CALL check_and_write(wbiceID, 'wbice', REAL(lucmp%wbice, 4), &
-                         ranges%SoilMoist, patchout_var, out_settings)
-    CALL check_and_write(gammzzID, 'gammzz', REAL(lucmp%gammzz, 4), &
-                         ranges%default_l, patchout_var, out_settings)
+    ok = NF90_PUT_VAR(ncid_restart, iveg_id, lucmp%iveg)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing iveg variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, isoil_id, lucmp%isoil)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing isoil variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, tggID, lucmp%tgg)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing tgg variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, wbID, lucmp%wb)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing wb variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, wbiceID, lucmp%wbice)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing wbice variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, gammzzID, lucmp%gammzz)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing gammzz variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
     ! Snow dimensioned variables/parameters:
-    out_settings%dimswitch = "snow"
-    CALL check_and_write(ssdnID, 'ssdn', REAL(lucmp%ssdn, 4), &
-                         ranges%ssdn, patchout_var, out_settings)
-    CALL check_and_write(smassID, 'smass', REAL(lucmp%smass, 4), &
-                         ranges%smass, patchout_var, out_settings)
-    CALL check_and_write(sdepthID, 'sdepth', REAL(lucmp%sdepth, 4), &
-                         ranges%sdepth, patchout_var, out_settings)
-    CALL check_and_write(tggsnID, 'tggsn', REAL(lucmp%tggsn, 4), &
-                         ranges%tggsn, patchout_var, out_settings)
+    ok = NF90_PUT_VAR(ncid_restart, ssdnID, lucmp%ssdn)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing ssdn variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, smassID, lucmp%smass)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing smass variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, sdepthID, lucmp%sdepth)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing sdepth variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, tggsnID, lucmp%tggsn)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing tggsn variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
     ! Other dims
-    out_settings%dimswitch = "radiation"
-    CALL check_and_write(albsoilsnID, 'albsoilsn', &
-                         REAL(lucmp%albsoilsn, 4), ranges%albsoiln, patchout_var, out_settings)
-    out_settings%dimswitch = "plantcarbon"
-    CALL check_and_write(cplantID, 'cplant', REAL(lucmp%cplantx, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    out_settings%dimswitch = "soilcarbon"
-    CALL check_and_write(csoilID, 'csoil', REAL(lucmp%csoilx, 4), &
-                         ranges%default_l, patchout_var, out_settings)
+    ok = NF90_PUT_VAR(ncid_restart, albsoilsnID, lucmp%albsoilsn)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing albsoilsn variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, cplantID, lucmp%cplantx)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing cplant variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, csoilID, lucmp%csoilx)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing csoil variable to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_landuse_cable_restart)')
     ok = NF90_PUT_VAR(ncid_restart, zse_id, REAL(soil%zse, 4))
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to ' &
-                                        //TRIM(frst_out)//'(SUBROUTINE create_restart)')
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
     ! Single dim:
-    out_settings%dimswitch = "radiation"
-    CALL check_and_write(albsoil_id, 'albsoil', &
-                         REAL(lucmp%albsoil, 4), ranges%albsoil, patchout_var, &
-                         out_settings)
-
-    out_settings%dimswitch = "real"
-
-    CALL check_and_write(tssID, 'tss', REAL(lucmp%tss, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(ssdnnID, 'ssdnn', REAL(lucmp%ssdnn, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(osnowdID, 'osnowd', REAL(lucmp%osnowd, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(snageID, 'snage', REAL(lucmp%snage, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(snowdID, 'snowd', REAL(lucmp%snowd, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(rtsoilID, 'rtsoil', REAL(lucmp%rtsoil, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(canstoID, 'cansto', REAL(lucmp%cansto, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(sghfluxID, 'sghflux', &
-                         REAL(lucmp%sghflux, 4), ranges%default_l, &
-                         patchout_var, out_settings)
-    CALL check_and_write(ghfluxID, 'ghflux', REAL(lucmp%ghflux, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(runoffID, 'runoff', REAL(lucmp%runoff, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(rnof1ID, 'rnof1', REAL(lucmp%rnof1, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(rnof2ID, 'rnof2', REAL(lucmp%rnof2, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(gaID, 'ga', REAL(lucmp%ga, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(fevID, 'fev', REAL(lucmp%fev, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(fesID, 'fes', REAL(lucmp%fes, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(fhsID, 'fhs', REAL(lucmp%fhs, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(wbtot0ID, 'wbtot0', REAL(lucmp%wbtot0, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(osnowd0ID, 'osnowd0', REAL(lucmp%osnowd0, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(tradID, 'trad', &
-                         REAL(lucmp%trad, 4), ranges%RadT, patchout_var, out_settings)
-
-    CALL check_and_write(gwID, 'GWwb', REAL(lucmp%GWwb, 4), &
-                         ranges%GWwb, patchout_var, out_settings)
-
-    out_settings%dimswitch = "r2"
-    CALL check_and_write(dgdtgID, 'dgdtg', REAL(lucmp%dgdtg, 4), &
-                         ranges%default_l, patchout_var, out_settings)
-
-    out_settings%dimswitch = "radiation"
-    CALL check_and_write(albedoID, 'albedo', REAL(lucmp%albedo, 4), &
-                         ranges%Albedo, patchout_var, out_settings)
+    ok = NF90_PUT_VAR(ncid_restart, albsoil_id, lucmp%albsoil)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing albsoil parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, tssID, lucmp%tss)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing tss parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, ssdnnID, lucmp%ssdnn)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing ssdnn parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, osnowdID, lucmp%osnowd)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing osnowd parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, snageID, lucmp%snage)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing snage parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, snowdID, lucmp%snowd)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing snowd parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, rtsoilID, lucmp%rtsoil)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing rtsoil parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, isflagID, lucmp%isflag)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing isflag parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, canstoID, lucmp%cansto)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing cansto parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, sghfluxID, lucmp%sghflux)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing sghflux parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, ghfluxID, lucmp%ghflux)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing ghflux parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, runoffID, lucmp%runoff)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing runoff parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, rnof1ID, lucmp%rnof1)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing rnof1 parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, rnof2ID, lucmp%rnof2)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing rnof2 parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, gaID, lucmp%ga)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing ga parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, dgdtgID, lucmp%dgdtg)
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing dgdtg parameter to '   &
+                                        //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 
     ! Close restart file
     ok = NF90_CLOSE(ncid_restart)
