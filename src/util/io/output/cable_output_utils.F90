@@ -149,8 +149,6 @@ module cable_output_utils_mod
   real(kind=real32),   allocatable, target :: temp_buffer_land_soilcarbon_real32(:, :)
   real(kind=real64),   allocatable, target :: temp_buffer_land_soilcarbon_real64(:, :)
 
-  type(io_decomp_t) :: io_decomp_global
-
 contains
 
   subroutine init_decomp_pointers(io_decomp)
