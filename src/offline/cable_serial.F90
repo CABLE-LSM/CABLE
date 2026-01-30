@@ -1053,12 +1053,12 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
     IF (cable_user%CALL_climate) &
       CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
-    call cable_output_mod_end()
     !--- LN ------------------------------------------[
   ENDIF
 
-  call cable_netcdf_mod_end()
+  if (.not. casaonly) call cable_output_mod_end()
 
+  call cable_netcdf_mod_end()
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
        TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
