@@ -98,10 +98,10 @@ contains
 
     do i = 1, size(output_variables)
       associate(output_var => output_variables(i))
-        if (all(output_var%reduction_method /= ["none", "grid_cell_average", "first_patch_in_grid_cell"])) then
+        if (all(output_var%reduction_method /= [character(32) :: "none", "grid_cell_average", "first_patch_in_grid_cell"])) then
           call cable_abort("Invalid reduction method for variable " // trim(output_var%name), __FILE__, __LINE__)
         end if
-        if (all(output_var%aggregation_method /= ["point", "mean", "max", "min", "sum"])) then
+        if (all(output_var%aggregation_method /= [character(32) :: "point", "mean", "max", "min", "sum"])) then
           call cable_abort("Invalid aggregation method for variable " // trim(output_var%name), __FILE__, __LINE__)
         end if
         if (all(output_var%var_type /= [CABLE_NETCDF_INT, CABLE_NETCDF_FLOAT, CABLE_NETCDF_DOUBLE])) then
