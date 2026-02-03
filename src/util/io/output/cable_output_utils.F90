@@ -377,11 +377,11 @@ contains
         call cable_abort(err_message, __FILE__, __LINE__)
       end if
     case ("daily")
-      if (.not. any(accumulation_frequency == ["all", "daily", "user"])) then
+      if (.not. any(accumulation_frequency == ["all  ", "daily", "user "])) then
         call cable_abort(err_message, __FILE__, __LINE__)
       end if
     case ("monthly")
-      if (.not. any(accumulation_frequency == ["all", "daily", "user", "monthly"])) then
+      if (.not. any(accumulation_frequency == ["all    ", "daily  ", "user   ", "monthly"])) then
         call cable_abort(err_message, __FILE__, __LINE__)
       end if
     case default
@@ -582,7 +582,7 @@ contains
 
     if (.not. restart_local) then
       call output_file%def_dims(["nv"], [2])
-      call output_file%def_var("time_bnds", ["nv", "time"], CABLE_NETCDF_DOUBLE)
+      call output_file%def_var("time_bnds", ["nv  ", "time"], CABLE_NETCDF_DOUBLE)
       call output_file%put_att("time", "bounds", "time_bnds")
     end if
 
