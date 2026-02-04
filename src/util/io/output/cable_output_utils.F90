@@ -476,38 +476,47 @@ contains
   function infer_cell_methods(output_variable) result(cell_methods)
     type(cable_output_variable_t), intent(in) :: output_variable
     character(len=256) :: cell_methods
+    character(len=256) :: cell_methods_time, cell_methods_area
 
     if (.not. output_variable%parameter) then
       select case (output_variable%aggregation_method)
       case ("point")
-        cell_methods = "time: point"
+        cell_methods_time = "time: point"
       case ("mean")
-        cell_methods = "time: mean"
+        cell_methods_time = "time: mean"
       case ("sum")
-        cell_methods = "time: sum"
+        cell_methods_time = "time: sum"
       case ("min")
-        cell_methods = "time: minimum"
+        cell_methods_time = "time: minimum"
       case ("max")
-        cell_methods = "time: maximum"
+        cell_methods_time = "time: maximum"
       case default
         call cable_abort("Unexpected aggregation method '" // output_variable%aggregation_method // &
           "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
       end select
+    else
+      cell_methods_time = ""
     end if
 
     select case (output_variable%reduction_method)
-    case ("none", "first_patch_in_grid_cell")
-      ! no additional cell methods
+    case ("none")
+      ! TODO(Sean): the cell_method for this case should be `area: point where
+      ! pft` where `pft` is a string-valued auxiliary coordinate variable
+      ! describing the labels for all patches:
+      cell_methods_area = ""
+    case ("first_patch_in_grid_cell")
+      ! TODO(Sean): the cell_method for this case should be `area: point where
+      ! <area_type>` where `<area_type>` is the area type of the first patch in
+      ! the grid cell:
+      cell_methods_area = ""
     case ("grid_cell_average")
-      if (len_trim(cell_methods) > 0) then
-        cell_methods = cell_methods // " area: mean"
-      else
-        cell_methods = "area: mean"
-      end if
+      cell_methods_area = "area: mean where land"
     case default
       call cable_abort("Unexpected reduction method '" // output_variable%reduction_method // &
         "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
     end select
+
+    cell_methods = adjustl(trim(cell_methods_time) // " " // trim(cell_methods_area))
 
   end function
 
