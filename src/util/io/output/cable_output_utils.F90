@@ -403,63 +403,66 @@ contains
     if (present(restart)) restart_local = restart
 
     allocate(dim_names(0))
-    do j = 1, size(output_variable%data_shape)
-      if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_PATCH) then
-        if (restart_local) then
-          dim_names = [dim_names, "mp"]
-        else if (requires_land_output_grid(output%grid, metgrid)) then
-          if (output_variable%reduction_method == "none") then
-            dim_names = [dim_names, "land", "patch"]
+    if (allocated(output_variable%data_shape)) then
+      do j = 1, size(output_variable%data_shape)
+        select case (output_variable%data_shape(j)%value)
+        case (CABLE_OUTPUT_DIM_PATCH%value)
+          if (restart_local) then
+            dim_names = [dim_names, "mp"]
+          else if (requires_land_output_grid(output%grid, metgrid)) then
+            if (output_variable%reduction_method == "none") then
+              dim_names = [dim_names, "land", "patch"]
+            else
+              dim_names = [dim_names, "land"]
+            end if
+          else if (requires_x_y_output_grid(output%grid, metgrid)) then
+            if (output_variable%reduction_method == "none") then
+              dim_names = [dim_names, "x", "y", "patch"]
+            else
+              dim_names = [dim_names, "x", "y"]
+            end if
+          end if
+        case (CABLE_OUTPUT_DIM_LAND%value)
+          if (restart_local) then
+            dim_names = [dim_names, "mland"]
+          else if (requires_land_output_grid(output%grid, metgrid)) then
+            dim_names = [dim_names, "land"]
+          else if (requires_x_y_output_grid(output%grid, metgrid)) then
+            dim_names = [dim_names, "x", "y"]
+          end if
+        case (CABLE_OUTPUT_DIM_LAND_GLOBAL%value)
+          if (restart_local) then
+            dim_names = [dim_names, "mland"]
           else
             dim_names = [dim_names, "land"]
           end if
-        else if (requires_x_y_output_grid(output%grid, metgrid)) then
-          if (output_variable%reduction_method == "none") then
-            dim_names = [dim_names, "x", "y", "patch"]
+        case (CABLE_OUTPUT_DIM_SOIL%value)
+          dim_names = [dim_names, "soil"]
+        case (CABLE_OUTPUT_DIM_SNOW%value)
+          dim_names = [dim_names, "snow"]
+        case (CABLE_OUTPUT_DIM_RAD%value)
+          dim_names = [dim_names, "rad"]
+        case (CABLE_OUTPUT_DIM_PLANTCARBON%value)
+          if (restart_local) then
+            dim_names = [dim_names, "plant_carbon_pools"]
           else
-            dim_names = [dim_names, "x", "y"]
+            dim_names = [dim_names, "plantcarbon"]
           end if
-        end if
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_LAND) then
-        if (restart_local) then
-          dim_names = [dim_names, "mland"]
-        else if (requires_land_output_grid(output%grid, metgrid)) then
-          dim_names = [dim_names, "land"]
-        else if (requires_x_y_output_grid(output%grid, metgrid)) then
-          dim_names = [dim_names, "x", "y"]
-        end if
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_LAND_GLOBAL) then
-        if (restart_local) then
-          dim_names = [dim_names, "mland"]
-        else
-          dim_names = [dim_names, "land"]
-        end if
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_SOIL) then
-        dim_names = [dim_names, "soil"]
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_SNOW) then
-        dim_names = [dim_names, "snow"]
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_RAD) then
-        dim_names = [dim_names, "rad"]
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_PLANTCARBON) then
-        if (restart_local) then
-          dim_names = [dim_names, "plant_carbon_pools"]
-        else
-          dim_names = [dim_names, "plantcarbon"]
-        end if
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_SOILCARBON) then
-        if (restart_local) then
-          dim_names = [dim_names, "soil_carbon_pools"]
-        else
-          dim_names = [dim_names, "soilcarbon"]
-        end if
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_X) then
-        dim_names = [dim_names, "x"]
-      else if (output_variable%data_shape(j) == CABLE_OUTPUT_DIM_Y) then
-        dim_names = [dim_names, "y"]
-      else
-        call cable_abort("Unexpected data shape for variable " // output_variable%name, __FILE__, __LINE__)
-      end if
-    end do
+        case (CABLE_OUTPUT_DIM_SOILCARBON%value)
+          if (restart_local) then
+            dim_names = [dim_names, "soil_carbon_pools"]
+          else
+            dim_names = [dim_names, "soilcarbon"]
+          end if
+        case (CABLE_OUTPUT_DIM_X%value)
+          dim_names = [dim_names, "x"]
+        case (CABLE_OUTPUT_DIM_Y%value)
+          dim_names = [dim_names, "y"]
+        case default
+          call cable_abort("Unexpected data shape for variable " // output_variable%name, __FILE__, __LINE__)
+        end select
+      end do
+    end if
 
     if (.not. restart_local .and. .not. output_variable%parameter) dim_names = [dim_names, "time"]
 
