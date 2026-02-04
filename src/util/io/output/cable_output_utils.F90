@@ -317,6 +317,11 @@ contains
     )
   end function
 
+  logical function data_shape_eq(shape1, shape2)
+    type(cable_output_dim_t), dimension(:), intent(in) :: shape1, shape2
+    data_shape_eq = size(shape1) == size(shape2) .and. all(shape1 == shape2)
+  end function
+
   elemental integer function dim_size(dim)
     type(cable_output_dim_t), intent(in) :: dim
 
@@ -648,7 +653,7 @@ contains
     class(cable_netcdf_decomp_t), pointer, intent(inout) :: decomp
     logical, intent(in), optional :: restart
 
-    if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH])) then
+    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_int32
       else
@@ -657,7 +662,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_int32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_soil_int32
       else
@@ -666,7 +671,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_soil_int32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_snow_int32
       else
@@ -675,7 +680,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_snow_int32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_rad_int32
       else
@@ -684,7 +689,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_rad_int32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_plantcarbon_int32
       else
@@ -693,7 +698,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_plantcarbon_int32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_soilcarbon_int32
       else
@@ -713,7 +718,7 @@ contains
     class(cable_netcdf_decomp_t), pointer, intent(inout) :: decomp
     logical, intent(in), optional :: restart
 
-    if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH])) then
+    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_real32
       else
@@ -722,7 +727,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_real32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_soil_real32
       else
@@ -731,7 +736,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_soil_real32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_snow_real32
       else
@@ -740,7 +745,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_snow_real32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_rad_real32
       else
@@ -749,7 +754,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_rad_real32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_plantcarbon_real32
       else
@@ -758,7 +763,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_plantcarbon_real32
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_soilcarbon_real32
       else
@@ -778,7 +783,7 @@ contains
     class(cable_netcdf_decomp_t), pointer, intent(inout) :: decomp
     logical, intent(in), optional :: restart
 
-    if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH])) then
+    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_real64
       else
@@ -787,7 +792,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_real64
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_soil_real64
       else
@@ -796,7 +801,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_soil_real64
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_snow_real64
       else
@@ -805,7 +810,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_snow_real64
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_rad_real64
       else
@@ -814,7 +819,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_rad_real64
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_plantcarbon_real64
       else
@@ -823,7 +828,7 @@ contains
       if (present(restart)) then
         if (restart) decomp => restart_decomp_patch_plantcarbon_real64
       end if
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       if (output_var%reduction_method == "none") then
         decomp => output_decomp_base_patch_soilcarbon_real64
       else
@@ -844,31 +849,31 @@ contains
     integer(kind=int32), pointer, intent(inout), optional :: temp_buffer_int32_2d(:,:)
     integer(kind=int32), pointer, intent(inout), optional :: temp_buffer_int32_3d(:,:,:)
 
-    if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH])) then
+    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
       if (.not. present(temp_buffer_int32_1d)) call cable_abort( &
         "temp_buffer_int32_1d must be provided for 1D data shape", __FILE__, __LINE__)
       temp_buffer_int32_1d => temp_buffer_land_int32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
       if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
         "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_int32_2d => temp_buffer_land_soil_int32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
         "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_int32_2d => temp_buffer_land_rad_int32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
       if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
         "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_int32_2d => temp_buffer_land_snow_int32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
         "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_int32_2d => temp_buffer_land_rad_int32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
       if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
         "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_int32_2d => temp_buffer_land_plantcarbon_int32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
         "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_int32_2d => temp_buffer_land_soilcarbon_int32
@@ -884,31 +889,31 @@ contains
     real(kind=real32), pointer, intent(inout), optional :: temp_buffer_real32_2d(:,:)
     real(kind=real32), pointer, intent(inout), optional :: temp_buffer_real32_3d(:,:,:)
 
-    if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH])) then
+    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
       if (.not. present(temp_buffer_real32_1d)) call cable_abort( &
         "temp_buffer_real32_1d must be provided for 1D data shape", __FILE__, __LINE__)
       temp_buffer_real32_1d => temp_buffer_land_real32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
       if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
         "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real32_2d => temp_buffer_land_soil_real32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
         "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real32_2d => temp_buffer_land_rad_real32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
       if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
         "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real32_2d => temp_buffer_land_snow_real32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
         "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real32_2d => temp_buffer_land_rad_real32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
       if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
         "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
         "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
@@ -924,31 +929,31 @@ contains
     real(kind=real64), pointer, intent(inout), optional :: temp_buffer_real64_2d(:,:)
     real(kind=real64), pointer, intent(inout), optional :: temp_buffer_real64_3d(:,:,:)
 
-    if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH])) then
+    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
       if (.not. present(temp_buffer_real64_1d)) call cable_abort( &
         "temp_buffer_real64_1d must be provided for 1D data shape", __FILE__, __LINE__)
       temp_buffer_real64_1d => temp_buffer_land_real64
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
       if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
         "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real64_2d => temp_buffer_land_soil_real64
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
         "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real64_2d => temp_buffer_land_rad_real64
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
       if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
         "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real64_2d => temp_buffer_land_snow_real64
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
       if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
         "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real64_2d => temp_buffer_land_rad_real64
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
       if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
         "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
-    else if (all(output_var%data_shape == [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
+    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
         "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
       temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
