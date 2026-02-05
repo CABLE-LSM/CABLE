@@ -337,22 +337,37 @@ contains
     integer, intent(in), optional :: frame
     logical, intent(in), optional :: restart
 
-    class(cable_netcdf_decomp_t), pointer :: decomp => null()
+    class(cable_netcdf_decomp_t), pointer :: decomp
     integer :: i, ndims
     logical :: restart_local
 
-    integer(kind=int32), pointer :: write_buffer_int32_0d           => null()
-    integer(kind=int32), pointer :: write_buffer_int32_1d(:)        => null()
-    integer(kind=int32), pointer :: write_buffer_int32_2d(:, :)     => null()
-    integer(kind=int32), pointer :: write_buffer_int32_3d(:, :, :)  => null()
-    real(kind=real32),   pointer :: write_buffer_real32_0d          => null()
-    real(kind=real32),   pointer :: write_buffer_real32_1d(:)       => null()
-    real(kind=real32),   pointer :: write_buffer_real32_2d(:, :)    => null()
-    real(kind=real32),   pointer :: write_buffer_real32_3d(:, :, :) => null()
-    real(kind=real64),   pointer :: write_buffer_real64_0d          => null()
-    real(kind=real64),   pointer :: write_buffer_real64_1d(:)       => null()
-    real(kind=real64),   pointer :: write_buffer_real64_2d(:, :)    => null()
-    real(kind=real64),   pointer :: write_buffer_real64_3d(:, :, :) => null()
+    integer(kind=int32), pointer :: write_buffer_int32_0d
+    integer(kind=int32), pointer :: write_buffer_int32_1d(:)
+    integer(kind=int32), pointer :: write_buffer_int32_2d(:, :)
+    integer(kind=int32), pointer :: write_buffer_int32_3d(:, :, :)
+    real(kind=real32),   pointer :: write_buffer_real32_0d
+    real(kind=real32),   pointer :: write_buffer_real32_1d(:)
+    real(kind=real32),   pointer :: write_buffer_real32_2d(:, :)
+    real(kind=real32),   pointer :: write_buffer_real32_3d(:, :, :)
+    real(kind=real64),   pointer :: write_buffer_real64_0d
+    real(kind=real64),   pointer :: write_buffer_real64_1d(:)
+    real(kind=real64),   pointer :: write_buffer_real64_2d(:, :)
+    real(kind=real64),   pointer :: write_buffer_real64_3d(:, :, :)
+
+    decomp => null()
+
+    write_buffer_int32_0d  => null()
+    write_buffer_int32_1d  => null()
+    write_buffer_int32_2d  => null()
+    write_buffer_int32_3d  => null()
+    write_buffer_real32_0d => null()
+    write_buffer_real32_1d => null()
+    write_buffer_real32_2d => null()
+    write_buffer_real32_3d => null()
+    write_buffer_real64_0d => null()
+    write_buffer_real64_1d => null()
+    write_buffer_real64_2d => null()
+    write_buffer_real64_3d => null()
 
     restart_local = .false.
     if (present(restart)) restart_local = restart
