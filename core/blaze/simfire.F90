@@ -570,7 +570,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
   CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
-  INTEGER, PARAMETER :: stoch_trig = 10                 !number of days between call to stoch generator
+  INTEGER, PARAMETER :: stoch_trig = 30                 !number of days between call to stoch generator
 
   INTEGER :: i, DOM(12), DOY, p, patch_index, iSTOCH
 
