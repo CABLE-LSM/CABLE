@@ -570,7 +570,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
   CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
-  INTEGER, PARAMETER :: stoch_trig = 30                 !number of days between call to stoch generator
+  INTEGER, PARAMETER :: stoch_trig = 10                 !number of days between call to stoch generator
 
   INTEGER :: i, DOM(12), DOY, p, patch_index, iSTOCH
 
@@ -656,7 +656,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
 
       !apply randomness to AB annual
       !IF (SF%STOCH_AREA) THEN
-      !   CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),1,YEAR,365)
+      !   CALL STOCH_AREA(AB(i),SF%LAT(i),SF%LON(i),SF%AREA(i),1,YEAR,365)
       !END IF
 
       ! Monthly Burned Area
@@ -667,12 +667,13 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       IF (SF%STOCH_AREA) THEN
          !iSTOCH increments by 1 each stoch_trig days 
          !- if stoch_trig>1 then allow some fires to last multiple days
-         !- to get daily stochaticity set stoch_trig=1
+         !- to get daily stochaticity set stoch_trig=1, to get annual set to >366
          iSTOCH = INT( REAL(DOY)/REAL(stoch_trig)) + 1
         
          !STOCH_AREA is deterministic, if iSTOCH is the same then the same AB will be produced.
-         CALL STOCH_AREA(AB(i),patch(i)%latitude,patch(i)%longitude,SF%AREA(i),iSTOCH,YEAR,DOM(MM))
-      END IF
+         CALL STOCH_AREA(AB(i),SF%LAT(i),SF%LON(i),SF%AREA(i),iSTOCH,YEAR,DOM(MM))
+
+      END IF 
 
       !Daily burned area
       AB(i) = AB(i) / DOM(MM)
@@ -764,6 +765,9 @@ SUBROUTINE seeded_random(x,seed)
    ! Linear congruential generator for single precision random numbers on (0,1)
    ! uses the matlab incarnation of coefficients (random0, Chapman 2015)
    ! https://en.wikipedia.org/wiki/Linear_congruential_generator
+   !
+   ! note x has to be <= 264432 in order to avoid overflow issues
+   ! behaviour is compiler & serial/mpi dependent - so see catch on seed
 
    real, intent(out) :: seed
    integer, intent(in) :: x
@@ -772,7 +776,10 @@ SUBROUTINE seeded_random(x,seed)
    !use matlab/fortran coeffs
    work = modulo (8121*x+28411, 134456)
    seed = work / real(134456)
-
+   IF (seed .lt. 0.0) THEN
+      seed = seed + 1.0
+   END IF
+ 
 END SUBROUTINE seeded_random
 
 SUBROUTINE get_minlatlon_increment(NCELLS,latlon,dlatlon)

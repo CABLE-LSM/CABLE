@@ -1238,13 +1238,13 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
              .lt. 0.5_r_2 * casapool%cplant(npt,2:3) ) )
            casaflux%kplant(npt,2:3)     = 0.0_r_2
            casaflux%kplant_tot(npt,2:3) = 0.0_r_2
-           !MCfire - casaflux%kplant_fire(npt,2:3) = 0.0_r_2 ?
+           !MCfire - casaflux%kplant_fire(npt,2:3) = 0.0_r_2 ? INH - shouldn't be an issue - no fire if no fuel
            casaflux%crmplant(npt,2:3)   = 0.0_r_2
         endwhere
         if (any((casapool%cplant(npt,:) + casapool%dcplantdt(npt,:)*deltpool) .lt. 0.0_r_2 )) then
            casaflux%kplant(npt,1)     = 0.0_r_2
            casaflux%kplant_tot(npt,1) = 0.0_r_2
-           !MCfire - casaflux%kplant_fire(npt,1) = 0.0_r_2 ?
+           !MCfire - casaflux%kplant_fire(npt,1) = 0.0_r_2 ? INH - shouldn't be an issue - no fire if no fuel
            casaflux%crmplant(npt,1) = min(casaflux%crmplant(npt,1), 0.5_r_2*casaflux%cgpp(npt))
         endif
 
@@ -1281,7 +1281,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            where ( (casapool%cplant(npt,:) + casapool%dcplantdt(npt,:) * deltpool) < 0.0_r_2 )
               casaflux%kplant(npt,:)     = 0.0_r_2
               casaflux%kplant_tot(npt,:) = 0.0_r_2
-              !MCfire - casaflux%kplant_fire(npt,1) = 0.0_r_2 ?
+              !MCfire - casaflux%kplant_fire(npt,1) = 0.0_r_2 ? INH - shouldn't be an issue - no fire if no fuel
               casaflux%Cplant_turnover(npt,:) = 0.0_r_2
            endwhere
            ! 2nd, nothing to labile pool
@@ -1361,7 +1361,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            !casaflux%FluxFromPtoCO2(npt,nP) = &
            !     (1.0_r_2-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * &
            !     casapool%cplant(npt,nP) !CLN *  & Shouldn't it be min(1-casaflux%kplant,X)???
-                !CLN should be considered in kplant_fire ??? (1.0_r_2 - sum(casaflux%fromPtoL_fire(npt,:,nP)))
+           !     CLN should be considered in kplant_fire ??? (1.0_r_2 - sum(casaflux%fromPtoL_fire(npt,:,nP)))          
            !INH adding in the additional fromPtoL_fire factor - not all fire flux goes to ATM.
            casaflux%FluxFromPtoCO2(npt,nP) = &
                 (1.0_r_2-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * &
