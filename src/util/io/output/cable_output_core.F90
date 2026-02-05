@@ -354,16 +354,6 @@ contains
     real(kind=real64),   pointer :: write_buffer_real64_2d(:, :)    => null()
     real(kind=real64),   pointer :: write_buffer_real64_3d(:, :, :) => null()
 
-    integer(kind=int32), pointer :: temp_buffer_int32_1d(:)        => null()
-    integer(kind=int32), pointer :: temp_buffer_int32_2d(:, :)     => null()
-    integer(kind=int32), pointer :: temp_buffer_int32_3d(:, :, :)  => null()
-    real(kind=real32),   pointer :: temp_buffer_real32_1d(:)       => null()
-    real(kind=real32),   pointer :: temp_buffer_real32_2d(:, :)    => null()
-    real(kind=real32),   pointer :: temp_buffer_real32_3d(:, :, :) => null()
-    real(kind=real64),   pointer :: temp_buffer_real64_1d(:)       => null()
-    real(kind=real64),   pointer :: temp_buffer_real64_2d(:, :)    => null()
-    real(kind=real64),   pointer :: temp_buffer_real64_3d(:, :, :) => null()
-
     restart_local = .false.
     if (present(restart)) restart_local = restart
 
@@ -402,12 +392,11 @@ contains
       else if (output_variable%reduction_method == "grid_cell_average") then
         call cable_abort("Reduction method grid_cell_average is not supported for integer variables", __FILE__, __LINE__)
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_int32(output_variable, temp_buffer_int32_1d=temp_buffer_int32_1d)
+        call associate_temp_buffer_int32(output_variable, temp_buffer_int32_1d=write_buffer_int32_1d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_int32_1d, &
+              output_array=write_buffer_int32_1d, &
               landpt=landpt)
-        write_buffer_int32_1d => temp_buffer_int32_1d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -438,12 +427,11 @@ contains
       else if (output_variable%reduction_method == "grid_cell_average") then
         call cable_abort("Reduction method grid_cell_average is not supported for integer variables", __FILE__, __LINE__)
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_int32(output_variable, temp_buffer_int32_2d=temp_buffer_int32_2d)
+        call associate_temp_buffer_int32(output_variable, temp_buffer_int32_2d=write_buffer_int32_2d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_int32_2d, &
+              output_array=write_buffer_int32_2d, &
               landpt=landpt)
-        write_buffer_int32_2d => temp_buffer_int32_2d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -474,12 +462,11 @@ contains
       else if (output_variable%reduction_method == "grid_cell_average") then
         call cable_abort("Reduction method grid_cell_average is not supported for integer variables", __FILE__, __LINE__)
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_int32(output_variable, temp_buffer_int32_3d=temp_buffer_int32_3d)
+        call associate_temp_buffer_int32(output_variable, temp_buffer_int32_3d=write_buffer_int32_3d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_int32_3d, &
+              output_array=write_buffer_int32_3d, &
               landpt=landpt)
-        write_buffer_int32_3d => temp_buffer_int32_3d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -528,20 +515,18 @@ contains
       else if (output_variable%reduction_method == "none") then
         write_buffer_real32_1d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
-        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_1d=temp_buffer_real32_1d)
+        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_1d=write_buffer_real32_1d)
         call grid_cell_average( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real32_1d, &
+              output_array=write_buffer_real32_1d, &
               landpt=landpt, &
               patch=patch)
-        write_buffer_real32_1d => temp_buffer_real32_1d
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_1d=temp_buffer_real32_1d)
+        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_1d=write_buffer_real32_1d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real32_1d, &
+              output_array=write_buffer_real32_1d, &
               landpt=landpt)
-        write_buffer_real32_1d => temp_buffer_real32_1d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -570,20 +555,18 @@ contains
       else if (output_variable%reduction_method == "none") then
         write_buffer_real32_2d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
-        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_2d=temp_buffer_real32_2d)
+        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_2d=write_buffer_real32_2d)
         call grid_cell_average( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real32_2d, &
+              output_array=write_buffer_real32_2d, &
               landpt=landpt, &
               patch=patch)
-        write_buffer_real32_2d => temp_buffer_real32_2d
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_2d=temp_buffer_real32_2d)
+        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_2d=write_buffer_real32_2d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real32_2d, &
+              output_array=write_buffer_real32_2d, &
               landpt=landpt)
-        write_buffer_real32_2d => temp_buffer_real32_2d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -612,13 +595,18 @@ contains
       else if (output_variable%reduction_method == "none") then
         write_buffer_real32_3d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
-        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_3d=temp_buffer_real32_3d)
+        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_3d=write_buffer_real32_3d)
         call grid_cell_average( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real32_3d, &
+              output_array=write_buffer_real32_3d, &
               landpt=landpt, &
               patch=patch)
-        write_buffer_real32_3d => temp_buffer_real32_3d
+      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+        call associate_temp_buffer_real32(output_variable, temp_buffer_real32_3d=write_buffer_real32_3d)
+        call first_patch_in_grid_cell( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real32_3d, &
+              landpt=landpt)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -667,20 +655,18 @@ contains
       else if (output_variable%reduction_method == "none") then
         write_buffer_real64_1d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
-        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_1d=temp_buffer_real64_1d)
+        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_1d=write_buffer_real64_1d)
         call grid_cell_average( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real64_1d, &
+              output_array=write_buffer_real64_1d, &
               landpt=landpt, &
               patch=patch)
-        write_buffer_real64_1d => temp_buffer_real64_1d
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_1d=temp_buffer_real64_1d)
+        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_1d=write_buffer_real64_1d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real64_1d, &
+              output_array=write_buffer_real64_1d, &
               landpt=landpt)
-        write_buffer_real64_1d => temp_buffer_real64_1d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -709,20 +695,18 @@ contains
       else if (output_variable%reduction_method == "none") then
         write_buffer_real64_2d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
-        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_2d=temp_buffer_real64_2d)
+        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_2d=write_buffer_real64_2d)
         call grid_cell_average( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real64_2d, &
+              output_array=write_buffer_real64_2d, &
               landpt=landpt, &
               patch=patch)
-        write_buffer_real64_2d => temp_buffer_real64_2d
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_2d=temp_buffer_real64_2d)
+        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_2d=write_buffer_real64_2d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real64_2d, &
+              output_array=write_buffer_real64_2d, &
               landpt=landpt)
-        write_buffer_real64_2d => temp_buffer_real64_2d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -751,20 +735,18 @@ contains
       else if (output_variable%reduction_method == "none") then
         write_buffer_real64_3d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
-        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_3d=temp_buffer_real64_3d)
+        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_3d=write_buffer_real64_3d)
         call grid_cell_average( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real64_3d, &
+              output_array=write_buffer_real64_3d, &
               landpt=landpt, &
               patch=patch)
-        write_buffer_real64_3d => temp_buffer_real64_3d
       else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
-        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_3d=temp_buffer_real64_3d)
+        call associate_temp_buffer_real64(output_variable, temp_buffer_real64_3d=write_buffer_real64_3d)
         call first_patch_in_grid_cell( &
               input_array=aggregator%aggregated_data, &
-              output_array=temp_buffer_real64_3d, &
+              output_array=write_buffer_real64_3d, &
               landpt=landpt)
-        write_buffer_real64_3d => temp_buffer_real64_3d
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
