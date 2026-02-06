@@ -1090,7 +1090,7 @@ CONTAINS
     CALL snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal) 
     
    !> 11. transpiration loss per soil layer ! leave here for now, could move into soilsnow as well
-    CALL remove_transGW(dels, soil, ssnow, canopy, veg)
+    CALL remove_trans(soil, ssnow, canopy)
 
    !> 12. Snow freezes and melts. 
     CALL  GWsoilfreeze(dels, soil, ssnow)           
