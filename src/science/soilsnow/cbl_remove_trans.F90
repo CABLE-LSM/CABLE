@@ -30,7 +30,7 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
              ! Calculate the amount (perhaps moisture/ice limited)
              ! which can be removed:
              xx = canopy%fevc * dels / CHL * veg%froot(:,k) + diff(:,k-1)   ! kg/m2
-             diff(:,k) = MAX( 0.0_r_2, ssnow%wb(:,k) - soil%swilt) &      ! m3/m3
+             diff(:,k) = MAX( 0.0_r_2, ssnow%wb(:,k) - 1.1 * soil%swilt) &      ! m3/m3
                   * soil%zse(k)*Cdensity_liq
              xxd = xx - diff(:,k)
 

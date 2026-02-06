@@ -146,6 +146,11 @@ IMPLICIT NONE
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
     INTEGER :: i, j, k, kk  ! iteration count
+
+    ! For the calculation of the amount of transpired water
+    REAL(r_2) :: xxd, xx
+    REAL(r_2), DIMENSION(0:ms) :: diff
+
     REAL :: vpd, g1 ! Ticket #56
     REAL, DIMENSION(mp,mf)  ::                                                  &
          xleuning    ! leuning stomatal coeff
@@ -516,12 +521,29 @@ IMPLICIT NONE
                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
                         / air%rlam(i)
 
+                   xx = 0.; xxd = 0.; diff(:) = 0.
                    DO kk = 1,ms
 
-                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
-                           MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                           1.1 * soil%swilt(i) ) *                &
-                           soil%zse(kk) * density_liq )
+                      ! Root water extraction demand
+                      xx = evapfb(i) * veg%froot(i,kk) + diff(kk-1)
+                      ! Maximum water available at this soil layer
+                      diff(kk) = MAX( 0.0_r_2, ssnow%wb(i,kk) - 1.1 * soil%swilt(i)) &      ! m3/m3
+                                     * soil%zse(kk)*density_liq
+                      xxd = xx - diff(kk)
+
+                      ! ssnow%evapfbl is the water extracted from this layer
+                      ! diff is the excess water demand that is transferred to the next layer
+                      IF (xxd > 0.0) THEN
+                         ssnow%evapfbl(i,kk) = diff(kk)
+                         diff(kk) = xxd
+                      ELSE
+                         ssnow%evapfbl(i,kk) = xx
+                         diff(kk) = 0.0
+                      END IF
+                     !  ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
+                     !       MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+                     !       1.1 * soil%swilt(i) ) *                &
+                     !       soil%zse(kk) * density_liq )
 
                    ENDDO
                    IF (cable_user%soil_struc=='default') THEN
