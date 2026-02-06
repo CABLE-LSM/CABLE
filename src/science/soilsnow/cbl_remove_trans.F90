@@ -66,10 +66,15 @@ SUBROUTINE remove_trans(soil, ssnow, canopy)
     xx = 0.; xxd = 0.; diff(:) = 0.
     IF (fevc > 0.0) THEN
       DO k = 1,ms
-        ! Removing transpiration from soil:
 
         ! Calculate the amount (perhaps moisture/ice limited)
         ! that can be removed:
+        ! xx: water demand from the transpiration and above soil layers
+        ! diff(k-1): excess demand from higher soil layers
+        ! diff(k): maximum water amount available for this layer (supply)
+        ! xxd: demand minus supply. If the demand is larger (xxd>0), 
+        ! evapfbl is limited by the supply and the excess demand is shifted 
+        ! to the next layer.
         xx = fevc * dels / CHL * froot(k) + diff(k-1)   ! kg/m2
         diff(k) = MAX( 0.0_r_2, wbliq(k) - 1.1 * swilt(k)) * zse(k)*Cdensity_liq
         xxd = xx - diff(k)
