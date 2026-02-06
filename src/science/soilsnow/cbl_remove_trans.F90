@@ -8,8 +8,8 @@ CONTAINS
 
 SUBROUTINE remove_trans(soil, ssnow, canopy)
     !! Removes transpiration water from soil.
-    !! For Haverd2013, it also deals with negative canopy
-    !! transpiration.
+    !! We also attribute the negative canopy transpiration (dew) 
+    !! to the wet canopy flux.
 
     USE cable_common_module, ONLY : cable_user
 
@@ -18,13 +18,11 @@ SUBROUTINE remove_trans(soil, ssnow, canopy)
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
     INTEGER k
 
-    IF (cable_user%FWSOIL_switch == 'Haverd2013') THEN
 
-       WHERE (canopy%fevc < 0.0_r_2)
-          canopy%fevw = canopy%fevw+canopy%fevc
-          canopy%fevc = 0.0_r_2
-       END WHERE
-    END IF
+    WHERE (canopy%fevc < 0.0_r_2)
+      canopy%fevw = canopy%fevw+canopy%fevc
+      canopy%fevc = 0.0_r_2
+    END WHERE
 
     DO k = 1,ms
       ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/               &
