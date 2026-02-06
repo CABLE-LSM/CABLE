@@ -110,7 +110,7 @@ TYPE kbl_user_switches
   LOGICAL :: or_evap = .FALSE.
   LOGICAL :: test_new_gw = .FALSE.
   LOGICAL :: sync_nc_file = .FALSE.
-  INTEGER :: max_spins = -1
+  INTEGER :: max_spins = -1 ! MMY-phase2 change from -1 to 30 - rk4417
   LOGICAL :: fix_access_roots = .FALSE.  !use pft dependent roots in ACCESS
   !ACCESS roots
   LOGICAL :: access13roots = .FALSE.     !switch to use ACCESS1.3 %froot
@@ -118,6 +118,8 @@ TYPE kbl_user_switches
   LOGICAL :: l_limit_labile = .FALSE.    ! #237: limit Labile in spinup
   LOGICAL :: NtilesThruMetFile = .FALSE. ! #199: Specify Ntiles thru met file
   ! #338 https://github.com/CABLE-LSM/CABLE/issues/338
+  ! rk4417 - phase2
+  INTEGER :: force_npatches_as=-1 
   LOGICAL :: l_ice_consistency = .FALSE.
 
 END TYPE kbl_user_switches
