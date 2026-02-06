@@ -152,8 +152,6 @@ CONTAINS
     INTEGER :: i, j, k, kk  ! iteration count
 
     ! For the calculation of the amount of transpired water
-    REAL(r_2) :: xxd, xx
-    REAL(r_2), DIMENSION(0:ms) :: diff
     REAL(r_2), DIMENSION(mp)   :: local_fevc
 
     REAL :: vpd, g1 ! Ticket #56

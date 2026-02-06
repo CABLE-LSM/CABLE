@@ -6,18 +6,16 @@ PUBLIC  remove_trans
 
 CONTAINS
 
-SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
+SUBROUTINE remove_trans(soil, ssnow, canopy)
     !! Removes transpiration water from soil.
     !! For Haverd2013, it also deals with negative canopy
     !! transpiration.
 
     USE cable_common_module, ONLY : cable_user
 
-    REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(canopy_type), INTENT(INOUT)         :: canopy
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
-    TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     INTEGER i, k
 
     IF (cable_user%FWSOIL_switch == 'Haverd2013') THEN
