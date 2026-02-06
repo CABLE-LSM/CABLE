@@ -611,8 +611,11 @@ contains
           dim_names=infer_dim_names(output_var, restart_local), &
           type=output_var%var_type &
         )
-        call output_file%put_att(output_var%name, "units", output_var%units)
-        call output_file%put_att(output_var%name, "long_name", output_var%long_name)
+        if (allocated(output_var%metadata)) then
+          do j = 1, size(output_var%metadata)
+            call output_file%put_att(output_var%name, output_var%metadata(j)%name, output_var%metadata(j)%value)
+          end do
+        end if
         select case (output_var%var_type)
         case (CABLE_NETCDF_INT)
           call output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_INT32)
@@ -634,6 +637,16 @@ contains
     type(cable_output_profile_t), intent(inout) :: output_profile
 
     character(32) :: todaydate, nowtime
+    integer :: i
+
+    if (allocated(output_profile%metadata)) then
+      do i = 1, size(output_profile%metadata)
+        call output_profile%output_file%put_att( &
+          att_name=output_profile%metadata(i)%name, &
+          att_value=output_profile%metadata(i)%value &
+        )
+      end do
+    end if
 
     call date_and_time(todaydate, nowtime)
     todaydate = todaydate(1:4) // "/" // todaydate(5:6) // "/" // todaydate(7:8)

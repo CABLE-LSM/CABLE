@@ -9,6 +9,7 @@ module cable_output_prototype_v2_mod
   use cable_output_core_mod, only: cable_output_write_parameters
   use cable_output_core_mod, only: cable_output_write_restart
 
+  use cable_output_types_mod, only: cable_output_attribute_t
   use cable_output_types_mod, only: cable_output_variable_t
 
   use cable_output_definitions_mod, only: cable_output_core_outputs => core_outputs

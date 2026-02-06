@@ -14,13 +14,16 @@ module cable_output_types_mod
   type, extends(cable_enum_t), public :: cable_output_dim_t
   end type
 
+  type, public :: cable_output_attribute_t
+    character(len=64) :: name
+    character(len=256) :: value
+  end type
+
   type, public :: cable_output_variable_t
     character(len=64)  :: name
-    character(len=64)  :: units
     character(len=64)  :: accumulation_frequency = "all"
     character(len=64)  :: reduction_method = "none"
     character(len=64)  :: aggregation_method
-    character(len=256) :: long_name
     logical :: active
     logical :: parameter = .false.
     logical :: distributed = .true.
@@ -30,6 +33,7 @@ module cable_output_types_mod
     real, dimension(2) :: range
     type(cable_output_dim_t), allocatable :: data_shape(:)
     class(aggregator_t), allocatable :: aggregator
+    type(cable_output_attribute_t), allocatable :: metadata(:)
   end type
 
   type, public :: cable_output_profile_t
@@ -39,6 +43,7 @@ module cable_output_types_mod
     character(len=256) :: file_name
     class(cable_netcdf_file_t), allocatable :: output_file
     type(cable_output_variable_t), allocatable :: output_variables(:)
+    type(cable_output_attribute_t), allocatable :: metadata(:)
   end type
 
   type(cable_output_dim_t), parameter, public :: CABLE_OUTPUT_DIM_PATCH       = cable_output_dim_t(0)

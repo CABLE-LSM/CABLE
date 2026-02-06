@@ -16,6 +16,7 @@ module cable_output_definitions_mod
   use cable_io_vars_module, only: metgrid
 
   use cable_output_types_mod, only: cable_output_variable_t
+  use cable_output_types_mod, only: attribute => cable_output_attribute_t
   use cable_output_types_mod, only: DIM_PATCH => CABLE_OUTPUT_DIM_PATCH
   use cable_output_types_mod, only: DIM_SOIL => CABLE_OUTPUT_DIM_SOIL
   use cable_output_types_mod, only: DIM_RAD => CABLE_OUTPUT_DIM_RAD
@@ -50,8 +51,6 @@ contains
         name="isoil", &
         data_shape=[DIM_PATCH], &
         var_type=CABLE_NETCDF_INT, &
-        units="-", &
-        long_name="Soil type", &
         range=ranges%isoil, &
         active=output%isoil, &
         patchout=output%patch .or. patchout%isoil, &
@@ -59,112 +58,132 @@ contains
         aggregation_method="point", &
         parameter=.true., &
         restart=.true., &
-        aggregator=new_aggregator(soil%isoilm) &
+        aggregator=new_aggregator(soil%isoilm), &
+        metadata=[ &
+          attribute("units", "-"), &
+          attribute("long_name", "Soil type") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="swilt", &
         data_shape=[DIM_PATCH], &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="1", &
-        long_name="", &
         range=ranges%swilt, &
         active=output%swilt, &
         patchout=output%patch .or. patchout%swilt, &
         reduction_method="grid_cell_average", &
         aggregation_method="point", &
         parameter=.true., &
-        aggregator=new_aggregator(soil%swilt) &
+        aggregator=new_aggregator(soil%swilt), &
+        metadata=[ &
+          attribute("units", "1"), &
+          attribute("long_name", "") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="albsoil", &
         data_shape=[DIM_PATCH, DIM_RAD], &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="1", &
-        long_name="", &
         range=ranges%albsoil, &
         active=output%albsoil, &
         patchout=output%patch .or. patchout%albsoil, &
         reduction_method="first_patch_in_grid_cell", &
         aggregation_method="point", &
         parameter=.true., &
-        aggregator=new_aggregator(soil%albsoil) &
+        aggregator=new_aggregator(soil%albsoil), &
+        metadata=[ &
+          attribute("units", "1"), &
+          attribute("long_name", "") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="Qh", &
         data_shape=[DIM_PATCH], &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="W/m^2", &
-        long_name="Surface sensible heat flux", &
         range=ranges%Qh, &
         active=output%Qh, &
         patchout=output%patch .or. patchout%Qh, &
         reduction_method="grid_cell_average", &
         aggregation_method="mean", &
-        aggregator=new_aggregator(canopy%fh) &
+        aggregator=new_aggregator(canopy%fh), &
+        metadata=[ &
+           attribute("units", "W/m^2"), &
+           attribute("long_name", "Surface sensible heat flux") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="Tmx", &
         data_shape=[DIM_PATCH], &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="oC", &
-        long_name="averaged daily maximum screen-level T", &
         active=output%Tex .and. output%averaging == "monthly", &
         patchout=output%patch .or. patchout%Tex, &
         reduction_method="grid_cell_average", &
         aggregation_method="mean", &
         range=ranges%Tscrn, &
         accumulation_frequency="daily", &
-        aggregator=new_aggregator(canopy%tscrn_max_daily%aggregated_data) &
+        aggregator=new_aggregator(canopy%tscrn_max_daily%aggregated_data), &
+        metadata=[ &
+          attribute("units", "oC"), &
+          attribute("long_name", "averaged daily maximum screen-level T") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="nap", &
         data_shape=[DIM_LAND_GLOBAL], &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="", &
-        long_name="", &
         range=[-huge(0.0), huge(0.0)], &
         active=.false., &
         restart=.true., &
         distributed=.false., &
         aggregation_method="point", &
-        aggregator=new_aggregator(landpt_global(:)%nap) &
+        aggregator=new_aggregator(landpt_global(:)%nap), &
+        metadata=[ &
+          attribute("units", ""), &
+          attribute("long_name", "") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="patchfrac", &
         data_shape=[DIM_PATCH], &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="", &
-        long_name="Fraction of vegetated grid cell area occupied by a vegetation/soil patch", &
         range=[0.0, 1.0], &
         active=.false., &
         restart=.true., &
         distributed=.true., &
         aggregation_method="point", &
-        aggregator=new_aggregator(patch(:)%frac) &
+        aggregator=new_aggregator(patch(:)%frac), &
+        metadata=[ &
+          attribute("units", ""), &
+          attribute("long_name", "Fraction of vegetated grid cell area occupied by a vegetation/soil patch") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="mvtype", &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="", &
-        long_name="Number of vegetation types", &
         range=[-huge(0.0), huge(0.0)], &
         active=.false., &
         restart=.true., &
         distributed=.false., &
         aggregation_method="point", &
-        aggregator=new_aggregator(mvtype) &
+        aggregator=new_aggregator(mvtype), &
+        metadata=[ &
+          attribute("units", ""), &
+          attribute("long_name", "Number of vegetation types") &
+        ] &
       ), &
       cable_output_variable_t( &
         name="mstype", &
         var_type=CABLE_NETCDF_FLOAT, &
-        units="", &
-        long_name="Number of soil types", &
         range=[-huge(0.0), huge(0.0)], &
         active=.false., &
         restart=.true., &
         distributed=.false., &
         aggregation_method="point", &
-        aggregator=new_aggregator(mstype) &
+        aggregator=new_aggregator(mstype), &
+        metadata=[ &
+          attribute("units", ""), &
+          attribute("long_name", "Number of soil types") &
+        ] &
       ) &
     ]
 
@@ -181,27 +200,31 @@ contains
           name="latitude", &
           data_shape=[DIM_LAND_GLOBAL], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_north", &
-          long_name="", &
           range=[-90.0, 90.0], &
           active=.false., &
           restart=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(latitude) &
+          aggregator=new_aggregator(latitude), &
+          metadata=[ &
+            attribute("units", "degrees_north"), &
+            attribute("long_name", "") &
+          ] &
         ), &
         cable_output_variable_t( &
           name="longitude", &
           data_shape=[DIM_LAND_GLOBAL], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_east", &
-          long_name="", &
           range=[-huge(0.0), huge(0.0)], & ! TODO(Sean): this depends on the met forcing input?
           active=.false., &
           restart=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(longitude) &
+          aggregator=new_aggregator(longitude), &
+          metadata=[ &
+            attribute("units", "degrees_east"), &
+            attribute("long_name", "") &
+          ] &
         ) &
       ]
       return
@@ -214,56 +237,64 @@ contains
           name="latitude", &
           data_shape=[DIM_X, DIM_Y], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_north", &
-          long_name="", &
           range=[-90.0, 90.0], &
           active=.true., &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(lat_all) &
+          aggregator=new_aggregator(lat_all), &
+          metadata=[ &
+            attribute("units", "degrees_north"), &
+            attribute("long_name", "") &
+          ] &
         ), &
         cable_output_variable_t( &
           name="longitude", &
           data_shape=[DIM_X, DIM_Y], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_east", &
-          long_name="", &
           range=[-huge(0.0), huge(0.0)], & ! TODO(Sean): this depends on the met forcing input?
           active=.true., &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(lon_all) &
+          aggregator=new_aggregator(lon_all), &
+          metadata=[ &
+           attribute("units", "degrees_east"), &
+           attribute("long_name", "") &
+          ] &
         ), &
         ! Write "cordinate variables" to enable reading by GrADS:
         cable_output_variable_t( &
           name="x", &
           data_shape=[DIM_X], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_east", &
-          long_name="", &
-          ! comment="x coordinate variable for GrADS compatibility", &
           range=[-huge(0.0), huge(0.0)], & ! TODO(Sean): this depends on the met forcing input?
           active=.true., &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(lon_all(:, 1)) &
+          aggregator=new_aggregator(lon_all(:, 1)), &
+          metadata=[ &
+            attribute("units", "degrees_east"), &
+            attribute("long_name", ""), &
+            attribute("comment", "x coordinate variable for GrADS compatibility") &
+          ] &
         ), &
         cable_output_variable_t( &
           name="y", &
           data_shape=[DIM_Y], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_north", &
-          long_name="", &
-          ! comment="y coordinate variable for GrADS compatibility", &
           range=[-90.0, 90.0], & ! TODO(Sean): this depends on the met forcing input?
           active=.true., &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(lat_all(1, :)) &
+          aggregator=new_aggregator(lat_all(1, :)), &
+          metadata=[ &
+            attribute("units", "degrees_north"), &
+            attribute("long_name", ""), &
+            attribute("comment", "y coordinate variable for GrADS compatibility") &
+          ] &
         ) &
       ]
     else if (requires_land_output_grid(output%grid, metgrid)) then
@@ -272,27 +303,31 @@ contains
           name="local_lat", &
           data_shape=[DIM_LAND_GLOBAL], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_north", &
-          long_name="", &
           range=[-90.0, 90.0], &
           active=requires_land_output_grid(output%grid, metgrid), &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(latitude) &
+          aggregator=new_aggregator(latitude), &
+          metadata=[ &
+            attribute("units", "degrees_north"), &
+            attribute("long_name", "") &
+          ] &
         ), &
         cable_output_variable_t( &
           name="local_lon", &
           data_shape=[DIM_LAND_GLOBAL], &
           var_type=CABLE_NETCDF_FLOAT, &
-          units="degrees_east", &
-          long_name="", &
           range=[-huge(0.0), huge(0.0)], & ! TODO(Sean): this depends on the met forcing input?
           active=requires_land_output_grid(output%grid, metgrid), &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
-          aggregator=new_aggregator(longitude) &
+          aggregator=new_aggregator(longitude), &
+          metadata=[ &
+            attribute("units", "degrees_east"), &
+            attribute("long_name", "") &
+          ] &
         ) &
       ]
     else
