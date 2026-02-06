@@ -42,6 +42,10 @@ REAL ::                                                                        &
    g1(ntype_max),                                                              &
    zr(ntype_max),                                                              &
    clitt(ntype_max),                                                           &
+! froot1 - froot6 do not serve any purpose
+! their values inside offline/pft_params.nml are not used
+! veg%froot is initialized instead from formula inside offline/cable_parameters.F90
+! rk4417 - phase2
    froot1(ntype_max),                                                          &
    froot2(ntype_max),                                                          &
    froot3(ntype_max),                                                          &
@@ -60,10 +64,10 @@ REAL ::                                                                        &
    ratecp3(ntype_max),                                                         &
    refl1(ntype_max),                                                           &
    refl2(ntype_max),                                                           &
-   refl3(ntype_max),                                                           &
+   refl3(ntype_max),                                                           & ! not used  - rk4417 - phase2
    taul1(ntype_max),                                                           &
    taul2(ntype_max),                                                           &
-   taul3(ntype_max),                                                           &
+   taul3(ntype_max),                                                           &  ! not used  - rk4417 - phase2
    dleaf(ntype_max),                                                           &
    lai(ntype_max)
 

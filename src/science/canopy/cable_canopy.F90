@@ -556,7 +556,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
     
        ELSE
 
-            write(6,*) "SLI is not an option right now"  - commented out by rk4417 - phase2
+            write(6,*) "SLI is not an option right now"
           ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
           ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
           !H!CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
@@ -638,7 +638,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
           canopy%ga = canopy%fns-canopy%fhs-canopy%fes ! *ssnow%cls
        ELSE
 
-            write(6,*) "SLI is not an option right now"  - commented out by rk4417 - phase2
+            write(6,*) "SLI is not an option right now"
 
           ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
           ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
