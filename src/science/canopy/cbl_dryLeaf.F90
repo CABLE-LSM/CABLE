@@ -15,34 +15,36 @@ CONTAINS
 
     USE cable_def_types_mod
     USE cable_common_module
-USE cbl_photosynthesis_module,  ONLY : photosynthesis
-USE cbl_fwsoil_module,        ONLY : fwsoil_calc_std, fwsoil_calc_non_linear,           &
-                                     fwsoil_calc_Lai_Ktaul, fwsoil_calc_sli
-!data
-USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
-USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
-USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland  
-USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric      
+    USE cbl_photosynthesis_module,  ONLY : photosynthesis
+    USE cbl_fwsoil_module,          ONLY : fwsoil_calc_std,                   &
+                                           fwsoil_calc_non_linear,            &
+                                           fwsoil_calc_Lai_Ktaul,             &
+                                           fwsoil_calc_sli
+    !data
+    USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
+    USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
+    USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland  
+    USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric      
    
-! maths & other constants
-USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
-! physical constants
-USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
-USE cable_phys_constants_mod, ONLY : CDHEAT  => DHEAT
-USE cable_phys_constants_mod, ONLY : CRGAS   => RGAS
-USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
-USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
-USE cable_phys_constants_mod, ONLY : density_liq
-! photosynthetic constants
-USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
-USE cable_photo_constants_mod, ONLY : CTREFK => TREFK
-USE cable_photo_constants_mod, ONLY : CGAM0  => GAM0
-USE cable_photo_constants_mod, ONLY : CGAM1  => GAM1
-USE cable_photo_constants_mod, ONLY : CGAM2  => GAM2
-USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
-USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
-
-IMPLICIT NONE
+    ! maths & other constants
+    USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
+    ! physical constants
+    USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
+    USE cable_phys_constants_mod, ONLY : CDHEAT  => DHEAT
+    USE cable_phys_constants_mod, ONLY : CRGAS   => RGAS
+    USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
+    USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
+    USE cable_phys_constants_mod, ONLY : density_liq
+    ! photosynthetic constants
+    USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
+    USE cable_photo_constants_mod, ONLY : CTREFK => TREFK
+    USE cable_photo_constants_mod, ONLY : CGAM0  => GAM0
+    USE cable_photo_constants_mod, ONLY : CGAM1  => GAM1
+    USE cable_photo_constants_mod, ONLY : CGAM2  => GAM2
+    USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
+    USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
+    
+    IMPLICIT NONE
 
     TYPE (radiation_type), INTENT(INOUT) :: rad
     TYPE (roughness_type), INTENT(INOUT) :: rough
@@ -150,6 +152,7 @@ IMPLICIT NONE
     ! For the calculation of the amount of transpired water
     REAL(r_2) :: xxd, xx
     REAL(r_2), DIMENSION(0:ms) :: diff
+    REAL(r_2), DIMENSION(mp)   :: local_fevc
 
     REAL :: vpd, g1 ! Ticket #56
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -517,44 +520,19 @@ IMPLICIT NONE
 
              ELSE
 
-                IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                   evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
-                        / air%rlam(i)
+                local_fevc(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) )
+                IF (local_fevc(i) > 0.0_r_2) THEN
+                
+                   ssnow%evapfbl(i,:) = trans_soil_water(dels, soil%swilt(i),     &
+                            veg%froot(i,:), soil%zse, local_fevc(i), ssnow%wb(i,:))
 
-                   xx = 0.; xxd = 0.; diff(:) = 0.
-                   DO kk = 1,ms
-
-                      ! Root water extraction demand
-                      xx = evapfb(i) * veg%froot(i,kk) + diff(kk-1)
-                      ! Maximum water available at this soil layer
-                      diff(kk) = MAX( 0.0_r_2, ssnow%wb(i,kk) - 1.1 * soil%swilt(i)) &      ! m3/m3
-                                     * soil%zse(kk)*density_liq
-                      xxd = xx - diff(kk)
-
-                      ! ssnow%evapfbl is the water extracted from this layer
-                      ! diff is the excess water demand that is transferred to the next layer
-                      IF (xxd > 0.0) THEN
-                         ssnow%evapfbl(i,kk) = diff(kk)
-                         diff(kk) = xxd
-                      ELSE
-                         ssnow%evapfbl(i,kk) = xx
-                         diff(kk) = 0.0
-                      END IF
-                     !  ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
-                     !       MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                     !       1.1 * soil%swilt(i) ) *                &
-                     !       soil%zse(kk) * density_liq )
-
-                   ENDDO
                    IF (cable_user%soil_struc=='default') THEN
-                      canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
-                      ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                   ELSEIF (cable_user%soil_struc=='sli') THEN
-                      canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-                   ENDIF
-
-                ENDIF
-
+                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                   ELSE IF (cable_user%soil_struc=='sli') THEN
+                       canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                   END IF
+                END IF
              ENDIF
              ! Update canopy sensible heat flux:
              hcx(i) = (sum_rad_rniso(i)-ecx(i)                               &
