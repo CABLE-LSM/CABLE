@@ -120,6 +120,15 @@ if(CABLE_LIBRARY)
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
     )
+    target_compile_definitions(cable PRIVATE UM_CBL)
+    target_include_directories(cable PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+
+    install(TARGETS cable
+      EXPORT CABLEFortranTargets
+      LIBRARY DESTINATION lib
+      INCLUDES DESTINATION include)
+
+    install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/ TYPE INCLUDE)
 
     if(CABLE_LIBRARY_TARGET STREQUAL "access-esm1.6")
         list(APPEND SOURCES
