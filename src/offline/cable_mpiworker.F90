@@ -1743,11 +1743,6 @@ CONTAINS
     !  blen(bidx) = ms * r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl, displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blen(bidx) = ms * r1len
-
-    bidx = bidx + 1
     CALL MPI_Get_address (canopy%epot, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -3678,18 +3673,6 @@ CONTAINS
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
     !  blocks(bidx) = r1len * ms
-
-    ! midx = midx + 1
-    ! REAL(r_2)
-    ! CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
-    !CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-    !  &            mat_t(midx, rank), ierr)
-
-    ! TODO: skip, used for restart but not output
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blocks(bidx) = r1len * ms
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
@@ -6403,11 +6386,6 @@ CONTAINS
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
     !  blocks(bidx) = r1len * ms
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blocks(bidx) = r1len * ms
 
     bidx = bidx + 1
     CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)

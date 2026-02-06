@@ -2509,14 +2509,6 @@ CONTAINS
        !  !blen(bidx) = ms * r1len
 
        bidx = bidx + 1
-       CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-       ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-       CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-            &                             types(bidx), ierr)
-       blen(bidx) = 1
-       !blen(bidx) = ms * r2len
-
-       bidx = bidx + 1
        CALL MPI_Get_address (canopy%epot(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
@@ -4788,12 +4780,6 @@ CONTAINS
        ! REAL(r_2)
        ! MPI: gol124: backport to r1134 changes r_2 to r_1
        ! MPI: gol124: in newest CABLE-cnp it's r_2 again
-       midx = midx + 1
-       CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
-       ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-       CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-            &                        mat_t(midx, rank), ierr)
-       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
        midx = midx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), maddr(midx), ierr) ! 2
@@ -7221,13 +7207,6 @@ CONTAINS
        !     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
        !     &                             types(bidx), ierr)
        !     blocks(bidx) = 1
-
-       bidx = bidx + 1
-       CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr) ! 2
-       ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-       CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-            &                             types(bidx), ierr)
-       blocks(bidx) = 1
 
        bidx = bidx + 1
        CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)

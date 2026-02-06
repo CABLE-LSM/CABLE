@@ -681,7 +681,6 @@ IMPLICIT NONE
     canopy%frday = 12.0 * SUM(rdy, 2)
     ! vh ! inserted min to avoid -ve values of GPP
   canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
-    canopy%evapfbl = ssnow%evapfbl
 
 
     DEALLOCATE( gswmin )

@@ -29,7 +29,7 @@ MODULE cable_mpicommon
 
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
-  INTEGER, PARAMETER :: nparam = 341
+  INTEGER, PARAMETER :: nparam = 340
    
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
@@ -77,7 +77,7 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
-  INTEGER, PARAMETER :: nmat = 40
+  INTEGER, PARAMETER :: nmat = 39
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
@@ -103,7 +103,7 @@ MODULE cable_mpicommon
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
-  INTEGER, PARAMETER :: nrestart = 17
+  INTEGER, PARAMETER :: nrestart = 16
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
   INTEGER, PARAMETER :: nclimate = 30
