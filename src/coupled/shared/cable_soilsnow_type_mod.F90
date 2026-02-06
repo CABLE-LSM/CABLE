@@ -72,7 +72,6 @@ TYPE soil_snow_type
        tggsn,      & ! snow temperature in K
        dtmlt,      & ! water flux to the soil
        albsoilsn,  & ! soil + snow reflectance
-       evapfbl,    & !
        tilefrac      ! factor for latent heat
 
 
@@ -80,6 +79,7 @@ TYPE soil_snow_type
        wbtot   ! total soil water (mm)
 
   REAL(r_2), DIMENSION(:,:), POINTER ::                                       &
+       evapfbl,    & !
        gammzz,  & ! heat capacity for each soil layer
        wb,      & ! volumetric soil moisture (solid+liq)
        wbice,   & ! soil ice
