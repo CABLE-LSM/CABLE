@@ -86,8 +86,6 @@ MODULE cable_serial
        defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
   use cable_io_vars_module, only: patch
-  USE cable_io_decomp_mod, ONLY: io_decomp_t
-  USE cable_io_decomp_mod, ONLY: cable_io_decomp_init
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        filename, myhome,            &
@@ -283,8 +281,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
   integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
-  type(io_decomp_t) :: io_decomp
-
   integer :: start_year
 ! END header
 
@@ -473,8 +469,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ktau = kend
 
           ENDIF
-
-          call cable_io_decomp_init(io_decomp)
 
           if (.not. casaonly) then
             call cable_output_mod_init()

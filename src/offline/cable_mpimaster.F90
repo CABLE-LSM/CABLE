@@ -92,7 +92,6 @@ MODULE cable_mpimaster
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
   use cable_io_vars_module, only: patch
-  USE cable_io_decomp_mod, ONLY: io_decomp_t, cable_io_decomp_init
   USE casa_cable
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range
@@ -342,8 +341,6 @@ CONTAINS
     integer,   dimension(:,:),     allocatable,  save  :: landmask
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
-
-    type(io_decomp_t) :: io_decomp
 
     integer :: start_year
 
@@ -646,8 +643,6 @@ CONTAINS
             ktau_gl = 0
             ktau = 0
           ENDIF
-
-          call cable_io_decomp_init(io_decomp)
 
           if (.not. casaonly) then
             call cable_output_mod_init()
