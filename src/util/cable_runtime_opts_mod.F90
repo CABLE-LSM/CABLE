@@ -71,9 +71,6 @@ TYPE kbl_user_switches
        casa_nrep           = 1
   !--- LN ------------------------------------------]
 
-  CHARACTER(LEN=3) ::                                                         &
-       leaf_respiration    ! either ON or OFF (jhan:Make Logical)
-
   ! Custom soil respiration - see Ticket #42
   CHARACTER(LEN=10) ::                                                        &
        smrf_name,   & ! Soil Moist Respiration Function
