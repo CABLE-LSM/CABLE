@@ -47,7 +47,7 @@ module cable_output_utils_mod
   implicit none
   private
 
-  public :: check_invalid_frequency
+  public :: check_sampling_frequency
   public :: dim_size
   public :: infer_dim_names
   public :: define_variables
@@ -96,49 +96,49 @@ contains
 
   end function
 
-  subroutine check_invalid_frequency(sampling_frequency, accumulation_frequency, var_name, file_name)
-    character(len=*), intent(in) :: sampling_frequency
-    character(len=*), intent(in) :: accumulation_frequency
-    character(len=*), intent(in) :: var_name
-    character(len=*), intent(in) :: file_name
+  subroutine check_sampling_frequency(output_profile)
+    type(cable_output_profile_t), intent(in) :: output_profile
 
-    integer :: sampling_period_in_hours, accumulation_period_in_hours
+    integer :: i, sampling_period_in_hours, accumulation_period_in_hours
 
     character(len=256) :: err_message
 
-    err_message = ( &
-      "Invalid combination of sampling frequency '" // sampling_frequency // &
-      "' with accumulation frequency '" // accumulation_frequency // "' for variable '" // &
-      var_name // "' in file '" // file_name // "'" &
-    )
+    do i = 1, size(output_profile%output_variables)
+      associate(output_var => output_profile%output_variables(i))
+        err_message = ( &
+          "Invalid combination of sampling frequency '" // output_profile%sampling_frequency // &
+          "' with accumulation frequency '" // output_var%accumulation_frequency // "' for variable '" // &
+          output_var%name // "' in file '" // output_profile%file_name // "'" &
+        )
+        select case (output_profile%sampling_frequency)
+        case ("all")
+          if (output_var%accumulation_frequency /= "all") call cable_abort(err_message, __FILE__, __LINE__)
+        case ("user")
+          read(output_profile%sampling_frequency(5:7), *) sampling_period_in_hours
+          if (output_var%accumulation_frequency == "user") then
+            read(output_var%accumulation_frequency(5:7), *) accumulation_period_in_hours
+            if (sampling_period_in_hours < accumulation_period_in_hours) then
+              call cable_abort(err_message, __FILE__, __LINE__)
+            end if
+          else if (output_var%accumulation_frequency /= "all") then
+            call cable_abort(err_message, __FILE__, __LINE__)
+          end if
+        case ("daily")
+          if (.not. any(output_var%accumulation_frequency == ["all  ", "daily", "user "])) then
+            call cable_abort(err_message, __FILE__, __LINE__)
+          end if
+        case ("monthly")
+          if (.not. any(output_var%accumulation_frequency == ["all    ", "daily  ", "user   ", "monthly"])) then
+            call cable_abort(err_message, __FILE__, __LINE__)
+          end if
+        case default
+          call cable_abort("Invalid sampling frequency '" // output_profile%sampling_frequency // &
+            "' for variable '" // output_var%name // "' in file '" // output_profile%file_name // "'", __FILE__, __LINE__)
+        end select
+      end associate
+    end do
 
-    select case (sampling_frequency)
-    case ("all")
-      if (accumulation_frequency /= "all") call cable_abort(err_message, __FILE__, __LINE__)
-    case ("user")
-      read(sampling_frequency(5:7), *) sampling_period_in_hours
-      if (accumulation_frequency == "user") then
-        read(accumulation_frequency(5:7), *) accumulation_period_in_hours
-        if (sampling_period_in_hours < accumulation_period_in_hours) then
-          call cable_abort(err_message, __FILE__, __LINE__)
-        end if
-      else if (accumulation_frequency /= "all") then
-        call cable_abort(err_message, __FILE__, __LINE__)
-      end if
-    case ("daily")
-      if (.not. any(accumulation_frequency == ["all  ", "daily", "user "])) then
-        call cable_abort(err_message, __FILE__, __LINE__)
-      end if
-    case ("monthly")
-      if (.not. any(accumulation_frequency == ["all    ", "daily  ", "user   ", "monthly"])) then
-        call cable_abort(err_message, __FILE__, __LINE__)
-      end if
-    case default
-      call cable_abort("Invalid sampling frequency '" // sampling_frequency // &
-        "' for variable '" // var_name // "' in file '" // file_name // "'", __FILE__, __LINE__)
-    end select
-
-  end subroutine check_invalid_frequency
+  end subroutine check_sampling_frequency
 
   function infer_dim_names(output_profile, output_variable) result(dim_names)
     type(cable_output_profile_t), intent(in) :: output_profile

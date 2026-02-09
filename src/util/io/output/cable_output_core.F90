@@ -60,7 +60,7 @@ module cable_output_core_mod
   use cable_output_decomp_mod, only: associate_decomp_real32
   use cable_output_decomp_mod, only: associate_decomp_real64
 
-  use cable_output_utils_mod, only: check_invalid_frequency
+  use cable_output_utils_mod, only: check_sampling_frequency
   use cable_output_utils_mod, only: dim_size
   use cable_output_utils_mod, only: define_variables
   use cable_output_utils_mod, only: set_global_attributes
@@ -168,16 +168,7 @@ contains
       ] &
     )
 
-    do i = 1, size(global_profile%output_variables)
-      associate(output_var => global_profile%output_variables(i))
-        call check_invalid_frequency( &
-          sampling_frequency=global_profile%sampling_frequency, &
-          accumulation_frequency=output_var%accumulation_frequency, &
-          var_name=output_var%name, &
-          file_name=global_profile%file_name &
-        )
-      end associate
-    end do
+    call check_sampling_frequency(global_profile)
 
     call define_variables(global_profile)
 
