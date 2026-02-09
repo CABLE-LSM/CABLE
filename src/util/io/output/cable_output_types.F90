@@ -40,6 +40,7 @@ module cable_output_types_mod
     real :: previous_write_time = 0.0
     integer :: frame = 0
     character(len=64) :: sampling_frequency
+    character(len=64) :: grid_type
     character(len=256) :: file_name
     class(cable_netcdf_file_t), allocatable :: output_file
     type(cable_output_variable_t), allocatable :: output_variables(:)

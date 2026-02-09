@@ -1,7 +1,5 @@
 module cable_output_utils_mod
 
-  use iso_fortran_env, only: int32, real32, real64
-
   use cable_common_module, only: filename
 
   use cable_def_types_mod, only: mp
@@ -14,8 +12,6 @@ module cable_output_utils_mod
   use cable_def_types_mod, only: ncs
   use cable_def_types_mod, only: ncp
 
-  use cable_io_vars_module, only: output
-  use cable_io_vars_module, only: metgrid
   use cable_io_vars_module, only: xdimsize
   use cable_io_vars_module, only: ydimsize
   use cable_io_vars_module, only: max_vegpatches
@@ -25,15 +21,11 @@ module cable_output_utils_mod
 
   use cable_abort_module, only: cable_abort
 
-  use cable_netcdf_mod, only: cable_netcdf_decomp_t
-  use cable_netcdf_mod, only: cable_netcdf_file_t
   use cable_netcdf_mod, only: MAX_LEN_DIM => CABLE_NETCDF_MAX_STR_LEN_DIM
   use cable_netcdf_mod, only: CABLE_NETCDF_UNLIMITED
   use cable_netcdf_mod, only: CABLE_NETCDF_INT
   use cable_netcdf_mod, only: CABLE_NETCDF_FLOAT
   use cable_netcdf_mod, only: CABLE_NETCDF_DOUBLE
-
-  use cable_io_decomp_mod, only: io_decomp_t
 
   use cable_output_types_mod, only: cable_output_dim_t
   use cable_output_types_mod, only: cable_output_variable_t
@@ -55,300 +47,52 @@ module cable_output_utils_mod
   implicit none
   private
 
-  public :: init_decomp_pointers
-  public :: allocate_grid_reduction_buffers
-  public :: deallocate_grid_reduction_buffers
-  public :: requires_x_y_output_grid
-  public :: requires_land_output_grid
   public :: check_invalid_frequency
   public :: dim_size
   public :: infer_dim_names
   public :: define_variables
   public :: set_global_attributes
-  public :: associate_decomp_int32
-  public :: associate_decomp_real32
-  public :: associate_decomp_real64
-  public :: associate_temp_buffer_int32
-  public :: associate_temp_buffer_real32
-  public :: associate_temp_buffer_real64
-
-  ! Decomposition pointers for each variable class and data type
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soil_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soil_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soil_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_snow_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_snow_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_snow_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_rad_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_rad_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_rad_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_plantcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_plantcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_plantcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soilcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soilcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_soilcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soil_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soil_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soil_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_snow_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_snow_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_snow_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_rad_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_rad_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_rad_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_plantcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_plantcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_plantcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soilcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soilcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: output_decomp_base_patch_soilcarbon_real64
-
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_int32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_real32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_real64
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_soil_int32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_soil_real32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_soil_real64
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_snow_int32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_snow_real32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_snow_real64
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_rad_int32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_rad_real32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_rad_real64
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_plantcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_plantcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_plantcarbon_real64
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_soilcarbon_int32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_soilcarbon_real32
-  class(cable_netcdf_decomp_t), pointer :: restart_decomp_patch_soilcarbon_real64
-
-  ! Temporary buffers for computing grid-cell averages for each variable class
-  integer(kind=int32), allocatable, target :: temp_buffer_land_int32(:)
-  real(kind=real32),   allocatable, target :: temp_buffer_land_real32(:)
-  real(kind=real64),   allocatable, target :: temp_buffer_land_real64(:)
-  integer(kind=int32), allocatable, target :: temp_buffer_land_soil_int32(:, :)
-  real(kind=real32),   allocatable, target :: temp_buffer_land_soil_real32(:, :)
-  real(kind=real64),   allocatable, target :: temp_buffer_land_soil_real64(:, :)
-  integer(kind=int32), allocatable, target :: temp_buffer_land_snow_int32(:, :)
-  real(kind=real32),   allocatable, target :: temp_buffer_land_snow_real32(:, :)
-  real(kind=real64),   allocatable, target :: temp_buffer_land_snow_real64(:, :)
-  integer(kind=int32), allocatable, target :: temp_buffer_land_rad_int32(:, :)
-  real(kind=real32),   allocatable, target :: temp_buffer_land_rad_real32(:, :)
-  real(kind=real64),   allocatable, target :: temp_buffer_land_rad_real64(:, :)
-  integer(kind=int32), allocatable, target :: temp_buffer_land_plantcarbon_int32(:, :)
-  real(kind=real32),   allocatable, target :: temp_buffer_land_plantcarbon_real32(:, :)
-  real(kind=real64),   allocatable, target :: temp_buffer_land_plantcarbon_real64(:, :)
-  integer(kind=int32), allocatable, target :: temp_buffer_land_soilcarbon_int32(:, :)
-  real(kind=real32),   allocatable, target :: temp_buffer_land_soilcarbon_real32(:, :)
-  real(kind=real64),   allocatable, target :: temp_buffer_land_soilcarbon_real64(:, :)
+  public :: data_shape_eq
 
 contains
-
-  subroutine init_decomp_pointers(io_decomp)
-    type(io_decomp_t), intent(in), target :: io_decomp
-
-    if (requires_x_y_output_grid(output%grid, metGrid)) then
-      output_decomp_base_int32                    => io_decomp%land_to_x_y_int32
-      output_decomp_base_real32                   => io_decomp%land_to_x_y_real32
-      output_decomp_base_real64                   => io_decomp%land_to_x_y_real64
-      output_decomp_base_soil_int32               => io_decomp%land_soil_to_x_y_soil_int32
-      output_decomp_base_soil_real32              => io_decomp%land_soil_to_x_y_soil_real32
-      output_decomp_base_soil_real64              => io_decomp%land_soil_to_x_y_soil_real64
-      output_decomp_base_snow_int32               => io_decomp%land_snow_to_x_y_snow_int32
-      output_decomp_base_snow_real32              => io_decomp%land_snow_to_x_y_snow_real32
-      output_decomp_base_snow_real64              => io_decomp%land_snow_to_x_y_snow_real64
-      output_decomp_base_rad_int32                => io_decomp%land_rad_to_x_y_rad_int32
-      output_decomp_base_rad_real32               => io_decomp%land_rad_to_x_y_rad_real32
-      output_decomp_base_rad_real64               => io_decomp%land_rad_to_x_y_rad_real64
-      output_decomp_base_plantcarbon_int32        => io_decomp%land_plantcarbon_to_x_y_plantcarbon_int32
-      output_decomp_base_plantcarbon_real32       => io_decomp%land_plantcarbon_to_x_y_plantcarbon_real32
-      output_decomp_base_plantcarbon_real64       => io_decomp%land_plantcarbon_to_x_y_plantcarbon_real64
-      output_decomp_base_soilcarbon_int32         => io_decomp%land_soilcarbon_to_x_y_soilcarbon_int32
-      output_decomp_base_soilcarbon_real32        => io_decomp%land_soilcarbon_to_x_y_soilcarbon_real32
-      output_decomp_base_soilcarbon_real64        => io_decomp%land_soilcarbon_to_x_y_soilcarbon_real64
-      output_decomp_base_patch_int32              => io_decomp%patch_to_x_y_patch_int32
-      output_decomp_base_patch_real32             => io_decomp%patch_to_x_y_patch_real32
-      output_decomp_base_patch_real64             => io_decomp%patch_to_x_y_patch_real64
-      output_decomp_base_patch_soil_int32         => io_decomp%patch_soil_to_x_y_patch_soil_int32
-      output_decomp_base_patch_soil_real32        => io_decomp%patch_soil_to_x_y_patch_soil_real32
-      output_decomp_base_patch_soil_real64        => io_decomp%patch_soil_to_x_y_patch_soil_real64
-      output_decomp_base_patch_snow_int32         => io_decomp%patch_snow_to_x_y_patch_snow_int32
-      output_decomp_base_patch_snow_real32        => io_decomp%patch_snow_to_x_y_patch_snow_real32
-      output_decomp_base_patch_snow_real64        => io_decomp%patch_snow_to_x_y_patch_snow_real64
-      output_decomp_base_patch_rad_int32          => io_decomp%patch_rad_to_x_y_patch_rad_int32
-      output_decomp_base_patch_rad_real32         => io_decomp%patch_rad_to_x_y_patch_rad_real32
-      output_decomp_base_patch_rad_real64         => io_decomp%patch_rad_to_x_y_patch_rad_real64
-      output_decomp_base_patch_plantcarbon_int32  => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_int32
-      output_decomp_base_patch_plantcarbon_real32 => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real32
-      output_decomp_base_patch_plantcarbon_real64 => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real64
-      output_decomp_base_patch_soilcarbon_int32   => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_int32
-      output_decomp_base_patch_soilcarbon_real32  => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real32
-      output_decomp_base_patch_soilcarbon_real64  => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real64
-    else if (requires_land_output_grid(output%grid, metGrid)) then
-      output_decomp_base_int32                    => io_decomp%land_to_land_int32
-      output_decomp_base_real32                   => io_decomp%land_to_land_real32
-      output_decomp_base_real64                   => io_decomp%land_to_land_real64
-      output_decomp_base_soil_int32               => io_decomp%land_soil_to_land_soil_int32
-      output_decomp_base_soil_real32              => io_decomp%land_soil_to_land_soil_real32
-      output_decomp_base_soil_real64              => io_decomp%land_soil_to_land_soil_real64
-      output_decomp_base_snow_int32               => io_decomp%land_snow_to_land_snow_int32
-      output_decomp_base_snow_real32              => io_decomp%land_snow_to_land_snow_real32
-      output_decomp_base_snow_real64              => io_decomp%land_snow_to_land_snow_real64
-      output_decomp_base_rad_int32                => io_decomp%land_rad_to_land_rad_int32
-      output_decomp_base_rad_real32               => io_decomp%land_rad_to_land_rad_real32
-      output_decomp_base_rad_real64               => io_decomp%land_rad_to_land_rad_real64
-      output_decomp_base_plantcarbon_int32        => io_decomp%land_plantcarbon_to_land_plantcarbon_int32
-      output_decomp_base_plantcarbon_real32       => io_decomp%land_plantcarbon_to_land_plantcarbon_real32
-      output_decomp_base_plantcarbon_real64       => io_decomp%land_plantcarbon_to_land_plantcarbon_real64
-      output_decomp_base_soilcarbon_int32         => io_decomp%land_soilcarbon_to_land_soilcarbon_int32
-      output_decomp_base_soilcarbon_real32        => io_decomp%land_soilcarbon_to_land_soilcarbon_real32
-      output_decomp_base_soilcarbon_real64        => io_decomp%land_soilcarbon_to_land_soilcarbon_real64
-      output_decomp_base_patch_int32              => io_decomp%patch_to_land_patch_int32
-      output_decomp_base_patch_real32             => io_decomp%patch_to_land_patch_real32
-      output_decomp_base_patch_real64             => io_decomp%patch_to_land_patch_real64
-      output_decomp_base_patch_soil_int32         => io_decomp%patch_soil_to_land_patch_soil_int32
-      output_decomp_base_patch_soil_real32        => io_decomp%patch_soil_to_land_patch_soil_real32
-      output_decomp_base_patch_soil_real64        => io_decomp%patch_soil_to_land_patch_soil_real64
-      output_decomp_base_patch_snow_int32         => io_decomp%patch_snow_to_land_patch_snow_int32
-      output_decomp_base_patch_snow_real32        => io_decomp%patch_snow_to_land_patch_snow_real32
-      output_decomp_base_patch_snow_real64        => io_decomp%patch_snow_to_land_patch_snow_real64
-      output_decomp_base_patch_rad_int32          => io_decomp%patch_rad_to_land_patch_rad_int32
-      output_decomp_base_patch_rad_real32         => io_decomp%patch_rad_to_land_patch_rad_real32
-      output_decomp_base_patch_rad_real64         => io_decomp%patch_rad_to_land_patch_rad_real64
-      output_decomp_base_patch_plantcarbon_int32  => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_int32
-      output_decomp_base_patch_plantcarbon_real32 => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real32
-      output_decomp_base_patch_plantcarbon_real64 => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real64
-      output_decomp_base_patch_soilcarbon_int32   => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_int32
-      output_decomp_base_patch_soilcarbon_real32  => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real32
-      output_decomp_base_patch_soilcarbon_real64  => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real64
-    else
-      call cable_abort("Error: Unable to determine output grid type", __FILE__, __LINE__)
-    end if
-
-    restart_decomp_patch_int32                => io_decomp%patch_to_patch_int32
-    restart_decomp_patch_real32               => io_decomp%patch_to_patch_real32
-    restart_decomp_patch_real64               => io_decomp%patch_to_patch_real64
-    restart_decomp_patch_soil_int32           => io_decomp%patch_soil_to_patch_soil_int32
-    restart_decomp_patch_soil_real32          => io_decomp%patch_soil_to_patch_soil_real32
-    restart_decomp_patch_soil_real64          => io_decomp%patch_soil_to_patch_soil_real64
-    restart_decomp_patch_snow_int32           => io_decomp%patch_snow_to_patch_snow_int32
-    restart_decomp_patch_snow_real32          => io_decomp%patch_snow_to_patch_snow_real32
-    restart_decomp_patch_snow_real64          => io_decomp%patch_snow_to_patch_snow_real64
-    restart_decomp_patch_rad_int32            => io_decomp%patch_rad_to_patch_rad_int32
-    restart_decomp_patch_rad_real32           => io_decomp%patch_rad_to_patch_rad_real32
-    restart_decomp_patch_rad_real64           => io_decomp%patch_rad_to_patch_rad_real64
-    restart_decomp_patch_plantcarbon_int32    => io_decomp%patch_plantcarbon_to_patch_plantcarbon_int32
-    restart_decomp_patch_plantcarbon_real32   => io_decomp%patch_plantcarbon_to_patch_plantcarbon_real32
-    restart_decomp_patch_plantcarbon_real64   => io_decomp%patch_plantcarbon_to_patch_plantcarbon_real64
-    restart_decomp_patch_soilcarbon_int32     => io_decomp%patch_soilcarbon_to_patch_soilcarbon_int32
-    restart_decomp_patch_soilcarbon_real32    => io_decomp%patch_soilcarbon_to_patch_soilcarbon_real32
-    restart_decomp_patch_soilcarbon_real64    => io_decomp%patch_soilcarbon_to_patch_soilcarbon_real64
-
-  end subroutine
-
-  subroutine allocate_grid_reduction_buffers()
-
-    allocate(temp_buffer_land_int32(mland))
-    allocate(temp_buffer_land_real32(mland))
-    allocate(temp_buffer_land_real64(mland))
-    allocate(temp_buffer_land_soil_int32(mland, ms))
-    allocate(temp_buffer_land_soil_real32(mland, ms))
-    allocate(temp_buffer_land_soil_real64(mland, ms))
-    allocate(temp_buffer_land_snow_int32(mland, msn))
-    allocate(temp_buffer_land_snow_real32(mland, msn))
-    allocate(temp_buffer_land_snow_real64(mland, msn))
-    allocate(temp_buffer_land_rad_int32(mland, nrb))
-    allocate(temp_buffer_land_rad_real32(mland, nrb))
-    allocate(temp_buffer_land_rad_real64(mland, nrb))
-    allocate(temp_buffer_land_plantcarbon_int32(mland, ncp))
-    allocate(temp_buffer_land_plantcarbon_real32(mland, ncp))
-    allocate(temp_buffer_land_plantcarbon_real64(mland, ncp))
-    allocate(temp_buffer_land_soilcarbon_int32(mland, ncs))
-    allocate(temp_buffer_land_soilcarbon_real32(mland, ncs))
-    allocate(temp_buffer_land_soilcarbon_real64(mland, ncs))
-
-  end subroutine
-
-  subroutine deallocate_grid_reduction_buffers()
-
-    deallocate(temp_buffer_land_int32)
-    deallocate(temp_buffer_land_real32)
-    deallocate(temp_buffer_land_real64)
-    deallocate(temp_buffer_land_soil_int32)
-    deallocate(temp_buffer_land_soil_real32)
-    deallocate(temp_buffer_land_soil_real64)
-    deallocate(temp_buffer_land_snow_int32)
-    deallocate(temp_buffer_land_snow_real32)
-    deallocate(temp_buffer_land_snow_real64)
-    deallocate(temp_buffer_land_rad_int32)
-    deallocate(temp_buffer_land_rad_real32)
-    deallocate(temp_buffer_land_rad_real64)
-    deallocate(temp_buffer_land_plantcarbon_int32)
-    deallocate(temp_buffer_land_plantcarbon_real32)
-    deallocate(temp_buffer_land_plantcarbon_real64)
-    deallocate(temp_buffer_land_soilcarbon_int32)
-    deallocate(temp_buffer_land_soilcarbon_real32)
-    deallocate(temp_buffer_land_soilcarbon_real64)
-
-  end subroutine
-
-  logical function requires_x_y_output_grid(output_grid, met_grid)
-    character(len=*), intent(in) :: output_grid
-    character(len=*), intent(in) :: met_grid
-    requires_x_y_output_grid = (( &
-      output_grid == "default" .AND. met_grid == "mask" &
-    ) .OR. ( &
-      output_grid == "mask" .OR. output_grid == "ALMA" &
-    ))
-  end function
-
-  logical function requires_land_output_grid(output_grid, met_grid)
-    character(len=*), intent(in) :: output_grid
-    character(len=*), intent(in) :: met_grid
-    requires_land_output_grid = ( &
-      output_grid == "land" .OR. (output_grid == "default" .AND. met_grid == "land") &
-    )
-  end function
 
   logical function data_shape_eq(shape1, shape2)
     type(cable_output_dim_t), dimension(:), intent(in) :: shape1, shape2
     data_shape_eq = size(shape1) == size(shape2) .and. all(shape1 == shape2)
   end function
 
-  elemental integer function dim_size(dim)
-    type(cable_output_dim_t), intent(in) :: dim
+  function dim_size(dims)
+    type(cable_output_dim_t), intent(in) :: dims(:)
+    integer, allocatable :: dim_size(:)
+    integer :: i
 
-    select case (dim%value)
-    case (CABLE_OUTPUT_DIM_PATCH%value)
-      dim_size = mp
-    case (CABLE_OUTPUT_DIM_SOIL%value)
-      dim_size = ms
-    case (CABLE_OUTPUT_DIM_SNOW%value)
-      dim_size = msn
-    case (CABLE_OUTPUT_DIM_RAD%value)
-      dim_size = nrb
-    case (CABLE_OUTPUT_DIM_PLANTCARBON%value)
-      dim_size = ncp
-    case (CABLE_OUTPUT_DIM_SOILCARBON%value)
-      dim_size = ncs
-    case (CABLE_OUTPUT_DIM_LAND%value)
-      dim_size = mland
-    case (CABLE_OUTPUT_DIM_LAND_GLOBAL%value)
-      dim_size = mland_global
-    case (CABLE_OUTPUT_DIM_X%value)
-      dim_size = xdimsize
-    case (CABLE_OUTPUT_DIM_Y%value)
-      dim_size = ydimsize
-    case default
-      dim_size = -1 ! Unknown dimension
-    end select
+    allocate(dim_size(size(dims)))
+    do i = 1, size(dims)
+      select case (dims(i)%value)
+      case (CABLE_OUTPUT_DIM_PATCH%value)
+        dim_size(i) = mp
+      case (CABLE_OUTPUT_DIM_SOIL%value)
+        dim_size(i) = ms
+      case (CABLE_OUTPUT_DIM_SNOW%value)
+        dim_size(i) = msn
+      case (CABLE_OUTPUT_DIM_RAD%value)
+        dim_size(i) = nrb
+      case (CABLE_OUTPUT_DIM_PLANTCARBON%value)
+        dim_size(i) = ncp
+      case (CABLE_OUTPUT_DIM_SOILCARBON%value)
+        dim_size(i) = ncs
+      case (CABLE_OUTPUT_DIM_LAND%value)
+        dim_size(i) = mland
+      case (CABLE_OUTPUT_DIM_LAND_GLOBAL%value)
+        dim_size(i) = mland_global
+      case (CABLE_OUTPUT_DIM_X%value)
+        dim_size(i) = xdimsize
+      case (CABLE_OUTPUT_DIM_Y%value)
+        dim_size(i) = ydimsize
+      case default
+        call cable_abort("Unexpected dimension type", __FILE__, __LINE__)
+      end select
+    end do
 
   end function
 
@@ -396,47 +140,51 @@ contains
 
   end subroutine check_invalid_frequency
 
-  function infer_dim_names(output_variable, restart) result(dim_names)
+  function infer_dim_names(output_profile, output_variable) result(dim_names)
+    type(cable_output_profile_t), intent(in) :: output_profile
     type(cable_output_variable_t), intent(in) :: output_variable
-    logical, intent(in), optional :: restart
 
     character(MAX_LEN_DIM), allocatable :: dim_names(:)
-    logical :: restart_local
     integer :: j
-
-    restart_local = .false.
-    if (present(restart)) restart_local = restart
 
     allocate(dim_names(0))
     if (allocated(output_variable%data_shape)) then
       do j = 1, size(output_variable%data_shape)
         select case (output_variable%data_shape(j)%value)
         case (CABLE_OUTPUT_DIM_PATCH%value)
-          if (restart_local) then
+          select case (output_profile%grid_type)
+          case ("restart")
             dim_names = [dim_names, "mp"]
-          else if (requires_land_output_grid(output%grid, metgrid)) then
+          case ("land")
             if (output_variable%reduction_method == "none") then
               dim_names = [dim_names, "land", "patch"]
             else
               dim_names = [dim_names, "land"]
             end if
-          else if (requires_x_y_output_grid(output%grid, metgrid)) then
+          case ("mask")
             if (output_variable%reduction_method == "none") then
               dim_names = [dim_names, "x", "y", "patch"]
             else
               dim_names = [dim_names, "x", "y"]
             end if
-          end if
+          case default
+            call cable_abort("Unexpected grid type '" // output_profile%grid_type // &
+              "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
+          end select
         case (CABLE_OUTPUT_DIM_LAND%value)
-          if (restart_local) then
+          select case (output_profile%grid_type)
+          case ("restart")
             dim_names = [dim_names, "mland"]
-          else if (requires_land_output_grid(output%grid, metgrid)) then
+          case ("land")
             dim_names = [dim_names, "land"]
-          else if (requires_x_y_output_grid(output%grid, metgrid)) then
+          case ("mask")
             dim_names = [dim_names, "x", "y"]
-          end if
+          case default
+            call cable_abort("Unexpected grid type '" // output_profile%grid_type // &
+              "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
+          end select
         case (CABLE_OUTPUT_DIM_LAND_GLOBAL%value)
-          if (restart_local) then
+          if (output_profile%grid_type == "restart") then
             dim_names = [dim_names, "mland"]
           else
             dim_names = [dim_names, "land"]
@@ -448,13 +196,13 @@ contains
         case (CABLE_OUTPUT_DIM_RAD%value)
           dim_names = [dim_names, "rad"]
         case (CABLE_OUTPUT_DIM_PLANTCARBON%value)
-          if (restart_local) then
+          if (output_profile%grid_type == "restart") then
             dim_names = [dim_names, "plant_carbon_pools"]
           else
             dim_names = [dim_names, "plantcarbon"]
           end if
         case (CABLE_OUTPUT_DIM_SOILCARBON%value)
-          if (restart_local) then
+          if (output_profile%grid_type == "restart") then
             dim_names = [dim_names, "soil_carbon_pools"]
           else
             dim_names = [dim_names, "soilcarbon"]
@@ -469,7 +217,7 @@ contains
       end do
     end if
 
-    if (.not. restart_local .and. .not. output_variable%parameter) dim_names = [dim_names, "time"]
+    if (output_profile%grid_type /= "restart" .and. .not. output_variable%parameter) dim_names = [dim_names, "time"]
 
   end function
 
@@ -520,31 +268,24 @@ contains
 
   end function
 
-  subroutine define_variables(output_file, output_variables, restart)
-    class(cable_netcdf_file_t), intent(inout) :: output_file
-    type(cable_output_variable_t), intent(in) :: output_variables(:)
-    logical, intent(in), optional :: restart
+  subroutine define_variables(output_profile)
+    type(cable_output_profile_t), intent(inout) :: output_profile
 
     integer :: i, j
-    logical :: restart_local
 
     character(MAX_LEN_DIM), allocatable :: required_dimensions(:), dim_names(:)
 
-    restart_local = .false.
-    if (present(restart)) restart_local = restart
-
-    do i = 1, size(output_variables)
-      associate(output_var => output_variables(i))
-        if (restart_local .and. .not. output_var%restart) cycle
+    do i = 1, size(output_profile%output_variables)
+      associate(output_var => output_profile%output_variables(i))
         if (.not. allocated(output_var%data_shape)) cycle
-        dim_names = infer_dim_names(output_var, restart_local)
+        dim_names = infer_dim_names(output_profile, output_var)
         if (.not. allocated(required_dimensions)) then
           required_dimensions = dim_names
         else
           required_dimensions = [ &
             required_dimensions, &
             pack(dim_names, [( &
-              .not. any(dim_names(j) == required_dimensions), &
+              all(dim_names(j) /= required_dimensions), &
               j = 1, &
               size(dim_names) &
             )]) &
@@ -556,29 +297,29 @@ contains
     do i = 1, size(required_dimensions)
       select case (required_dimensions(i))
       case ("mp")
-        call output_file%def_dims(["mp"], [mp_global])
+        call output_profile%output_file%def_dims(["mp"], [mp_global])
       case ("mland")
-        call output_file%def_dims(["mland"], [mland_global])
+        call output_profile%output_file%def_dims(["mland"], [mland_global])
       case ("land")
-        call output_file%def_dims(["land"], [mland_global])
+        call output_profile%output_file%def_dims(["land"], [mland_global])
       case ("x")
-        call output_file%def_dims(["x"], [xdimsize])
+        call output_profile%output_file%def_dims(["x"], [xdimsize])
       case ("y")
-        call output_file%def_dims(["y"], [ydimsize])
+        call output_profile%output_file%def_dims(["y"], [ydimsize])
       case ("patch")
-        call output_file%def_dims(["patch"], [max_vegpatches])
+        call output_profile%output_file%def_dims(["patch"], [max_vegpatches])
       case ("soil")
-        call output_file%def_dims(["soil"], [ms])
+        call output_profile%output_file%def_dims(["soil"], [ms])
       case ("rad")
-        call output_file%def_dims(["rad"], [nrb])
+        call output_profile%output_file%def_dims(["rad"], [nrb])
       case ("soil_carbon_pools")
-        call output_file%def_dims(["soil_carbon_pools"], [ncs])
+        call output_profile%output_file%def_dims(["soil_carbon_pools"], [ncs])
       case ("soilcarbon")
-        call output_file%def_dims(["soilcarbon"], [ncs])
+        call output_profile%output_file%def_dims(["soilcarbon"], [ncs])
       case ("plant_carbon_pools")
-        call output_file%def_dims(["plant_carbon_pools"], [ncp])
+        call output_profile%output_file%def_dims(["plant_carbon_pools"], [ncp])
       case ("plantcarbon")
-        call output_file%def_dims(["plantcarbon"], [ncp])
+        call output_profile%output_file%def_dims(["plantcarbon"], [ncp])
       case ("time")
         ! time dimension defined separately below
       case default
@@ -586,48 +327,47 @@ contains
       end select
     end do
 
-    if (restart_local) then
-      call output_file%def_dims(["time"], [1])
+    if (output_profile%grid_type == "restart") then
+      call output_profile%output_file%def_dims(["time"], [1])
     else
-      call output_file%def_dims(["time"], [CABLE_NETCDF_UNLIMITED])
+      call output_profile%output_file%def_dims(["time"], [CABLE_NETCDF_UNLIMITED])
     end if
 
-    call output_file%def_var("time", ["time"], CABLE_NETCDF_DOUBLE)
-    call output_file%put_att("time", "units", timeunits)
-    call output_file%put_att("time", "coordinate", time_coord)
-    call output_file%put_att("time", "calendar", calendar)
+    call output_profile%output_file%def_var("time", ["time"], CABLE_NETCDF_DOUBLE)
+    call output_profile%output_file%put_att("time", "units", timeunits)
+    call output_profile%output_file%put_att("time", "coordinate", time_coord)
+    call output_profile%output_file%put_att("time", "calendar", calendar)
 
-    if (.not. restart_local) then
-      call output_file%def_dims(["nv"], [2])
-      call output_file%def_var("time_bnds", ["nv  ", "time"], CABLE_NETCDF_DOUBLE)
-      call output_file%put_att("time", "bounds", "time_bnds")
+    if (output_profile%grid_type /= "restart") then
+      call output_profile%output_file%def_dims(["nv"], [2])
+      call output_profile%output_file%def_var("time_bnds", ["nv  ", "time"], CABLE_NETCDF_DOUBLE)
+      call output_profile%output_file%put_att("time", "bounds", "time_bnds")
     end if
 
-    do i = 1, size(output_variables)
-      associate(output_var => output_variables(i))
-        if (restart_local .and. .not. output_var%restart) cycle
-        call output_file%def_var( &
+    do i = 1, size(output_profile%output_variables)
+      associate(output_var => output_profile%output_variables(i))
+        call output_profile%output_file%def_var( &
           var_name=output_var%name, &
-          dim_names=infer_dim_names(output_var, restart_local), &
+          dim_names=infer_dim_names(output_profile, output_var), &
           type=output_var%var_type &
         )
         if (allocated(output_var%metadata)) then
           do j = 1, size(output_var%metadata)
-            call output_file%put_att(output_var%name, output_var%metadata(j)%name, output_var%metadata(j)%value)
+            call output_profile%output_file%put_att(output_var%name, output_var%metadata(j)%name, output_var%metadata(j)%value)
           end do
         end if
         select case (output_var%var_type)
         case (CABLE_NETCDF_INT)
-          call output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_INT32)
-          call output_file%put_att(output_var%name, "missing_value", FILL_VALUE_INT32)
+          call output_profile%output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_INT32)
+          call output_profile%output_file%put_att(output_var%name, "missing_value", FILL_VALUE_INT32)
         case (CABLE_NETCDF_FLOAT)
-          call output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_REAL32)
-          call output_file%put_att(output_var%name, "missing_value", FILL_VALUE_REAL32)
+          call output_profile%output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_REAL32)
+          call output_profile%output_file%put_att(output_var%name, "missing_value", FILL_VALUE_REAL32)
         case (CABLE_NETCDF_DOUBLE)
-          call output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_REAL64)
-          call output_file%put_att(output_var%name, "missing_value", FILL_VALUE_REAL64)
+          call output_profile%output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_REAL64)
+          call output_profile%output_file%put_att(output_var%name, "missing_value", FILL_VALUE_REAL64)
         end select
-        call output_file%put_att(output_var%name, "cell_methods", infer_cell_methods(output_var))
+        call output_profile%output_file%put_att(output_var%name, "cell_methods", infer_cell_methods(output_var))
       end associate
     end do
 
@@ -669,320 +409,5 @@ contains
     end select
 
   end subroutine set_global_attributes
-
-  subroutine associate_decomp_int32(output_var, decomp, restart)
-    type(cable_output_variable_t), intent(in) :: output_var
-    class(cable_netcdf_decomp_t), pointer, intent(inout) :: decomp
-    logical, intent(in), optional :: restart
-
-    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_int32
-      else
-        decomp => output_decomp_base_int32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_int32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_soil_int32
-      else
-        decomp => output_decomp_base_soil_int32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_soil_int32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_snow_int32
-      else
-        decomp => output_decomp_base_snow_int32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_snow_int32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_rad_int32
-      else
-        decomp => output_decomp_base_rad_int32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_rad_int32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_plantcarbon_int32
-      else
-        decomp => output_decomp_base_plantcarbon_int32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_plantcarbon_int32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_soilcarbon_int32
-      else
-        decomp => output_decomp_base_soilcarbon_int32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_soilcarbon_int32
-      end if
-    else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
-    end if
-
-  end subroutine associate_decomp_int32
-
-  subroutine associate_decomp_real32(output_var, decomp, restart)
-    type(cable_output_variable_t), intent(in) :: output_var
-    class(cable_netcdf_decomp_t), pointer, intent(inout) :: decomp
-    logical, intent(in), optional :: restart
-
-    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_real32
-      else
-        decomp => output_decomp_base_real32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_real32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_soil_real32
-      else
-        decomp => output_decomp_base_soil_real32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_soil_real32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_snow_real32
-      else
-        decomp => output_decomp_base_snow_real32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_snow_real32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_rad_real32
-      else
-        decomp => output_decomp_base_rad_real32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_rad_real32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_plantcarbon_real32
-      else
-        decomp => output_decomp_base_plantcarbon_real32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_plantcarbon_real32
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_soilcarbon_real32
-      else
-        decomp => output_decomp_base_soilcarbon_real32
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_soilcarbon_real32
-      end if
-    else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
-    end if
-
-  end subroutine associate_decomp_real32
-
-  subroutine associate_decomp_real64(output_var, decomp, restart)
-    type(cable_output_variable_t), intent(in) :: output_var
-    class(cable_netcdf_decomp_t), pointer, intent(inout) :: decomp
-    logical, intent(in), optional :: restart
-
-    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_real64
-      else
-        decomp => output_decomp_base_real64
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_real64
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_soil_real64
-      else
-        decomp => output_decomp_base_soil_real64
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_soil_real64
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_snow_real64
-      else
-        decomp => output_decomp_base_snow_real64
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_snow_real64
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_rad_real64
-      else
-        decomp => output_decomp_base_rad_real64
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_rad_real64
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_plantcarbon_real64
-      else
-        decomp => output_decomp_base_plantcarbon_real64
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_plantcarbon_real64
-      end if
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
-      if (output_var%reduction_method == "none") then
-        decomp => output_decomp_base_patch_soilcarbon_real64
-      else
-        decomp => output_decomp_base_soilcarbon_real64
-      end if
-      if (present(restart)) then
-        if (restart) decomp => restart_decomp_patch_soilcarbon_real64
-      end if
-    else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
-    end if
-
-  end subroutine associate_decomp_real64
-
-  subroutine associate_temp_buffer_int32(output_var, temp_buffer_int32_1d, temp_buffer_int32_2d, temp_buffer_int32_3d)
-    type(cable_output_variable_t), intent(inout) :: output_var
-    integer(kind=int32), pointer, intent(inout), optional :: temp_buffer_int32_1d(:)
-    integer(kind=int32), pointer, intent(inout), optional :: temp_buffer_int32_2d(:,:)
-    integer(kind=int32), pointer, intent(inout), optional :: temp_buffer_int32_3d(:,:,:)
-
-    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
-      if (.not. present(temp_buffer_int32_1d)) call cable_abort( &
-        "temp_buffer_int32_1d must be provided for 1D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_1d => temp_buffer_land_int32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
-      if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
-        "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_2d => temp_buffer_land_soil_int32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
-        "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_2d => temp_buffer_land_rad_int32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
-      if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
-        "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_2d => temp_buffer_land_snow_int32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
-        "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_2d => temp_buffer_land_rad_int32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
-      if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
-        "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_2d => temp_buffer_land_plantcarbon_int32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
-      if (.not. present(temp_buffer_int32_2d)) call cable_abort( &
-        "temp_buffer_int32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_int32_2d => temp_buffer_land_soilcarbon_int32
-    else
-      call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-    end if
-
-  end subroutine associate_temp_buffer_int32
-
-  subroutine associate_temp_buffer_real32(output_var, temp_buffer_real32_1d, temp_buffer_real32_2d, temp_buffer_real32_3d)
-    type(cable_output_variable_t), intent(inout) :: output_var
-    real(kind=real32), pointer, intent(inout), optional :: temp_buffer_real32_1d(:)
-    real(kind=real32), pointer, intent(inout), optional :: temp_buffer_real32_2d(:,:)
-    real(kind=real32), pointer, intent(inout), optional :: temp_buffer_real32_3d(:,:,:)
-
-    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
-      if (.not. present(temp_buffer_real32_1d)) call cable_abort( &
-        "temp_buffer_real32_1d must be provided for 1D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_1d => temp_buffer_land_real32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
-      if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
-        "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_2d => temp_buffer_land_soil_real32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
-        "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_2d => temp_buffer_land_rad_real32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
-      if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
-        "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_2d => temp_buffer_land_snow_real32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
-        "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_2d => temp_buffer_land_rad_real32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
-      if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
-        "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_2d => temp_buffer_land_plantcarbon_real32
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
-      if (.not. present(temp_buffer_real32_2d)) call cable_abort( &
-        "temp_buffer_real32_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real32_2d => temp_buffer_land_soilcarbon_real32
-    else
-      call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-    end if
-
-  end subroutine associate_temp_buffer_real32
-
-  subroutine associate_temp_buffer_real64(output_var, temp_buffer_real64_1d, temp_buffer_real64_2d, temp_buffer_real64_3d)
-    type(cable_output_variable_t), intent(inout) :: output_var
-    real(kind=real64), pointer, intent(inout), optional :: temp_buffer_real64_1d(:)
-    real(kind=real64), pointer, intent(inout), optional :: temp_buffer_real64_2d(:,:)
-    real(kind=real64), pointer, intent(inout), optional :: temp_buffer_real64_3d(:,:,:)
-
-    if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH])) then
-      if (.not. present(temp_buffer_real64_1d)) call cable_abort( &
-        "temp_buffer_real64_1d must be provided for 1D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_1d => temp_buffer_land_real64
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOIL])) then
-      if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
-        "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_2d => temp_buffer_land_soil_real64
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
-        "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_2d => temp_buffer_land_rad_real64
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SNOW])) then
-      if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
-        "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_2d => temp_buffer_land_snow_real64
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_RAD])) then
-      if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
-        "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_2d => temp_buffer_land_rad_real64
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_PLANTCARBON])) then
-      if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
-        "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_2d => temp_buffer_land_plantcarbon_real64
-    else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
-      if (.not. present(temp_buffer_real64_2d)) call cable_abort( &
-        "temp_buffer_real64_2d must be provided for 2D data shape", __FILE__, __LINE__)
-      temp_buffer_real64_2d => temp_buffer_land_soilcarbon_real64
-    else
-      call cable_abort("Unexpected source data shape for grid reduction", __FILE__, __LINE__)
-    end if
-
-  end subroutine associate_temp_buffer_real64
 
 end module

@@ -13,7 +13,6 @@ module cable_output_definitions_mod
   use cable_io_vars_module, only: patch
   use cable_io_vars_module, only: lat_all, lon_all
   use cable_io_vars_module, only: latitude, longitude
-  use cable_io_vars_module, only: metgrid
 
   use cable_output_types_mod, only: cable_output_variable_t
   use cable_output_types_mod, only: attribute => cable_output_attribute_t
@@ -24,9 +23,6 @@ module cable_output_definitions_mod
   use cable_output_types_mod, only: DIM_LAND_GLOBAL => CABLE_OUTPUT_DIM_LAND_GLOBAL
   use cable_output_types_mod, only: DIM_X => CABLE_OUTPUT_DIM_X
   use cable_output_types_mod, only: DIM_Y => CABLE_OUTPUT_DIM_Y
-
-  use cable_output_utils_mod, only: requires_x_y_output_grid
-  use cable_output_utils_mod, only: requires_land_output_grid
 
   use cable_checks_module, only: ranges
 
@@ -189,12 +185,14 @@ contains
 
   end function core_outputs
 
-  function coordinate_variables(restart) result(output_variables)
+  function coordinate_variables(grid_type, restart) result(output_variables)
+    character(len=*), intent(in) :: grid_type
     logical, intent(in), optional :: restart
 
     type(cable_output_variable_t), allocatable :: output_variables(:)
 
-    if (present(restart)) then; if (restart) then
+    select case (grid_type)
+    case ("restart")
       output_variables = [ &
         cable_output_variable_t( &
           name="latitude", &
@@ -227,10 +225,7 @@ contains
           ] &
         ) &
       ]
-      return
-    end if; end if
-
-    if (requires_x_y_output_grid(output%grid, metgrid)) then
+    case ("mask")
       output_variables = [ &
         ! Define latitude and longitude variable (ALMA):
         cable_output_variable_t( &
@@ -297,14 +292,14 @@ contains
           ] &
         ) &
       ]
-    else if (requires_land_output_grid(output%grid, metgrid)) then
+    case ("land")
       output_variables = [ &
         cable_output_variable_t( &
           name="local_lat", &
           data_shape=[DIM_LAND_GLOBAL], &
           var_type=CABLE_NETCDF_FLOAT, &
           range=[-90.0, 90.0], &
-          active=requires_land_output_grid(output%grid, metgrid), &
+          active=.true., &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
@@ -319,7 +314,7 @@ contains
           data_shape=[DIM_LAND_GLOBAL], &
           var_type=CABLE_NETCDF_FLOAT, &
           range=[-huge(0.0), huge(0.0)], & ! TODO(Sean): this depends on the met forcing input?
-          active=requires_land_output_grid(output%grid, metgrid), &
+          active=.true., &
           parameter=.true., &
           distributed=.false., &
           aggregation_method="point", &
@@ -330,9 +325,9 @@ contains
           ] &
         ) &
       ]
-    else
-      call cable_abort("Unable to determine coordinate variables for output grid.", __FILE__, __LINE__)
-    end if
+    case default
+      call cable_abort("Unexpected grid type '" // grid_type // "'", __FILE__, __LINE__)
+    end select
 
   end function
 

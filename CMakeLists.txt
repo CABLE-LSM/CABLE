@@ -312,7 +312,9 @@ else()
         src/util/netcdf/cable_netcdf_stub_types.F90
         src/util/netcdf/nf90/cable_netcdf_nf90.F90
         src/util/io/output/cable_output_core.F90
+        src/util/io/output/cable_output_decomp.F90
         src/util/io/output/cable_output_definitions.F90
+        src/util/io/output/cable_output_reduction_buffers.F90
         src/util/io/output/cable_output_types.F90
         src/util/io/output/cable_output_utils.F90
         src/util/io/output/cable_output.F90

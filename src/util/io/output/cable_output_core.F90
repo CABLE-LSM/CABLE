@@ -6,6 +6,7 @@ module cable_output_core_mod
 
   use cable_io_vars_module, only: patch_type
   use cable_io_vars_module, only: land_type
+  use cable_io_vars_module, only: metgrid
   use cable_io_vars_module, only: output
   use cable_io_vars_module, only: check
   use cable_io_vars_module, only: ON_TIMESTEP
@@ -36,8 +37,6 @@ module cable_output_core_mod
 
   use cable_checks_module, only: check_range
 
-  use cable_io_decomp_mod, only: io_decomp_t
-
   use cable_timing_utils_mod, only: time_step_matches
 
   use cable_grid_reductions_mod, only: grid_cell_average
@@ -49,19 +48,22 @@ module cable_output_core_mod
   use cable_output_types_mod, only: FILL_VALUE_REAL32
   use cable_output_types_mod, only: FILL_VALUE_REAL64
 
-  use cable_output_utils_mod, only: init_decomp_pointers
-  use cable_output_utils_mod, only: allocate_grid_reduction_buffers
-  use cable_output_utils_mod, only: deallocate_grid_reduction_buffers
+  use cable_output_reduction_buffers_mod, only: allocate_grid_reduction_buffers
+  use cable_output_reduction_buffers_mod, only: deallocate_grid_reduction_buffers
+  use cable_output_reduction_buffers_mod, only: associate_temp_buffer_int32
+  use cable_output_reduction_buffers_mod, only: associate_temp_buffer_real32
+  use cable_output_reduction_buffers_mod, only: associate_temp_buffer_real64
+
+  use cable_output_decomp_mod, only: allocate_decompositions
+  use cable_output_decomp_mod, only: deallocate_decompositions
+  use cable_output_decomp_mod, only: associate_decomp_int32
+  use cable_output_decomp_mod, only: associate_decomp_real32
+  use cable_output_decomp_mod, only: associate_decomp_real64
+
   use cable_output_utils_mod, only: check_invalid_frequency
   use cable_output_utils_mod, only: dim_size
   use cable_output_utils_mod, only: define_variables
   use cable_output_utils_mod, only: set_global_attributes
-  use cable_output_utils_mod, only: associate_decomp_int32
-  use cable_output_utils_mod, only: associate_decomp_real32
-  use cable_output_utils_mod, only: associate_decomp_real64
-  use cable_output_utils_mod, only: associate_temp_buffer_int32
-  use cable_output_utils_mod, only: associate_temp_buffer_real32
-  use cable_output_utils_mod, only: associate_temp_buffer_real64
 
   use cable_output_definitions_mod, only: coordinate_variables
 
@@ -83,12 +85,22 @@ module cable_output_core_mod
 
 contains
 
-  subroutine cable_output_mod_init(io_decomp)
-    class(io_decomp_t), intent(in) :: io_decomp
+  subroutine cable_output_mod_init()
     class(cable_netcdf_file_t), allocatable :: output_file
 
-    call init_decomp_pointers(io_decomp)
+    call allocate_decompositions()
     call allocate_grid_reduction_buffers()
+
+  end subroutine
+
+  subroutine cable_output_mod_end()
+
+    if (allocated(global_profile%output_file)) call global_profile%output_file%close()
+
+    deallocate(global_profile)
+
+    call deallocate_grid_reduction_buffers()
+    call deallocate_decompositions()
 
   end subroutine
 
@@ -127,30 +139,34 @@ contains
 
   end subroutine cable_output_register_output_variables
 
-  subroutine cable_output_mod_end()
-
-    if (allocated(global_profile%output_file)) call global_profile%output_file%close()
-
-    deallocate(global_profile)
-
-    call deallocate_grid_reduction_buffers()
-
-  end subroutine
-
   subroutine cable_output_profiles_init()
     class(cable_netcdf_file_t), allocatable :: output_file
     integer :: i
 
-    allocate(cable_output_profile_t::global_profile)
+    character(32) :: grid_type
 
-    global_profile%sampling_frequency = output%averaging
+    if (output%grid == "land" .OR. (output%grid == "default" .AND. metgrid == "land")) then
+      grid_type = "land"
+    else if (( &
+      output%grid == "default" .AND. metgrid == "mask" &
+    ) .OR. ( &
+      output%grid == "mask" .OR. output%grid == "ALMA" &
+    )) then
+      grid_type = "mask"
+    else
+      call cable_abort("Unable to determine output grid type.", __FILE__, __LINE__)
+    end if
 
-    global_profile%file_name = "test_output.nc" ! TODO(Sean): use filename from namelist
-
-    global_profile%output_variables = [ &
-      coordinate_variables(), &
-      pack(registered_output_variables, registered_output_variables(:)%active) &
-    ]
+    global_profile = cable_output_profile_t( &
+      sampling_frequency=output%averaging, &
+      grid_type=grid_type, &
+      file_name="test_output.nc", & ! TODO(Sean): use filename from namelist
+      output_file=cable_netcdf_create_file("test_output.nc", iotype=CABLE_NETCDF_IOTYPE_CLASSIC), & ! TODO(Sean): use filename from namelist
+      output_variables=[ &
+        coordinate_variables(grid_type), &
+        pack(registered_output_variables, registered_output_variables(:)%active) &
+      ] &
+    )
 
     do i = 1, size(global_profile%output_variables)
       associate(output_var => global_profile%output_variables(i))
@@ -163,9 +179,7 @@ contains
       end associate
     end do
 
-    global_profile%output_file = cable_netcdf_create_file(global_profile%file_name, iotype=CABLE_NETCDF_IOTYPE_CLASSIC)
-
-    call define_variables(global_profile%output_file, global_profile%output_variables)
+    call define_variables(global_profile)
 
     call set_global_attributes(global_profile)
 
@@ -192,7 +206,7 @@ contains
         if (.not. output_variable%parameter) cycle
         call check_variable_range(output_variable, time_index, met)
         call output_variable%aggregator%accumulate()
-        call write_variable(output_variable, global_profile%output_file, patch, landpt)
+        call write_variable(global_profile, output_variable, patch, landpt)
         call output_variable%aggregator%reset()
       end associate
     end do
@@ -243,7 +257,7 @@ contains
         associate(output_variable => global_profile%output_variables(i))
           if (output_variable%parameter) cycle
           if (check%ranges == ON_WRITE) call check_variable_range(output_variable, time_index, met)
-          call write_variable(output_variable, global_profile%output_file, patch, landpt, global_profile%frame + 1)
+          call write_variable(global_profile, output_variable, patch, landpt, frame=global_profile%frame + 1)
           call output_variable%aggregator%reset()
         end associate
       end do
@@ -267,29 +281,32 @@ contains
 
   subroutine cable_output_write_restart(current_time)
     real, intent(in) :: current_time !! Current simulation time
-    class(cable_netcdf_file_t), allocatable :: restart_output_file
 
-    type(cable_output_variable_t), allocatable :: restart_variables(:)
+    type(cable_output_profile_t), allocatable :: restart_output_profile
     integer :: i
 
-    restart_variables = [ &
-      coordinate_variables(restart=.true.), &
-      pack(registered_output_variables, registered_output_variables(:)%restart) &
-    ]
+    restart_output_profile = cable_output_profile_t( &
+      sampling_frequency="none", &
+      grid_type="restart", &
+      file_name="test_restart.nc", & ! TODO(Sean): use filename from namelist
+      output_file=cable_netcdf_create_file("test_restart.nc", iotype=CABLE_NETCDF_IOTYPE_CLASSIC), & ! TODO(Sean): use filename from namelist
+      output_variables=[ &
+        coordinate_variables(grid_type="restart"), &
+        pack(registered_output_variables, registered_output_variables(:)%restart) &
+      ] &
+    )
 
-    restart_output_file = cable_netcdf_create_file("test_restart.nc", iotype=CABLE_NETCDF_IOTYPE_CLASSIC) ! TODO(Sean): use filename from namelist
+    call define_variables(restart_output_profile)
 
-    call define_variables(restart_output_file, restart_variables, restart=.true.)
+    call restart_output_profile%output_file%end_def()
 
-    call restart_output_file%end_def()
+    call restart_output_profile%output_file%put_var("time", [current_time])
 
-    call restart_output_file%put_var("time", [current_time])
-
-    do i = 1, size(restart_variables)
-      call write_variable(restart_variables(i), restart_output_file, restart=.true.)
+    do i = 1, size(restart_output_profile%output_variables)
+      call write_variable(restart_output_profile, restart_output_profile%output_variables(i), restart=.true.)
     end do
 
-    call restart_output_file%close()
+    call restart_output_profile%output_file%close()
 
   end subroutine cable_output_write_restart
 
@@ -329,9 +346,9 @@ contains
 
   end subroutine check_variable_range
 
-  subroutine write_variable(output_variable, output_file, patch, landpt, frame, restart)
+  subroutine write_variable(output_profile, output_variable, patch, landpt, frame, restart)
+    type(cable_output_profile_t), intent(inout) :: output_profile
     type(cable_output_variable_t), intent(inout), target :: output_variable
-    class(cable_netcdf_file_t), intent(inout) :: output_file
     type(patch_type), intent(in), optional :: patch(:)
     type(land_type), intent(in), optional :: landpt(:)
     integer, intent(in), optional :: frame
@@ -389,13 +406,13 @@ contains
       write_buffer_int32_0d => aggregator%aggregated_data
       if (restart_local) write_buffer_int32_0d => aggregator%source_data
       if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_0d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_0d)
       end if
@@ -416,21 +433,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_int32(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_int32(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_int32_1d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_INT32, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_1d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_1d)
       end if
@@ -451,21 +468,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_int32(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_int32(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_int32_2d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_INT32, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_2d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_2d)
       end if
@@ -486,21 +503,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_int32(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_int32(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_int32_3d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_INT32, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_3d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_int32_3d)
       end if
@@ -514,13 +531,13 @@ contains
       write_buffer_real32_0d => aggregator%aggregated_data
       if (restart_local) write_buffer_real32_0d => aggregator%source_data
       if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_0d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_0d)
       end if
@@ -546,21 +563,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_real32(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_real32(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_real32_1d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL32, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_1d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_1d)
       end if
@@ -586,21 +603,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_real32(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_real32(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_real32_2d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL32, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_2d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_2d)
       end if
@@ -626,21 +643,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_real32(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_real32(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_real32_3d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL32, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_3d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real32_3d)
       end if
@@ -654,13 +671,13 @@ contains
       write_buffer_real64_0d => aggregator%aggregated_data
       if (restart_local) write_buffer_real64_0d => aggregator%source_data
       if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_0d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_0d)
       end if
@@ -686,21 +703,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_real64(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_real64(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_real64_1d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL64, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_1d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_1d)
       end if
@@ -726,21 +743,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_real64(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_real64(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_real64_2d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL64, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_2d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_2d)
       end if
@@ -766,21 +783,21 @@ contains
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
       if (output_variable%distributed) then
-        call associate_decomp_real64(output_variable, decomp, restart=restart_local)
-        call output_file%write_darray( &
+        call associate_decomp_real64(output_profile, output_variable, decomp)
+        call output_profile%output_file%write_darray( &
               var_name=output_variable%name, &
               values=write_buffer_real64_3d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL64, &
               frame=frame)
       else if (present(frame)) then
-        call output_file%inq_var_ndims(output_variable%name, ndims)
-        call output_file%put_var( &
+        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_3d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
-        call output_file%put_var( &
+        call output_profile%output_file%put_var( &
               var_name=output_variable%name, &
               values=write_buffer_real64_3d)
       end if
