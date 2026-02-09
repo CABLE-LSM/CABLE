@@ -71,11 +71,7 @@ TYPE kbl_user_switches
        casa_nrep           = 1
   !--- LN ------------------------------------------]
 
-  CHARACTER(LEN=5) ::                                                         &
-       run_diag_level  !
-
   CHARACTER(LEN=3) ::                                                         &
-       !H!DIAG_SOIL_RESP,   & ! either ON or OFF (jhan:Make Logical)
        leaf_respiration    ! either ON or OFF (jhan:Make Logical)
 
   ! Custom soil respiration - see Ticket #42
@@ -124,8 +120,6 @@ END TYPE kbl_user_switches
 
 ! instantiate internal switches
 TYPE(kbl_user_switches), SAVE :: cable_user
-
-
 
 END MODULE cable_runtime_opts_mod
 
