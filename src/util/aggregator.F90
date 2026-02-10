@@ -30,6 +30,8 @@ module aggregator_mod
     procedure :: set_method => aggregator_set_method
     procedure :: rank => aggregator_rank
     procedure :: shape => aggregator_shape
+    procedure :: scale => aggregator_scale
+    procedure :: offset => aggregator_offset
   end type aggregator_t
 
   abstract interface
@@ -246,6 +248,72 @@ contains
     end select
 
   end function aggregator_shape
+
+  subroutine aggregator_scale(this, scale)
+    class(aggregator_t), intent(inout) :: this
+    real, intent(in) :: scale
+
+    select type (this)
+    type is (aggregator_int32_0d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_int32_1d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_int32_2d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_int32_3d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real32_0d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real32_1d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real32_2d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real32_3d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real64_0d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real64_1d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real64_2d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    type is (aggregator_real64_3d_t)
+      this%aggregated_data = this%aggregated_data * scale
+    end select
+
+  end subroutine aggregator_scale
+
+  subroutine aggregator_offset(this, offset)
+    class(aggregator_t), intent(inout) :: this
+    real, intent(in) :: offset
+
+    select type (this)
+    type is (aggregator_int32_0d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_int32_1d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_int32_2d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_int32_3d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real32_0d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real32_1d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real32_2d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real32_3d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real64_0d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real64_1d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real64_2d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    type is (aggregator_real64_3d_t)
+      this%aggregated_data = this%aggregated_data + offset
+    end select
+
+  end subroutine aggregator_offset
 
   subroutine mean_accumulate(this)
     class(aggregator_t), intent(inout) :: this
