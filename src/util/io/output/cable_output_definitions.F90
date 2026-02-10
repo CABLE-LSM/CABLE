@@ -185,9 +185,8 @@ contains
 
   end function core_outputs
 
-  function coordinate_variables(grid_type, restart) result(output_variables)
+  function coordinate_variables(grid_type) result(output_variables)
     character(len=*), intent(in) :: grid_type
-    logical, intent(in), optional :: restart
 
     type(cable_output_variable_t), allocatable :: output_variables(:)
 
