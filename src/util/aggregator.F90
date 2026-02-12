@@ -28,6 +28,7 @@ module aggregator_mod
   contains
     procedure :: init => aggregator_init
     procedure :: set_method => aggregator_set_method
+    procedure :: type => aggregator_type
     procedure :: rank => aggregator_rank
     procedure :: shape => aggregator_shape
     procedure :: scale => aggregator_scale
@@ -183,6 +184,38 @@ contains
     endif
 
   end subroutine aggregator_set_method
+
+  character(16) function aggregator_type(this)
+    class(aggregator_t), intent(in) :: this
+
+    select type (this)
+    type is (aggregator_int32_0d_t)
+      aggregator_type = "int32"
+    type is (aggregator_int32_1d_t)
+      aggregator_type = "int32"
+    type is (aggregator_int32_2d_t)
+      aggregator_type = "int32"
+    type is (aggregator_int32_3d_t)
+      aggregator_type = "int32"
+    type is (aggregator_real32_0d_t)
+      aggregator_type = "real32"
+    type is (aggregator_real32_1d_t)
+      aggregator_type = "real32"
+    type is (aggregator_real32_2d_t)
+      aggregator_type = "real32"
+    type is (aggregator_real32_3d_t)
+      aggregator_type = "real32"
+    type is (aggregator_real64_0d_t)
+      aggregator_type = "real64"
+    type is (aggregator_real64_1d_t)
+      aggregator_type = "real64"
+    type is (aggregator_real64_2d_t)
+      aggregator_type = "real64"
+    type is (aggregator_real64_3d_t)
+      aggregator_type = "real64"
+    end select
+
+  end function aggregator_type
 
   integer function aggregator_rank(this)
     class(aggregator_t), intent(in) :: this
