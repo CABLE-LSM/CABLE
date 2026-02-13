@@ -88,7 +88,8 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
        sum_flux%sumrs = sum_flux%sumrs+canopy%frs*dels
     endif
     ! Set net ecosystem exchange after adjustments to frs:
-    canopy%fnpp = -1.0* canopy%fpn - canopy%frp
+    canopy%fnpp = casaflux%cnpp / 86400.0
+    canopy%fra = canopy%frp + canopy%frday
     IF (icycle <= 1) THEN
       canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
     ELSE

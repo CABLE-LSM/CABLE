@@ -180,6 +180,8 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              rad%reffbm, rad%reffdf                                        &
            ) !EffSurfRefl_beam, EffSurfRefldif_
 
+rad%albedo_T = (rad%albedo(:, 1) + rad%albedo(:, 2)) * 0.5
+
 ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
 ssnow%otss = ssnow%tss
 
@@ -219,11 +221,13 @@ ssnow%deltss = ssnow%tss-ssnow%otss
 
        CALL carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
 
-       canopy%fnpp = -1.0* canopy%fpn - canopy%frp
+       canopy%fnpp = -1.0 * canopy%fpn - canopy%frp
        canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
+       canopy%fra = canopy%frp + canopy%frday
 
     ENDIF
 
+    canopy%fgpp = -1.0 * canopy%fpn + canopy%frday
 
   END SUBROUTINE cbm
 
