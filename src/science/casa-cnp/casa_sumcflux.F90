@@ -63,6 +63,15 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
        canopy%frs(:) = casaflux%Crsoil(:)/86400.0
        canopy%frpw(:)= casaflux%crmplant(:,wood)/86400.0
        canopy%frpr(:)= casaflux%crmplant(:,froot)/86400.0
+       ! canopy%fnpp = -1.0 * canopy%fpn - canopy%frp - casaflux%clabloss/86400.0
+       ! canopy%fra = canopy%frp + canopy%frday + casaflux%clabloss/86400.0
+       ! vh ! expressions below can be slightly different from that above in cases
+       ! where leaf maintenance respiration is reduced in CASA (relative to its
+       ! original value calculated in cable_canopy) in order to avoid negative carbon
+       ! stores.
+       canopy%fnpp = casaflux%cnpp / 86400.0
+       canopy%fgpp = casaflux%cgpp / 86400.0
+       canopy%fra = canopy%frp + canopy%frday
     endif
     if(ktau == kstart) then
        sum_flux%sumpn  = canopy%fpn*dels
@@ -88,7 +97,6 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
        sum_flux%sumrs = sum_flux%sumrs+canopy%frs*dels
     endif
     ! Set net ecosystem exchange after adjustments to frs:
-    canopy%fnpp = -1.0* canopy%fpn - canopy%frp
     IF (icycle <= 1) THEN
       canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
     ELSE
