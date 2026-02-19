@@ -96,7 +96,7 @@ MODULE cable_output_module
           abs_deltcs_sl, abs_deltcs_sh, abs_deltcs_sl_vpd, abs_deltcs_sh_vpd, &
           abs_deltcs_sl_sw, abs_deltcs_sh_sw, ksoil, kroot, uptake_layer, &
           ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, rwc_soilmean, rwc_soilmean_recal, &
-          psi_soilmean1, psi_rootmean, &
+          psi_soilmean1, psi_soilmean_new, wb_soilmean_new, psi_rootmean, &
            epotcan1, epotcan2, epotcan3, GPP_epotcan3, epotvpd, epotref, epotref1, total_est_evap, wb_30, psi_30, wb_fr_rootzone, &
           psi_fr_rootzone, gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl, gsw_ref_sh, gsw_ref_sl, &
            gsw_ref1_sh, gsw_ref1_sl, N_neg, N_pos, N_neg_sw, N_pos_sw, rwc_30, wb_depth_rootzone, rwc_fr_rootzone, &
@@ -345,7 +345,9 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: rwc_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: rwc_soilmean_recal => null() 
-     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean_new => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_soilmean_new => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan2 => null()    ! zihanlu
@@ -1005,6 +1007,17 @@ CONTAINS
      out%psi_soilmean = zero4 
      out%wb_soilmean = zero4
      out%rwc_soilmean_recal = zero4  
+   
+     CALL define_ovar(ncid_out, ovid%psi_soilmean_new, 'psi_soilmean_new', 'Mpa', &
+     'Average soil water potential (conductivity-weighted from instantaneous psi_soil)', patchout%psi_soilmean_new, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%wb_soilmean_new, 'wb_soilmean_new', 'm m-1', &
+     'Average soil water content converted from psi_soilmean_new', patchout%wb_soilmean_new, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     ALLOCATE(out%psi_soilmean_new(mp))
+     ALLOCATE(out%wb_soilmean_new(mp))
+     out%psi_soilmean_new = zero4 
+     out%wb_soilmean_new = zero4
      END IF
     IF(output%soil .OR. output%ksoil) THEN
      CALL define_ovar(ncid_out, ovid%ksoil, &
@@ -3479,6 +3492,35 @@ CONTAINS
         out%rwc_soilmean_recal, ranges%SoilMoist, patchout%rwc_soilmean_recal, 'default', met)
         out%rwc_soilmean_recal = zero4
 
+     END IF
+   
+     ! Calculate conductivity-weighted mean of instantaneous psi_soil
+     ! Conductivity for each layer = 1/(soilR + rootR)
+     psi_soilmean_tmp = sum((1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR))) &
+          * toreal4(ssnow%psi_soil) ,2) / &
+          toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2))
+
+     out%psi_soilmean_new = out%psi_soilmean_new + psi_soilmean_tmp
+
+     ! Convert to water content using Campbell relationship
+     psi_sat = toreal4(soil%sucs * C%grav * C%RHOW * 1E-6)
+     wb_soilmean_tmp = toreal4((psi_soilmean_tmp / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
+
+     out%wb_soilmean_new = out%wb_soilmean_new + wb_soilmean_tmp
+
+     IF(writenow) THEN
+        ! Average over output interval
+        out%psi_soilmean_new = out%psi_soilmean_new * rinterval
+        out%wb_soilmean_new = out%wb_soilmean_new * rinterval
+        
+        ! Write to output file
+        CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean_new, 'psi_soilmean_new', &
+             out%psi_soilmean_new, ranges%psi_soil, patchout%psi_soilmean_new, 'default', met)
+        out%psi_soilmean_new = zero4
+
+        CALL write_ovar(out_timestep, ncid_out, ovid%wb_soilmean_new, 'wb_soilmean_new', &
+             out%wb_soilmean_new, ranges%SoilMoist, patchout%wb_soilmean_new, 'default', met)
+        out%wb_soilmean_new = zero4
      END IF
     END IF
 

@@ -481,6 +481,8 @@ MODULE cable_IO_vars_module
          rwc_soilmean = .FALSE., &
          rwc_soilmean_recal = .TRUE., &
          psi_soilmean1 = .FALSE., &
+         psi_soilmean_new = .FALSE., &
+         wb_soilmean_new = .FALSE., &
          psi_rootmean = .FALSE., &
          epotcan1 = .FALSE., &
          epotcan2 = .FALSE., &
@@ -817,6 +819,8 @@ MODULE cable_IO_vars_module
          rwc_soilmean = .FALSE., &
          rwc_soilmean_recal = .FALSE., &
          psi_soilmean1 = .FALSE., &
+         psi_soilmean_new = .FALSE., &
+         wb_soilmean_new = .FALSE., &
          psi_rootmean = .FALSE., &
          epotcan1 = .FALSE., &
          epotcan2 = .FALSE., &
