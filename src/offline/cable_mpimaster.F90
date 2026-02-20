@@ -80,7 +80,6 @@ MODULE cable_mpimaster
     spinup,                           &
     spincasa,                         &
     CASAONLY,                         &
-    l_landuse,                        &
     delsoilM,                         &
     delsoilT,                         &
     delgwM,                           &
@@ -179,6 +178,7 @@ CONTAINS
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
          CurYear,    &
+         l_landuse, &
          IS_LEAPYEAR, calcsoilalbedo,                &
          kwidth_gl
     USE casa_ncdf_module, ONLY: is_casa_time
