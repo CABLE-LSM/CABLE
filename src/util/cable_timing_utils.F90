@@ -5,9 +5,13 @@ module cable_timing_utils_mod
   private
 
   public :: time_step_matches
+  public :: seconds_per_hour
+  public :: hours_per_day
+  public :: seconds_per_day
 
   integer, parameter :: seconds_per_hour = 3600
   integer, parameter :: hours_per_day = 24
+  integer, parameter :: seconds_per_day = 86400
   integer, parameter :: months_in_year = 12
   integer, parameter, dimension(months_in_year) :: &
        daysm = [31,28,31,30,31,30,31,31,30,31,30,31], &
@@ -54,7 +58,7 @@ contains
       else
         last_day_of_month_in_accumulated_days = last_day_of_month_in_accumulated_days + lastday
       end if
-      match = any(int(real(last_day_of_month_in_accumulated_days) * hours_per_day * seconds_per_hour / dels) == ktau)
+      match = any(int(real(last_day_of_month_in_accumulated_days) * seconds_per_day / dels) == ktau)
     case default
       call cable_abort('Error: unknown frequency "' // trim(adjustl(frequency)) // '"', __FILE__, __LINE__)
     end select
