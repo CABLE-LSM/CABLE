@@ -45,6 +45,7 @@ MODULE cable_output_module
   USE netcdf
   USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user,&
        gw_params
+  USE cable_phys_constants_mod, ONLY: c_molar_mass
   IMPLICIT NONE
   PRIVATE
   PUBLIC open_output_file, write_output, close_output_file, create_restart, check_and_write, output_par_settings_type
@@ -1887,7 +1888,7 @@ CONTAINS
     END IF
     IF (output%NEE) THEN
       ! NEE: net ecosystem exchange [umol/m^2/s]
-      CALL generate_out_write_acc(ovid%NEE, 'NEE', out%NEE, REAL(canopy%fnee/1.201E-5, 4), ranges%NEE, patchout%NEE, out_settings)
+      CALL generate_out_write_acc(ovid%NEE, 'NEE', out%NEE, REAL(canopy%fnee/c_molar_mass, 4), ranges%NEE, patchout%NEE, out_settings)
     END IF
 
     !-----------------------WRITE SOIL STATE DATA-------------------------------
@@ -2087,25 +2088,25 @@ CONTAINS
     ! GPP: gross primary production C by veg [umol/m^2/s]
     !      added frday in the calculation of GPP (BP may08)
 
-    ! temp_acc = REAL((-1.0 * canopy%fpn) / 1.201E-5, 4)
+    ! temp_acc = REAL((-1.0 * canopy%fpn) / c_molar_mass, 4)
     IF (output%GPP) THEN
       CALL generate_out_write_acc(ovid%GPP, 'GPP', out%GPP, REAL((-1.0*canopy%fpn + canopy%frday) &
-        /1.201E-5, 4), ranges%GPP, patchout%GPP, out_settings)
+        /c_molar_mass, 4), ranges%GPP, patchout%GPP, out_settings)
     END IF
 
     ! NPP: net primary production of C by veg [umol/m^2/s]
     IF (output%NPP) THEN
       ! Add current timestep's value to total of temporary output variable:
       !out%NPP = out%NPP + REAL((-1.0 * canopy%fpn - canopy%frp &
-      !     - casaflux%clabloss/86400.0) / 1.201E-5, 4)
+      !     - casaflux%clabloss/86400.0) / c_molar_mass, 4)
       ! vh ! expression below can be slightly different form that above in cases where
       ! leaf maintenance respiration is reduced in CASA
       ! (relative to its original value calculated in cable_canopy)
       ! in order to avoid negative carbon stores.
       IF (output%casa) THEN
-        temp_acc = casaflux%cnpp/86400.0/1.201E-5
+        temp_acc = casaflux%cnpp/86400.0/c_molar_mass
       ELSE
-        temp_acc = (-1.0*canopy%fpn - canopy%frp)/1.201E-5 ! &
+        temp_acc = (-1.0*canopy%fpn - canopy%frp)/c_molar_mass ! &
       END IF
       CALL generate_out_write_acc(ovid%NPP, 'NPP', out%NPP, temp_acc, ranges%NPP, patchout%NPP, out_settings)
     END IF
@@ -2114,36 +2115,36 @@ CONTAINS
     IF (output%AutoResp) THEN
       ! Add current timestep's value to total of temporary output variable:
       !out%AutoResp = out%AutoResp + REAL((canopy%frp + canopy%frday + casaflux%clabloss/86400.0)          &
-      !                                    / 1.201E-5, 4)
+      !                                    / c_molar_mass, 4)
       ! vh ! expression below can be slightly different form that above in cases where
       ! leaf maintenance respiration is reduced in CASA
       ! (relative to its original value calculated in cable_canopy)
       ! in order to avoid negative carbon stores.
 
       IF (output%casa) THEN
-        temp_acc = canopy%frday/1.201E-5 + &
+        temp_acc = canopy%frday/c_molar_mass + &
                    (casaflux%crmplant(:, 2)/86400.0 + casaflux%crmplant(:, 3)/86400.0 + &
-                    casaflux%crgplant/86400.0 + casaflux%clabloss/86400.)/1.201E-5
+                    casaflux%crgplant/86400.0 + casaflux%clabloss/86400.)/c_molar_mass
       ELSE
-        temp_acc = (canopy%frp + canopy%frday)/1.201E-5
+        temp_acc = (canopy%frp + canopy%frday)/c_molar_mass
       END IF
       CALL generate_out_write_acc(ovid%AutoResp, 'AutoResp', out%AutoResp, temp_acc, ranges%AutoResp, patchout%AutoResp, out_settings)
       IF (output%casa) THEN
-        ! rootresp alt: REAL(0.3*casaflux%crmplant(:,2)/86400.0/ 1.201E-5, 4)
+        ! rootresp alt: REAL(0.3*casaflux%crmplant(:,2)/86400.0/ c_molar_mass, 4)
         CALL generate_out_write_acc(ovid%RootResp, 'RootResp', out%RootResp, &
-                                    REAL(casaflux%crmplant(:, 3)/86400.0/1.201E-5, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
+                                    REAL(casaflux%crmplant(:, 3)/86400.0/c_molar_mass, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
         CALL generate_out_write_acc(ovid%StemResp, 'StemResp', out%StemResp, &
-                                    REAL(casaflux%crmplant(:, 2)/86400.0/1.201E-5, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
+                                    REAL(casaflux%crmplant(:, 2)/86400.0/c_molar_mass, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
       END IF
     END IF
 
     IF (output%LeafResp) THEN
       ! LeafResp: Leaf respiration [umol/m^2/s]
-      CALL generate_out_write_acc(ovid%LeafResp, 'LeafResp', out%LeafResp, REAL(canopy%frday/1.201E-5, 4), ranges%LeafResp, patchout%LeafResp, out_settings)
+      CALL generate_out_write_acc(ovid%LeafResp, 'LeafResp', out%LeafResp, REAL(canopy%frday/c_molar_mass, 4), ranges%LeafResp, patchout%LeafResp, out_settings)
     END IF
     IF (output%HeteroResp) THEN
       ! HeteroResp: heterotrophic respiration [umol/m^2/s]
-      CALL generate_out_write_acc(ovid%HeteroResp, 'HeteroResp', out%HeteroResp, REAL(canopy%frs/1.201E-5, 4), ranges%HeteroResp, patchout%HeteroResp, out_settings)
+      CALL generate_out_write_acc(ovid%HeteroResp, 'HeteroResp', out%HeteroResp, REAL(canopy%frs/c_molar_mass, 4), ranges%HeteroResp, patchout%HeteroResp, out_settings)
     END IF
 
     ! output patch area
@@ -2163,37 +2164,37 @@ CONTAINS
         IF (cable_user%POPLUC) THEN
           temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
                        - casapool%dClabiledt)/86400.0 &
-                     /1.201E-5 !-  &
+                     /c_molar_mass !-  &
           !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0 &
-          !/ 1.201E-5, 4)
+          !/ c_molar_mass, 4)
         ELSE
           temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
                        - casapool%dClabiledt)/86400.0 &
-                     /1.201E-5
+                     /c_molar_mass
         END IF
         CALL generate_out_write_acc(ovid%NBP, 'NBP', out%NBP, temp_acc, ranges%NEE, patchout%NBP, out_settings)
       END IF
 
       !------------------------WRITE REMAINING CASA DATA----------------------------------
       CALL generate_out_write_acc(ovid%dCdt, 'dCdt', out%dCdt, &
-                                  REAL((casapool%ctot - casapool%ctot_0)/86400.0/1.201E-5, 4), ranges%NEE, patchout%dCdt, out_settings)
+                                  REAL((casapool%ctot - casapool%ctot_0)/86400.0/c_molar_mass, 4), ranges%NEE, patchout%dCdt, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnover, 'PlantTurnover', out%PlantTurnover, &
-                                  REAL((SUM(casaflux%Cplant_turnover, 2))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnover, out_settings)
+                                  REAL((SUM(casaflux%Cplant_turnover, 2))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnover, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverLeaf, 'PlantTurnoverLeaf', out%PlantTurnoverLeaf, &
-                                  REAL((casaflux%Cplant_turnover(:, 1))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverLeaf, out_settings)
+                                  REAL((casaflux%Cplant_turnover(:, 1))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverLeaf, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverFineRoot, 'PlantTurnoverFineRoot', out%PlantTurnoverFineRoot, &
-                                  REAL((casaflux%Cplant_turnover(:, 3))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverFineRoot, out_settings)
+                                  REAL((casaflux%Cplant_turnover(:, 3))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverFineRoot, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWood, 'PlantTurnoverWood', out%PlantTurnoverWood, &
-                                  REAL((casaflux%Cplant_turnover(:, 2))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWood, out_settings)
+                                  REAL((casaflux%Cplant_turnover(:, 2))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWood, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWoodDist, 'PlantTurnoverWoodDist', out%PlantTurnoverWoodDist, &
-                                  REAL(casaflux%Cplant_turnover_disturbance/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodDist, out_settings)
+                                  REAL(casaflux%Cplant_turnover_disturbance/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWoodDist, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWoodCrowding, 'PlantTurnoverWoodCrowding', out%PlantTurnoverWoodCrowding, &
-                                  REAL(casaflux%Cplant_turnover_crowding/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodCrowding, out_settings)
+                                  REAL(casaflux%Cplant_turnover_crowding/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWoodCrowding, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWoodResourceLim, 'PlantTurnoverWoodResourceLim', out%PlantTurnoverWoodResourceLim, &
-                                  REAL((casaflux%Cplant_turnover_resource_limitation)/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodResourceLim, out_settings)
+                                  REAL((casaflux%Cplant_turnover_resource_limitation)/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWoodResourceLim, out_settings)
       IF (cable_user%POPLUC) THEN
         CALL generate_out_write_acc(ovid%LandUseFlux, 'LandUseFlux', out%LandUseFlux, &
-                                    REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear)/86400.0/1.201E-5, 4), ranges%NEE, patchout%LandUseFlux, out_settings)
+                                    REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear)/86400.0/c_molar_mass, 4), ranges%NEE, patchout%LandUseFlux, out_settings)
       END IF
 
       ! plant carbon [kg C m-2]
