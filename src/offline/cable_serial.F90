@@ -66,10 +66,6 @@ MODULE cable_serial
     spinup,                           &
     spincasa,                         &
     CASAONLY,                         &
-    l_casacnp,                        &
-    l_landuse,                        &
-    l_laiFeedbk,                      &
-    l_vcmaxFeedbk,                    &
     delsoilM,                         &
     delsoilT,                         &
     delgwM,                           &
@@ -91,6 +87,9 @@ MODULE cable_serial
        filename, myhome,            &
        CurYear,    &
        IS_LEAPYEAR, &
+       l_landuse, &
+       l_laiFeedbk, &
+       l_vcmaxFeedbk, &
        kwidth_gl
 
 ! physical constants
