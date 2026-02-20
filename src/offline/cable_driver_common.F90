@@ -263,6 +263,7 @@ CONTAINS
   END SUBROUTINE cable_driver_init_site
 
   SUBROUTINE cable_driver_init_default(dels, koffset, kend)
+    USE cable_io_vars_module, ONLY : syear
     !! Model initialisation routine (default met specific).
     REAL, INTENT(OUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
@@ -276,6 +277,10 @@ CONTAINS
       WRITE(*,*) "When using POP, episode must start at Jan 1st!"
       STOP 991
     END IF
+
+    ncciy = syear
+    cable_user%YearStart = syear
+    cable_user%YearEnd = syear
 
   END SUBROUTINE cable_driver_init_default
 

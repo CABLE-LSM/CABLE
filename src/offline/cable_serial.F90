@@ -279,8 +279,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
   integer,   dimension(:,:),     allocatable,  save  :: landmask
   integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
-
-  integer :: start_year
 ! END header
 
 ! INISTUFF
@@ -432,6 +430,14 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ENDIF
             CALL nullify_write() ! nullify pointers
             CALL open_output_file( dels, soil, veg, bgc, rough, met)
+
+            call cable_output_mod_init()
+            call cable_output_register_output_variables([ &
+              cable_output_core_outputs(dels, met, canopy, soil, ssnow, rad, veg, bal, casaflux, casapool, casamet, rough, bgc) &
+            ])
+            call cable_output_profiles_init()
+            call cable_output_write_parameters(kstart, patch, landpt, met)
+
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -468,12 +474,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ktau = kend
 
           ENDIF
-
-          if (.not. casaonly) then
-            call cable_output_mod_init()
-            call cable_output_register_output_variables(cable_output_core_outputs(canopy, soil))
-            call cable_output_profiles_init()
-          end if
 
         ENDIF ! CALL 1
 
@@ -585,17 +585,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             IF ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
           ENDIF
 
-          ! TODO(Sean): this is a hack for determining if the current time step
-          ! is the last of the month. Better way to do this?
-          IF(ktau == 1) THEN
-            !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
-            IF ( TRIM(cable_user%MetType) .EQ. '' ) THEN
-                start_year = met%year(1)
-            ELSE
-                start_year = CABLE_USER%YearStart
-            ENDIF
-          END IF
-
           IF ( .NOT. CASAONLY ) THEN
 
             ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
@@ -605,12 +594,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             IF (l_laiFeedbk.AND.icycle>0) veg%vlai(:) = casamet%glai(:)
 
             IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
-
-            if (ktau > kstart .and. mod(ktau - kstart, ktauday) == 0) then
-              ! Reset daily aggregators if previous time step was the end of day
-              call canopy%tscrn_max_daily%reset()
-              call canopy%tscrn_min_daily%reset()
-            end if
 
             ! Call land surface scheme for this timestep, all grid points:
             CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
@@ -748,14 +731,21 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau_tot, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau_tot, dels, leaps, cable_user%yearstart, met, patch, landpt)
             CASE DEFAULT
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau, dels, leaps, cable_user%yearstart, met, patch, landpt)
             END SELECT
-            if (ktau == kstart) call cable_output_write_parameters(kstart, patch, landpt, met)
-            call cable_output_update(ktau, dels, leaps, start_year, met)
-            call cable_output_write(ktau, dels, leaps, start_year, met, patch, landpt)
           ENDIF
+
+          IF (.not. casaonly .and. ktau > kstart .and. mod(ktau - kstart + 1, ktauday) == 0) THEN
+            ! Reset daily aggregators if it is the end of day
+            CALL canopy%tscrn_max_daily%reset()
+            CALL canopy%tscrn_min_daily%reset()
+          END IF
 
 
           ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml

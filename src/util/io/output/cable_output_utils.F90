@@ -43,12 +43,15 @@ module cable_output_utils_mod
   use cable_output_types_mod, only: FILL_VALUE_INT32
   use cable_output_types_mod, only: FILL_VALUE_REAL32
   use cable_output_types_mod, only: FILL_VALUE_REAL64
+  use cable_output_types_mod, only: CABLE_OUTPUT_VAR_TYPE_UNDEFINED
 
   implicit none
   private
 
+  public :: check_duplicate_variable_names
   public :: check_sampling_frequency
   public :: dim_size
+  public :: var_name
   public :: infer_dim_names
   public :: define_variables
   public :: set_global_attributes
@@ -96,6 +99,53 @@ contains
 
   end function
 
+  integer function netcdf_var_type(output_variable)
+    type(cable_output_variable_t), intent(in) :: output_variable
+
+    if (output_variable%var_type /= CABLE_OUTPUT_VAR_TYPE_UNDEFINED) then
+      netcdf_var_type = output_variable%var_type
+      return
+    end if
+
+    select case (output_variable%aggregator%type())
+    case ("int32")
+      netcdf_var_type = CABLE_NETCDF_INT
+    case ("real32")
+      netcdf_var_type = CABLE_NETCDF_FLOAT
+    case ("real64")
+      netcdf_var_type = CABLE_NETCDF_DOUBLE
+    case default
+      call cable_abort("Unable to infer variable type for variable " // trim(output_variable%field_name), __FILE__, __LINE__)
+    end select
+
+  end function
+
+  elemental function var_name(output_variable)
+    type(cable_output_variable_t), intent(in) :: output_variable
+    character(len=128) :: var_name
+
+    if (len_trim(output_variable%netcdf_name) > 0) then
+      var_name = output_variable%netcdf_name
+    else
+      var_name = output_variable%field_name
+    end if
+
+  end function var_name
+
+  subroutine check_duplicate_variable_names(output_profile)
+    type(cable_output_profile_t), intent(in) :: output_profile
+    integer :: i
+
+    do i = 1, size(output_profile%output_variables)
+      associate(output_var => output_profile%output_variables(i))
+        if (count(var_name(output_var) == var_name(output_profile%output_variables(:))) > 1) then
+          call cable_abort("Duplicate variable name found: " // trim(var_name(output_var)), __FILE__, __LINE__)
+        end if
+      end associate
+    end do
+
+  end subroutine
+
   subroutine check_sampling_frequency(output_profile)
     type(cable_output_profile_t), intent(in) :: output_profile
 
@@ -108,7 +158,7 @@ contains
         err_message = ( &
           "Invalid combination of sampling frequency '" // output_profile%sampling_frequency // &
           "' with accumulation frequency '" // output_var%accumulation_frequency // "' for variable '" // &
-          output_var%name // "' in file '" // output_profile%file_name // "'" &
+          output_var%field_name // "' in file '" // output_profile%file_name // "'" &
         )
         select case (output_profile%sampling_frequency)
         case ("all")
@@ -133,16 +183,17 @@ contains
           end if
         case default
           call cable_abort("Invalid sampling frequency '" // output_profile%sampling_frequency // &
-            "' for variable '" // output_var%name // "' in file '" // output_profile%file_name // "'", __FILE__, __LINE__)
+            "' for variable '" // output_var%field_name // "' in file '" // output_profile%file_name // "'", __FILE__, __LINE__)
         end select
       end associate
     end do
 
   end subroutine check_sampling_frequency
 
-  function infer_dim_names(output_profile, output_variable) result(dim_names)
+  function infer_dim_names(output_profile, output_variable, time_axis) result(dim_names)
     type(cable_output_profile_t), intent(in) :: output_profile
     type(cable_output_variable_t), intent(in) :: output_variable
+    logical, intent(in), optional :: time_axis
 
     character(MAX_LEN_DIM), allocatable :: dim_names(:)
     integer :: j
@@ -169,7 +220,7 @@ contains
             end if
           case default
             call cable_abort("Unexpected grid type '" // output_profile%grid_type // &
-              "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
+              "' for variable '" // output_variable%field_name // "'", __FILE__, __LINE__)
           end select
         case (CABLE_OUTPUT_DIM_LAND%value)
           select case (output_profile%grid_type)
@@ -181,7 +232,7 @@ contains
             dim_names = [dim_names, "x", "y"]
           case default
             call cable_abort("Unexpected grid type '" // output_profile%grid_type // &
-              "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
+              "' for variable '" // output_variable%field_name // "'", __FILE__, __LINE__)
           end select
         case (CABLE_OUTPUT_DIM_LAND_GLOBAL%value)
           if (output_profile%grid_type == "restart") then
@@ -212,12 +263,14 @@ contains
         case (CABLE_OUTPUT_DIM_Y%value)
           dim_names = [dim_names, "y"]
         case default
-          call cable_abort("Unexpected data shape for variable " // output_variable%name, __FILE__, __LINE__)
+          call cable_abort("Unexpected data shape for variable " // output_variable%field_name, __FILE__, __LINE__)
         end select
       end do
     end if
 
-    if (output_profile%grid_type /= "restart" .and. .not. output_variable%parameter) dim_names = [dim_names, "time"]
+    if (present(time_axis)) then; if (time_axis) then
+        dim_names = [dim_names, "time"]
+    end if; end if
 
   end function
 
@@ -240,7 +293,7 @@ contains
         cell_methods_time = "time: maximum"
       case default
         call cable_abort("Unexpected aggregation method '" // output_variable%aggregation_method // &
-          "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
+          "' for variable '" // output_variable%field_name // "'", __FILE__, __LINE__)
       end select
     else
       cell_methods_time = ""
@@ -261,24 +314,41 @@ contains
       cell_methods_area = "area: mean where land"
     case default
       call cable_abort("Unexpected reduction method '" // output_variable%reduction_method // &
-        "' for variable '" // output_variable%name // "'", __FILE__, __LINE__)
+        "' for variable '" // output_variable%field_name // "'", __FILE__, __LINE__)
     end select
 
     cell_methods = adjustl(trim(cell_methods_time) // " " // trim(cell_methods_area))
 
   end function
 
-  subroutine define_variables(output_profile)
+  subroutine define_variables(output_profile, restart)
     type(cable_output_profile_t), intent(inout) :: output_profile
+    logical, intent(in), optional :: restart
 
+    logical :: restart_local
     integer :: i, j
 
     character(MAX_LEN_DIM), allocatable :: required_dimensions(:), dim_names(:)
+    character(len=128) :: variable_name
 
-    do i = 1, size(output_profile%output_variables)
-      associate(output_var => output_profile%output_variables(i))
+    type(cable_output_variable_t), allocatable :: all_output_variables(:)
+
+    restart_local = .false.
+    if (present(restart)) restart_local = restart
+
+    all_output_variables = [ &
+      output_profile%coordinate_variables, &
+      output_profile%output_variables &
+    ]
+
+    do i = 1, size(all_output_variables)
+      associate(output_var => all_output_variables(i))
         if (.not. allocated(output_var%data_shape)) cycle
-        dim_names = infer_dim_names(output_profile, output_var)
+        dim_names = infer_dim_names( &
+          output_profile, &
+          output_var, &
+          time_axis=(.not. (restart_local .or. output_var%parameter)) &
+        )
         if (.not. allocated(required_dimensions)) then
           required_dimensions = dim_names
         else
@@ -310,6 +380,8 @@ contains
         call output_profile%output_file%def_dims(["patch"], [max_vegpatches])
       case ("soil")
         call output_profile%output_file%def_dims(["soil"], [ms])
+      case ("snow")
+        call output_profile%output_file%def_dims(["snow"], [msn])
       case ("rad")
         call output_profile%output_file%def_dims(["rad"], [nrb])
       case ("soil_carbon_pools")
@@ -344,30 +416,53 @@ contains
       call output_profile%output_file%put_att("time", "bounds", "time_bnds")
     end if
 
+    do i = 1, size(output_profile%coordinate_variables)
+      associate(coord_var => output_profile%coordinate_variables(i))
+        variable_name = var_name(coord_var)
+        call output_profile%output_file%def_var( &
+          var_name=variable_name, &
+          dim_names=infer_dim_names(output_profile, coord_var), &
+          type=netcdf_var_type(coord_var) &
+        )
+        if (allocated(coord_var%metadata)) then
+          do j = 1, size(coord_var%metadata)
+            call output_profile%output_file%put_att(variable_name, coord_var%metadata(j)%name, coord_var%metadata(j)%value)
+          end do
+        end if
+      end associate
+    end do
+
     do i = 1, size(output_profile%output_variables)
       associate(output_var => output_profile%output_variables(i))
+        variable_name = var_name(output_var)
+        if (restart_local) variable_name = output_var%field_name
+        dim_names = infer_dim_names( &
+          output_profile, &
+          output_var, &
+          time_axis=(.not. (restart_local .or. output_var%parameter)) &
+        )
         call output_profile%output_file%def_var( &
-          var_name=output_var%name, &
-          dim_names=infer_dim_names(output_profile, output_var), &
-          type=output_var%var_type &
+          var_name=variable_name, &
+          dim_names=dim_names, &
+          type=netcdf_var_type(output_var) &
         )
         if (allocated(output_var%metadata)) then
           do j = 1, size(output_var%metadata)
-            call output_profile%output_file%put_att(output_var%name, output_var%metadata(j)%name, output_var%metadata(j)%value)
+            call output_profile%output_file%put_att(variable_name, output_var%metadata(j)%name, output_var%metadata(j)%value)
           end do
         end if
-        select case (output_var%var_type)
+        select case (netcdf_var_type(output_var))
         case (CABLE_NETCDF_INT)
-          call output_profile%output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_INT32)
-          call output_profile%output_file%put_att(output_var%name, "missing_value", FILL_VALUE_INT32)
+          call output_profile%output_file%put_att(variable_name, "_FillValue", FILL_VALUE_INT32)
+          call output_profile%output_file%put_att(variable_name, "missing_value", FILL_VALUE_INT32)
         case (CABLE_NETCDF_FLOAT)
-          call output_profile%output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_REAL32)
-          call output_profile%output_file%put_att(output_var%name, "missing_value", FILL_VALUE_REAL32)
+          call output_profile%output_file%put_att(variable_name, "_FillValue", FILL_VALUE_REAL32)
+          call output_profile%output_file%put_att(variable_name, "missing_value", FILL_VALUE_REAL32)
         case (CABLE_NETCDF_DOUBLE)
-          call output_profile%output_file%put_att(output_var%name, "_FillValue", FILL_VALUE_REAL64)
-          call output_profile%output_file%put_att(output_var%name, "missing_value", FILL_VALUE_REAL64)
+          call output_profile%output_file%put_att(variable_name, "_FillValue", FILL_VALUE_REAL64)
+          call output_profile%output_file%put_att(variable_name, "missing_value", FILL_VALUE_REAL64)
         end select
-        call output_profile%output_file%put_att(output_var%name, "cell_methods", infer_cell_methods(output_var))
+        call output_profile%output_file%put_att(variable_name, "cell_methods", infer_cell_methods(output_var))
       end associate
     end do
 

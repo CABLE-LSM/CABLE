@@ -47,6 +47,7 @@ module cable_output_core_mod
   use cable_output_types_mod, only: FILL_VALUE_INT32
   use cable_output_types_mod, only: FILL_VALUE_REAL32
   use cable_output_types_mod, only: FILL_VALUE_REAL64
+  use cable_output_types_mod, only: CABLE_OUTPUT_VAR_TYPE_UNDEFINED
 
   use cable_output_reduction_buffers_mod, only: allocate_grid_reduction_buffers
   use cable_output_reduction_buffers_mod, only: deallocate_grid_reduction_buffers
@@ -60,7 +61,9 @@ module cable_output_core_mod
   use cable_output_decomp_mod, only: associate_decomp_real32
   use cable_output_decomp_mod, only: associate_decomp_real64
 
+  use cable_output_utils_mod, only: check_duplicate_variable_names
   use cable_output_utils_mod, only: check_sampling_frequency
+  use cable_output_utils_mod, only: var_name
   use cable_output_utils_mod, only: dim_size
   use cable_output_utils_mod, only: define_variables
   use cable_output_utils_mod, only: set_global_attributes
@@ -110,27 +113,33 @@ contains
 
     do i = 1, size(output_variables)
       associate(output_var => output_variables(i))
+        if (count(output_var%field_name == output_variables(:)%field_name) > 1) then
+          call cable_abort("Duplicate field_name found: " // trim(output_var%field_name), __FILE__, __LINE__)
+        end if
         if (all(output_var%reduction_method /= [character(32) :: "none", "grid_cell_average", "first_patch_in_grid_cell"])) then
-          call cable_abort("Invalid reduction method for variable " // trim(output_var%name), __FILE__, __LINE__)
+          call cable_abort("Invalid reduction method for variable " // trim(output_var%field_name), __FILE__, __LINE__)
         end if
         if (all(output_var%aggregation_method /= [character(32) :: "point", "mean", "max", "min", "sum"])) then
-          call cable_abort("Invalid aggregation method for variable " // trim(output_var%name), __FILE__, __LINE__)
+          call cable_abort("Invalid aggregation method for variable " // trim(output_var%field_name), __FILE__, __LINE__)
         end if
-        if (all(output_var%var_type /= [CABLE_NETCDF_INT, CABLE_NETCDF_FLOAT, CABLE_NETCDF_DOUBLE])) then
-          call cable_abort("Invalid variable type for variable " // trim(output_var%name), __FILE__, __LINE__)
+        if (all(output_var%var_type /= [CABLE_OUTPUT_VAR_TYPE_UNDEFINED, CABLE_NETCDF_INT, CABLE_NETCDF_FLOAT, CABLE_NETCDF_DOUBLE])) then
+          call cable_abort("Invalid variable type for variable " // trim(output_var%field_name), __FILE__, __LINE__)
         end if
-        if (count(output_var%name == output_variables(:)%name) > 1) then
-          call cable_abort("Duplicate variable name found: " // trim(output_var%name), __FILE__, __LINE__)
+        if (.not. allocated(output_var%aggregator)) then
+          call cable_abort("Undefined aggregator for variable " // trim(output_var%field_name), __FILE__, __LINE__)
         end if
         if (( &
           .not. allocated(output_var%data_shape) .and. output_var%aggregator%rank() /= 0 &
         ) .or. ( &
-          allocated(output_var%data_shape) .and. any(dim_size(output_var%data_shape) /= output_var%aggregator%shape()) &
+          allocated(output_var%data_shape) .and. ( &
+            size(output_var%data_shape) /= size(output_var%aggregator%shape()) .or. &
+            any(dim_size(output_var%data_shape) /= output_var%aggregator%shape()) &
+          ) &
         )) then
-          call cable_abort("Data shape does not match aggregator shape for variable " // trim(output_var%name), __FILE__, __LINE__)
+          call cable_abort("Data shape does not match aggregator shape for variable " // trim(output_var%field_name), __FILE__, __LINE__)
         end if
         if (output_var%reduction_method /= "none" .and. .not. output_var%distributed) then
-          call cable_abort("Grid cell reductions require distributed output for variable " // trim(output_var%name), __FILE__, __LINE__)
+          call cable_abort("Grid cell reductions require distributed output for variable " // trim(output_var%field_name), __FILE__, __LINE__)
         end if
       end associate
     end do
@@ -162,11 +171,18 @@ contains
       grid_type=grid_type, &
       file_name="test_output.nc", & ! TODO(Sean): use filename from namelist
       output_file=cable_netcdf_create_file("test_output.nc", iotype=CABLE_NETCDF_IOTYPE_CLASSIC), & ! TODO(Sean): use filename from namelist
-      output_variables=[ &
-        coordinate_variables(grid_type), &
-        pack(registered_output_variables, registered_output_variables(:)%active) &
-      ] &
+      coordinate_variables=coordinate_variables(grid_type), &
+      output_variables=pack(registered_output_variables, registered_output_variables(:)%active) &
     )
+
+    do i = 1, size(global_profile%output_variables)
+      associate(output_var => global_profile%output_variables(i))
+        if (output_var%patchout) output_var%reduction_method = "none"
+        if (global_profile%sampling_frequency == "all") output_var%aggregation_method = "point"
+      end associate
+    end do
+
+    call check_duplicate_variable_names(global_profile)
 
     call check_sampling_frequency(global_profile)
 
@@ -175,6 +191,15 @@ contains
     call set_global_attributes(global_profile)
 
     call global_profile%output_file%end_def()
+
+    do i = 1, size(global_profile%coordinate_variables)
+      associate(coordinate_variable => global_profile%coordinate_variables(i))
+        call coordinate_variable%aggregator%init(method="point")
+        call coordinate_variable%aggregator%accumulate()
+        call write_variable(global_profile, coordinate_variable)
+        call coordinate_variable%aggregator%reset()
+      end associate
+    end do
 
     do i = 1, size(global_profile%output_variables)
       associate(output_variable => global_profile%output_variables(i))
@@ -248,6 +273,8 @@ contains
         associate(output_variable => global_profile%output_variables(i))
           if (output_variable%parameter) cycle
           if (check%ranges == ON_WRITE) call check_variable_range(output_variable, time_index, met)
+          if (allocated(output_variable%scale)) call output_variable%aggregator%scale(output_variable%scale)
+          if (allocated(output_variable%offset)) call output_variable%aggregator%offset(output_variable%offset)
           call write_variable(global_profile, output_variable, patch, landpt, frame=global_profile%frame + 1)
           call output_variable%aggregator%reset()
         end associate
@@ -281,17 +308,19 @@ contains
       grid_type="restart", &
       file_name="test_restart.nc", & ! TODO(Sean): use filename from namelist
       output_file=cable_netcdf_create_file("test_restart.nc", iotype=CABLE_NETCDF_IOTYPE_CLASSIC), & ! TODO(Sean): use filename from namelist
-      output_variables=[ &
-        coordinate_variables(grid_type="restart"), &
-        pack(registered_output_variables, registered_output_variables(:)%restart) &
-      ] &
+      coordinate_variables=coordinate_variables(grid_type="restart"), &
+      output_variables=pack(registered_output_variables, registered_output_variables(:)%restart) &
     )
 
-    call define_variables(restart_output_profile)
+    call define_variables(restart_output_profile, restart=.true.)
 
     call restart_output_profile%output_file%end_def()
 
     call restart_output_profile%output_file%put_var("time", [current_time])
+
+    do i = 1, size(restart_output_profile%coordinate_variables)
+      call write_variable(restart_output_profile, restart_output_profile%coordinate_variables(i), restart=.true.)
+    end do
 
     do i = 1, size(restart_output_profile%output_variables)
       call write_variable(restart_output_profile, restart_output_profile%output_variables(i), restart=.true.)
@@ -318,11 +347,11 @@ contains
     type is (aggregator_real32_0d_t)
       ! TODO(Sean): implement range checking for scalars
     type is (aggregator_real32_1d_t)
-      call check_range(output_variable%name, aggregator%source_data, output_variable%range, time_index, met)
+      call check_range(output_variable%field_name, aggregator%source_data, output_variable%range, time_index, met)
     type is (aggregator_real32_2d_t)
-      call check_range(output_variable%name, aggregator%source_data, output_variable%range, time_index, met)
+      call check_range(output_variable%field_name, aggregator%source_data, output_variable%range, time_index, met)
     type is (aggregator_real32_3d_t)
-      call check_range(output_variable%name, aggregator%source_data, output_variable%range, time_index, met)
+      call check_range(output_variable%field_name, aggregator%source_data, output_variable%range, time_index, met)
     type is (aggregator_real64_0d_t)
       ! TODO(Sean): implement range checking for double precision types
     type is (aggregator_real64_1d_t)
@@ -348,6 +377,7 @@ contains
     class(cable_netcdf_decomp_t), pointer :: decomp
     integer :: i, ndims
     logical :: restart_local
+    character(128) :: variable_name
 
     integer(kind=int32), pointer :: write_buffer_int32_0d
     integer(kind=int32), pointer :: write_buffer_int32_1d(:)
@@ -386,6 +416,9 @@ contains
       end if
     end if
 
+    variable_name = var_name(output_variable)
+    if (restart_local) variable_name = output_variable%field_name
+
     select type (aggregator => output_variable%aggregator)
     type is (aggregator_int32_0d_t)
       if (output_variable%reduction_method /= "none") then
@@ -397,14 +430,14 @@ contains
       write_buffer_int32_0d => aggregator%aggregated_data
       if (restart_local) write_buffer_int32_0d => aggregator%source_data
       if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_0d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_0d)
       end if
     type is (aggregator_int32_1d_t)
@@ -426,20 +459,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_int32(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_1d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_INT32, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_1d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_1d)
       end if
     type is (aggregator_int32_2d_t)
@@ -461,20 +494,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_int32(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_2d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_INT32, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_2d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_2d)
       end if
     type is (aggregator_int32_3d_t)
@@ -496,20 +529,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_int32(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_3d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_INT32, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_3d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_int32_3d)
       end if
     type is (aggregator_real32_0d_t)
@@ -522,14 +555,14 @@ contains
       write_buffer_real32_0d => aggregator%aggregated_data
       if (restart_local) write_buffer_real32_0d => aggregator%source_data
       if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_0d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_0d)
       end if
     type is (aggregator_real32_1d_t)
@@ -556,20 +589,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_real32(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_1d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL32, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_1d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_1d)
       end if
     type is (aggregator_real32_2d_t)
@@ -596,20 +629,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_real32(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_2d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL32, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_2d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_2d)
       end if
     type is (aggregator_real32_3d_t)
@@ -636,20 +669,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_real32(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_3d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL32, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_3d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real32_3d)
       end if
     type is (aggregator_real64_0d_t)
@@ -662,14 +695,14 @@ contains
       write_buffer_real64_0d => aggregator%aggregated_data
       if (restart_local) write_buffer_real64_0d => aggregator%source_data
       if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_0d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_0d)
       end if
     type is (aggregator_real64_1d_t)
@@ -696,20 +729,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_real64(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_1d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL64, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_1d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_1d)
       end if
     type is (aggregator_real64_2d_t)
@@ -736,20 +769,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_real64(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_2d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL64, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_2d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_2d)
       end if
     type is (aggregator_real64_3d_t)
@@ -776,20 +809,20 @@ contains
       if (output_variable%distributed) then
         call associate_decomp_real64(output_profile, output_variable, decomp)
         call output_profile%output_file%write_darray( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_3d, &
               decomp=decomp, &
               fill_value=FILL_VALUE_REAL64, &
               frame=frame)
       else if (present(frame)) then
-        call output_profile%output_file%inq_var_ndims(output_variable%name, ndims)
+        call output_profile%output_file%inq_var_ndims(variable_name, ndims)
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_3d, &
               start=[(1, i = 1, ndims - 1), frame])
       else
         call output_profile%output_file%put_var( &
-              var_name=output_variable%name, &
+              var_name=variable_name, &
               values=write_buffer_real64_3d)
       end if
     class default

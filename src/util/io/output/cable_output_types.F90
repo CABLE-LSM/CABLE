@@ -11,6 +11,8 @@ module cable_output_types_mod
   implicit none
   private
 
+  integer, parameter, public :: CABLE_OUTPUT_VAR_TYPE_UNDEFINED = -1
+
   type, extends(cable_enum_t), public :: cable_output_dim_t
   end type
 
@@ -20,17 +22,20 @@ module cable_output_types_mod
   end type
 
   type, public :: cable_output_variable_t
-    character(len=64)  :: name
-    character(len=64)  :: accumulation_frequency = "all"
-    character(len=64)  :: reduction_method = "none"
-    character(len=64)  :: aggregation_method
-    logical :: active
+    character(len=64) :: field_name
+    character(len=64) :: netcdf_name = ""
+    character(len=64) :: accumulation_frequency = "all"
+    character(len=64) :: reduction_method = "none"
+    character(len=64) :: aggregation_method = "point"
+    logical :: active = .true.
     logical :: parameter = .false.
     logical :: distributed = .true.
     logical :: restart = .false.
     logical :: patchout = .false.
-    integer :: var_type
-    real, dimension(2) :: range
+    integer :: var_type = CABLE_OUTPUT_VAR_TYPE_UNDEFINED
+    real, dimension(2) :: range = [-huge(0.0), huge(0.0)]
+    real, allocatable :: scale
+    real, allocatable :: offset
     type(cable_output_dim_t), allocatable :: data_shape(:)
     class(aggregator_t), allocatable :: aggregator
     type(cable_output_attribute_t), allocatable :: metadata(:)
@@ -43,6 +48,7 @@ module cable_output_types_mod
     character(len=64) :: grid_type
     character(len=256) :: file_name
     class(cable_netcdf_file_t), allocatable :: output_file
+    type(cable_output_variable_t), allocatable :: coordinate_variables(:)
     type(cable_output_variable_t), allocatable :: output_variables(:)
     type(cable_output_attribute_t), allocatable :: metadata(:)
   end type

@@ -438,7 +438,7 @@ contains
         decomp => output_decomp%land_soilcarbon_int32
       end if
     else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
+      call cable_abort("Unsupported data shape for output variable " // output_var%field_name, __FILE__, __LINE__)
     end if
 
   end subroutine associate_decomp_int32
@@ -498,7 +498,7 @@ contains
         decomp => output_decomp%land_soilcarbon_real32
       end if
     else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
+      call cable_abort("Unsupported data shape for output variable " // output_var%field_name, __FILE__, __LINE__)
     end if
 
   end subroutine associate_decomp_real32
@@ -558,7 +558,7 @@ contains
         decomp => output_decomp%land_soilcarbon_real64
       end if
     else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
+      call cable_abort("Unsupported data shape for output variable " // output_var%field_name, __FILE__, __LINE__)
     end if
 
   end subroutine associate_decomp_real64
@@ -581,7 +581,7 @@ contains
     else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       decomp => decomp_grid_restart%patch_soilcarbon_int32
     else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
+      call cable_abort("Unsupported data shape for output variable " // output_var%field_name, __FILE__, __LINE__)
     end if
 
   end subroutine associate_decomp_restart_int32
@@ -603,7 +603,7 @@ contains
     else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       decomp => decomp_grid_restart%patch_soilcarbon_real32
     else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
+      call cable_abort("Unsupported data shape for output variable " // output_var%field_name, __FILE__, __LINE__)
     end if
 
   end subroutine associate_decomp_restart_real32
@@ -625,7 +625,7 @@ contains
     else if (data_shape_eq(output_var%data_shape, [CABLE_OUTPUT_DIM_PATCH, CABLE_OUTPUT_DIM_SOILCARBON])) then
       decomp => decomp_grid_restart%patch_soilcarbon_real64
     else
-      call cable_abort("Unsupported data shape for output variable " // output_var%name, __FILE__, __LINE__)
+      call cable_abort("Unsupported data shape for output variable " // output_var%field_name, __FILE__, __LINE__)
     end if
 
   end subroutine associate_decomp_restart_real64
