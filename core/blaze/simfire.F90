@@ -570,7 +570,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
   CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
-  INTEGER, PARAMETER :: stoch_trig = 30                 !number of days between call to stoch generator
+  INTEGER, PARAMETER :: stoch_trig = 20                 !number of days between call to stoch generator
 
   INTEGER :: i, DOM(12), DOY, p, patch_index, iSTOCH
 
@@ -604,6 +604,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
      !100000 is max value allowed in cable_climate
      SF%MAX_NESTEROV = 2.5*climate%Nesterov_Current(landpt(:)%cstart)
      SF%MAX_NESTEROV = MIN(SF%MAX_NESTEROV,100000.0)
+
+     !need to increase other input to AB because of cycle in Nesterov_current
+     SF%FAPAR(i) = MIN(MAX(1.5*SF%FAPAR(i),0.0),1.0)
   ELSE
      SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
   END IF

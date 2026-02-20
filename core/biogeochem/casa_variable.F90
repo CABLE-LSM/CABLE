@@ -1876,7 +1876,7 @@ Contains
        sum_casaflux%fromLtoCO2      = sum_casaflux%fromLtoCO2      + casaflux%fromLtoCO2
        sum_casaflux%fromStoCO2      = sum_casaflux%fromStoCO2      + casaflux%fromStoCO2
        sum_casaflux%stemnpp         = sum_casaflux%stemnpp         + casaflux%stemnpp
-       sum_casaflux%potstemnpp      = sum_casaflux%stemnpp         + casaflux%potstemnpp
+       sum_casaflux%potstemnpp      = sum_casaflux%potstemnpp      + casaflux%potstemnpp
        sum_casaflux%frac_sapwood    = sum_casaflux%frac_sapwood    + casaflux%frac_sapwood
        sum_casaflux%sapwood_area    = sum_casaflux%sapwood_area    + casaflux%sapwood_area
        sum_casaflux%Cplant_turnover = &
