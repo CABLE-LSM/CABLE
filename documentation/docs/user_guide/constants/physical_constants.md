@@ -20,4 +20,4 @@
 |  cswat                | 4.218E3     	   | \( J \cdot kg^{-1} \cdot K^{-1} \)		      	 |   Specific heat for water at \( 0^{\circ}C \)       |
 |  density_liq          | 1000.0      	   | \( kg \cdot m^{-3} \) 			      	 |   Density of liquid water                           |
 |  density_ice          | 921.0       	   | \( kg \cdot m^{-3} \) 			      	 |   Density of ice                                    |                
-        
+|  c_molar_mass         | 1.201E-5         | \( \micro g / mol \)                    |   Molar mass of carbon                              |
