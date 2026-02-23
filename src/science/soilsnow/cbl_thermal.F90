@@ -28,12 +28,10 @@ IMPLICIT NONE
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
     TYPE (balances_type), INTENT(INOUT)      :: bal
-    REAL, DIMENSION(mp)                      :: snowmlt !track snow melt 
+    REAL, DIMENSION(:), ALLOCATABLE                      :: snowmlt !track snow melt 
 !    REAL, DIMENSION(:),  INTENT(INOUT)       :: snowmlt  ! replaced by rk4417 - phase2
     INTEGER             :: k,i
 
-    snowmlt = 0.0  ! inserted by rk4417 - phase2
-    
     CALL snowcheck (dels, ssnow, soil, met )
 
     CALL snowdensity (dels, ssnow, soil)

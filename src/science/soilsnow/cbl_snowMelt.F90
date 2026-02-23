@@ -1,6 +1,7 @@
 MODULE snow_melting_mod
 
 USE cbl_ssnow_data_mod
+USE cable_common_module
 
 PUBLIC  snow_melting
 
@@ -8,12 +9,11 @@ CONTAINS
 
 SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
 
-    USE cable_common_module
 IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels   ! integration time step (s)
 
-    REAL, DIMENSION(mp), INTENT(OUT) :: snowmlt ! snow melt
+    REAL, DIMENSION(:), INTENT(OUT) :: snowmlt ! snow melt
 
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
     TYPE(soil_snow_type), INTENT(INOUT)   :: ssnow  ! soil+snow variables
@@ -27,6 +27,7 @@ IMPLICIT NONE
 
     REAL, DIMENSION(mp,0:3) :: smelt1
 
+    ALLOCATE(ssnow(SIZE(ssnow%smelt)))
     snowmlt= 0.0
     smelt1 = 0.0
 
