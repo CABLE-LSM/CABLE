@@ -13,7 +13,7 @@ IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels   ! integration time step (s)
 
-    REAL, DIMENSION(:), INTENT(OUT) :: snowmlt ! snow melt
+    REAL, DIMENSION(:), ALLOCATABLE, INTENT(OUT) :: snowmlt ! snow melt
 
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
     TYPE(soil_snow_type), INTENT(INOUT)   :: ssnow  ! soil+snow variables
