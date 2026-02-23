@@ -7,7 +7,6 @@ USE cbl_ssnow_data_mod
   PRIVATE
 
   PUBLIC spec_init_soil_snow
-  PUBLIC spec_init_snowcheck
 
 CONTAINS
 
@@ -88,84 +87,4 @@ END IF
 
 END SUBROUTINE spec_init_soil_snow
 
-  SUBROUTINE spec_init_snowcheck(dels, ssnow, soil, met )
-
-    USE cable_common_module
-
-    REAL, INTENT(IN) :: dels ! integration time step (s)
-
-    TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
-    TYPE(met_type),       INTENT(INOUT) :: met ! all met forcing
-
-    TYPE(soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameters
-
-    INTEGER :: k,j
-
-
-    DO j=1,mp
-
-       IF( ssnow%snowd(j) <= 0.0 ) THEN
-          !H!ssnow%isflag(j) = 0
-          !H!ssnow%ssdn(j,:) = 120.0
-          !H!ssnow%ssdnn(j) = 120.0
-          !H!ssnow%tggsn(j,:) = CTFRZ
-          !H!ssnow%sdepth(j,1) = ssnow%snowd(j) / ssnow%ssdn(j,1)
-          !H!ssnow%sdepth(j,2) = 0.
-          !H!ssnow%sdepth(j,3) = 0.
-          !H!ssnow%smass(j,1) = ssnow%snowd(j)
-          !H!ssnow%smass(j,2) = 0.0     ! EK to fix -ve sdepth 21Dec2007
-          !H!ssnow%smass(j,3) = 0.0     ! EK to fix -ve sdepth 21Dec2007
-       ELSEIF( ssnow%snowd(j) < snmin * ssnow%ssdnn(j) ) THEN
-          !H!IF( ssnow%isflag(j) == 1 ) THEN
-          !H!   ssnow%ssdn(j,1) = ssnow%ssdnn(j)
-          !H!   ssnow%tgg(j,1) = ssnow%tggsn(j,1)
-          !H!ENDIF
-          !H!ssnow%isflag(j) = 0
-          !H!ssnow%ssdnn(j) = MIN( 400.0, MAX( 120.0, ssnow%ssdn(j,1) ) )
-          !H!ssnow%tggsn(j,:) = MIN( CTFRZ,ssnow%tgg(j,1) )
-          !H!ssnow%sdepth(j,1) = ssnow%snowd(j) / ssnow%ssdn(j,1)
-          !H!ssnow%sdepth(j,2) = 0.0
-          !H!ssnow%sdepth(j,3) = 0.0
-          !H!ssnow%smass(j,1) = ssnow%snowd(j)
-          !H!ssnow%smass(j,2) = 0.0
-          !H!ssnow%smass(j,3) = 0.0
-          !H!ssnow%ssdn(j,:) = ssnow%ssdnn(j)
-
-          IF( (cable_user%soilsnow_init_spec ) ) THEN
-             IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 )                       &
-                                ! permanent ice: fixed hard-wired number in next version
-                  ssnow%ssdnn(j) = 700.0
-          ENDIF
-
-       ELSE ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
-          ! sufficient snow now for 3 layer snowpack
-
-          IF( ssnow%isflag(j) == 0 ) THEN
-             !H!ssnow%tggsn(j,:) = MIN( CTFRZ, ssnow%tgg(j,1) )
-             !H!ssnow%ssdn(j,2) = ssnow%ssdn(j,1)
-             !H!ssnow%ssdn(j,3) = ssnow%ssdn(j,1)
-             IF( (cable_user%soilsnow_init_spec ) ) THEN
-                IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 ) THEN
-                   ! permanent ice: fix hard-wired number in next version
-                   ssnow%ssdn(j,1)  = 450.0
-                   ssnow%ssdn(j,2)  = 580.0
-                   ssnow%ssdn(j,3)  = 600.0
-                ENDIF
-             ENDIF
-             !H!ssnow%sdepth(j,1) = ssnow%t_snwlr(j)
-             !H!ssnow%smass(j,1)  =  ssnow%t_snwlr(j) * ssnow%ssdn(j,1)
-             !H!ssnow%smass(j,2)  = ( ssnow%snowd(j) - ssnow%smass(j,1) ) * 0.4
-             !H!ssnow%smass(j,3)  = ( ssnow%snowd(j) - ssnow%smass(j,1) ) * 0.6
-             !H!ssnow%sdepth(j,2) = ssnow%smass(j,2) / ssnow%ssdn(j,2)
-             !H!ssnow%sdepth(j,3) = ssnow%smass(j,3) / ssnow%ssdn(j,3)
-             !H!ssnow%ssdnn(j) = ( ssnow%ssdn(j,1) * ssnow%smass(j,1) +            &
-             !H!     ssnow%ssdn(j,2) * ssnow%smass(j,2) +             &
-             !H!     ssnow%ssdn(j,3) * ssnow%smass(j,3) )             &
-             !H!     / ssnow%snowd(j)
-          ENDIF
-          !H!ssnow%isflag(j) = 1
-       ENDIF ! END: IF( ssnow%snowd(j) <= 0.0 ) THEN
-    ENDDO ! END: DO j=1,mp
-
-  END SUBROUTINE spec_init_snowcheck
 END MODULE cbl_soil_snow_init_special_module
