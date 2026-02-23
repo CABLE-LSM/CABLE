@@ -27,7 +27,7 @@ IMPLICIT NONE
 
     REAL, DIMENSION(mp,0:3) :: smelt1
 
-    ALLOCATE(ssnow(SIZE(ssnow%smelt)))
+    ALLOCATE(snowmlt(SIZE(ssnow%smelt)))
     snowmlt= 0.0
     smelt1 = 0.0
 
