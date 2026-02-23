@@ -155,7 +155,7 @@ MODULE cable_IO_vars_module
      INTEGER :: bch,latitude,clay,css,rhosoil,hyds,rs20,sand,sfc,silt,        &
           ssat,sucs,swilt,froot,zse,canst1,dleaf,meth,za_tq,za_uv,             &
           ejmax,frac4,hc,lai,rp20,rpcoef,shelrb, vbeta, xalbnir,               &
-          vcmax,xfang,ratecp,ratecs,refsbare,isoil,iveg,albsoil,               &
+          vcmax,xfang,ratecp,ratecs,area,refsbare,isoil,iveg,albsoil,          &
           taul,refl,tauw,refw,wai,vegcf,extkn,tminvj,tmaxvj,                   &
           veg_class,soil_class,mvtype,mstype,patchfrac,                        &
           WatSat,GWWatSat,SoilMatPotSat,GWSoilMatPotSat,                       &

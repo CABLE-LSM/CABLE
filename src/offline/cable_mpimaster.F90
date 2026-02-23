@@ -440,7 +440,7 @@ CONTAINS
               ENDIF
             ENDIF
             CALL nullify_write() ! nullify pointers
-            CALL open_output_file( dels, soil, veg, bgc, rough, met)
+            CALL open_output_file( dels, soil, veg, bgc, rough, met, casamet)
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -865,13 +865,10 @@ CONTAINS
               SELECT CASE (TRIM(cable_user%MetType))
               CASE ('plum', 'cru', 'gswp', 'gswp3', 'prin')
                 CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
-                     casamet,ssnow,         &
-                     rad, bal, air, soil, veg, CSBOLTZ,     &
-                     CEMLEAF, CEMSOIL )
+                     ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
               CASE DEFAULT
                 CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
-                     casamet, ssnow,   &
-                     rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+                     ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
 
               END SELECT
             END IF
@@ -1067,10 +1064,10 @@ CONTAINS
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'gswp', 'gswp3')
-              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
+              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             CASE DEFAULT
-              CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
+              CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
 
             END SELECT

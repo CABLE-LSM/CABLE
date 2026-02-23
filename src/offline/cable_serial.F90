@@ -416,7 +416,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
               ENDIF
             ENDIF
             CALL nullify_write() ! nullify pointers
-            CALL open_output_file( dels, soil, veg, bgc, rough, met)
+            CALL open_output_file( dels, soil, veg, bgc, rough, met, casamet)
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -710,10 +710,10 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
             !mpidiff
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
-              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
+              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             CASE DEFAULT
-              CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
+              CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             END SELECT
           ENDIF
