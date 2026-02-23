@@ -882,27 +882,28 @@ CONTAINS
     END IF
 
     !MD groundwater related variables
-    IF(output%WatTable) THEN
-       CALL define_ovar(ncid_out, ovid%WatTable, 'WatTable', 'm',      &
-            'Water Table Depth', patchout%WatTable,     &
-            'dummy', xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%WatTable(mp))
-       out%WatTable = 0.0 ! initialise
-    END IF
-    IF(output%GWMoist) THEN
-       CALL define_ovar(ncid_out, ovid%GWMoist, 'GWMoist', 'mm3/mm3',      &
-            'Aquifer mositure content', patchout%GWMoist,     &
-            'dummy', xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%GWMoist(mp))
-       out%GWMoist = 0.0 ! initialise
-    END IF
-
-    IF(output%SatFrac) THEN
-       CALL define_ovar(ncid_out, ovid%SatFrac, 'SatFrac', 'unitless',      &
-            'Saturated Fraction of Gridcell', patchout%SatFrac,     &
-            'dummy', xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%SatFrac(mp))
-       out%SatFrac = 0.0 ! initialise
+    IF (cable_user%GW_MODEL) THEN
+      IF(output%WatTable) THEN
+        CALL define_ovar(ncid_out, ovid%WatTable, 'WatTable', 'm',      &
+              'Water Table Depth', patchout%WatTable,     &
+              'dummy', xID, yID, zID, landID, patchID, tID)
+        ALLOCATE(out%WatTable(mp))
+        out%WatTable = 0.0 ! initialise
+      END IF
+      IF(output%GWMoist) THEN
+        CALL define_ovar(ncid_out, ovid%GWMoist, 'GWMoist', 'mm3/mm3',      &
+              'Aquifer mositure content', patchout%GWMoist,     &
+              'dummy', xID, yID, zID, landID, patchID, tID)
+        ALLOCATE(out%GWMoist(mp))
+        out%GWMoist = 0.0 ! initialise
+      END IF
+      IF(output%SatFrac) THEN
+        CALL define_ovar(ncid_out, ovid%SatFrac, 'SatFrac', 'unitless',      &
+              'Saturated Fraction of Gridcell', patchout%SatFrac,     &
+              'dummy', xID, yID, zID, landID, patchID, tID)
+        ALLOCATE(out%SatFrac(mp))
+        out%SatFrac = 0.0 ! initialise
+      END IF
     END IF
 
     IF(output%Qrecharge) THEN
