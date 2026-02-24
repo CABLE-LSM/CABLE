@@ -46,10 +46,12 @@ USE cable_runtime_opts_mod ,ONLY : snmin
   LOGICAL :: calcsoilalbedo = .FALSE.
   !---Lestevens Sept2012
   !---CASACNP switches and cycle index
-  LOGICAL, SAVE :: l_casacnp,l_laiFeedbk,l_vcmaxFeedbk
-   LOGICAL :: l_luc = .FALSE.
-   LOGICAL :: l_thinforest = .FALSE.
-   LOGICAL :: l_landuse = .FALSE.
+  LOGICAL :: l_casacnp = .FALSE.
+  LOGICAL :: l_laiFeedbk = .FALSE.
+  LOGICAL :: l_vcmaxFeedbk = .FALSE.
+  LOGICAL :: l_luc = .FALSE.
+  LOGICAL :: l_thinforest = .FALSE.
+  LOGICAL :: l_landuse = .FALSE.
 
   !---CABLE runtime switches def in this type
   TYPE kbl_internal_switches

@@ -13,6 +13,10 @@ MODULE cable_driver_common_mod
     snmin,                        &
     cable_user,                   &
     gw_params,                    &
+    l_casacnp,                    &
+    l_landuse,                    &
+    l_laiFeedbk,                  &
+    l_vcmaxFeedbk,                &
     cable_runtime
   USE cable_IO_vars_module, ONLY : &
     soilparmnew,                   &
@@ -55,10 +59,6 @@ MODULE cable_driver_common_mod
   LOGICAL, SAVE, PUBLIC :: spinup        = .FALSE. ! model spinup to soil state equilibrium?
   LOGICAL, SAVE, PUBLIC :: spincasa      = .FALSE. ! TRUE: CASA-CNP Will spin mloop times, FALSE: no spin up
   LOGICAL, SAVE, PUBLIC :: CASAONLY      = .FALSE. ! ONLY Run CASA-CNP
-  LOGICAL, SAVE, PUBLIC :: l_casacnp     = .FALSE. ! using CASA-CNP with CABLE
-  LOGICAL, SAVE, PUBLIC :: l_landuse     = .FALSE. ! using CASA-CNP with CABLE
-  LOGICAL, SAVE, PUBLIC :: l_laiFeedbk   = .FALSE. ! using prognostic LAI
-  LOGICAL, SAVE, PUBLIC :: l_vcmaxFeedbk = .FALSE. ! using prognostic Vcmax
 
   REAL, SAVE, PUBLIC :: delsoilM ! allowed variation in soil moisture for spin up
   REAL, SAVE, PUBLIC :: delsoilT ! allowed variation in soil temperature for spin up
