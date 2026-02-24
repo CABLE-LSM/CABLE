@@ -1,3 +1,16 @@
+! landuse change module developed by YP Wang, CSIRO Oceans and Atmosphere
+! some notation conventions
+! (1) arrange index sequence:
+!  for any two-dimensional variable: x(mlon,mlat)
+!
+! (2) translation from 2d field inot 1d land point
+!  nland=0
+!  do j=1,mlat
+!  do i=1,mlon
+!      if(landmask(i,j)==1) nland=nland+1
+!  enddo
+!  enddo
+!
 MODULE landuse_variable
   use landuse_constant
   IMPLICIT NONE
@@ -195,6 +208,7 @@ MODULE landuse_variable
     REAL(r_2), DIMENSION(:,:),   ALLOCATABLE :: fharvw
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: xluh2cable
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: atransit
+    REAL(r_2), DIMENSION(:,:),   ALLOCATABLE :: delarea
   END TYPE landuse_mland
 
   TYPE landuse_mp
@@ -380,7 +394,8 @@ MODULE landuse_variable
    ALLOCATE(luc%pftfrac(imland,mvtype),           &
             luc%fharvw(imland,mharvw),            &
             luc%xluh2cable(imland,mvmax,mstate),  &
-            luc%atransit(imland,mvmax,mvmax))
+            luc%atransit(mland,mvmax,mvmax),      &
+            luc%delarea(mland,mvmax))
 
     !        luc%phen_y(imland,mvmax),             &
     !        luc%aphen_y(imland,mvmax),            &
@@ -483,7 +498,8 @@ MODULE landuse_variable
            luc%psoilsorb_y = 0.0; luc%psoilocc_y = 0.0
            luc%cwoodprod_y=0.0;   luc%nwoodprod_y=0.0;     luc%pwoodprod_y=0.0
 
-           luc%pftfrac = 0.0;     luc%fharvw=0.0;          luc%xluh2cable=0.0;    luc%atransit=0.0
+           luc%pftfrac = 0.0;     luc%fharvw=0.0;          luc%xluh2cable=0.0
+           luc%atransit=0.0;      luc%delarea=0.0
    END SUBROUTINE landuse_allocate_mland
 
    SUBROUTINE landuse_deallocate_mland(luc)
@@ -613,7 +629,8 @@ MODULE landuse_variable
    DEALLOCATE(luc%pftfrac,           &
               luc%fharvw,            &
               luc%xluh2cable,        &
-              luc%atransit)
+              luc%atransit,          &
+              luc%delarea)
 
    END SUBROUTINE landuse_deallocate_mland
 
@@ -733,7 +750,7 @@ END MODULE landuse_variable
 
   subroutine landuse_driver(mlon,mlat,landmask,arealand,ssnow,soil,veg,bal,canopy,  &
                             phen,casapool,casabal,casamet,casabiome,casaflux,bgc,rad, &
-                            cstart,cend,nap,lucmp)
+                            cstart,cend,nap,lucmp,luc_atransit,luc_fharvw,luc_xluh2cable,luc_delarea)
   !! Main driver for the land-use change
   !
   USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
@@ -768,9 +785,13 @@ END MODULE landuse_variable
   ! output
   ! "mland" variables
   integer,       dimension(mland)             :: cstart,cend,nap
+  real(r_2)    luc_atransit(mland,mvmax,mvmax)
+  real(r_2)    luc_fharvw(mland,mharvw)
+  real(r_2)    luc_xluh2cable(mland,mvmax,mstate)
+  real(r_2)    luc_delarea(mland,mvmax)
 
-  character*500   fxpft,fxluh2cable
-  integer ivt,ee,hh,np,p,q,np1
+  character*500   fxpft1,fxluh2cable
+  integer ivt,ee,hh,np,p,q,np1,k1,k2
   integer ncid,ok,xID,yID,varID,i,j,m,mpx
 
      print *, 'calling allocate mp: landuse'
@@ -857,6 +878,23 @@ END MODULE landuse_variable
              luc%pftfrac(m,ivt) = patch(np)%frac
           endif
        enddo
+       do k1=1,mvmax
+       do k2=1,mvmax
+          luc%atransit(m,k1,k2)   = luc_atransit(m,k1,k2)
+       enddo
+       enddo
+
+       do k1=1,mharvw
+          luc%fharvw(m,k1)       = luc_fharvw(m,k1)
+       enddo
+
+       do k1=1,mvmax
+	      luc%delarea(m,k1)      = luc_delarea(m,k1)
+          do k2=1,mstate
+             luc%xluh2cable(m,k1,k2) = luc_xluh2cable(m,k1,k2)
+          enddo
+       enddo
+
      enddo
 
      print *, 'point F: landuse'
@@ -956,17 +994,11 @@ END MODULE landuse_variable
         enddo
      enddo
 
-!     print *, 'calling land2mpx: landuse'
-     call landuse_land2mpx(luc,lucmp,mpx)
-  !   call landuse_land2mpx(luc,lucmp,mpx,cstart,cend,nap)
+     ! sort all variables (mland,mvmax,:) by descending patchfrac orde
+     call landuse_land2mpx(luc,lucmp,mpx,cstart,cend,nap)
 
-!     print *, 'calling deallocate mland: landuse'
      call landuse_deallocate_mland(luc)
 
-!     print *, 'landuse: exit landuse_driver mpx', mpx
-
-     close(21)
-211  format(i4,a120)
 end subroutine landuse_driver
 
  SUBROUTINE landuse_mp2land(luc,lucmp,mp,cstart,cend)
@@ -1252,7 +1284,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
             if(d<11.or.d>13) then
                delfwhpri(d)  = luc%fharvw(p,1) * luc%xluh2cable(p,d,1)    ! donor    (positive)
             else
-               delfwhpri(d) = -luc%fharvw(p,1) * luc%xluh2cable(p,r,3)    ! receiver (negative)
+               delfwhpri(d) = -luc%fharvw(p,1) * luc%xluh2cable(p,d,3)    ! receiver (negative)
             endif
          enddo  ! of "d"
          call landuse_redistribution(p,mvmax,delfwhpri,afwhpri)
@@ -1795,7 +1827,10 @@ END SUBROUTINE landuse_transitx
 
  END SUBROUTINE landuse_update_mland
 
- SUBROUTINE landuse_land2mpx(luc,lucmp,mpx)
+ SUBROUTINE landuse_land2mpx(luc,lucmp,mpx,cstart,cend,nap)
+ ! assign luc%varx(mland,mvmax,:) to lucmp%varx(mp,:)
+ ! within each land cell, order the variable by descending patchfracions
+ !
  !! Maps `luc%var_y(mland,mvmax)` to `lucmp%var(mp)`
  USE landuse_constant,     ONLY: mvmax
  USE landuse_variable
@@ -1803,19 +1838,35 @@ END SUBROUTINE landuse_transitx
  IMPLICIT NONE
  TYPE(landuse_mland)         :: luc
  TYPE(landuse_mp)            :: lucmp
-! integer, dimension(mland)   :: cstart,cend,nap
+ integer, dimension(mland)   :: cstart,cend,nap
  integer mpx
- integer np,np1,p,q,n,npnew,npold
+ integer np,np1,p,q,n,npnew,napx
+ integer, dimension(mvmax)   :: tmpint
+ real(r_2),dimension(mvmax)  :: tmpx
 
-    npnew=0; npold=0
     do p=1,mland
        do q=1,mvmax
-          if(luc%patchfrac_x(p,q)>thresh_frac) then
-             npold=npold +1
+          tmpx(q)  = luc%patchfrac_y(p,q)
+          tmpint(q)= q
+       enddo
+   ! look through "mland" and order the patches within the cell in descending "patchfrac"
+       call sortx(mvmax,tmpx,tmpint)
+       napx = 0
+       do q=1,mvmax
+          if(tmpx(q)> thresh_frac) then
+             napx = napx +1
           endif
-          if(luc%patchfrac_y(p,q)>thresh_frac) then
-             npnew = npnew +1
-             lucmp%iveg(npnew)      = q
+       enddo
+
+       if(napx/=nap(p)) then
+          print *, 'number of patches not equal at land cell! Stop ', p,napx,nap(p)
+          stop
+       endif
+
+       do npnew=cstart(p),cend(p)
+             lucmp%iveg(npnew)      = tmpint(npnew-cstart(p)+1)
+             lucmp%patchfrac(npnew) = tmpx(npnew-cstart(p)+1)
+             q = lucmp%iveg(npnew)
              lucmp%isoil(npnew)     = luc%isoil_y(p,q)
              lucmp%soilorder(npnew) = luc%soilorder_y(p,q)
              lucmp%phase(npnew)      = luc%phase_y(p,q)
@@ -1890,14 +1941,37 @@ END SUBROUTINE landuse_transitx
                 lucmp%psoilocc(npnew)    = luc%psoilocc_y(p,q)
                 lucmp%pwoodprod(npnew,:) = luc%pwoodprod_y(p,q,:)
              endif
-          endif
-          !update patch_type
-       enddo   ! end of "q"
+
+       enddo   ! end of "npnew"
     enddo  ! end of "p"
 
-    print *, 'npnew npold', npnew,npold
-
  END SUBROUTINE landuse_land2mpx
+
+  subroutine sortx(mvmax,tmpx,tmpint)
+  ! based on numerical recipes, straight insertion method  p322
+  USE cable_def_types_mod,  ONLY: r_2
+  implicit none
+  integer,      intent(in)     :: mvmax
+  integer,      intent(inout)  :: tmpint(mvmax)
+  real(r_2),    intent(inout)  :: tmpx(mvmax)
+  integer                      :: i, j, na
+  real(r_2)                    :: xa
+
+    do j=2,mvmax
+       xa = tmpx(j)
+       na = tmpint(j)
+       do i=j-1,1,-1
+          if(tmpx(i)>=xa) exit
+            tmpx(i+1) = tmpx(i)
+            tmpint(i+1) = tmpint(i)
+       enddo
+       if(tmpx(i)<xa) i=0
+!       if(i==1) i=0
+       tmpx(i+1)   = xa
+       tmpint(i+1) = na
+    enddo
+
+  end subroutine sortx
 
  SUBROUTINE landuse_checks(mlon,mlat,landmask,luc)
  !! Checks the mass balance and writes the output CNP pool sizes for each
@@ -1959,13 +2033,15 @@ END SUBROUTINE landuse_transitx
     totaln = sum(npland+nlland+nsland+nsminland+nwoodland)
     totalp = sum(ppland+plland+psland+pslabland+pssorbland+psoccland+pwoodland)
 
+    open(2001,file='landuse_check22.txt')
     do v=1,mvmax
-       write(21,201) v, areapft(v),cpland(v)+clland(v)+csland(v)+clabland(v)+cwoodland(v),     &
+       write(2001,201) v, areapft(v),cpland(v)+clland(v)+csland(v)+clabland(v)+cwoodland(v),     &
                         npland(v)+nlland(v)+nsland(v)+nsminland(v)+nwoodland(v),               &
                         ppland(v)+plland(v)+psland(v)+pslabland(v)+pssorbland(v)+psoccland(v)+pwoodland(v)
     enddo
-    write(21,202) sum(areapft),totalc,totaln,totalp
+    write(2001,202) sum(areapft),totalc,totaln,totalp
 
+    close(2001)
 201 format(i3,2x,20(f10.5,2x))
 202 format(20(f10.5,2x))
 
