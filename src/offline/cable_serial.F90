@@ -118,7 +118,8 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   use cable_output_prototype_v2_mod, only: cable_output_write
   use cable_output_prototype_v2_mod, only: cable_output_write_parameters
   use cable_output_prototype_v2_mod, only: cable_output_write_restart
-  use cable_output_prototype_v2_mod, only: cable_output_core_outputs
+  use cable_diagnostics_core_mod, only: cable_diagnostics_core
+  use cable_diagnostics_casa_mod, only: cable_diagnostics_casa
   use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
    USE cable_checks_module, ONLY: constant_check_range
   USE cable_write_module,   ONLY: nullify_write
@@ -433,7 +434,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
             call cable_output_mod_init()
             call cable_output_register_output_variables([ &
-              cable_output_core_outputs(dels, met, canopy, soil, ssnow, rad, veg, bal, casaflux, casapool, casamet, rough, bgc) &
+              cable_diagnostics_core(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
+              cable_diagnostics_casa(casaflux, casapool, casamet) &
             ])
             call cable_output_profiles_init()
             call cable_output_write_parameters(kstart, patch, landpt, met)

@@ -18,6 +18,8 @@ module cable_output_utils_mod
   use cable_io_vars_module, only: timeunits
   use cable_io_vars_module, only: time_coord
   use cable_io_vars_module, only: calendar
+  use cable_io_vars_module, only: lat_all, lon_all
+  use cable_io_vars_module, only: latitude, longitude
 
   use cable_abort_module, only: cable_abort
 
@@ -30,6 +32,7 @@ module cable_output_utils_mod
   use cable_output_types_mod, only: cable_output_dim_t
   use cable_output_types_mod, only: cable_output_variable_t
   use cable_output_types_mod, only: cable_output_profile_t
+  use cable_output_types_mod, only: attribute => cable_output_attribute_t
   use cable_output_types_mod, only: CABLE_OUTPUT_DIM_PATCH
   use cable_output_types_mod, only: CABLE_OUTPUT_DIM_SOIL
   use cable_output_types_mod, only: CABLE_OUTPUT_DIM_SNOW
@@ -45,9 +48,12 @@ module cable_output_utils_mod
   use cable_output_types_mod, only: FILL_VALUE_REAL64
   use cable_output_types_mod, only: CABLE_OUTPUT_VAR_TYPE_UNDEFINED
 
+  use aggregator_mod, only: new_aggregator
+
   implicit none
   private
 
+  public :: coordinate_variables
   public :: check_duplicate_variable_names
   public :: check_sampling_frequency
   public :: dim_size
@@ -58,6 +64,98 @@ module cable_output_utils_mod
   public :: data_shape_eq
 
 contains
+
+  function coordinate_variables(grid_type) result(coord_variables)
+    character(len=*), intent(in) :: grid_type
+
+    type(cable_output_variable_t), allocatable :: coord_variables(:)
+
+    select case (grid_type)
+    case ("restart")
+      coord_variables = [ &
+        cable_output_variable_t( &
+          field_name="latitude", &
+          data_shape=[CABLE_OUTPUT_DIM_LAND_GLOBAL], &
+          distributed=.false., &
+          aggregator=new_aggregator(latitude), &
+          metadata=[attribute("units", "degrees_north")] &
+        ), &
+        cable_output_variable_t( &
+          field_name="longitude", &
+          data_shape=[CABLE_OUTPUT_DIM_LAND_GLOBAL], &
+          distributed=.false., &
+          aggregator=new_aggregator(longitude), &
+          metadata=[attribute("units", "degrees_east")] &
+        ) &
+      ]
+    case ("mask")
+      coord_variables = [ &
+        cable_output_variable_t( &
+          field_name="lat_all", &
+          netcdf_name="latitude", &
+          data_shape=[CABLE_OUTPUT_DIM_X, CABLE_OUTPUT_DIM_Y], &
+          var_type=CABLE_NETCDF_FLOAT, &
+          parameter=.true., &
+          distributed=.false., &
+          aggregator=new_aggregator(lat_all), &
+          metadata=[attribute("units", "degrees_north")] &
+        ), &
+        cable_output_variable_t( &
+          field_name="lon_all", &
+          netcdf_name="longitude", &
+          data_shape=[CABLE_OUTPUT_DIM_X, CABLE_OUTPUT_DIM_Y], &
+          parameter=.true., &
+          distributed=.false., &
+          aggregator=new_aggregator(lon_all), &
+          metadata=[attribute("units", "degrees_east")] &
+        ), &
+        cable_output_variable_t( &
+          field_name="x", &
+          data_shape=[CABLE_OUTPUT_DIM_X], &
+          parameter=.true., &
+          distributed=.false., &
+          aggregator=new_aggregator(lon_all(:, 1)), &
+          metadata=[ &
+            attribute("units", "degrees_east"), &
+            attribute("comment", "x coordinate variable for GrADS compatibility") &
+          ] &
+        ), &
+        cable_output_variable_t( &
+          field_name="y", &
+          data_shape=[CABLE_OUTPUT_DIM_Y], &
+          parameter=.true., &
+          distributed=.false., &
+          aggregator=new_aggregator(lat_all(1, :)), &
+          metadata=[ &
+            attribute("units", "degrees_north"), &
+            attribute("comment", "y coordinate variable for GrADS compatibility") &
+          ] &
+        ) &
+      ]
+    case ("land")
+      coord_variables = [ &
+        cable_output_variable_t( &
+          field_name="local_lat", &
+          data_shape=[CABLE_OUTPUT_DIM_LAND_GLOBAL], &
+          parameter=.true., &
+          distributed=.false., &
+          aggregator=new_aggregator(latitude), &
+          metadata=[attribute("units", "degrees_north")] &
+        ), &
+        cable_output_variable_t( &
+          field_name="local_lon", &
+          data_shape=[CABLE_OUTPUT_DIM_LAND_GLOBAL], &
+          parameter=.true., &
+          distributed=.false., &
+          aggregator=new_aggregator(longitude), &
+          metadata=[attribute("units", "degrees_east")] &
+        ) &
+      ]
+    case default
+      call cable_abort("Unexpected grid type '" // grid_type // "'", __FILE__, __LINE__)
+    end select
+
+  end function coordinate_variables
 
   logical function data_shape_eq(shape1, shape2)
     type(cable_output_dim_t), dimension(:), intent(in) :: shape1, shape2

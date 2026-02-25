@@ -67,8 +67,7 @@ module cable_output_core_mod
   use cable_output_utils_mod, only: dim_size
   use cable_output_utils_mod, only: define_variables
   use cable_output_utils_mod, only: set_global_attributes
-
-  use cable_output_definitions_mod, only: coordinate_variables
+  use cable_output_utils_mod, only: coordinate_variables
 
   implicit none
   private

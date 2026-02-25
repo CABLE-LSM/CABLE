@@ -277,6 +277,8 @@ else()
         src/offline/cable_abort.F90
         src/offline/cable_checks.F90
         src/offline/cable_cru_TRENDY.F90
+        src/offline/cable_diagnostics_casa.F90
+        src/offline/cable_diagnostics_core.F90
         src/offline/cable_driver_common.F90
         src/offline/cable_initialise.F90
         src/offline/cable_input.F90
@@ -312,7 +314,6 @@ else()
         src/util/netcdf/nf90/cable_netcdf_nf90.F90
         src/util/io/output/cable_output_core.F90
         src/util/io/output/cable_output_decomp.F90
-        src/util/io/output/cable_output_definitions.F90
         src/util/io/output/cable_output_reduction_buffers.F90
         src/util/io/output/cable_output_types.F90
         src/util/io/output/cable_output_utils.F90
