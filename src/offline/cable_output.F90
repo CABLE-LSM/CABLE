@@ -1460,12 +1460,12 @@ CONTAINS
       CALL check_and_write(opid%iveg,    &
            'iveg', REAL(veg%iveg, 4), ranges%iveg, patchout%iveg, out_settings)
     END IF
+
+    out_settings%dimswitch = "real"
     IF (output%meth) THEN
       CALL check_and_write(opid%meth,    &
            'meth', REAL(veg%meth, 4), ranges%meth, patchout%meth, out_settings)
     END IF
-
-    out_settings%dimswitch = "real"
     IF (output%canst1) THEN
       CALL check_and_write(opid%canst1, 'canst1', REAL(veg%canst1, 4), &
            ranges%canst1, patchout%canst1, out_settings)
