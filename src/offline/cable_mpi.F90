@@ -120,16 +120,17 @@ CONTAINS
 
   END FUNCTION mpi_grp_constructor
 
-  SUBROUTINE mpi_grp_abort(this)
+  SUBROUTINE mpi_grp_abort(this, error_code)
     !* Class method to abort execution of an MPI group.
     CLASS(mpi_grp_t), INTENT(IN) :: this
+    INTEGER, INTENT(IN) :: error_code
 
     INTEGER :: ierr
 
     IF (this%comm /= MPI_COMM_UNDEFINED) THEN
       ! Here we use an arbitrary error code
 #ifdef __MPI__
-      call MPI_Abort(this%comm, 999, ierr)
+      call MPI_Abort(this%comm, error_code, ierr)
 #endif
       call mpi_check_error(ierr)
     END IF

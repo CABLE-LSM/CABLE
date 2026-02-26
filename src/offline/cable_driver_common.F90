@@ -46,6 +46,8 @@ MODULE cable_driver_common_mod
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
   USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
   USE CABLE_site, ONLY : site_TYPE, site_INIT
+  USE cable_error_handler_mod, ONLY : cable_error_handler_mod_init
+  USE cable_error_handler_mpi_mod, ONLY : cable_error_handler_mpi_t
   IMPLICIT NONE
   PRIVATE
 
@@ -121,6 +123,8 @@ CONTAINS
 
     INTEGER :: ioerror, unit
     CHARACTER(len=4) :: cRank ! for worker-logfiles
+
+    call cable_error_handler_mod_init(cable_error_handler_mpi_t(mpi_grp))
 
     !check to see if first argument passed to cable is
     !the name of the namelist file
