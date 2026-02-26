@@ -147,7 +147,6 @@ IMPLICIT NONE
     ENDDO
 
     ! 'fess' is for soil evap and 'fes' is for soil evap plus soil puddle evap
-    canopy%segg = canopy%fess / CHL
     canopy%segg = ( canopy%fess + canopy%fes_cor ) / CHL
 
     ! Initialise snow evaporation:
