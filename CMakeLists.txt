@@ -241,6 +241,9 @@ else()
         src/params/cable_photo_constants_mod.F90
         src/params/cable_other_constants_mod.F90
         src/params/cable_maths_constants_mod.F90
+        src/util/error_handler/cable_error_handler_base.F90
+        src/util/error_handler/cable_error_handler_mpi.F90
+        src/util/error_handler/cable_error_handler.F90
         src/util/cable_runtime_opts_mod.F90
         src/util/cable_common.F90
         src/shared/casa_offline_inout.F90
