@@ -637,10 +637,10 @@ contains
     call check_pio(pio_put_var(this%pio_file_desc, var_desc, start_nonopt, count_nonopt, values))
   end subroutine
 
-  subroutine cable_netcdf_pio_file_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
+  subroutine cable_netcdf_pio_file_write_darray_int32_1d(this, var_name, values, decomp, fill_value, frame)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: values(..)
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
@@ -652,28 +652,11 @@ contains
     end if
     select type(decomp)
     type is (cable_netcdf_pio_decomp_t)
-      select rank(values)
-      rank(1)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      rank(2)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      rank(3)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      end select
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
       call check_pio(status)
     class default
       call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
     end select
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_write_darray_int32_1d(this, var_name, values, decomp, fill_value, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: values(:)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
-    integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
   end subroutine
 
   subroutine cable_netcdf_pio_file_write_darray_int32_2d(this, var_name, values, decomp, fill_value, frame)
@@ -683,7 +666,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_write_darray_int32_3d(this, var_name, values, decomp, fill_value, frame)
@@ -693,16 +688,6 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(in) :: values(..)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
-    integer, intent(in), optional :: frame
     integer :: status
     type(pio_var_desc_t) :: var_desc
     call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
@@ -711,14 +696,7 @@ contains
     end if
     select type(decomp)
     type is (cable_netcdf_pio_decomp_t)
-      select rank(values)
-      rank(1)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      rank(2)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      rank(3)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      end select
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
       call check_pio(status)
     class default
       call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
@@ -732,7 +710,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_write_darray_real32_2d(this, var_name, values, decomp, fill_value, frame)
@@ -742,7 +732,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_write_darray_real32_3d(this, var_name, values, decomp, fill_value, frame)
@@ -752,16 +754,6 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(in) :: values(..)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
-    integer, intent(in), optional :: frame
     integer :: status
     type(pio_var_desc_t) :: var_desc
     call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
@@ -770,14 +762,7 @@ contains
     end if
     select type(decomp)
     type is (cable_netcdf_pio_decomp_t)
-      select rank(values)
-      rank(1)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      rank(2)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      rank(3)
-        call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
-      end select
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
       call check_pio(status)
     class default
       call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
@@ -791,7 +776,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_write_darray_real64_2d(this, var_name, values, decomp, fill_value, frame)
@@ -801,7 +798,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_write_darray_real64_3d(this, var_name, values, decomp, fill_value, frame)
@@ -811,7 +820,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_write_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status, fill_value)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_get_var_int32_0d(this, var_name, values, start, count)
@@ -958,10 +979,10 @@ contains
     call check_pio(pio_get_var(this%pio_file_desc, var_desc, start_nonopt, count_nonopt, values))
   end subroutine
 
-  subroutine cable_netcdf_pio_file_read_darray_int32(this, var_name, values, decomp, frame)
+  subroutine cable_netcdf_pio_file_read_darray_int32_1d(this, var_name, values, decomp, frame)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(..)
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: status
@@ -972,27 +993,11 @@ contains
     end if
     select type(decomp)
     type is (cable_netcdf_pio_decomp_t)
-      select rank(values)
-      rank(1)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      rank(2)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      rank(3)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      end select
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
       call check_pio(status)
     class default
       call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
     end select
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_read_darray_int32_1d(this, var_name, values, decomp, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_int32(this, var_name, values, decomp, frame)
   end subroutine
 
   subroutine cable_netcdf_pio_file_read_darray_int32_2d(this, var_name, values, decomp, frame)
@@ -1001,22 +1006,25 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_int32(this, var_name, values, decomp, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_read_darray_int32_3d(this, var_name, values, decomp, frame)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:, :, :)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_int32(this, var_name, values, decomp, frame)
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_read_darray_real32(this, var_name, values, decomp, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(..)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: status
@@ -1027,14 +1035,7 @@ contains
     end if
     select type(decomp)
     type is (cable_netcdf_pio_decomp_t)
-      select rank(values)
-      rank(1)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      rank(2)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      rank(3)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      end select
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
       call check_pio(status)
     class default
       call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
@@ -1047,31 +1048,25 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_real32(this, var_name, values, decomp, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_read_darray_real32_2d(this, var_name, values, decomp, frame)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_real32(this, var_name, values, decomp, frame)
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_read_darray_real32_3d(this, var_name, values, decomp, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :, :)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_real32(this, var_name, values, decomp, frame)
-  end subroutine
-
-  subroutine cable_netcdf_pio_file_read_darray_real64(this, var_name, values, decomp, frame)
-    class(cable_netcdf_pio_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(..)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: status
@@ -1082,14 +1077,28 @@ contains
     end if
     select type(decomp)
     type is (cable_netcdf_pio_decomp_t)
-      select rank(values)
-      rank(1)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      rank(2)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      rank(3)
-        call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
-      end select
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
+  end subroutine
+
+  subroutine cable_netcdf_pio_file_read_darray_real32_3d(this, var_name, values, decomp, frame)
+    class(cable_netcdf_pio_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: var_name
+    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :, :)
+    class(cable_netcdf_decomp_t), intent(inout) :: decomp
+    integer, intent(in), optional :: frame
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
       call check_pio(status)
     class default
       call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
@@ -1102,7 +1111,19 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_real64(this, var_name, values, decomp, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_read_darray_real64_2d(this, var_name, values, decomp, frame)
@@ -1111,7 +1132,19 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_real64(this, var_name, values, decomp, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_pio_file_read_darray_real64_3d(this, var_name, values, decomp, frame)
@@ -1120,7 +1153,19 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_pio_file_read_darray_real64(this, var_name, values, decomp, frame)
+    integer :: status
+    type(pio_var_desc_t) :: var_desc
+    call check_pio(pio_inq_varid(this%pio_file_desc, var_name, var_desc))
+    if (present(frame)) then
+      call pio_setframe(this%pio_file_desc, var_desc, int(frame, PIO_OFFSET_KIND))
+    end if
+    select type(decomp)
+    type is (cable_netcdf_pio_decomp_t)
+      call pio_read_darray(this%pio_file_desc, var_desc, decomp%pio_io_desc, values, status)
+      call check_pio(status)
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_pio_decomp_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
 end module cable_netcdf_pio_mod

@@ -536,10 +536,10 @@ contains
     call check_nf90(nf90_put_var(this%ncid, varid, values, start=start, count=count))
   end subroutine
 
-  subroutine cable_netcdf_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
+  subroutine cable_netcdf_nf90_file_write_darray_int32_1d(this, var_name, values, decomp, fill_value, frame)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: values(..)
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
@@ -552,22 +552,9 @@ contains
     else
       allocate(values_filled(product(decomp%dims)), source=NF90_FILL_INT)
     end if
-    select rank(values)
-    rank(1)
-      do i = 1, size(values)
-        values_filled(decomp%compmap(i)) = values(i)
-      end do
-    rank(2)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:2))
-        values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
-      end do
-    rank(3)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:3))
-        values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
-      end do
-    end select
+    do i = 1, size(values)
+      values_filled(decomp%compmap(i)) = values(i)
+    end do
     call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
     do i = 1, ndims
       starts(i) = 1
@@ -589,16 +576,6 @@ contains
     )
   end subroutine
 
-  subroutine cable_netcdf_nf90_file_write_darray_int32_1d(this, var_name, values, decomp, fill_value, frame)
-    class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in) :: values(:)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
-    integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
-  end subroutine
-
   subroutine cable_netcdf_nf90_file_write_darray_int32_2d(this, var_name, values, decomp, fill_value, frame)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
@@ -606,7 +583,38 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
+    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    if (present(fill_value)) then
+      allocate(values_filled(product(decomp%dims)), source=fill_value)
+    else
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_INT)
+    end if
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:2))
+      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
+    end do
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_put_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_int32_3d(this, var_name, values, decomp, fill_value, frame)
@@ -616,41 +624,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_int32(this, var_name, values, decomp, fill_value, frame)
-  end subroutine
-
-  subroutine cable_netcdf_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
-    class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(in) :: values(..)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
-    integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
+    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
     call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
     if (present(fill_value)) then
       allocate(values_filled(product(decomp%dims)), source=fill_value)
     else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_INT)
     end if
-    select rank(values)
-    rank(1)
-      do i = 1, size(values)
-        values_filled(decomp%compmap(i)) = values(i)
-      end do
-    rank(2)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:2))
-        values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
-      end do
-    rank(3)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:3))
-        values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
-      end do
-    end select
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:3))
+      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
+    end do
     call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
     do i = 1, ndims
       starts(i) = 1
@@ -679,7 +665,37 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
+    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    if (present(fill_value)) then
+      allocate(values_filled(product(decomp%dims)), source=fill_value)
+    else
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
+    end if
+    do i = 1, size(values)
+      values_filled(decomp%compmap(i)) = values(i)
+    end do
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_put_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real32_2d(this, var_name, values, decomp, fill_value, frame)
@@ -689,7 +705,38 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
+    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    if (present(fill_value)) then
+      allocate(values_filled(product(decomp%dims)), source=fill_value)
+    else
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
+    end if
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:2))
+      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
+    end do
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_put_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real32_3d(this, var_name, values, decomp, fill_value, frame)
@@ -699,41 +746,19 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_real32(this, var_name, values, decomp, fill_value, frame)
-  end subroutine
-
-  subroutine cable_netcdf_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
-    class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(in) :: values(..)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
-    integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
     call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
     if (present(fill_value)) then
       allocate(values_filled(product(decomp%dims)), source=fill_value)
     else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
     end if
-    select rank(values)
-    rank(1)
-      do i = 1, size(values)
-        values_filled(decomp%compmap(i)) = values(i)
-      end do
-    rank(2)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:2))
-        values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
-      end do
-    rank(3)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:3))
-        values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
-      end do
-    end select
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:3))
+      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
+    end do
     call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
     do i = 1, ndims
       starts(i) = 1
@@ -762,7 +787,37 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
+    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    if (present(fill_value)) then
+      allocate(values_filled(product(decomp%dims)), source=fill_value)
+    else
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
+    end if
+    do i = 1, size(values)
+      values_filled(decomp%compmap(i)) = values(i)
+    end do
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_put_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real64_2d(this, var_name, values, decomp, fill_value, frame)
@@ -772,7 +827,38 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
+    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    if (present(fill_value)) then
+      allocate(values_filled(product(decomp%dims)), source=fill_value)
+    else
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
+    end if
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:2))
+      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
+    end do
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_put_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real64_3d(this, var_name, values, decomp, fill_value, frame)
@@ -782,7 +868,38 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    call cable_netcdf_write_darray_real64(this, var_name, values, decomp, fill_value, frame)
+    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    if (present(fill_value)) then
+      allocate(values_filled(product(decomp%dims)), source=fill_value)
+    else
+      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
+    end if
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:3))
+      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
+    end do
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_put_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
   end subroutine
 
   subroutine cable_netcdf_nf90_file_get_var_int32_0d(this, var_name, values, start, count)
@@ -905,10 +1022,10 @@ contains
     call check_nf90(nf90_get_var(this%ncid, varid, values, start=start, count=count))
   end subroutine
 
-  subroutine cable_netcdf_read_darray_int32(this, var_name, values, decomp, frame)
+  subroutine cable_netcdf_nf90_file_read_darray_int32_1d(this, var_name, values, decomp, frame)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(..)
+    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
@@ -935,31 +1052,9 @@ contains
         map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
       ) &
     )
-    select rank(values)
-    rank(1)
-      do i = 1, size(values)
-        values(i) = values_filled(decomp%compmap(i))
-      end do
-    rank(2)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:2))
-        values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
-      end do
-    rank(3)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:3))
-        values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
-      end do
-    end select
-  end subroutine cable_netcdf_read_darray_int32
-
-  subroutine cable_netcdf_nf90_file_read_darray_int32_1d(this, var_name, values, decomp, frame)
-    class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_int32(this, var_name, values, decomp, frame)
+    do i = 1, size(values)
+      values(i) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_int32_2d(this, var_name, values, decomp, frame)
@@ -968,7 +1063,34 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_int32(this, var_name, values, decomp, frame)
+    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    allocate(values_filled(product(decomp%dims)))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_get_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:2))
+      values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_int32_3d(this, var_name, values, decomp, frame)
@@ -977,13 +1099,40 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_int32(this, var_name, values, decomp, frame)
+    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    allocate(values_filled(product(decomp%dims)))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_get_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:3))
+      values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
-  subroutine cable_netcdf_read_darray_real32(this, var_name, values, decomp, frame)
+  subroutine cable_netcdf_nf90_file_read_darray_real32_1d(this, var_name, values, decomp, frame)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(..)
+    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
@@ -1010,31 +1159,9 @@ contains
         map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
       ) &
     )
-    select rank(values)
-    rank(1)
-      do i = 1, size(values)
-        values(i) = values_filled(decomp%compmap(i))
-      end do
-    rank(2)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:2))
-        values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
-      end do
-    rank(3)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:3))
-        values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
-      end do
-    end select
-  end subroutine cable_netcdf_read_darray_real32
-
-  subroutine cable_netcdf_nf90_file_read_darray_real32_1d(this, var_name, values, decomp, frame)
-    class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_real32(this, var_name, values, decomp, frame)
+    do i = 1, size(values)
+      values(i) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real32_2d(this, var_name, values, decomp, frame)
@@ -1043,7 +1170,34 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_real32(this, var_name, values, decomp, frame)
+    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    allocate(values_filled(product(decomp%dims)))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_get_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:2))
+      values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real32_3d(this, var_name, values, decomp, frame)
@@ -1052,13 +1206,40 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_real32(this, var_name, values, decomp, frame)
+    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    allocate(values_filled(product(decomp%dims)))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_get_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:3))
+      values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
-  subroutine cable_netcdf_read_darray_real64(this, var_name, values, decomp, frame)
+  subroutine cable_netcdf_nf90_file_read_darray_real64_1d(this, var_name, values, decomp, frame)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(..)
+    real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
@@ -1085,31 +1266,9 @@ contains
         map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
       ) &
     )
-    select rank(values)
-    rank(1)
-      do i = 1, size(values)
-        values(i) = values_filled(decomp%compmap(i))
-      end do
-    rank(2)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:2))
-        values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
-      end do
-    rank(3)
-      do i = 1, size(values)
-        call array_index(i, shape(values), mem_index(:3))
-        values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
-      end do
-    end select
-  end subroutine cable_netcdf_read_darray_real64
-
-  subroutine cable_netcdf_nf90_file_read_darray_real64_1d(this, var_name, values, decomp, frame)
-    class(cable_netcdf_nf90_file_t), intent(inout) :: this
-    character(len=*), intent(in) :: var_name
-    real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:)
-    class(cable_netcdf_decomp_t), intent(inout) :: decomp
-    integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_real64(this, var_name, values, decomp, frame)
+    do i = 1, size(values)
+      values(i) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real64_2d(this, var_name, values, decomp, frame)
@@ -1118,7 +1277,34 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_real64(this, var_name, values, decomp, frame)
+    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    allocate(values_filled(product(decomp%dims)))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_get_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:2))
+      values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real64_3d(this, var_name, values, decomp, frame)
@@ -1127,7 +1313,34 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    call cable_netcdf_read_darray_real64(this, var_name, values, decomp, frame)
+    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+    integer :: i, varid, ndims
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+    allocate(values_filled(product(decomp%dims)))
+    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+    do i = 1, ndims
+      starts(i) = 1
+      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+    end do
+    if (present(frame)) then
+      starts(ndims) = frame
+      counts(ndims) = 1
+    end if
+    call check_nf90( &
+      nf90_get_var( &
+        this%ncid, &
+        varid, &
+        values_filled, &
+        start=starts(:ndims), &
+        count=counts(:ndims), &
+        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+      ) &
+    )
+    do i = 1, size(values)
+      call array_index(i, shape(values), mem_index(:3))
+      values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
+    end do
   end subroutine
 
 end module cable_netcdf_nf90_mod
