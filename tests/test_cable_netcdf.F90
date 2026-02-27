@@ -73,7 +73,7 @@ contains
 
     call io_handler%init()
 
-    file = io_handler%create_file(file_name)
+    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
 
     allocate(write_buffer_1d(start:end), source=int(this_rank() + VAL, kind=CABLE_NETCDF_INT32_KIND))
     write_buffer_2d = reshape(write_buffer_1d, buffer_shape_2d)
@@ -133,7 +133,7 @@ contains
 
     call io_handler%init()
 
-    file = io_handler%create_file(file_name)
+    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
 
     allocate(write_buffer_1d(start:end), source=real(this_rank() + VAL, kind=CABLE_NETCDF_REAL32_KIND))
     write_buffer_2d = reshape(write_buffer_1d, buffer_shape_2d)
@@ -193,7 +193,7 @@ contains
 
     call io_handler%init()
 
-    file = io_handler%create_file(file_name)
+    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
 
     allocate(write_buffer_1d(start:end), source=real(this_rank() + VAL, kind=CABLE_NETCDF_REAL64_KIND))
     write_buffer_2d = reshape(write_buffer_1d, buffer_shape_2d)
