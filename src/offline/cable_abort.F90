@@ -138,7 +138,7 @@ CONTAINS
   !
   !==============================================================================
 
-  SUBROUTINE range_abort(vname, ktau, met, value, var_range, i, xx, yy)
+  SUBROUTINE range_abort(vname, ktau, value, var_range, i, xx, yy, met)
 
     USE cable_def_types_mod, ONLY: met_type
     USE cable_IO_vars_module, ONLY: latitude, longitude, &
@@ -155,7 +155,7 @@ CONTAINS
       xx, & ! coordinates of erroneous grid square
       yy    ! coordinates of erroneous grid square
 
-    TYPE(met_type), INTENT(IN) :: met  ! met data
+    TYPE(met_type), INTENT(IN), OPTIONAL :: met  ! met data
 
     REAL(4), INTENT(IN) :: value ! value deemed to be out of range
 
@@ -174,10 +174,14 @@ CONTAINS
 
     ! patch(i)%latitude, patch(i)%longitude
     WRITE (iunit, *) 'Site lat, lon:', xx, yy
-    WRITE (iunit, *) 'Output timestep', ktau, &
-      ', or ', met%hod(i), ' hod, ', &
-      INT(met%doy(i)), 'doy, ', &
-      INT(met%year(i))
+    IF (PRESENT(met)) THEN
+      WRITE (iunit, *) 'Output timestep', ktau, &
+        ', or ', met%hod(i), ' hod, ', &
+        INT(met%doy(i)), 'doy, ', &
+        INT(met%year(i))
+    ELSE
+      WRITE (iunit, *) 'Output timestep', ktau
+    END IF
 
     WRITE (iunit, *) 'Specified acceptable range (cable_checks.f90):', &
       var_range(1), 'to', var_range(2)

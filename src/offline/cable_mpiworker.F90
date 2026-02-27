@@ -308,7 +308,7 @@ CONTAINS
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (logn, *) "Checking parameter ranges"
-            CALL constant_check_range(soil, veg, 0, met)
+            CALL constant_check_range(soil, veg, ktau=0)
           END IF
 
           IF (cable_user%call_climate) THEN
