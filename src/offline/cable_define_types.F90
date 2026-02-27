@@ -278,7 +278,6 @@ USE cable_climate_type_mod, ONLY: climate_type
           tggsn,      & ! snow temperature in K
           dtmlt,      & ! water flux to the soil
           albsoilsn,  & ! soil + snow reflectance
-          evapfbl,    & !
           tilefrac      ! factor for latent heat
 
 
@@ -286,6 +285,7 @@ USE cable_climate_type_mod, ONLY: climate_type
           wbtot   ! total soil water (mm)
 
      REAL(r_2), DIMENSION(:,:), POINTER ::                                    &
+          evapfbl,    & !
           gammzz,  & ! heat capacity for each soil layer
           wb,      & ! volumetric soil moisture (solid+liq)
           wbice,   & ! soil ice
@@ -493,7 +493,6 @@ USE cable_climate_type_mod, ONLY: climate_type
           ga_cor  ! correction to ground heat flux (W/m2)
 
      REAL, DIMENSION(:,:), POINTER ::                                         &
-          evapfbl, &
           gswx,    & ! stom cond for water
           zetar, &   ! stability parameter (ref height)
                                 ! vh_js !
@@ -1149,7 +1148,6 @@ CONTAINS
     ALLOCATE( var% fwet(mp) )
     ALLOCATE( var% fns_cor(mp) )    !REV_CORR variable
     ALLOCATE( var% ga_cor(mp) )     !REV_CORR variable
-    ALLOCATE ( var % evapfbl(mp,ms) )
     ALLOCATE( var% epot(mp) )
     ALLOCATE( var% fnpp(mp) )
     ALLOCATE( var% fevw_pot(mp) )
@@ -1782,7 +1780,6 @@ CONTAINS
     DEALLOCATE( var% fwet )
     DEALLOCATE( var% fns_cor )   !REV_CORR variable
     DEALLOCATE( var% ga_cor )    !REV_CORR variable
-    DEALLOCATE ( var % evapfbl )
     DEALLOCATE( var% epot )
     DEALLOCATE( var% fnpp )
     DEALLOCATE( var% fevw_pot )

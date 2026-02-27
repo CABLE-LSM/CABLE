@@ -21,4 +21,6 @@ USE cable_common_module, ONLY: cable_user,snow_ccnsw,snmin,&
 
 IMPLICIT NONE
 
+REAL, PARAMETER :: den_rat = Cdensity_ice / Cdensity_liq
+
 END MODULE cbl_ssnow_data_mod

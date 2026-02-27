@@ -15,34 +15,38 @@ CONTAINS
 
     USE cable_def_types_mod
     USE cable_common_module
-USE cbl_photosynthesis_module,  ONLY : photosynthesis
-USE cbl_fwsoil_module,        ONLY : fwsoil_calc_std, fwsoil_calc_non_linear,           &
-                                     fwsoil_calc_Lai_Ktaul, fwsoil_calc_sli
-!data
-USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
-USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
-USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland  
-USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric      
-   
-! maths & other constants
-USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
-! physical constants
-USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
-USE cable_phys_constants_mod, ONLY : CDHEAT  => DHEAT
-USE cable_phys_constants_mod, ONLY : CRGAS   => RGAS
-USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
-USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
-USE cable_phys_constants_mod, ONLY : density_liq
-! photosynthetic constants
-USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
-USE cable_photo_constants_mod, ONLY : CTREFK => TREFK
-USE cable_photo_constants_mod, ONLY : CGAM0  => GAM0
-USE cable_photo_constants_mod, ONLY : CGAM1  => GAM1
-USE cable_photo_constants_mod, ONLY : CGAM2  => GAM2
-USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
-USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
+    USE cbl_photosynthesis_module,  ONLY : photosynthesis
+    USE cbl_fwsoil_module,          ONLY : fwsoil_calc_std,                   &
+                                           fwsoil_calc_non_linear,            &
+                                           fwsoil_calc_Lai_Ktaul,             &
+                                           fwsoil_calc_sli
+    USE remove_trans_mod,           ONLY : transp_soil_water
 
-IMPLICIT NONE
+    !data
+    USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
+    USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
+    USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland  
+    USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric      
+   
+    ! maths & other constants
+    USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
+    ! physical constants
+    USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
+    USE cable_phys_constants_mod, ONLY : CDHEAT  => DHEAT
+    USE cable_phys_constants_mod, ONLY : CRGAS   => RGAS
+    USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
+    USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
+    USE cable_phys_constants_mod, ONLY : density_liq
+    ! photosynthetic constants
+    USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
+    USE cable_photo_constants_mod, ONLY : CTREFK => TREFK
+    USE cable_photo_constants_mod, ONLY : CGAM0  => GAM0
+    USE cable_photo_constants_mod, ONLY : CGAM1  => GAM1
+    USE cable_photo_constants_mod, ONLY : CGAM2  => GAM2
+    USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
+    USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
+    
+    IMPLICIT NONE
 
     TYPE (radiation_type), INTENT(INOUT) :: rad
     TYPE (roughness_type), INTENT(INOUT) :: rough
@@ -146,6 +150,10 @@ IMPLICIT NONE
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
     INTEGER :: i, j, k, kk  ! iteration count
+
+    ! For the calculation of the amount of transpired water
+    REAL(r_2), DIMENSION(mp)   :: local_fevc
+
     REAL :: vpd, g1 ! Ticket #56
     REAL, DIMENSION(mp,mf)  ::                                                  &
          xleuning    ! leuning stomatal coeff
@@ -512,27 +520,19 @@ IMPLICIT NONE
 
              ELSE
 
-                IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                   evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
-                        / air%rlam(i)
+                local_fevc(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) )
+                IF (local_fevc(i) > 0.0_r_2) THEN
+                
+                   ssnow%evapfbl(i,:) = transp_soil_water(dels, soil%swilt_vec(i,:),     &
+                            veg%froot(i,:), soil%zse_vec(i,:), local_fevc(i), ssnow%wbliq(i,:))
 
-                   DO kk = 1,ms
-
-                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
-                           MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                           1.1 * soil%swilt(i) ) *                &
-                           soil%zse(kk) * density_liq )
-
-                   ENDDO
                    IF (cable_user%soil_struc=='default') THEN
-                      canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
-                      ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                   ELSEIF (cable_user%soil_struc=='sli') THEN
-                      canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-                   ENDIF
-
-                ENDIF
-
+                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                   ELSE IF (cable_user%soil_struc=='sli') THEN
+                       canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                   END IF
+                END IF
              ENDIF
              ! Update canopy sensible heat flux:
              hcx(i) = (sum_rad_rniso(i)-ecx(i)                               &
@@ -659,7 +659,6 @@ IMPLICIT NONE
     canopy%frday = 12.0 * SUM(rdy, 2)
     ! vh ! inserted min to avoid -ve values of GPP
   canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
-    canopy%evapfbl = ssnow%evapfbl
 
 
     DEALLOCATE( gswmin )
@@ -668,8 +667,22 @@ IMPLICIT NONE
  
  
    SUBROUTINE getrex_1d(theta, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, zr)
+    !! Root extraction : Haverd et al. 2013
+    !!
+    !! **Warning**: This subroutine has diverged from the other `getrex_1d` subroutine
+    !! in cable_sli_roots.F90. Considering this subroutine predates the other one,
+    !! it is likely this is an older version and should be updated. No
+    !! tests have been done to quantify the differences.
+    !!
+    !! Changes identified as of 27/06/2025:
+    !!
+    !! - `theta` and `thetas` arguments instead ot `thetaS` and `S=theta/thetaS`
+    !! - `rex` is INTENT(OUT) in sli_roots module. Correct for this version as well.
+    !! - Condition `WHERE (Fs(:) > zero .AND. layer_depth < zr ) ` changed to 
+    !!    `WHERE (Fs(:) > zero` (zr unused in sli_roots)
+    !! -  `IF (ANY(((rex*dt) > MAX((theta(:)-thetaw(:)),zero)*dx(:)) .AND. (Etrans > zero))) THEN`
+    !!    changed to `IF (ANY(((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .AND. ((rex*dt) > zero))) THEN`
 
-    ! root extraction : Haverd et al. 2013
     USE cable_def_types_mod, ONLY: r_2
 
     IMPLICIT NONE

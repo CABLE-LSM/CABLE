@@ -63,7 +63,6 @@ TYPE canopy_data_type
   REAL, ALLOCATABLE, PUBLIC :: fwet(:)              ! fraction of canopy wet
   REAL, ALLOCATABLE, PUBLIC :: fns_cor(:)           ! correction to net rad avail to soil (W/m2)
   REAL, ALLOCATABLE, PUBLIC :: ga_cor(:)            ! correction to ground heat flux (W/m2)    
-  REAL, ALLOCATABLE, PUBLIC :: evapfbl(:,:)         ! 
   REAL, ALLOCATABLE, PUBLIC :: gswx(:,:)            ! stom cond for water
   REAL, ALLOCATABLE, PUBLIC :: zetar(:,:)           ! stability parameter (ref height)
   REAL, ALLOCATABLE, PUBLIC :: zetash(:,:)          ! stability parameter (shear height)
@@ -144,7 +143,6 @@ TYPE canopy_type
   REAL, POINTER, PUBLIC :: fwet(:)              ! fraction of canopy wet
   REAL, POINTER, PUBLIC :: fns_cor(:)           ! correction to net rad avail to soil (W/m2)
   REAL, POINTER, PUBLIC :: ga_cor(:)            ! correction to ground heat flux (W/m2)    
-  REAL, POINTER, PUBLIC :: evapfbl(:,:)         ! 
   REAL, POINTER, PUBLIC :: gswx(:,:)            ! stom cond for water
   REAL, POINTER, PUBLIC :: zetar(:,:)           ! stability parameter (ref height)
   REAL, POINTER, PUBLIC :: zetash(:,:)          ! stability parameter (shear height)
@@ -230,7 +228,6 @@ ALLOCATE( var% vlaiw(mp) )
 ALLOCATE( var% fwet(mp) )
 ALLOCATE( var% fns_cor(mp) )    !REV_CORR variable
 ALLOCATE( var% ga_cor(mp) )     !REV_CORR variable
-ALLOCATE( var % evapfbl(mp,nsl) )
 ALLOCATE( var% epot(mp) )
 ALLOCATE( var% fnpp(mp) )
 ALLOCATE( var% fevw_pot(mp) )
@@ -308,7 +305,6 @@ var % rghlai(:)      = 0.0
 var % fwet(:)        = 0.0      
 var % fns_cor(:)     = 0.0      
 var % ga_cor(:)      = 0.0      
-var % evapfbl(:,:)   = 0.0      
 var % gswx(:,:)      = 0.0      
 var % zetar(:,:)     = 0.0      
 var % zetash(:,:)    = 0.0      
@@ -382,7 +378,6 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% fwet )
    DEALLOCATE( var% fns_cor )   !REV_CORR variable
    DEALLOCATE( var% ga_cor )    !REV_CORR variable
-   DEALLOCATE ( var % evapfbl )
    DEALLOCATE( var% epot )
    DEALLOCATE( var% fnpp )
    DEALLOCATE( var% fevw_pot )
@@ -473,7 +468,6 @@ canopy% rghlai      => canopy_data% rghlai
 canopy% fwet        => canopy_data% fwet
 canopy% fns_cor     => canopy_data% fns_cor
 canopy% ga_cor      => canopy_data% ga_cor
-canopy% evapfbl     => canopy_data% evapfbl
 canopy% gswx        => canopy_data% gswx
 canopy% zetar       => canopy_data% zetar
 canopy% zetash      => canopy_data% zetash
@@ -557,7 +551,6 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='NULLIFY_ASSOC_WORK_VARS_CBL'
    NULLIFY( var% fwet )
    NULLIFY( var% fns_cor )   !REV_CORR variable
    NULLIFY( var% ga_cor )    !REV_CORR variable
-   NULLIFY( var % evapfbl )
    NULLIFY( var% epot )
    NULLIFY( var% fnpp )
    NULLIFY( var% fevw_pot )
