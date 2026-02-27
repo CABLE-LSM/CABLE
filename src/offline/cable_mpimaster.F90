@@ -90,9 +90,11 @@ MODULE cable_mpimaster
     compare_consistency_check_values
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
+  USE cable_io_decomp_mod, ONLY: io_decomp_t, cable_io_decomp_init
   USE casa_cable
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range
+  USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
 
@@ -165,7 +167,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU)
+  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU, mpi_grp_master)
 
     USE mpi
 
@@ -233,6 +235,7 @@ CONTAINS
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
     TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
     TYPE(CRU_TYPE), INTENT(IN) :: CRU
+    TYPE(mpi_grp_t), INTENT(INOUT) :: mpi_grp_master
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -331,7 +334,7 @@ CONTAINS
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
 
-
+    type(io_decomp_t) :: io_decomp
 
     ! END header
 
@@ -415,7 +418,7 @@ CONTAINS
                bal, logn, vegparmnew, casabiome, casapool, &
                casaflux, sum_casapool, sum_casaflux, &
                casamet, casabal, phen, POP, spinup, &
-               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
+               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC, mpi_grp_master)
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"
@@ -631,6 +634,7 @@ CONTAINS
             ktau = 0
           ENDIF
 
+          call cable_io_decomp_init(io_decomp)
           ! MPI: mostly original serial code follows...
         ENDIF ! CALL1
 

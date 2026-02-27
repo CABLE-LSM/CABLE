@@ -22,7 +22,7 @@ PROGRAM cable_offline_driver
   IMPLICIT NONE
 
   REAL    :: etime ! Declare the type of etime()
-  TYPE(mpi_grp_t) :: mpi_grp
+  TYPE(mpi_grp_t) :: mpi_grp, mpi_grp_master, mpi_grp_worker
   INTEGER :: NRRRR !! Number of repeated spin-up cycles
   REAL :: dels !! Time step size in seconds
   INTEGER :: koffset = 0 !! Timestep to start at
@@ -31,6 +31,8 @@ PROGRAM cable_offline_driver
   TYPE(PLUME_MIP_TYPE) :: PLUME
   TYPE(CRU_TYPE) :: CRU
   TYPE (site_TYPE) :: site
+
+  INTEGER, PARAMETER :: COLOR_MASTER = 0, COLOR_WORKER = 1
 
   call mpi_mod_init()
   mpi_grp = mpi_grp_t()
@@ -58,12 +60,14 @@ PROGRAM cable_offline_driver
     STOP
   END SELECT
 
-  IF (mpi_grp%size == 1) THEN
-    CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+  IF (mpi_grp%size == 1 .OR. .NOT. cable_user%mpi_legacy) THEN
+    CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi_grp)
   ELSE
     IF (mpi_grp%rank == 0) THEN
-      CALL mpidrv_master(mpi_grp%comm%mpi_val, dels, koffset, kend, PLUME, CRU)
+      CALL mpi_grp%split(COLOR_MASTER, mpi_grp%rank, mpi_grp_master)
+      CALL mpidrv_master(mpi_grp%comm%mpi_val, dels, koffset, kend, PLUME, CRU, mpi_grp_master)
     ELSE
+      CALL mpi_grp%split(COLOR_WORKER, mpi_grp%rank, mpi_grp_worker)
       CALL mpidrv_worker(mpi_grp%comm%mpi_val)
     END IF
   END IF

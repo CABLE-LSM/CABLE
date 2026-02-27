@@ -37,7 +37,7 @@
 MODULE cable_input_module
   ! Note that any precision changes from r_1 to REAL(4) enable running with -r8
   !
-  USE cable_abort_module,      ONLY: abort, nc_abort
+  USE cable_abort_module,      ONLY: cable_abort, nc_abort
   USE cable_def_types_mod
   USE casadimension,     ONLY: icycle
   USE casavariable
@@ -58,6 +58,7 @@ MODULE cable_input_module
   USE casa_inout_module, ONLY: casa_readphen, casa_init
   USE casa_readbiome_module, ONLY: casa_readbiome
   USE cable_checks_module, ONLY: check_range
+  USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
 
@@ -152,7 +153,7 @@ CONTAINS
   ! CALLed from: load_parameters
   !
   ! CALLs: nc_abort
-  !        abort
+  !        cable_abort
   !
   ! Input file: [LAI].nc
   !
@@ -228,7 +229,7 @@ CONTAINS
     END IF
     ok = NF90_INQUIRE_DIMENSION(ncid,tID,LEN=ntime)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error getting time dimension.')
-    IF (ntime /= 12) CALL abort('Time dimension not 12 months.')
+    IF (ntime /= 12) CALL cable_abort('Time dimension not 12 months.')
 
     ok = NF90_INQ_VARID(ncid,'LAI',laiID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error finding LAI variable.')
@@ -277,7 +278,7 @@ CONTAINS
   !
   ! CALLed from: cable_offline_driver
   !
-  ! CALLs: abort
+  ! CALLs: cable_abort
   !        nc_abort
   !        date_and_time
   !
@@ -599,11 +600,11 @@ CONTAINS
              latitude = lat_all(1,1)
              longitude = lon_all(1,1)
              mland_fromfile=1
-             ALLOCATE(land_x(mland_fromfile),land_y(mland_fromfile))
-             land_x = 1
-             land_y = 1
+             ALLOCATE(land_x_global(mland_fromfile),land_y_global(mland_fromfile))
+             land_x_global = 1
+             land_y_global = 1
           ELSE
-             ! Call abort if more than one gridcell and no
+             ! Call cable_abort if more than one gridcell and no
              ! recognised grid system:
              CALL nc_abort &
                   (ok,'Error finding grid system ("mask" or "land") variable in ' &
@@ -634,7 +635,7 @@ CONTAINS
           ! Allocate latitude and longitude variables:
           ALLOCATE(latitude(mland_fromfile),longitude(mland_fromfile))
           ! Write to indicies of points in all-grid which are land
-          ALLOCATE(land_x(mland_fromfile),land_y(mland_fromfile))
+          ALLOCATE(land_x_global(mland_fromfile),land_y_global(mland_fromfile))
           ! Allocate "mask" variable:
           ALLOCATE(mask(xdimsize,ydimsize))
           ! Initialise all gridpoints as sea:
@@ -650,8 +651,8 @@ CONTAINS
              ! Write to mask variable:
              mask(x,y)=1
              ! Save indicies:
-             land_x(j) = x
-             land_y(j) = y
+             land_x_global(j) = x
+             land_y_global(j) = y
           END DO
        END IF ! does "land" variable exist
     ELSE ! i.e. "mask" variable exists
@@ -693,16 +694,16 @@ CONTAINS
        latitude = lat_temp(1:mland_fromfile)
        longitude = lon_temp(1:mland_fromfile)
        ! Write to indicies of points in mask which are land
-       ALLOCATE(land_x(mland_fromfile),land_y(mland_fromfile))
-       land_x = land_xtmp(1:mland_fromfile)
-       land_y = land_ytmp(1:mland_fromfile)
+       ALLOCATE(land_x_global(mland_fromfile),land_y_global(mland_fromfile))
+       land_x_global = land_xtmp(1:mland_fromfile)
+       land_y_global = land_ytmp(1:mland_fromfile)
        ! Clear lon_temp, lat_temp,land_xtmp,land_ytmp
        DEALLOCATE(lat_temp,lon_temp,land_xtmp,land_ytmp)
     END IF ! "mask" variable or no "mask" variable
 
     ! Set global mland value (number of land points), used to allocate
     ! all of CABLE's arrays:
-    mland = mland_fromfile
+    mland_global = mland_fromfile
 
     ! Write number of land points to log file:
     WRITE(logn,'(24X,I7,A29)') mland_fromfile, ' of which are land grid cells'
@@ -723,7 +724,7 @@ CONTAINS
     ok = NF90_INQ_DIMID(ncid_met,'monthly', monthlydimID)
     IF(ok==NF90_NOERR) THEN ! if found
        ok = NF90_INQUIRE_DIMENSION(ncid_met,monthlydimID,len=tempmonth)
-       IF(tempmonth/=12) CALL abort ('Number of months in met file /= 12.')
+       IF(tempmonth/=12) CALL cable_abort ('Number of months in met file /= 12.')
     END IF
 
     ! Set longitudes to be [-180,180]:
@@ -732,10 +733,10 @@ CONTAINS
     END WHERE
     ! Check ranges for latitude and longitude:
     IF(ANY(longitude>180.0).OR.ANY(longitude<-180.0)) &
-         CALL abort('Longitudes read from '//TRIM(filename%met)// &
+         CALL cable_abort('Longitudes read from '//TRIM(filename%met)// &
          ' are not [-180,180] or [0,360]! Please set.')
     IF(ANY(latitude>90.0).OR.ANY(latitude<-90.0)) &
-         CALL abort('Latitudes read from '//TRIM(filename%met)// &
+         CALL cable_abort('Latitudes read from '//TRIM(filename%met)// &
          ' are not [-90,90]! Please set.')
 
     !=================^^ End spatial details ^^========================
@@ -845,11 +846,11 @@ CONTAINS
        END IF
     ELSE IF((ok==NF90_NOERR.AND.time_coord=='LOC'.AND.mland_fromfile>1)) THEN
        ! Else if local time is selected for regional simulation, abort:
-       CALL abort('"time" variable must be GMT for multiple site simulation!' &
+       CALL cable_abort('"time" variable must be GMT for multiple site simulation!' &
             //' Check "coordinate" field in time variable.' &
             //' (SUBROUTINE open_met_file)')
     ELSE IF(time_coord/='LOC'.AND.time_coord/='GMT') THEN
-       CALL abort('Meaningless time coordinate in met data file!' &
+       CALL cable_abort('Meaningless time coordinate in met data file!' &
             // ' (SUBROUTINE open_met_file)')
     END IF
 
@@ -1007,7 +1008,7 @@ CONTAINS
          /='W/m^2'.OR.metunits%SWdown(1:5)/='Wm^-2' &
          .OR.metunits%SWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN
        WRITE(*,*) metunits%SWdown
-       CALL abort('Unknown units for SWdown'// &
+       CALL cable_abort('Unknown units for SWdown'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Look for Tair (essential):- - - - - - - - - - - - - - - - - - -
@@ -1031,7 +1032,7 @@ CONTAINS
        convert%Tair = 0.0
     ELSE
        WRITE(*,*) metunits%Tair
-       CALL abort('Unknown units for Tair'// &
+       CALL cable_abort('Unknown units for Tair'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Look for Qair (essential):- - - - - - - - - - - - - - - - - - -
@@ -1056,7 +1057,7 @@ CONTAINS
        convert%Qair=1.0
     ELSE
        WRITE(*,*) metunits%Qair
-       CALL abort('Unknown units for Qair'// &
+       CALL cable_abort('Unknown units for Qair'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
 
@@ -1088,7 +1089,7 @@ CONTAINS
        convert%Rainf = dels/3600.0
     ELSE
        WRITE(*,*) metunits%Rainf
-       CALL abort('Unknown units for Rainf'// &
+       CALL cable_abort('Unknown units for Rainf'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Multiply acceptable Rainf ranges by time step size:
@@ -1122,7 +1123,7 @@ CONTAINS
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     IF (metunits%Wind(1:3)/='m/s'.AND.metunits%Wind(1:2)/='ms'.AND.metunits%Wind(1:5)/='m s-1') THEN
        WRITE(*,*) metunits%Wind
-       CALL abort('Unknown units for Wind'// &
+       CALL cable_abort('Unknown units for Wind'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Now "optional" variables:
@@ -1146,7 +1147,7 @@ CONTAINS
             .OR.metunits%LWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN
 
           WRITE(*,*) metunits%LWdown
-          CALL abort('Unknown units for LWdown'// &
+          CALL cable_abort('Unknown units for LWdown'// &
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE
@@ -1183,7 +1184,7 @@ CONTAINS
           convert%PSurf = 1.0
        ELSE
           WRITE(*,*) metunits%PSurf
-          CALL abort('Unknown units for PSurf'// &
+          CALL cable_abort('Unknown units for PSurf'// &
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE ! If PSurf not present
@@ -1206,16 +1207,16 @@ CONTAINS
              ! Convert from feet to metres:
              convert%Elev = 0.3048
           ELSE
-             CALL abort('Unknown units for Elevation'// &
+             CALL cable_abort('Unknown units for Elevation'// &
                   ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
           END IF
           ! Allocate space for elevation variable:
-          ALLOCATE(elevation(mland))
+          ALLOCATE(elevation(mland_global))
           ! Get site elevations:
           IF(metGrid=='mask') THEN
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%Elev,data2, &
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading elevation in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1230,7 +1231,7 @@ CONTAINS
              elevation = REAL(data1) * convert%Elev
           END IF
        ELSE ! If both PSurf and elevation aren't present, abort:
-          CALL abort &
+          CALL cable_abort &
                ('Error finding PSurf or Elevation in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        END IF
@@ -1249,7 +1250,7 @@ CONTAINS
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        IF(metunits%CO2air(1:3)/='ppm') THEN
           WRITE(*,*) metunits%CO2air
-          CALL abort('Unknown units for CO2air'// &
+          CALL cable_abort('Unknown units for CO2air'// &
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE ! CO2 not present
@@ -1274,7 +1275,7 @@ CONTAINS
             (ok,'Error finding Snowf units in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        ! Make sure Snowf units are the same as Rainf units:
-       IF(metunits%Rainf/=metunits%Snowf) CALL abort &
+       IF(metunits%Rainf/=metunits%Snowf) CALL cable_abort &
             ('Please ensure Rainf and Snowf units are the same'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     ELSE
@@ -1334,16 +1335,16 @@ CONTAINS
           IF(ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error finding avPrecip units in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-          IF(metunits%avPrecip(1:2)/='mm') CALL abort( &
+          IF(metunits%avPrecip(1:2)/='mm') CALL cable_abort( &
                'Unknown avPrecip units in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
           ! Allocate space for avPrecip variable:
-          ALLOCATE(avPrecip(mland))
+          ALLOCATE(avPrecip(mland_global))
           ! Get avPrecip from met file:
           IF(metGrid=='mask') THEN
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%avPrecip,data2, &
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading avPrecip in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1351,7 +1352,7 @@ CONTAINS
              END DO
           ELSE IF(metGrid=='land') THEN
              ! Allocate single preciaion temporary variable:
-             ALLOCATE(temparray1(mland))
+             ALLOCATE(temparray1(mland_global))
              ! Collect data from land only grid in netcdf file:
              ok= NF90_GET_VAR(ncid_met,id%avPrecip,temparray1)
              IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1363,14 +1364,14 @@ CONTAINS
           END IF
           ! Now find average precip from met data, and create rescaling
           ! factor for spinup:
-          ALLOCATE(PrecipScale(mland))
-          DO i = 1, mland
+          ALLOCATE(PrecipScale(mland_global))
+          DO i = 1, mland_global
              IF(metGrid=='mask') THEN
                 ! Allocate space for temporary precip variable:
                 ALLOCATE(tempPrecip3(1,1,kend))
                 ! Get all data for this grid cell:
                 ok= NF90_GET_VAR(ncid_met,id%Rainf,tempPrecip3, &
-                     start=(/land_x(i),land_y(i),1+koffset/),count=(/1,1,kend/))
+                     start=(/land_x_global(i),land_y_global(i),1+koffset/),count=(/1,1,kend/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading Rainf in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1380,7 +1381,7 @@ CONTAINS
                 ! Get snowfall data for this grid cell:
                 IF(exists%Snowf) THEN
                    ok= NF90_GET_VAR(ncid_met,id%Snowf,tempPrecip3, &
-                        start=(/land_x(i),land_y(i),1+koffset/),count=(/1,1,kend/))
+                        start=(/land_x_global(i),land_y_global(i),1+koffset/),count=(/1,1,kend/))
                    IF(ok /= NF90_NOERR) CALL nc_abort &
                         (ok,'Error reading Snowf in met data file ' &
                         //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1439,16 +1440,16 @@ CONTAINS
        ! Note existence of at least one model parameter in the met file:
        exists%parameters = .TRUE.
        ! Allocate space for user-defined veg type variable:
-       ALLOCATE(vegtype_metfile(mland,nmetpatches))
-       IF(exists%patch)  ALLOCATE(vegpatch_metfile(mland,nmetpatches))
+       ALLOCATE(vegtype_metfile(mland_global,nmetpatches))
+       IF(exists%patch)  ALLOCATE(vegpatch_metfile(mland_global,nmetpatches))
 
        ! Check dimension of veg type:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%iveg,ndims=iveg_dims)
        IF(metGrid=='mask') THEN ! i.e. at least two spatial dimensions
           IF(iveg_dims==2) THEN ! no patch specific iveg information, just x,y
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%iveg,data2i, & ! get iveg data
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1464,10 +1465,10 @@ CONTAINS
                   (ok,'Patch-specific vegetation type (iveg) must be accompanied '// &
                   'by a patchfrac variable - this was not found in met data file '&
                   //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ! Then, get the patch specific iveg data:
                 ok= NF90_GET_VAR(ncid_met,id%iveg,vegtype_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1476,7 +1477,7 @@ CONTAINS
 
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                      (ok,'Error reading patchfrac in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1486,7 +1487,7 @@ CONTAINS
        ELSE IF(metGrid=='land') THEN
           ! Collect data from land only grid in netcdf file:
           IF(iveg_dims==1) THEN ! i.e. no patch specific iveg information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%iveg,data1i, &
                      start=(/i/),count=(/1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1508,13 +1509,13 @@ CONTAINS
               IF(exists%patch) then
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                      (ok,'Error reading patchfrac in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
               END IF
 
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ! Then, get the patch specific iveg data:
                 ok= NF90_GET_VAR(ncid_met, id%iveg, &
                      vegtype_metfile(i,:),&
@@ -1539,13 +1540,13 @@ CONTAINS
        ! Check dimension of soil type:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%isoil,ndims=isoil_dims)
        ! Allocate space for user-defined soil type variable:
-       ALLOCATE(soiltype_metfile(mland,nmetpatches))
+       ALLOCATE(soiltype_metfile(mland_global,nmetpatches))
        ! Get soil type from met file:
        IF(metGrid=='mask') THEN
           IF(isoil_dims==2) THEN ! i.e. no patch specific isoil information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%isoil,data2i, &
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading isoil in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1553,10 +1554,10 @@ CONTAINS
                 soiltype_metfile(i,:)=data2i(1,1)
              END DO
           ELSE IF(isoil_dims==3) THEN ! i.e. patch specific isoil information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%isoil, &
                      soiltype_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading isoil in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1565,7 +1566,7 @@ CONTAINS
        ELSE IF(metGrid=='land') THEN
           IF(isoil_dims==1) THEN ! i.e. no patch specific isoil information
              ! Collect data from land only grid in netcdf file:
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%isoil,data1i, &
                      start=(/i/),count=(/1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1575,7 +1576,7 @@ CONTAINS
                 soiltype_metfile(i,:) = data1i(1)
              END DO
           ELSE IF(isoil_dims==2) THEN ! i.e. patch specific isoil information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met, id%isoil, &
                      soiltype_metfile(i,:), &
                      start=(/i,1/), count=(/1,nmetpatches/))
@@ -1612,7 +1613,7 @@ CONTAINS
   !
   ! MODULEs used: cable_common_module
   !
-  ! CALLs: abort
+  ! CALLs: cable_abort
   !        nc_abort
   !        rh_sh
   !        sinbet
@@ -1673,7 +1674,7 @@ CONTAINS
              met%moy(landpt(i)%cstart) = smoy
              met%year(landpt(i)%cstart) = syear
           CASE DEFAULT
-             CALL abort('Unknown time coordinate! ' &
+             CALL cable_abort('Unknown time coordinate! ' &
                   //' (SUBROUTINE get_met_data)')
           END SELECT
        ELSE
@@ -2184,10 +2185,10 @@ CONTAINS
           ! Rescale precip to average rainfall for this site:
           DO i=1,mland ! over all land points/grid cells
              met%precip(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
              ! Added for snow (EK nov2007)
              met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip_sn(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip_sn(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
           ENDDO
        END IF
 
@@ -2507,9 +2508,9 @@ CONTAINS
           ! Rescale precip to average rainfall for this site:
           DO i=1,mland ! over all land points/grid cells
              met%precip(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
              met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip_sn(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip_sn(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
           ENDDO
        END IF
 
@@ -2634,7 +2635,7 @@ CONTAINS
        DEALLOCATE(tmpDat1, tmpDat2, tmpDat3, tmpDat2x)
 
     ELSE
-       CALL abort('Unrecognised grid type')
+       CALL cable_abort('Unrecognised grid type')
     END IF ! grid type
 
     IF ((.NOT. exists%Snowf) .OR. ALL(met%precip_sn == 0.0)) THEN ! honour snowf input
@@ -2708,7 +2709,7 @@ CONTAINS
   !        casa_readbiome
   !        casa_readphen
   !        casa_init
-  !        abort
+  !        cable_abort
   !        get_restart_data
   !        get_parameters_met
   !        derived_parameters
@@ -2722,7 +2723,7 @@ CONTAINS
   SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC)
+       TFRZ, LUC_EXPT, POPLUC, mpi_grp)
     !* Defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
@@ -2776,6 +2777,7 @@ CONTAINS
     TYPE( POP_TYPE ), INTENT(INOUT)         :: POP
     TYPE( POPLUC_TYPE ), INTENT(INOUT)         :: POPLUC
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp
     INTEGER,INTENT(IN)                      :: logn     ! log file unit number
     LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
@@ -2804,7 +2806,7 @@ CONTAINS
     INTEGER, DIMENSION(:), ALLOCATABLE :: Iwood
 
     ! Allocate spatial heterogeneity variables:
-    ALLOCATE(landpt(mland))
+    ALLOCATE(landpt_global(mland_global))
 
     WRITE(logn,*) '-------------------------------------------------------'
     WRITE(logn,*) 'Looking for parameters and initial states....'
@@ -2818,7 +2820,7 @@ CONTAINS
     ! soil types based on latitude and longitude. This includes determining
     ! the number of patches in each grid cell, and so the total number of
     ! patches.
-    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
+    CALL get_default_params(logn, vegparmnew, LUC_EXPT, mpi_grp)
 
 
     !| 2. Allocate CABLE (and CASA's [+phenology], if used) variables now that
@@ -2945,7 +2947,7 @@ CONTAINS
             //TRIM(frst_in)//' (SUBROUTINE load_parameters) ' &
             //'Recommend running without restart file.')
        ! Check that mp_restart = mp from default/met values
-       IF(mp_restart /= mp) CALL abort('Number of patches in '// &
+       IF(mp_restart /= mp) CALL cable_abort('Number of patches in '// &
             'restart file '//TRIM(frst_in)//' does not equal '// &
             'to number in default/met file settings. (SUB load_parameters) ' &
             //'Recommend running without restart file.')

@@ -74,12 +74,15 @@ MODULE cable_serial
     prepareFiles_princeton,           &
     LUCdriver,                        &
     compare_consistency_check_values
+  USE cable_mpi_mod, ONLY: mpi_grp_t
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
        patch_type,landpt,&
        defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
+  USE cable_io_decomp_mod, ONLY: io_decomp_t
+  USE cable_io_decomp_mod, ONLY: cable_io_decomp_init
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        filename, myhome,            &
@@ -156,7 +159,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi_grp)
   !! Offline serial driver.
   INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
   REAL, INTENT(INOUT) :: dels !! Time step size in seconds
@@ -166,6 +169,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
   TYPE(CRU_TYPE), INTENT(IN) :: CRU
   TYPE (site_TYPE), INTENT(IN) :: site
+  TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -267,6 +271,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
+  type(io_decomp_t) :: io_decomp
 ! END header
 
 ! INISTUFF
@@ -391,7 +396,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
                bal, logn, vegparmnew, casabiome, casapool,           &
                casaflux, sum_casapool, sum_casaflux, &
                casamet, casabal, phen, POP, spinup,        &
-               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
+               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC, mpi_grp)
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"
@@ -454,7 +459,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
 
           ENDIF
 
-
+          call cable_io_decomp_init(io_decomp)
 
         ENDIF ! CALL 1
 
