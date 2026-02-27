@@ -47,6 +47,18 @@ module cable_netcdf_nf90_mod
 
   public :: cable_netcdf_nf90_io_t
 
+  type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_int32_t
+    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
+  end type
+
+  type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_real32_t
+    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
+  end type
+
+  type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_real64_t
+    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
+  end type
+
   type, extends(cable_netcdf_io_t) :: cable_netcdf_nf90_io_t
   contains
     procedure :: init => cable_netcdf_nf90_io_init
@@ -214,7 +226,31 @@ contains
     integer, intent(in) :: compmap(:), dims(:)
     integer, intent(in) :: type
     class(cable_netcdf_decomp_t), allocatable :: decomp
-    decomp = cable_netcdf_decomp_t(compmap=compmap, dims=dims, type=type)
+    select case(type)
+    case (CABLE_NETCDF_INT)
+      block
+        type(cable_netcdf_nf90_decomp_int32_t) :: decomp_int32
+        decomp_int32 = cable_netcdf_nf90_decomp_int32_t(compmap=compmap, dims=dims, type=type)
+        allocate(decomp_int32%values_filled(product(dims)))
+        decomp = decomp_int32
+      end block
+    case (CABLE_NETCDF_FLOAT)
+      block
+        type(cable_netcdf_nf90_decomp_real32_t) :: decomp_real32
+        decomp_real32 = cable_netcdf_nf90_decomp_real32_t(compmap=compmap, dims=dims, type=type)
+        allocate(decomp_real32%values_filled(product(dims)))
+        decomp = decomp_real32
+      end block
+    case (CABLE_NETCDF_DOUBLE)
+      block
+        type(cable_netcdf_nf90_decomp_real64_t) :: decomp_real64
+        decomp_real64 = cable_netcdf_nf90_decomp_real64_t(compmap=compmap, dims=dims, type=type)
+        allocate(decomp_real64%values_filled(product(dims)))
+        decomp = decomp_real64
+      end block
+    case default
+      call cable_abort("cable_netcdf_nf90_mod: Error: type not supported")
+    end select
   end function
 
   subroutine cable_netcdf_nf90_file_close(this)
@@ -543,37 +579,41 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_INT)
-    end if
-    do i = 1, size(values)
-      values_filled(decomp%compmap(i)) = values(i)
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_int32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_INT
+      end if
+      do i = 1, size(values)
+        decomp%values_filled(decomp%compmap(i)) = values(i)
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_int32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_int32_2d(this, var_name, values, decomp, fill_value, frame)
@@ -583,38 +623,42 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_INT)
-    end if
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:2))
-      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_int32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_INT
+      end if
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:2))
+        decomp%values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_int32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_int32_3d(this, var_name, values, decomp, fill_value, frame)
@@ -624,38 +668,42 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_INT)
-    end if
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:3))
-      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_int32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_INT
+      end if
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:3))
+        decomp%values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_int32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real32_1d(this, var_name, values, decomp, fill_value, frame)
@@ -665,37 +713,41 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
-    end if
-    do i = 1, size(values)
-      values_filled(decomp%compmap(i)) = values(i)
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_INT
+      end if
+      do i = 1, size(values)
+        decomp%values_filled(decomp%compmap(i)) = values(i)
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real32_2d(this, var_name, values, decomp, fill_value, frame)
@@ -705,38 +757,42 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
-    end if
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:2))
-      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_INT
+      end if
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:2))
+        decomp%values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real32_3d(this, var_name, values, decomp, fill_value, frame)
@@ -746,38 +802,42 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_FLOAT)
-    end if
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:3))
-      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_INT
+      end if
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:3))
+        decomp%values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real64_1d(this, var_name, values, decomp, fill_value, frame)
@@ -787,37 +847,41 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
-    end if
-    do i = 1, size(values)
-      values_filled(decomp%compmap(i)) = values(i)
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real64_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_DOUBLE
+      end if
+      do i = 1, size(values)
+        decomp%values_filled(decomp%compmap(i)) = values(i)
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real64_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real64_2d(this, var_name, values, decomp, fill_value, frame)
@@ -827,38 +891,42 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
-    end if
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:2))
-      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real64_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_DOUBLE
+      end if
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:2))
+        decomp%values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2))
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real64_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_write_darray_real64_3d(this, var_name, values, decomp, fill_value, frame)
@@ -868,38 +936,42 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    if (present(fill_value)) then
-      allocate(values_filled(product(decomp%dims)), source=fill_value)
-    else
-      allocate(values_filled(product(decomp%dims)), source=NF90_FILL_DOUBLE)
-    end if
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:3))
-      values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
-    end do
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_put_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real64_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      if (present(fill_value)) then
+        decomp%values_filled = fill_value
+      else
+        decomp%values_filled = NF90_FILL_DOUBLE
+      end if
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:3))
+        decomp%values_filled(decomp%compmap(i)) = values(mem_index(1), mem_index(2), mem_index(3))
+      end do
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_put_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real64_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_get_var_int32_0d(this, var_name, values, start, count)
@@ -1028,33 +1100,36 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      values(i) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_int32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        values(i) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_int32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_int32_2d(this, var_name, values, decomp, frame)
@@ -1063,34 +1138,37 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:2))
-      values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_int32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:2))
+        values(mem_index(1), mem_index(2)) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_int32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_int32_3d(this, var_name, values, decomp, frame)
@@ -1099,34 +1177,37 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:3))
-      values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_int32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:3))
+        values(mem_index(1), mem_index(2), mem_index(3)) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_int32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real32_1d(this, var_name, values, decomp, frame)
@@ -1135,33 +1216,36 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      values(i) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        values(i) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real32_2d(this, var_name, values, decomp, frame)
@@ -1170,34 +1254,37 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:2))
-      values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:2))
+        values(mem_index(1), mem_index(2)) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real32_3d(this, var_name, values, decomp, frame)
@@ -1206,34 +1293,37 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:3))
-      values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real32_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:3))
+        values(mem_index(1), mem_index(2), mem_index(3)) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real32_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real64_1d(this, var_name, values, decomp, frame)
@@ -1242,33 +1332,36 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      values(i) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real64_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        values(i) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real64_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real64_2d(this, var_name, values, decomp, frame)
@@ -1277,34 +1370,37 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:2))
-      values(mem_index(1), mem_index(2)) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real64_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:2))
+        values(mem_index(1), mem_index(2)) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real64_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
   subroutine cable_netcdf_nf90_file_read_darray_real64_3d(this, var_name, values, decomp, frame)
@@ -1313,34 +1409,37 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(out) :: values(:, :, :)
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
-    real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
     integer :: i, varid, ndims
     integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
-    call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
-    allocate(values_filled(product(decomp%dims)))
-    call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
-    do i = 1, ndims
-      starts(i) = 1
-      call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
-    end do
-    if (present(frame)) then
-      starts(ndims) = frame
-      counts(ndims) = 1
-    end if
-    call check_nf90( &
-      nf90_get_var( &
-        this%ncid, &
-        varid, &
-        values_filled, &
-        start=starts(:ndims), &
-        count=counts(:ndims), &
-        map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
-      ) &
-    )
-    do i = 1, size(values)
-      call array_index(i, shape(values), mem_index(:3))
-      values(mem_index(1), mem_index(2), mem_index(3)) = values_filled(decomp%compmap(i))
-    end do
+    select type (decomp)
+    type is (cable_netcdf_nf90_decomp_real64_t)
+      call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
+      call check_nf90(nf90_inquire_variable(this%ncid, varid, dimids=dimids, ndims=ndims))
+      do i = 1, ndims
+        starts(i) = 1
+        call check_nf90(nf90_inquire_dimension(this%ncid, dimids(i), len=counts(i)))
+      end do
+      if (present(frame)) then
+        starts(ndims) = frame
+        counts(ndims) = 1
+      end if
+      call check_nf90( &
+        nf90_get_var( &
+          this%ncid, &
+          varid, &
+          decomp%values_filled, &
+          start=starts(:ndims), &
+          count=counts(:ndims), &
+          map=[1, (product(decomp%dims(:i)), i = 1, size(decomp%dims) - 1)] &
+        ) &
+      )
+      do i = 1, size(values)
+        call array_index(i, shape(values), mem_index(:3))
+        values(mem_index(1), mem_index(2), mem_index(3)) = decomp%values_filled(decomp%compmap(i))
+      end do
+    class default
+      call cable_abort("Error: decomp must be of type cable_netcdf_nf90_decomp_real64_t", file=__FILE__, line=__LINE__)
+    end select
   end subroutine
 
 end module cable_netcdf_nf90_mod
