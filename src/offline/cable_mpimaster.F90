@@ -419,7 +419,7 @@ CONTAINS
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"
-            CALL constant_check_range(soil, veg, ktau=0)
+            CALL constant_check_range(soil, veg, ktau)
           END IF
 
           IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
