@@ -16,7 +16,7 @@ PRIVATE
 
 CONTAINS
 
-SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
+SUBROUTINE comp_friction_vel(friction_vel, mp, CVONK, CUMIN, CPI_C,            &
                              zetar, zref_uv, zref_tq, z0m, ua )
   !*## Purpose
   !
@@ -69,14 +69,13 @@ IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: mp               !! size of cable vector of land points (-)
 REAL, INTENT(OUT) :: friction_vel(mp)   !! friction velocity (ms\(^{-1}\))
-INTEGER, INTENT(IN) :: iter             !! MO iteration counter (-)
 ! physical constants
 REAL, INTENT(IN) :: CVONK               !! von Karman constant (-)
 REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1}\))
 ! maths & other constants
 REAL, INTENT(IN) :: CPI_C               !! \(\pi\) (-)
 
-REAL, INTENT(IN) :: zetar(mp,iter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
+REAL, INTENT(IN) :: zetar(mp)           !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
 REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv` (m)
 REAL, INTENT(IN) :: zref_tq(mp)         !! reference height for temperature and humidity `rough%zref_tq` (m)
 REAL, INTENT(IN) :: z0m(mp)             !! roughness length `rough%z0m` (m)
@@ -91,13 +90,13 @@ REAL :: z_eff(mp)
 ! but zetar based on rough%zref_tq - changes to ensure consistency
 !NB no RSL incorporated here
 
-psim_1 = psim( zetar(:,iter) * zref_uv/zref_tq, mp, CPI_C   )
+psim_1 = psim( zetar(:) * zref_uv/zref_tq, mp, CPI_C )
 
 !rescale = CVONK * MAX( ua, SPREAD(CUMIN,1,mp ) ) 
 rescale = CVONK * MAX( ua, CUMIN ) 
 z_eff = zref_uv / z0m
 
-psim_arg = zetar(:,iter) * z0m / zref_tq
+psim_arg = zetar(:) * z0m / zref_tq
 psim_2 = psim( psim_arg, mp, CPI_C  )
 
 lower_limit = rescale / ( LOG(z_eff) - psim_1 + psim_2 )
