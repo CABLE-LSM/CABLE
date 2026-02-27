@@ -2287,7 +2287,7 @@ CONTAINS
 
     INTEGER :: ncid_file
 
-    CALL check_range(pname, out_par, prange, out_timestep, out_settings%met)
+    CALL check_range(pname, out_par, prange, out_timestep)
 
     IF (out_settings%restart) THEN
       ncid_file = ncid_restart
@@ -2310,7 +2310,7 @@ CONTAINS
 
     INTEGER :: ncid_file
 
-    CALL check_range(pname, out_par, prange, out_timestep, out_settings%met)
+    CALL check_range(pname, out_par, prange, out_timestep)
 
     IF (out_settings%restart) THEN
       ncid_file = ncid_restart

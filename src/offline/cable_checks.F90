@@ -216,7 +216,7 @@ CONTAINS
 
     CHARACTER(LEN=*) :: vname
     INTEGER, INTENT(IN) :: ktau
-    TYPE(met_type), INTENT(IN) :: met
+    TYPE(met_type), INTENT(IN), OPTIONAL :: met
 
     REAL(4), INTENT(IN) :: parameter_r1(:)
     REAL, INTENT(IN) :: parameter_range(2)
@@ -225,8 +225,8 @@ CONTAINS
 
     DO index = 1, SIZE(parameter_r1)
       IF (parameter_r1(index) < parameter_range(1) .OR. parameter_r1(index) > parameter_range(2)) THEN
-        CALL range_abort(vname, ktau, met, parameter_r1(index),               &
-        parameter_range, index, patch(index)%latitude, patch(index)%longitude)
+        CALL range_abort(vname, ktau, parameter_r1(index),               &
+        parameter_range, index, patch(index)%latitude, patch(index)%longitude, met)
       END IF
     END DO
 
@@ -236,7 +236,7 @@ CONTAINS
 
     CHARACTER(LEN=*), INTENT(IN) :: var_name
     INTEGER, INTENT(IN) :: ktau
-    TYPE(met_type), INTENT(IN) :: met
+    TYPE(met_type), INTENT(IN), OPTIONAL :: met
 
     REAL(4), INTENT(IN) :: var(:, :)
     REAL, INTENT(IN) :: var_range(2)
@@ -257,9 +257,9 @@ CONTAINS
     END IF
 
     IF (index(1) > 0) THEN
-      CALL range_abort(var_name, ktau, met, var(index(1), index(2)), &
+      CALL range_abort(var_name, ktau, var(index(1), index(2)), &
                        var_range, index(1), &
-                       patch(index(1))%latitude, patch(index(1))%longitude)
+                       patch(index(1))%latitude, patch(index(1))%longitude, met)
     END IF
 
   END SUBROUTINE check_range_d2
@@ -268,7 +268,7 @@ CONTAINS
 
     CHARACTER(LEN=*), INTENT(IN) :: var_name
     INTEGER, INTENT(IN) :: ktau
-    TYPE(met_type), INTENT(IN) :: met
+    TYPE(met_type), INTENT(IN), OPTIONAL :: met
 
     REAL(4), INTENT(IN) :: var(:, :, :)
     REAL, INTENT(IN) :: var_range(2)
@@ -288,8 +288,8 @@ CONTAINS
     END IF
 
     IF (index(1) > 0) THEN
-      CALL range_abort(var_name, ktau, met, var(index(1), index(2), index(3)), var_range, &
-                       index(1), patch(index(1))%latitude, patch(index(1))%longitude)
+      CALL range_abort(var_name, ktau, var(index(1), index(2), index(3)), var_range, &
+                       index(1), patch(index(1))%latitude, patch(index(1))%longitude, met)
     END IF
 
   END SUBROUTINE check_range_d3
@@ -306,7 +306,7 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(IN) :: veg
 
     INTEGER, INTENT(IN) :: ktau
-    TYPE(met_type), INTENT(IN) :: met
+    TYPE(met_type), INTENT(IN), OPTIONAL :: met
 
     ! Soil
     !~ 1D
