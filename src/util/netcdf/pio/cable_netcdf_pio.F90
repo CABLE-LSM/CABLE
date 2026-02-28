@@ -3,6 +3,7 @@ module cable_netcdf_pio_mod
 
   use cable_mpi_mod, only: mpi_grp_t
   use cable_abort_module, only: cable_abort
+  use cable_common_module, only: pio_settings
 
   use pio, only: pio_file_desc_t => file_desc_t
   use pio, only: pio_iosystem_desc_t => iosystem_desc_t
@@ -37,6 +38,7 @@ module cable_netcdf_pio_mod
   use pio, only: PIO_REAL
   use pio, only: PIO_DOUBLE
   use pio, only: PIO_REARR_BOX
+  use pio, only: PIO_REARR_SUBSET
   use pio, only: PIO_IOTYPE_NETCDF
   use pio, only: PIO_IOTYPE_NETCDF4C
   use pio, only: PIO_IOTYPE_NETCDF4P
@@ -199,6 +201,19 @@ contains
 
   end function mode_pio
 
+  function rearranger_pio(rearr)
+    character(len=*), intent(in) :: rearr
+    integer :: rearranger_pio
+    select case (trim(rearr))
+    case ("box")
+      rearranger_pio = PIO_REARR_BOX
+    case ("subset")
+      rearranger_pio = PIO_REARR_SUBSET
+    case default
+      call cable_abort("Error: invalid rearranger", __FILE__, __LINE__)
+    end select
+  end function rearranger_pio
+
   subroutine check_pio(status)
     integer, intent(in) :: status
     integer :: strerror_status
@@ -234,16 +249,16 @@ contains
 
   subroutine cable_netcdf_pio_io_init(this)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
-    ! TODO: get PIO configuration settings
+
     call pio_init( &
       comp_rank=this%mpi_grp%rank, &
       comp_comm=this%mpi_grp%comm%mpi_val, &
-      num_iotasks=1, &
+      num_iotasks=pio_settings%io_tasks, &
       num_aggregator=0, & ! This argument is obsolete (see https://github.com/NCAR/ParallelIO/issues/1888)
-      stride=1, &
-      rearr=PIO_REARR_BOX, &
+      stride=pio_settings%stride, &
+      rearr=rearranger_pio(pio_settings%rearr), &
       iosystem=this%pio_iosystem_desc, &
-      base=1 &
+      base=pio_settings%base &
     )
   end subroutine
 

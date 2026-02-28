@@ -13,6 +13,7 @@ MODULE cable_driver_common_mod
     snmin,                        &
     cable_user,                   &
     gw_params,                    &
+    pio_settings,                 &
     cable_runtime
   USE cable_IO_vars_module, ONLY : &
     soilparmnew,                   &
@@ -99,7 +100,8 @@ MODULE cable_driver_common_mod
     satuParam,      &
     snmin,          &
     cable_user,     & ! additional USER switches
-    gw_params
+    gw_params,      &
+    pio_settings
 
   PUBLIC :: cable_driver_init
   PUBLIC :: cable_driver_init_gswp
