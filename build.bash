@@ -104,15 +104,15 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     module add netcdf/4.6.3
     case ${compiler} in
         intel)
-            module add intel-compiler-llvm/2025.0.4
+            module add intel-compiler-llvm/2025.2.0
             compiler_lib_install_dir=Intel
-            [[ -n ${mpi} ]] && module add openmpi/4.1.7
+            [[ -n ${mpi} ]] && module load openmpi/4.0.7
             # This is required so that the Parallel IO library is discoverable
             # via CMake's `find_package` mechanism:
             # TODO(Sean): This install of Parallel IO is specific to
-            # openmpi/4.1.7. We need a better way to provide this library on
+            # openmpi/4.0.7. We need a better way to provide this library on
             # Gadi.
-            [[ -n ${pio} ]] && prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/parallelio_install"
+            [[ -n ${pio} ]] && prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/parallelio-2.6.8-txnbfehdnpwm3vrtp627cab26f7gcrss"
             ;;
         gnu)
             module add gcc/13.2.0
@@ -138,10 +138,10 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     if [[ -n ${pio} ]]; then
         # The NetCDF Fortran version must be consistent with the version used in Parallel IO
         # TODO(Sean): we need a better way to provide these libraries on Gadi
-        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-c-4.9.2-oxepdmgcx6raxo4vi4teu45qqr63v3uj"
-        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-c-4.9.2-oxepdmgcx6raxo4vi4teu45qqr63v3uj/lib/pkgconfig"
-        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-fortran-4.6.1-eq777uogbelnhv43ln6jyub2gbmos42x"
-        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-fortran-4.6.1-eq777uogbelnhv43ln6jyub2gbmos42x/lib/pkgconfig"
+        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-c-4.9.3-lqagnkvmdyriatt6sq2vw5cmt5nfbabz"
+        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-c-4.9.3-lqagnkvmdyriatt6sq2vw5cmt5nfbabz/lib/pkgconfig"
+        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-fortran-4.6.2-qs6grg5wgm3anh5gmcmlwxelrzexc6v5"
+        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-fortran-4.6.2-qs6grg5wgm3anh5gmcmlwxelrzexc6v5/lib/pkgconfig"
     fi
 
 elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
