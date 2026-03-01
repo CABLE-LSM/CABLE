@@ -69,7 +69,7 @@ MODULE cable_output_module
           PlantCarbLeaf, PlantCarbFineRoot, PlantCarbWood, &
           PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
-          PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
+          PlantTurnoverWoodResourceLim, dCdt, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
@@ -218,7 +218,6 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWoodDist
      REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWoodCrowding
      REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWoodResourceLim
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Area
      REAL(KIND=4), POINTER, DIMENSION(:) :: LandUseFlux
      REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax
      REAL(KIND=4), POINTER, DIMENSION(:) :: patchfrac
@@ -257,14 +256,14 @@ MODULE cable_output_module
       MODULE PROCEDURE :: check_and_write_d1_p
       MODULE PROCEDURE :: check_and_write_d2_p
   END INTERFACE check_and_write
-  
+
   INTERFACE generate_out_write_acc
       MODULE PROCEDURE :: generate_out_write_acc_d1
       MODULE PROCEDURE :: generate_out_write_acc_d2
   END INTERFACE generate_out_write_acc
 CONTAINS
 
-  SUBROUTINE open_output_file(dels, soil, veg, bgc, rough, met)
+  SUBROUTINE open_output_file(dels, soil, veg, bgc, rough, met, casamet)
     ! Creates netcdf output file, defines all variables
     ! and writes parameters to it if requested by user.
     REAL, INTENT(IN) :: dels ! time step size
@@ -273,6 +272,7 @@ CONTAINS
     TYPE (bgc_pool_type), INTENT(IN)       :: bgc
     TYPE (roughness_type), INTENT(IN)      :: rough
     TYPE (met_type), TARGET, INTENT(IN)       :: met
+    TYPE (casa_met), INTENT(IN) :: casamet
     ! REAL, POINTER :: surffrac(:, :) ! fraction of each surf type
 
     INTEGER :: xID, yID, zID, radID, soilID, soilcarbID,                  &
@@ -1066,12 +1066,9 @@ CONTAINS
     END IF
 
     ! vh_js !
-    CALL define_ovar(ncid_out, ovid%Area, 'Area', 'km2',               &
-         'Patch Area', patchout%Area,         &
-         'dummy', xID, yID, zID, landID, patchID, tID)
-    ALLOCATE(out%Area(mp))
-    out%Area = 0.0 ! initialise
-
+    IF (output%casa) CALL define_ovar(ncid_out, opid%area, &
+          'Area', 'km2', 'Patch Area', patchout%Area, 'real', &
+          xID, yID, zID, landID, patchID)
 
     ! Define CABLE parameters in output file:
     IF(output%iveg) CALL define_ovar(ncid_out, opid%iveg,   &
@@ -1575,6 +1572,10 @@ CONTAINS
       CALL check_and_write(opid%ratecs, 'ratecs', SPREAD(REAL(bgc%ratecs, 4), 1, mp), ranges%ratecs,  &
            patchout%ratecs, out_settings)! no spatial dim at present
     END IF
+    IF (output%casa) THEN
+      out_settings%dimswitch = 'real'
+      CALL check_and_write(opid%area, 'Area', REAL(casamet%areacell/1e6, 4), ranges%Area, patchout%Area, out_settings)
+    END IF
 
     !~ gwmodel
     out_settings%dimswitch = "real"
@@ -1603,7 +1604,7 @@ CONTAINS
   END SUBROUTINE open_output_file
 
   !=============================================================================
-  SUBROUTINE write_output(dels, ktau, met, canopy, casaflux, casapool, casamet, ssnow, &
+  SUBROUTINE write_output(dels, ktau, met, canopy, casaflux, casapool, ssnow, &
                           rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL)
     ! Writes model output variables and, if requested, calls
     ! energy and mass balance routines. This subroutine is called
@@ -1623,7 +1624,6 @@ CONTAINS
     TYPE(casa_flux), INTENT(IN) :: casaflux ! casa fluxes
     TYPE(casa_pool), INTENT(IN) :: casapool ! casa fluxes
     TYPE(balances_type), INTENT(INOUT) :: bal
-    TYPE(casa_met), INTENT(IN) :: casamet
 
     REAL(r_2) :: timetemp(1) ! temporary variable for storing time
     ! value
@@ -2150,9 +2150,6 @@ CONTAINS
 
     ! output patch area
     IF (output%casa) THEN
-      out%Area = casamet%areacell/1e6 ! km2
-
-      CALL check_and_write(ovid%Area, 'Area', out%Area, out%Area, ranges%Area, patchout%Area, out_settings)
       IF (cable_user%POPLUC) THEN
         CALL check_and_write(ovid%patchfrac, 'patchfrac', REAL(patch(:)%frac, 4), REAL(patch(:)%frac, 4), ranges%Area, patchout%Area, out_settings)
       END IF
