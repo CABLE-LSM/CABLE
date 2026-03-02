@@ -127,13 +127,15 @@ CONTAINS
 
     INTEGER :: ierr
 
-    IF (this%comm /= MPI_COMM_UNDEFINED) THEN
-      ! Here we use an arbitrary error code
 #ifdef __MPI__
+    IF (this%comm /= MPI_COMM_UNDEFINED) THEN
       call MPI_Abort(this%comm, error_code, ierr)
-#endif
       call mpi_check_error(ierr)
     END IF
+#else
+    ! Here we use an arbitrary error code
+    STOP 999
+#endif
 
   END SUBROUTINE mpi_grp_abort
 
