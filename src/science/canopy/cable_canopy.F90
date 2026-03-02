@@ -840,6 +840,8 @@ canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
           qsurf(j) = 0.1*rsts(j)*ssnow%wetfac(j) + 0.9*met%qv(j)
        ENDIF
 
+       canopy%qmom(j) = air%rho(j) * canopy%us(j) ** 2.0
+
        canopy%qscrn(j) = met%qv(j) - qstar(j) * ftemp(j)
 
        IF( canopy%vlaiw(j) >CLAI_THRESH .AND. rough%hruff(j) > 0.01) THEN
@@ -1030,6 +1032,10 @@ bal%drybal = REAL(ecy+hcy) - sum_rad_rniso                               &
 bal%wetbal = canopy%fevw + canopy%fhvw - sum_rad_rniso * canopy%fwet      &
      + CCAPP*Crmair * (tlfy-met%tk) * sum_rad_gradis *          &
      canopy%fwet  ! YP nov2009
+
+rad%swnet = sum(rad%qcan(:, :, 1), 2) + sum(rad%qcan(:, :, 2), 2) + rad%qssabs
+rad%lwnet = met%fld - CSboltz * Cemleaf * canopy%tv**4 * (1 - rad%transd) - rad%flws * rad%transd
+rad%rnet = rad%swnet + rad%lwnet
 
 DEALLOCATE(cansat,gbhu)
 DEALLOCATE(dsx, fwsoil, tlfx, tlfy)

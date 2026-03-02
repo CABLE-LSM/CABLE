@@ -1106,6 +1106,10 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%totsdepth, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (ssnow%smelt, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -1589,6 +1593,10 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fra, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (canopy%fnee, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -1687,6 +1695,10 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (canopy%qmom, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (canopy%rnet, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -1746,6 +1758,10 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fnpp, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fgpp, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -1906,6 +1922,18 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (rad%qssabs, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%swnet, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%lwnet, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%rnet, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -2655,6 +2683,22 @@ CONTAINS
     blen(bidx) = r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casapool%dCdt, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%Cplanttot, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%Clittertot, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%Csoiltot, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casapool%Cplant, displs(bidx), ierr)
     blen(bidx) = mplant * r2len
 
@@ -2834,6 +2878,10 @@ CONTAINS
     blen(bidx) = r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Cnbp, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casaflux%Crp, displs(bidx), ierr)
     blen(bidx) = r2len
 
@@ -2996,6 +3044,10 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%frac_sapwood, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Cplant_turnover_tot, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -4261,6 +4313,10 @@ CONTAINS
     CALL MPI_Get_address (canopy%frs(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fra(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
     !vidx = vidx + 1
     ! REAL(r_1)
     !CALL MPI_Get_address (canopy%fnee(off), vaddr(vidx), ierr) ! 32
@@ -4392,6 +4448,10 @@ CONTAINS
     blocks(bidx) = r1len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fgpp(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (canopy%fevw_pot(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
@@ -4441,6 +4501,10 @@ CONTAINS
     !blen(vidx) = cnt * extr1
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%qscrn(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%qmom(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     !vidx = vidx + 1
@@ -4708,6 +4772,10 @@ CONTAINS
     CALL MPI_Get_address (ssnow%snowd(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%totsdepth(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
     !vidx = vidx + 1
     ! REAL(r_1)
     !CALL MPI_Get_address (ssnow%smelt(off), vaddr(vidx), ierr) ! 76
@@ -4870,6 +4938,18 @@ CONTAINS
     CALL MPI_Get_address (rad%qssabs(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%swnet(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%lwnet(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%rnet(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
     ! MPI: 2D vars moved above
     ! rhocdf
     ! rniso
@@ -4892,6 +4972,10 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (rad%transb(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (rad%albedo_T(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     ! MPI: 2D vars moved above
@@ -5816,6 +5900,22 @@ CONTAINS
     blocks(bidx) = r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casapool%dCdt(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%Cplanttot(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%Clittertot(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%Csoiltot(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casapool%Ctot(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
@@ -5948,6 +6048,10 @@ CONTAINS
     blocks(bidx) = r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Cnbp(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casaflux%Crp(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
@@ -6018,6 +6122,10 @@ CONTAINS
     !============================
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%frac_sapwood(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Cplant_turnover_tot(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     bidx = bidx + 1
