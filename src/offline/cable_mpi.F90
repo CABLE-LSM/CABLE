@@ -4,6 +4,7 @@
 
 MODULE cable_mpi_mod
   !! Module for handling some common MPI operations and MPI groups
+  USE cable_error_handler_mod, ONLY: cable_abort
 #ifdef __MPI__
   USE mpi_f08
 #else
@@ -120,16 +121,17 @@ CONTAINS
 
   END FUNCTION mpi_grp_constructor
 
-  SUBROUTINE mpi_grp_abort(this)
+  SUBROUTINE mpi_grp_abort(this, error_code)
     !* Class method to abort execution of an MPI group.
     CLASS(mpi_grp_t), INTENT(IN) :: this
+    INTEGER, INTENT(IN) :: error_code
 
     INTEGER :: ierr
 
     IF (this%comm /= MPI_COMM_UNDEFINED) THEN
       ! Here we use an arbitrary error code
 #ifdef __MPI__
-      call MPI_Abort(this%comm, 999, ierr)
+      call MPI_Abort(this%comm, error_code, ierr)
 #endif
       call mpi_check_error(ierr)
     END IF
@@ -147,8 +149,7 @@ CONTAINS
 
     IF (ierr /= MPI_SUCCESS ) THEN
       CALL MPI_Error_String(ierr, msg, length, tmp)
-      WRITE(error_unit,*) msg(1:length)
-      CALL MPI_Abort(MPI_COMM_WORLD, 1 , tmp)
+      CALL cable_abort(msg(1:length), __FILE__, __LINE__)
     END if
 #endif
 
