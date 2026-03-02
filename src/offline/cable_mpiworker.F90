@@ -70,13 +70,11 @@ MODULE cable_mpiworker
     spinup,                           &
     spincasa,                         &
     CASAONLY,                         &
-    l_laiFeedbk,                      &
-    l_vcmaxFeedbk,                    &
     delsoilM,                         &
     delsoilT,                         &
     LALLOC
   USE cable_mpicommon
-  USE cable_common_module,  ONLY: cable_user
+  USE cable_common_module,  ONLY: cable_user, l_laiFeedbk, l_vcmaxFeedbk
   USE casa_inout_module
   USE casa_cable
   USE bgcdriver_mod, ONLY : bgcdriver

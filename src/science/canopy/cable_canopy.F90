@@ -654,6 +654,14 @@ write(6,*) "SLI is not an option right now"
        !CABLE3 #335 - AM3 #250 - removing the transd weighting  
        canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
 
+       canopy%et = canopy%fe / air%rlam
+
+       canopy%eint = canopy%fevw / air%rlam
+
+       canopy%tveg = canopy%fevc / air%rlam
+
+       canopy%esoil = canopy%fes / air%rlam
+
        rlower_limit = canopy%epot * air%rlam / dels
        WHERE (rlower_limit == 0 ) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
 
@@ -839,6 +847,8 @@ canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
        ELSE
           qsurf(j) = 0.1*rsts(j)*ssnow%wetfac(j) + 0.9*met%qv(j)
        ENDIF
+
+       canopy%qmom(j) = air%rho(j) * canopy%us(j) ** 2.0
 
        canopy%qscrn(j) = met%qv(j) - qstar(j) * ftemp(j)
 
@@ -1030,6 +1040,10 @@ bal%drybal = REAL(ecy+hcy) - sum_rad_rniso                               &
 bal%wetbal = canopy%fevw + canopy%fhvw - sum_rad_rniso * canopy%fwet      &
      + CCAPP*Crmair * (tlfy-met%tk) * sum_rad_gradis *          &
      canopy%fwet  ! YP nov2009
+
+rad%swnet = sum(rad%qcan(:, :, 1), 2) + SUM(rad%qcan(:, :, 2), 2) + rad%qssabs
+rad%lwnet = met%fld - CSboltz * Cemleaf * canopy%tv**4 * (1 - rad%transd) - rad%flws * rad%transd
+rad%rnet = rad%swnet + rad%lwnet
 
 DEALLOCATE(cansat,gbhu)
 DEALLOCATE(dsx, fwsoil, tlfx, tlfy)

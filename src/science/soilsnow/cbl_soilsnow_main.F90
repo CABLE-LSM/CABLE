@@ -193,6 +193,8 @@ ENDIF
 
     ssnow%wbliq = ssnow%wb - ssnow%wbice
 
+    ssnow%totsdepth = sum(ssnow%sdepth, dim=2)
+
     ssnow%wbtot = 0.0
     DO k = 1, ms
       ! tot moisture this timestep 

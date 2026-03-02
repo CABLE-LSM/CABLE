@@ -1037,6 +1037,8 @@ CONTAINS
 
 991 FORMAT(1166(e14.7,2x))
 
+    casaflux%FluxCtoLUC = casaflux%FluxCtohwp + casaflux%FluxCtoclear
+
     ! update total carbon pools and "last" pool values for use in carbon balance checks.
     casapool%ctot = SUM(casapool%cplant,2)+SUM(casapool%clitter,2)+ &
          SUM(casapool%csoil,2)+casapool%clabile

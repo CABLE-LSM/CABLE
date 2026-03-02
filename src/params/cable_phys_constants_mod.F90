@@ -42,6 +42,7 @@ REAL, PARAMETER :: csice = 2.100e3        ! specific heat for ice (J/kg/K)
 REAL, PARAMETER :: cswat = 4.218e3        ! specific heat for water at 0°C (J/kg/K)
 REAL, PARAMETER :: density_liq = 1000.0   ! density of liquid water
 REAL, PARAMETER :: density_ice = 921.0    ! density of ice                              
+REAL, PARAMETER :: c_molar_mass = 1.201e-5 ! molar mass of carbon (ug/mol)
 
 ! Teten coefficients
 REAL, PARAMETER :: tetena = 6.106         ! Magnus Tetans (Murray 1967)

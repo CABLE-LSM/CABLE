@@ -408,6 +408,9 @@ USE casavariable, ONLY :  casa_met
             /(casaflux%kmlabp(:)+casapool%psoillab(:))
     ENDIF
 
+    casapool%clittertot = sum(casapool%clitter, str)
+    casapool%cplanttot = sum(casapool%cplant, wood)
+    casapool%csoiltot = sum(casapool%csoil, slow) + casapool%clittertot
 
   END SUBROUTINE casa_readbiome
 

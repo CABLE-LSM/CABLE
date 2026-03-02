@@ -84,6 +84,10 @@ MODULE casavariable
   TYPE casa_pool
      REAL(r_2), DIMENSION(:),POINTER :: Clabile,       &
           dClabiledt,    &
+          dCdt ,         &
+          Cplanttot,     &
+          Clittertot,    &
+          Csoiltot,      &
           Ctot ,         &          ! vh_js !
           Ctot_0
      REAL(r_2), DIMENSION(:,:),POINTER :: Cplant,      &
@@ -132,6 +136,7 @@ MODULE casavariable
   TYPE casa_flux
      REAL(r_2), DIMENSION(:),POINTER :: Cgpp,          &
           Cnpp,          &
+          Cnbp,          &
           Crp,           &
           Crgplant,      &
           Nminfix,       &
@@ -142,6 +147,7 @@ MODULE casavariable
                                 ! vh_js ! the 3 variables below are needed for POP coupling to CASA
           stemnpp, &
           frac_sapwood, &
+          Cplant_turnover_tot, &
           sapwood_area
      REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc,  &
           fracNalloc,    &
@@ -203,6 +209,7 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:),POINTER    :: FluxNtoclear
      REAL(r_2), DIMENSION(:),POINTER    :: FluxPtoclear
      REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC
+     REAL(r_2), DIMENSION(:),POINTER    :: FluxCtoLUC
      REAL(r_2), DIMENSION(:),POINTER      :: meangpp
      REAL(r_2), DIMENSION(:),POINTER      :: meanrleaf 
   END TYPE casa_flux
@@ -364,6 +371,10 @@ CONTAINS
 
     ALLOCATE(casapool%Clabile(arraysize),           &
          casapool%dClabiledt(arraysize),            &
+         casapool%dCdt(arraysize),                  &
+         casapool%Cplanttot(arraysize),             &
+         casapool%Clittertot(arraysize),            &
+         casapool%Csoiltot(arraysize),              &
          casapool%Cplant(arraysize,mplant),         &
          casapool%Nplant(arraysize,mplant),         &
          casapool%Pplant(arraysize,mplant),         &
@@ -412,6 +423,7 @@ CONTAINS
 
     ALLOCATE(casaflux%Cgpp(arraysize),                 &
          casaflux%Cnpp(arraysize),                     &
+         casaflux%Cnbp(arraysize),                     &
          casaflux%Crp(arraysize),                      &
          casaflux%Crgplant(arraysize),                 &
          casaflux%Nminfix(arraysize),                  &
@@ -460,6 +472,7 @@ CONTAINS
          casaflux%fromStoCO2(arraysize,msoil),         &
          casaflux%stemnpp(arraysize),                  &
          casaflux%frac_sapwood(arraysize),             &
+         casaflux%Cplant_turnover_tot(arraysize),      &
          casaflux%sapwood_area(arraysize), &
          casaflux%Cplant_turnover(arraysize,mplant) , &
          casaflux%Cplant_turnover_disturbance(arraysize) , &
@@ -493,6 +506,7 @@ CONTAINS
          )
 
     ALLOCATE(casaflux%CtransferLUC(arraysize), SOURCE=0.0_r_2)
+    ALLOCATE(casaflux%FluxCtoLUC(arraysize), SOURCE=0.0_r_2)
 
     ALLOCATE(casaflux%FluxCtoco2(arraysize), SOURCE=0.0_r_2)
 

@@ -66,10 +66,6 @@ MODULE cable_serial
     spinup,                           &
     spincasa,                         &
     CASAONLY,                         &
-    l_casacnp,                        &
-    l_landuse,                        &
-    l_laiFeedbk,                      &
-    l_vcmaxFeedbk,                    &
     delsoilM,                         &
     delsoilT,                         &
     delgwM,                           &
@@ -85,13 +81,15 @@ MODULE cable_serial
        patch_type,landpt,&
        defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
-  USE cable_io_decomp_mod, ONLY: io_decomp_t
-  USE cable_io_decomp_mod, ONLY: cable_io_decomp_init
+  use cable_io_vars_module, only: patch
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        filename, myhome,            &
        CurYear,    &
        IS_LEAPYEAR, &
+       l_landuse, &
+       l_laiFeedbk, &
+       l_vcmaxFeedbk, &
        kwidth_gl
 
 ! physical constants
@@ -112,6 +110,17 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        ncid_wd,ncid_mask
   USE cable_output_module,  ONLY: create_restart,open_output_file,            &
        write_output,close_output_file
+  use cable_output_prototype_v2_mod, only: cable_output_mod_init
+  use cable_output_prototype_v2_mod, only: cable_output_mod_end
+  use cable_output_prototype_v2_mod, only: cable_output_register_output_variables
+  use cable_output_prototype_v2_mod, only: cable_output_profiles_init
+  use cable_output_prototype_v2_mod, only: cable_output_update
+  use cable_output_prototype_v2_mod, only: cable_output_write
+  use cable_output_prototype_v2_mod, only: cable_output_write_parameters
+  use cable_output_prototype_v2_mod, only: cable_output_write_restart
+  use cable_diagnostics_core_mod, only: cable_diagnostics_core
+  use cable_diagnostics_casa_mod, only: cable_diagnostics_casa
+  use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
    USE cable_checks_module, ONLY: constant_check_range
   USE cable_write_module,   ONLY: nullify_write
   USE cable_IO_vars_module, ONLY: timeunits,calendar
@@ -271,12 +280,11 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
   integer,   dimension(:,:),     allocatable,  save  :: landmask
   integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
-
-  type(io_decomp_t) :: io_decomp
 ! END header
 
 ! INISTUFF
 
+  call cable_netcdf_mod_init(mpi_grp)
 
   ! outer loop - spinup loop no. ktau_tot :
   ktau     = 0
@@ -423,6 +431,15 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ENDIF
             CALL nullify_write() ! nullify pointers
             CALL open_output_file( dels, soil, veg, bgc, rough, met)
+
+            call cable_output_mod_init()
+            call cable_output_register_output_variables([ &
+              cable_diagnostics_core(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
+              cable_diagnostics_casa(casaflux, casapool, casamet) &
+            ])
+            call cable_output_profiles_init()
+            call cable_output_write_parameters(kstart, patch, landpt, met)
+
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -459,8 +476,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ktau = kend
 
           ENDIF
-
-          call cable_io_decomp_init(io_decomp)
 
         ENDIF ! CALL 1
 
@@ -581,6 +596,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             IF (l_laiFeedbk.AND.icycle>0) veg%vlai(:) = casamet%glai(:)
 
             IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
+
             ! Call land surface scheme for this timestep, all grid points:
             CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
                  rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch )
@@ -595,9 +611,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ssnow%rnof2 = ssnow%rnof2*dels
             ssnow%runoff = ssnow%runoff*dels
 
-
-
-
+            call canopy%tscrn_max_daily%accumulate()
+            call canopy%tscrn_min_daily%accumulate()
 
           ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
                 koffset, kend, ktauday, logn) ) THEN                ! CLN READ FROM FILE INSTEAD !
@@ -718,11 +733,21 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau_tot, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau_tot, dels, leaps, cable_user%yearstart, met, patch, landpt)
             CASE DEFAULT
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau, dels, leaps, cable_user%yearstart, met, patch, landpt)
             END SELECT
           ENDIF
+
+          IF (.not. casaonly .and. ktau > kstart .and. mod(ktau - kstart + 1, ktauday) == 0) THEN
+            ! Reset daily aggregators if it is the end of day
+            CALL canopy%tscrn_max_daily%reset()
+            CALL canopy%tscrn_min_daily%reset()
+          END IF
 
 
           ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
@@ -1004,9 +1029,11 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
   IF ( .NOT. CASAONLY.and. .not. l_landuse ) THEN
     ! Write restart file if requested:
-    IF(output%restart)                                           &
+    IF(output%restart) then
       CALL create_restart( logn, dels, ktau, soil, veg, ssnow,  &
            canopy, rough, rad, bgc, bal, met )
+      call cable_output_write_restart(current_time=ktau * dels)
+    end if
     !mpidiff
     IF (cable_user%CALL_climate) &
       CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
@@ -1014,7 +1041,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
     !--- LN ------------------------------------------[
   ENDIF
 
+  if (.not. casaonly) call cable_output_mod_end()
 
+  call cable_netcdf_mod_end()
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
        TRIM(cable_user%MetType) .NE. "gswp3" .AND. &

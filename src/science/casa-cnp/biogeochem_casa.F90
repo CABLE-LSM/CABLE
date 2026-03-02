@@ -171,6 +171,12 @@ IF(cable_user%l_limit_labile .AND. icycle > 1) THEN
   casapool%Psoillab = max(casapool%Psoillab,0.1)
 ENDIF
 
+casaflux%cnbp = casaflux%cnpp + casapool%dClabiledt - casaflux%Crsoil
+
+casaflux%cplant_turnover_tot = sum(casaflux%Cplant_turnover, 2)
+
+casapool%dCdt = casapool%ctot - casapool%ctot_0
+
 END SUBROUTINE biogeochem
 
 END MODULE biogeochem_mod

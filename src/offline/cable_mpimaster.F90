@@ -80,7 +80,6 @@ MODULE cable_mpimaster
     spinup,                           &
     spincasa,                         &
     CASAONLY,                         &
-    l_landuse,                        &
     delsoilM,                         &
     delsoilT,                         &
     delgwM,                           &
@@ -91,11 +90,22 @@ MODULE cable_mpimaster
     compare_consistency_check_values
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
-  USE cable_io_decomp_mod, ONLY: io_decomp_t, cable_io_decomp_init
+  use cable_io_vars_module, only: patch
   USE casa_cable
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range
   USE cable_mpi_mod, ONLY: mpi_grp_t
+  use cable_output_prototype_v2_mod, only: cable_output_mod_init
+  use cable_output_prototype_v2_mod, only: cable_output_mod_end
+  use cable_output_prototype_v2_mod, only: cable_output_register_output_variables
+  use cable_output_prototype_v2_mod, only: cable_output_profiles_init
+  use cable_output_prototype_v2_mod, only: cable_output_update
+  use cable_output_prototype_v2_mod, only: cable_output_write
+  use cable_output_prototype_v2_mod, only: cable_output_write_parameters
+  use cable_output_prototype_v2_mod, only: cable_output_write_restart
+  use cable_diagnostics_core_mod, only: cable_diagnostics_core
+  use cable_diagnostics_casa_mod, only: cable_diagnostics_casa
+  use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
 
   IMPLICIT NONE
 
@@ -181,6 +191,7 @@ CONTAINS
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
          CurYear,    &
+         l_landuse, &
          IS_LEAPYEAR, calcsoilalbedo,                &
          kwidth_gl
     USE casa_ncdf_module, ONLY: is_casa_time
@@ -332,7 +343,7 @@ CONTAINS
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
 
-    type(io_decomp_t) :: io_decomp
+    call cable_netcdf_mod_init(mpi_grp_master)
 
     ! END header
 
@@ -442,6 +453,15 @@ CONTAINS
             ENDIF
             CALL nullify_write() ! nullify pointers
             CALL open_output_file( dels, soil, veg, bgc, rough, met)
+
+            call cable_output_mod_init()
+            call cable_output_register_output_variables([ &
+              cable_diagnostics_core(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
+              cable_diagnostics_casa(casaflux, casapool, casamet) &
+            ])
+            call cable_output_profiles_init()
+            call cable_output_write_parameters(kstart, patch, landpt, met)
+
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -632,7 +652,6 @@ CONTAINS
             ktau = 0
           ENDIF
 
-          call cable_io_decomp_init(io_decomp)
           ! MPI: mostly original serial code follows...
         ENDIF ! CALL1
 
@@ -769,7 +788,6 @@ CONTAINS
 !$          CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
 !$        ENDIF
 
-
           IF ( .NOT. CASAONLY ) THEN
 
             IF ( icycle > 0 ) THEN
@@ -820,6 +838,9 @@ CONTAINS
               ENDIF
             ENDIF
 
+            call canopy%tscrn_max_daily%accumulate()
+            call canopy%tscrn_min_daily%accumulate()
+
           ELSE IF ( MOD((ktau-kstart+1+koffset),ktauday)==0 ) THEN
 
             CALL master_send_input (icomm, casa_dump_ts, iktau )
@@ -862,11 +883,14 @@ CONTAINS
                      casamet,ssnow,         &
                      rad, bal, air, soil, veg, CSBOLTZ,     &
                      CEMLEAF, CEMSOIL )
+                call cable_output_update(ktau_tot, dels, leaps, cable_user%yearstart, met)
+                call cable_output_write(ktau_tot, dels, leaps, cable_user%yearstart, met, patch, landpt)
               CASE DEFAULT
                 CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                      casamet, ssnow,   &
                      rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
-
+                call cable_output_update(ktau, dels, leaps, cable_user%yearstart, met)
+                call cable_output_write(ktau, dels, leaps, cable_user%yearstart, met, patch, landpt)
               END SELECT
             END IF
           ENDIF
@@ -1053,11 +1077,20 @@ CONTAINS
             CASE ('plum', 'cru', 'gswp', 'gswp3')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau_tot, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau_tot, dels, leaps, cable_user%yearstart, met, patch, landpt)
             CASE DEFAULT
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
-
+              call cable_output_update(ktau, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau, dels, leaps, cable_user%yearstart, met, patch, landpt)
             END SELECT
+          END IF
+
+          IF (.not. casaonly .and. ktau > kstart .and. mod(ktau - kstart + 1, ktauday) == 0) THEN
+            ! Reset daily aggregators if previous time step was the end of day
+            CALL canopy%tscrn_max_daily%reset()
+            CALL canopy%tscrn_min_daily%reset()
           END IF
 
           IF(cable_user%consistency_check) THEN
@@ -1258,6 +1291,7 @@ CONTAINS
       if(.not.l_landuse) then
         CALL create_restart( logn, dels, ktau, soil, veg, ssnow,                 &
              canopy, rough, rad, bgc, bal, met  )
+        call cable_output_write_restart(current_time=ktau * dels)
       endif
 
       IF (cable_user%CALL_climate) THEN
@@ -1321,7 +1355,9 @@ CONTAINS
       call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
     ENDIF
 
+    if (.not. casaonly) call cable_output_mod_end()
 
+    call cable_netcdf_mod_end()
 
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
