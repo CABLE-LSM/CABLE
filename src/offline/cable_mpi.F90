@@ -4,6 +4,7 @@
 
 MODULE cable_mpi_mod
   !! Module for handling some common MPI operations and MPI groups
+  USE cable_error_handler_mod, ONLY: cable_abort
 #ifdef __MPI__
   USE mpi_f08
 #else
@@ -110,8 +111,7 @@ CONTAINS
       call MPI_Comm_size(mpi_grp%comm, mpi_grp%size, ierr)
       call mpi_check_error(ierr)
 #else
-      WRITE(error_unit,*) "Error initialising mpi group: CABLE was compiled without MPI support."
-      STOP
+      call cable_abort("Error initialising mpi group: CABLE was compiled without MPI support.", file=__FILE__, line=__LINE__)
 #endif
     ELSE
       mpi_grp%rank = 0
@@ -150,8 +150,7 @@ CONTAINS
 
     IF (ierr /= MPI_SUCCESS ) THEN
       CALL MPI_Error_String(ierr, msg, length, tmp)
-      WRITE(error_unit,*) msg(1:length)
-      CALL MPI_Abort(MPI_COMM_WORLD, 1 , tmp)
+      CALL cable_abort(msg(1:length), file=__FILE__, line=__LINE__)
     END if
 #endif
 
