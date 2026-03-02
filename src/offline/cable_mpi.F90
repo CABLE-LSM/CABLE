@@ -4,6 +4,7 @@
 
 MODULE cable_mpi_mod
   !! Module for handling some common MPI operations and MPI groups
+  USE cable_error_handler_mod, ONLY: cable_abort
 #ifdef __MPI__
   USE mpi_f08
 #else
@@ -148,8 +149,7 @@ CONTAINS
 
     IF (ierr /= MPI_SUCCESS ) THEN
       CALL MPI_Error_String(ierr, msg, length, tmp)
-      WRITE(error_unit,*) msg(1:length)
-      CALL MPI_Abort(MPI_COMM_WORLD, 1 , tmp)
+      CALL cable_abort(msg(1:length), __FILE__, __LINE__)
     END if
 #endif
 
