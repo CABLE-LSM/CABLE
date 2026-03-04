@@ -170,7 +170,7 @@ contains
     integer, intent(in), optional :: mode
     integer :: cmode_nf90
     select case(iotype)
-    case (CABLE_NETCDF_IOTYPE_CLASSIC)
+    case (CABLE_NETCDF_IOTYPE_CLASSIC, CABLE_NETCDF_IOTYPE_NETCDF)
       cmode_nf90 = NF90_CLASSIC_MODEL
     case (CABLE_NETCDF_IOTYPE_NETCDF4C, CABLE_NETCDF_IOTYPE_NETCDF4P)
       cmode_nf90 = NF90_NETCDF4

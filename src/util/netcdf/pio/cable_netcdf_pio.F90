@@ -40,6 +40,7 @@ module cable_netcdf_pio_mod
   use pio, only: PIO_REARR_BOX
   use pio, only: PIO_REARR_SUBSET
   use pio, only: PIO_IOTYPE_NETCDF
+  use pio, only: PIO_IOTYPE_PNETCDF
   use pio, only: PIO_IOTYPE_NETCDF4C
   use pio, only: PIO_IOTYPE_NETCDF4P
   use pio, only: PIO_CLOBBER
@@ -167,6 +168,8 @@ contains
     integer :: iotype_pio
     select case(iotype)
     case(CABLE_NETCDF_IOTYPE_CLASSIC)
+      iotype_pio = PIO_IOTYPE_PNETCDF
+    case(CABLE_NETCDF_IOTYPE_NETCDF)
       iotype_pio = PIO_IOTYPE_NETCDF
     case(CABLE_NETCDF_IOTYPE_NETCDF4C)
       iotype_pio = PIO_IOTYPE_NETCDF4C
