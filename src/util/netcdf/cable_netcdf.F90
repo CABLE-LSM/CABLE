@@ -67,10 +67,7 @@ module cable_netcdf_mod
   integer, parameter :: CABLE_NETCDF_UNLIMITED = -1
   integer, parameter :: CABLE_NETCDF_MAX_RANK = 3
 
-  type :: cable_netcdf_decomp_t
-    integer, allocatable :: compmap(:)
-    integer, allocatable :: dims(:)
-    integer :: type
+  type, abstract :: cable_netcdf_decomp_t
   end type
 
   type, abstract :: cable_netcdf_file_t

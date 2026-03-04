@@ -48,14 +48,23 @@ module cable_netcdf_nf90_mod
   public :: cable_netcdf_nf90_io_t
 
   type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_int32_t
+    integer :: type
+    integer, allocatable :: dims(:)
+    integer, allocatable :: compmap(:)
     integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
   end type
 
   type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_real32_t
+    integer :: type
+    integer, allocatable :: dims(:)
+    integer, allocatable :: compmap(:)
     real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
   end type
 
   type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_real64_t
+    integer :: type
+    integer, allocatable :: dims(:)
+    integer, allocatable :: compmap(:)
     real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
   end type
 

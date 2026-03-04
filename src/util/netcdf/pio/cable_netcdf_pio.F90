@@ -305,7 +305,7 @@ contains
       compmap, &
       pio_io_desc &
     )
-    allocate(decomp, source=cable_netcdf_pio_decomp_t(compmap, dims, type, pio_io_desc=pio_io_desc))
+    decomp = cable_netcdf_pio_decomp_t(pio_io_desc)
   end function
 
   subroutine cable_netcdf_pio_file_close(this)

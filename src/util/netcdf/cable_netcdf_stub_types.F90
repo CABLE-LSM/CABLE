@@ -125,7 +125,7 @@ contains
     integer, intent(in) :: compmap(:), dims(:)
     integer, intent(in) :: type
     class(cable_netcdf_decomp_t), allocatable :: decomp
-    decomp = cable_netcdf_stub_decomp_t(compmap, dims, type)
+    decomp = cable_netcdf_stub_decomp_t()
   end function
 
   subroutine cable_netcdf_stub_file_close(this)
