@@ -26,7 +26,6 @@ module cable_netcdf_mod
     CABLE_NETCDF_INT, &
     CABLE_NETCDF_FLOAT, &
     CABLE_NETCDF_DOUBLE, &
-    CABLE_NETCDF_MAX_RANK, &
     CABLE_NETCDF_UNLIMITED, &
     CABLE_NETCDF_IOTYPE_NETCDF, &
     CABLE_NETCDF_IOTYPE_CLASSIC, &
@@ -61,7 +60,6 @@ module cable_netcdf_mod
   end enum
 
   integer, parameter :: CABLE_NETCDF_UNLIMITED = -1
-  integer, parameter :: CABLE_NETCDF_MAX_RANK = 3
 
   type, abstract :: cable_netcdf_decomp_t
   end type
