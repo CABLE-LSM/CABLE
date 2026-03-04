@@ -1,5 +1,5 @@
 module cable_netcdf_decomp_util_mod
-  use cable_netcdf_mod, only: cable_netcdf_decomp_t, cable_netcdf_create_decomp, CABLE_NETCDF_MAX_STR_LEN_DIM
+  use cable_netcdf_mod, only: cable_netcdf_decomp_t, cable_netcdf_create_decomp
   use cable_array_utils_mod, only: array_index, array_offset
   use cable_abort_module, only: cable_abort
   implicit none
@@ -15,7 +15,7 @@ module cable_netcdf_decomp_util_mod
     dim_spec_t
 
   type dim_spec_t
-    character(CABLE_NETCDF_MAX_STR_LEN_DIM) :: name
+    character(64) :: name
     integer :: size
   end type
 
@@ -53,7 +53,7 @@ contains
     type(dim_spec_t), intent(in) :: mem_shape_spec(:), var_shape_spec(:)
     integer, intent(in) :: type
     class(cable_netcdf_decomp_t), allocatable :: decomp
-    
+
     integer, allocatable :: compmap(:)
     integer, allocatable :: mem_index(:), mem_shape(:)
     integer, allocatable :: grid_index(:), grid_shape(:)
