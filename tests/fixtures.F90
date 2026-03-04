@@ -2,7 +2,7 @@ module fixtures_mod
   use fortuno_interface_m, only: test_case_t, test_item, check, check_failed, global_comm, num_ranks, this_rank
   use cable_mpi_mod, only: mpi_grp_t, MPI_COMM_UNDEFINED
   use file_utils, only: file_delete_collective
-  use cable_netcdf_mod, only: cable_netcdf_io_t, CABLE_NETCDF_MAX_STR_LEN_FILE
+  use cable_netcdf_mod, only: cable_netcdf_io_t
   use cable_netcdf_nf90_mod, only: cable_netcdf_nf90_io_t
   use cable_netcdf_pio_mod, only: cable_netcdf_pio_io_t
   implicit none
@@ -11,7 +11,7 @@ module fixtures_mod
 
   public :: test_case_nf90, test_case_pio, io_handler_factory_interface
 
-  character(len=CABLE_NETCDF_MAX_STR_LEN_FILE), parameter :: nc_file_name = "file.nc"
+  character(16), parameter :: nc_file_name = "file.nc"
 
   type, extends(test_case_t) :: test_case_cable_netcdf_nf90_t
     procedure(cable_netcdf_test_interface), pointer, nopass :: test
