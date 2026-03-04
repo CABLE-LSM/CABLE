@@ -589,7 +589,7 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_int32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -633,7 +633,7 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(2)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_int32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -678,7 +678,7 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(3)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_int32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -723,7 +723,7 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -767,7 +767,7 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(2)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -812,7 +812,7 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(3)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -857,7 +857,7 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real64_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -901,7 +901,7 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(2)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real64_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -946,7 +946,7 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), intent(in), optional :: fill_value
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(3)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real64_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1110,7 +1110,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_int32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1148,7 +1148,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(2)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_int32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1187,7 +1187,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(3)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_int32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1226,7 +1226,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1264,7 +1264,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(2)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1303,7 +1303,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(3)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real32_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1342,7 +1342,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real64_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1380,7 +1380,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(2)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real64_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
@@ -1419,7 +1419,7 @@ contains
     class(cable_netcdf_decomp_t), intent(inout) :: decomp
     integer, intent(in), optional :: frame
     integer :: i, varid, ndims
-    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(CABLE_NETCDF_MAX_RANK)
+    integer :: dimids(NF90_MAX_VAR_DIMS), starts(NF90_MAX_VAR_DIMS), counts(NF90_MAX_VAR_DIMS), mem_index(3)
     select type (decomp)
     type is (cable_netcdf_nf90_decomp_real64_t)
       call check_nf90(nf90_inq_varid(this%ncid, var_name, varid))
