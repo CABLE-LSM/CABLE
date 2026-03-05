@@ -1,7 +1,14 @@
+! CSIRO Open Source Software License Agreement (variation of the BSD / MIT License)
+! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation
+! (CSIRO) ABN 41 687 119 230.
+
 module cable_netcdf_stub_types_mod
+  !! Stub implementation of the netCDF file handling interface in CABLE.
+
   use cable_netcdf_mod
   use cable_mpi_mod, only: mpi_grp_t
   use iso_fortran_env, only: error_unit
+
   implicit none
 
   private
