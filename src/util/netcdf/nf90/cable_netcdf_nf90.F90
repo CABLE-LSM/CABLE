@@ -56,21 +56,18 @@ module cable_netcdf_nf90_mod
   public :: cable_netcdf_nf90_io_t
 
   type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_int32_t
-    integer :: type
     integer, allocatable :: dims(:)
     integer, allocatable :: compmap(:)
     integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: values_filled(:)
   end type
 
   type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_real32_t
-    integer :: type
     integer, allocatable :: dims(:)
     integer, allocatable :: compmap(:)
     real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: values_filled(:)
   end type
 
   type, extends(cable_netcdf_decomp_t) :: cable_netcdf_nf90_decomp_real64_t
-    integer :: type
     integer, allocatable :: dims(:)
     integer, allocatable :: compmap(:)
     real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: values_filled(:)
@@ -247,21 +244,21 @@ contains
     case (CABLE_NETCDF_INT)
       block
         type(cable_netcdf_nf90_decomp_int32_t) :: decomp_int32
-        decomp_int32 = cable_netcdf_nf90_decomp_int32_t(compmap=compmap, dims=dims, type=type)
+        decomp_int32 = cable_netcdf_nf90_decomp_int32_t(compmap=compmap, dims=dims)
         allocate(decomp_int32%values_filled(product(dims)))
         decomp = decomp_int32
       end block
     case (CABLE_NETCDF_FLOAT)
       block
         type(cable_netcdf_nf90_decomp_real32_t) :: decomp_real32
-        decomp_real32 = cable_netcdf_nf90_decomp_real32_t(compmap=compmap, dims=dims, type=type)
+        decomp_real32 = cable_netcdf_nf90_decomp_real32_t(compmap=compmap, dims=dims)
         allocate(decomp_real32%values_filled(product(dims)))
         decomp = decomp_real32
       end block
     case (CABLE_NETCDF_DOUBLE)
       block
         type(cable_netcdf_nf90_decomp_real64_t) :: decomp_real64
-        decomp_real64 = cable_netcdf_nf90_decomp_real64_t(compmap=compmap, dims=dims, type=type)
+        decomp_real64 = cable_netcdf_nf90_decomp_real64_t(compmap=compmap, dims=dims)
         allocate(decomp_real64%values_filled(product(dims)))
         decomp = decomp_real64
       end block
