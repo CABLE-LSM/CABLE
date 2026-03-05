@@ -7,6 +7,8 @@ module cable_netcdf_nf90_mod
   ! For more information on NetCDF Fortran please refer to:
   ! - https://docs.unidata.ucar.edu/netcdf-fortran/current/
   ! - https://github.com/Unidata/netcdf-fortran
+  !
+  ! Note, this implementation can only be used when CABLE is running in serial.
 
   use cable_netcdf_mod
 
