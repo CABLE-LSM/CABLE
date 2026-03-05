@@ -1,9 +1,17 @@
+! CSIRO Open Source Software License Agreement (variation of the BSD / MIT License)
+! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation
+! (CSIRO) ABN 41 687 119 230.
+
 module cable_netcdf_nf90_mod
+  !* The NetCDF Fortran implementation of the netCDF file handling interface in CABLE.
+  ! For more information on NetCDF Fortran please refer to:
+  ! - https://docs.unidata.ucar.edu/netcdf-fortran/current/
+  ! - https://github.com/Unidata/netcdf-fortran
+
   use cable_netcdf_mod
 
   use cable_mpi_mod, only: mpi_grp_t
   use cable_abort_module, only: cable_abort
-
   use cable_array_utils_mod, only: array_index
 
   use netcdf, only: nf90_create
