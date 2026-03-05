@@ -2180,13 +2180,13 @@ END SUBROUTINE casa_delplant
        ENDIF
     ENDDO
 
-
-
+    casapool%cplanttot = sum(casapool%cplant, wood)
+    casapool%clittertot = sum(casapool%clitter, str)
+    casapool%csoiltot = sum(casapool%csoil, slow) + casapool%clittertot
 
     casapool%ctot_0 = SUM(casabal%cplantlast,2)+SUM(casabal%clitterlast,2) &
          + SUM(casabal%csoillast,2)+ casabal%clabilelast
-    casapool%ctot = SUM(casapool%cplant,2)+SUM(casapool%clitter,2) &
-         + SUM(casapool%csoil,2)+ casapool%clabile
+    casapool%ctot = casapool%cplanttot + casapool%csoiltot + casapool%clabile
     casabal%sumcbal     = casabal%sumcbal + casabal%cbalance
 
 

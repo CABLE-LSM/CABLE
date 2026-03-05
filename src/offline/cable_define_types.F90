@@ -261,6 +261,7 @@ USE cable_climate_type_mod, ONLY: climate_type
           qssrf,   & ! sublimation
           snage,   & ! snow age
           snowd,   & ! snow depth (liquid water)
+          totsdepth, & ! total snow depth (m)
           smelt,   & ! snow melt
           ssdnn,   & ! average snow density
           tss,     & ! surface temperature (weighted soil, snow)
@@ -450,12 +451,14 @@ USE cable_climate_type_mod, ONLY: climate_type
           frpw,    & ! plant respiration (woody component) (g C m-2 s-1)
           frpr,    & ! plant respiration (root component) (g C m-2 s-1)
           frs,     & ! soil respiration (g C m-2 s-1)
+          fra,     & ! autotrophic respiration (g C m-2 s-1)
           fnee,    & ! net carbon flux (g C m-2 s-1)
           frday,   & ! daytime leaf resp
           fnv,     & ! net rad. avail. to canopy (W/m2)
           fev,     & ! latent hf from canopy (W/m2)
           epot,    & ! total potential evaporation
-          fnpp,    & ! npp flux
+          fnpp,    & ! npp flux (g C m-2 s-1)
+          fgpp,    & ! gpp flux (g C m-2 s-1)
           fevw_pot,& ! potential lat heat from canopy
           gswx_T,  & ! ! stom cond for water
           cdtq,    & ! drag coefficient for momentum
@@ -471,6 +474,7 @@ USE cable_climate_type_mod, ONLY: climate_type
           ghflux,  & ! ground heat flux (W/m2) ???
           precis,  & ! throughfall to soil, after snow (mm)
           qscrn,   & ! specific humudity at screen height (g/g)
+          qmom,    & ! surface momentum flux (kg/m/s2)
           rnet,    & ! net radiation absorbed by surface (W/m2)
           rniso,    & !isothermal net radiation absorbed by surface (W/m2)
           segg,    & ! latent heatfl from soil mm
@@ -549,8 +553,11 @@ USE cable_climate_type_mod, ONLY: climate_type
           latitude,& ! latitude
           lwabv,   & ! long wave absorbed by vegetation
           qssabs,  & ! absorbed short-wave radiation for soil
+          swnet,   & ! net shortwave radiation absorbed by surface (W/m^2)
+          lwnet,   & ! net longwave radiation absorbed by surface (W/m^2)
+          rnet,    & ! net radiation absorbed by surface (W/m^2)
           transd,  & ! frac SW diffuse transmitted through canopy
-          trad,    & !  radiative temperature (soil and veg)
+          trad,    & !  radiative temperature (soil and veg) (K)
           otrad      ! radiative temperature on previous timestep (ACCESS)
 
      REAL, DIMENSION(:,:), POINTER  ::                                        &
@@ -913,6 +920,7 @@ CONTAINS
     ALLOCATE( var% smass(mp,msn) )
     ALLOCATE( var% snage(mp) )
     ALLOCATE( var% snowd(mp) )
+    ALLOCATE( var% totsdepth(mp) )
     ALLOCATE( var% smelt(mp) )
     ALLOCATE( var% ssdn(mp,msn) )
     ALLOCATE( var% ssdnn(mp) )
@@ -1118,6 +1126,7 @@ CONTAINS
     ALLOCATE( var% frpw(mp) )
     ALLOCATE( var% frpr(mp) )
     ALLOCATE( var% frs(mp) )
+    ALLOCATE( var% fra(mp) )
     ALLOCATE( var% fnee(mp) )
     ALLOCATE( var% frday(mp) )
     ALLOCATE( var% fnv(mp) )
@@ -1131,6 +1140,7 @@ CONTAINS
     ALLOCATE( var% ghflux(mp) )
     ALLOCATE( var% precis(mp) )
     ALLOCATE( var% qscrn(mp) )
+    ALLOCATE( var% qmom(mp) )
     ALLOCATE( var% rnet(mp) )
     ALLOCATE( var% rniso(mp) )
     ALLOCATE( var% segg(mp) )
@@ -1150,6 +1160,7 @@ CONTAINS
     ALLOCATE( var% ga_cor(mp) )     !REV_CORR variable
     ALLOCATE( var% epot(mp) )
     ALLOCATE( var% fnpp(mp) )
+    ALLOCATE( var% fgpp(mp) )
     ALLOCATE( var% fevw_pot(mp) )
     ALLOCATE( var% gswx_T(mp) )
     ALLOCATE( var% cdtq(mp) )
@@ -1199,6 +1210,9 @@ CONTAINS
     ALLOCATE( var% lwabv(mp) )
     ALLOCATE( var% qcan(mp,mf,nrb) )
     ALLOCATE( var% qssabs(mp) )
+    ALLOCATE( var% swnet(mp) )
+    ALLOCATE( var% lwnet(mp) )
+    ALLOCATE( var% rnet(mp) )
     ALLOCATE( var% rhocdf(mp,nrb) )
     ALLOCATE( var% rniso(mp,mf) )
     ALLOCATE( var% scalex(mp,mf) )
@@ -1559,6 +1573,7 @@ CONTAINS
     DEALLOCATE( var% smass )
     DEALLOCATE( var% snage )
     DEALLOCATE( var% snowd )
+    DEALLOCATE( var% totsdepth )
     DEALLOCATE( var% smelt )
     DEALLOCATE( var% ssdn )
     DEALLOCATE( var% ssdnn )
@@ -1750,6 +1765,7 @@ CONTAINS
     DEALLOCATE( var% frpw )
     DEALLOCATE( var% frpr )
     DEALLOCATE( var% frs )
+    DEALLOCATE( var% fra )
     DEALLOCATE( var% fnee )
     DEALLOCATE( var% frday )
     DEALLOCATE( var% fnv )
@@ -1763,6 +1779,7 @@ CONTAINS
     DEALLOCATE( var% ghflux )
     DEALLOCATE( var% precis )
     DEALLOCATE( var% qscrn )
+    DEALLOCATE( var% qmom )
     DEALLOCATE( var% rnet )
     DEALLOCATE( var% rniso )
     DEALLOCATE( var% segg )
@@ -1782,6 +1799,7 @@ CONTAINS
     DEALLOCATE( var% ga_cor )    !REV_CORR variable
     DEALLOCATE( var% epot )
     DEALLOCATE( var% fnpp )
+    DEALLOCATE( var% fgpp )
     DEALLOCATE( var% fevw_pot )
     DEALLOCATE( var% gswx_T )
     DEALLOCATE( var% cdtq )
@@ -1822,6 +1840,9 @@ CONTAINS
     DEALLOCATE( var% lwabv )
     DEALLOCATE( var% qcan )
     DEALLOCATE( var% qssabs )
+    DEALLOCATE( var% swnet )
+    DEALLOCATE( var% lwnet )
+    DEALLOCATE( var% rnet )
     DEALLOCATE( var% rhocdf )
     DEALLOCATE( var% rniso )
     DEALLOCATE( var% scalex )

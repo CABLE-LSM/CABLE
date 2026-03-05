@@ -29,7 +29,7 @@ MODULE cable_mpicommon
 
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
-  INTEGER, PARAMETER :: nparam = 340
+  INTEGER, PARAMETER :: nparam = 347
    
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
@@ -37,7 +37,7 @@ MODULE cable_mpicommon
   ! MPI: number of casa parameters sent to workers as
   ! start up parameters
   ! MPI: added casapool fields ratioNCsoilnew, ratioNCsoilmin and ratioNCsoilmax
-  INTEGER, PARAMETER :: ncasaparam = 213  ! YPW to account for 3 aditional woodproduct pools
+  INTEGER, PARAMETER :: ncasaparam = 219
   ! MPI: base number of casa_init parameters sent to the workers
   INTEGER, PARAMETER :: ncinit = 18
 
@@ -94,12 +94,12 @@ MODULE cable_mpicommon
   ! vh sli nvec + 6 162 -> 168
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
-  INTEGER, PARAMETER :: nvec = 175
+  INTEGER, PARAMETER :: nvec = 183
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
   INTEGER, PARAMETER :: ncasa_mat = 37    ! add three more wood product variables
-  INTEGER, PARAMETER :: ncasa_vec = 66
+  INTEGER, PARAMETER :: ncasa_vec = 72
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
