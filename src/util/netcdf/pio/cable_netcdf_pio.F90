@@ -1,4 +1,14 @@
+! CSIRO Open Source Software License Agreement (variation of the BSD / MIT License)
+! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation
+! (CSIRO) ABN 41 687 119 230.
+
 module cable_netcdf_pio_mod
+  !* The ParallelIO (PIO) implementation of the netCDF file handling interface in CABLE.
+  ! For more information on the PIO library please refer to:
+  ! - https://ncar.github.io/ParallelIO/index.html
+  ! - https://github.com/NCAR/ParallelIO
+  ! - The paper "An application-level parallel I/O library for Earth system models" Denis et al. (2011) [10.1177/1094342011428143]
+
   use cable_netcdf_mod
 
   use cable_mpi_mod, only: mpi_grp_t
@@ -50,6 +60,7 @@ module cable_netcdf_pio_mod
   use pio, only: PIO_UNLIMITED
   use pio, only: PIO_NOERR
   use pio, only: PIO_GLOBAL
+
   implicit none
 
   private
@@ -183,12 +194,10 @@ contains
   function mode_pio(mode)
     integer, intent(in), optional :: mode
     integer :: mode_pio
-
     if (.not. present(mode)) then
       mode_pio = PIO_WRITE
       return
     end if
-
     select case(mode)
     case(CABLE_NETCDF_MODE_CLOBBER)
       mode_pio = PIO_CLOBBER
@@ -201,7 +210,6 @@ contains
     case default
       call cable_abort("Error: mode not supported", __FILE__, __LINE__)
     end select
-
   end function mode_pio
 
   function rearranger_pio(rearr)
@@ -252,7 +260,6 @@ contains
 
   subroutine cable_netcdf_pio_io_init(this)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
-
     call pio_init( &
       comp_rank=this%mpi_grp%rank, &
       comp_comm=this%mpi_grp%comm%mpi_val, &
@@ -271,7 +278,6 @@ contains
     call pio_finalize(this%pio_iosystem_desc, status)
     call check_pio(status)
   end subroutine
-
 
   function cable_netcdf_pio_io_create_file(this, path, iotype, mode) result(file)
     class(cable_netcdf_pio_io_t), intent(inout) :: this
@@ -353,18 +359,15 @@ contains
     integer, allocatable :: dimids(:)
     integer :: i
     type(pio_var_desc_t) :: tmp
-
     if (.not. present(dim_names)) then
       call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), tmp))
       return
     end if
-
     allocate(dimids(size(dim_names)))
     do i = 1, size(dimids)
       call check_pio(pio_inq_dimid(this%pio_file_desc, dim_names(i), dimids(i)))
     end do
     call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), dimids, tmp))
-
   end subroutine
 
   subroutine cable_netcdf_pio_file_put_att_global_string(this, att_name, att_value)
