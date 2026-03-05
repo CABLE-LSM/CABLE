@@ -1,10 +1,13 @@
+! CSIRO Open Source Software License Agreement (variation of the BSD / MIT License)
+! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation
+! (CSIRO) ABN 41 687 119 230.
+
 module cable_netcdf_pio_mod
+  !! A stub implementation of the netCDF file handling interface for when PIO is unavailable.
   use cable_netcdf_mod
   use cable_mpi_mod, only: mpi_grp_t
   use cable_abort_module, only: cable_abort
   use cable_netcdf_stub_types_mod, only: cable_netcdf_stub_io_t
-  use cable_netcdf_stub_types_mod, only: cable_netcdf_pio_decomp_t => cable_netcdf_stub_decomp_t
-  use cable_netcdf_stub_types_mod, only: cable_netcdf_pio_file_t => cable_netcdf_stub_file_t
   implicit none
 
   type, extends(cable_netcdf_stub_io_t) :: cable_netcdf_pio_io_t
