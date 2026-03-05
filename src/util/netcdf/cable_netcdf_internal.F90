@@ -1,6 +1,17 @@
+! CSIRO Open Source Software License Agreement (variation of the BSD / MIT License)
+! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation
+! (CSIRO) ABN 41 687 119 230.
+
 submodule (cable_netcdf_mod) cable_netcdf_internal
+  !* Internal submodule for cable_netcdf_mod.
+  ! This contains the implementation of the public interface of procedures defined
+  ! in cable_netcdf_mod, and other internal utilities. A submodule is used here to
+  ! initialise the global cable_netcdf_io_handler to the appropriate I/O handler
+  ! implementation based on the current run configuration.
+
   use cable_netcdf_nf90_mod
   use cable_netcdf_pio_mod
+
   implicit none
 
 contains
