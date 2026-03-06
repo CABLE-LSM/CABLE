@@ -313,7 +313,7 @@ CONTAINS
     DO i=1,mp
        tmpa = ssnow%wbliq(i,1) / efpor(i)
        tmpb = MAX( (tmpa-satfrac_liqice(i))/MAX(0.01_r_2,(1._r_2-satfrac_liqice(i))), 0._r_2)
-       tmpa = -2._r_2*soil%bch_vec(i,1)*soil%sucs_vec(i,1)/soil%zse_vec(i,1)/1000._r_2
+       tmpa = -2._r_2*soil%bch_vec(i,1)*soil%sucs_vec(i,1)/soil%zse_vec(i,1)
        qinmax = (1._r_2 + tmpa*(tmpb-1._r_2))*soil%hyds_vec(i,1)*EXP(-gw_params%hkrz*(0.5*dzmm/1000.0_r_2-gw_params%zdepth))
        ! qinmax = (1._r_2 + tmpa*(tmpb-1._r_2))*soil%hyds_vec(i,1) ! MMY@23Apr2023, keep this commented line and the line above
                                                                    !              *EXP(-gw_params%hkrz*(0.5*dzmm/1000.0_r_2-gw_params%zdepth))
@@ -1561,7 +1561,7 @@ CONTAINS
                           (0.5_r_2*((soil%ssat_vec(i,k)-soil%watr(i,k)) + &
                           (soil%ssat_vec(i,kk)-soil%watr(i,kk))))
            s1(i) = min(max(s1(i),0.01_r_2),1._r_2)
-           s2(i) = soil%hyds_vec(i,k)*s1(i)**(2._r_2*soil%bch_vec(i,k)+2._r_2)
+           s2(i) = soil%hyds_vec(i,k)*m2mm*s1(i)**(2._r_2*soil%bch_vec(i,k)+2._r_2)
           ! _________________________________________________
           ssnow%hk(i,k)    =  s1(i)*s2(i)*hk_ice_factor(i,k)
           ssnow%dhkdw(i,k) = (2._r_2*soil%bch_vec(i,k)+3._r_2)*s2(i)*&
@@ -1583,7 +1583,7 @@ CONTAINS
             soil%GWssat_vec(i)-soil%GWwatr(i)))
 
        s1(i) = MIN(MAX(s1(i),0.01_r_2),1._r_2)
-       s2(i) = soil%hyds_vec(i,k)*s1(i)**(2._r_2*soil%bch_vec(i,k)+2._r_2)
+       s2(i) = soil%hyds_vec(i,k)*m2mm*s1(i)**(2._r_2*soil%bch_vec(i,k)+2._r_2)
 
        ssnow%hk(i,k)    = s1(i)*s2(i)*hk_ice_factor(i,k)
        ssnow%dhkdw(i,k) = (2._r_2*soil%bch_vec(i,k)+3._r_2)*&
@@ -1591,7 +1591,7 @@ CONTAINS
             s2(i)*0.5_r_2/(soil%ssat_vec(i,k)-soil%watr(i,k))
        !Aquifer                                             
 
-       s2(i) = soil%GWhyds_vec(i)*s1(i)**(2._r_2*soil%GWbch_vec(i)+2._r_2)
+       s2(i) = soil%GWhyds_vec(i)*m2mm*s1(i)**(2._r_2*soil%GWbch_vec(i)+2._r_2)
        ssnow%GWhk(i)     =s1(i)*s2(i) * hk_ice_factor(i,ms+1)
        ssnow%GWdhkdw(i)  =  (2._r_2*soil%GWbch_vec(i)+3._r_2)*&
             s2(i)*0.5_r_2/(soil%GWssat_vec(i)-soil%GWwatr(i)) *&
@@ -2292,7 +2292,7 @@ subroutine swc_hyst_direction(soil,ssnow,veg)
                                         (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
                                          **(-1.0/soil%bch_vec(i,klev))+&
                                         ssnow%watr_hys(i,klev)
-               soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev))&
+               soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/(soil%hyds_vec(i,klev)*m2mm)&
                                        **(1.0/(2.0*soil%bch_vec(i,klev)+3.0)) *&
                                        (ssnow%ssat_hys(i,klev)-ssnow%watr_hys(i,klev)) + ssnow%watr_hys(i,klev)
             end if

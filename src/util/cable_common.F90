@@ -30,6 +30,9 @@ USE cable_runtime_opts_mod ,ONLY : snmin
 
   IMPLICIT NONE
 
+  ! Unit conversion millimeter to meter:
+  REAL(r_2), PARAMETER :: mm2m=0.001_r_2
+
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
@@ -124,7 +127,7 @@ USE cable_runtime_opts_mod ,ONLY : snmin
 
 ! should the ones below be included also or is it a renaming? - rk4417 - phase2
 ! they are included to fix compilation error - rk4417 - phase2
-          hyds_organic  = 1.0e-4,   &
+          hyds_organic  = 1.0e-4*mm2m,   &
           sucs_organic  = 10.3,     &
           bch_organic   = 2.91,     &
           ssat_organic  = 0.9,      &

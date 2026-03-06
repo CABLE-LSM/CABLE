@@ -1494,7 +1494,7 @@ CONTAINS
                 soil%watr(h,klev)    = 0.01
              END DO
              soil%GWsucs_vec(h)  = REAL(ABS(soilin%sucs(soil%isoilm(h)))*1000.0,r_2)
-             soil%GWhyds_vec(h)   = REAL(soilin%hyds(soil%isoilm(h))*1000.0,r_2)
+             soil%GWhyds_vec(h)   = REAL(soilin%hyds(soil%isoilm(h)),r_2)
              soil%GWbch_vec(h)  = REAL(soilin%bch(soil%isoilm(h)),r_2)
              soil%GWrhosoil_vec(h) = REAL(soilin%rhosoil(soil%isoilm(h)),r_2)
              soil%GWssat_vec(h)  = REAL(soilin%ssat(soil%isoilm(h)),r_2)
@@ -1773,6 +1773,8 @@ CONTAINS
 
     REAL(r_2), DIMENSION(:,:), ALLOCATABLE :: ssat_bounded,rho_soil_bulk ! added by rk4417 - phase2
 
+    REAL(r_2), PARAMETER :: mm2m=0.001_r_2
+
   
     
 !    soil_depth(1) = REAL(soil%zse(1),r_2)
@@ -1989,8 +1991,8 @@ CONTAINS
               ! MMY use single var (uni) or two var (multi) regression from Cosby 1984 
               ! MMY or use Hutson-Cass SWC
             if (gw_params%cosby_univariate) then
-                soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
-                                     exp(-soil%hkrz(i)*(MAX(0.,soil_depth(i,klev)-soil%zdepth(i)))) ! MMY add MAX(0.,...)
+                soil%hyds_vec(i,klev) = mm2m*0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
+                                     exp(-soil%hkrz(i)*(MAX(0.,soil_depth(i,klev)-soil%zdepth(i))))
                                      ! MMY add MAX(0.,...) for stopping hyds increase in shallow soil
                                      ! MMY NEED to figure out the source of this equation 
                 soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -1.31*soil%sand_vec(i,klev))
@@ -2001,7 +2003,7 @@ CONTAINS
                 soil%wbc_vec(i,klev) = 0.0
                 soil%smpc_vec(i,klev) = 0.0
             elseif (gw_params%cosby_multivariate) then
-                soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
+                soil%hyds_vec(i,klev) = mm2m*0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
                                                         -0.64*soil%clay_vec(i,klev) ) )*&
                                         exp(-soil%hkrz(i)*(MAX(0.,soil_depth(i,klev)-soil%zdepth(i)))) ! MMY add MAX(0.,...)
                 soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.54 - 0.95*soil%sand_vec(i,klev) + &
@@ -2045,7 +2047,7 @@ CONTAINS
                                        0.3028160*soil%rhosoil_vec(i,klev) +      &
                                        0.179762*(soil%sand_vec(i,klev)**2.0) - &
                                        0.03134631*(soil%silt_vec(i,klev)**2.0)
-                soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60                     &
+                soil%hyds_vec(i,klev) = mm2m*0.00706*(10.0**(-0.60                     &
                                         +1.26*soil%sand_vec(i,klev)               &
                                         -0.64*soil%clay_vec(i,klev)))*            &
                                         exp(-soil%hkrz(i)*                        &
@@ -2091,7 +2093,7 @@ CONTAINS
                                             (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
                                             **(-1.0/soil%bch_vec(i,klev))+soil%watr(i,klev)
                    soil%sfc_vec(i,klev)   = (soil%ssat_vec(i,klev)-soil%watr(i,klev)) *       &
-                                            (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev))      &
+                                            (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev)/mm2m)      &
                                             **(1.0/(2.0*soil%bch_vec(i,klev)+3.0))  +         &
                                             soil%watr(i,klev)
                    soil%swilt_vec(i,klev) = min(0.95*soil%sfc_vec(i,klev),soil%swilt_vec(i,klev))
@@ -2118,7 +2120,7 @@ CONTAINS
        
        !convert the units back to what default uses and GW only uses the
        !vectored versions
-       soil%hyds       = real(soil%hyds_vec(:,3))/1000.0 ! MMY mm/s -> m/s
+       soil%hyds       = real(soil%hyds_vec(:,3))
        soil%sucs       =  -1.* ABS(real(soil%sucs_vec(:,3))/1000.0) ! MMY mm   -> m
 
        ! MMY assume aquifer share soil params with last layer 
@@ -3373,6 +3375,8 @@ CONTAINS
      ! MMY : add for hkrz
     REAL(r_2), DIMENSION(mp,ms) :: soil_depth
 
+    REAL(r_2), PARAMETER :: mm2m=0.001_r_2
+
 ! SELECT CASE block below inserted to fix bug of uninitialized soil%zse here in MMY code - rk4417 - phase2
 ! SELECT CASE block copied from SUBROUTINE write_default_params which is called after SUBROUTINE GWspatialParameters - rk4417 - phase2
     
@@ -3526,7 +3530,7 @@ CONTAINS
     inGWtmp(:,:) = 0.01*inssat(:,:)
     soil%watr(:,:) = get_gw_data(ncid,file_status,'watr',inGWtmp(:,:),nlon,nlat,ms)
     !14
-    inGWtmp(:,:) = 1000.0*inhyds(:,:)
+    inGWtmp(:,:) = inhyds(:,:)
     soil%hyds_vec(:,:) = get_gw_data(ncid,file_status,'hyds_vec',inGWtmp(:,:),nlon,nlat,ms)
     !15
     inGWtmp(:,:) = abs(insucs(:,:)) ! MMY sucs -> all positive
@@ -3555,7 +3559,7 @@ CONTAINS
     where( soil%drain_dens(:) .gt. 0.02  ) soil%drain_dens(:)=0.02
     ! 21
     soil%GWhyds_vec(:) = get_gw_data(ncid,file_status,'permeability',1.0e-6,nlon,nlat)
-    soil%GWhyds_vec(:) = 1000._r_2 * soil%GWhyds_vec(:)
+    soil%GWhyds_vec(:) = soil%GWhyds_vec(:)
     ! 22
     soil%GWssat_vec(:) = get_gw_data(ncid,file_status,'Sy',inssat(:,:),nlon,nlat)
     soil%GWssat_vec(:) = max(0.23_r_2,soil%GWssat_vec(:))
@@ -3584,7 +3588,7 @@ CONTAINS
        soil%slope_std(landpt(e)%cstart:landpt(e)%cend) =0.03
        soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =25.0
        soil%drain_dens(landpt(e)%cstart:landpt(e)%cend) =0.008
-       soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =1.0e-6
+       soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =1.0e-6*mm2m
        soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =0.23
        soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =0.0
        soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) = &
