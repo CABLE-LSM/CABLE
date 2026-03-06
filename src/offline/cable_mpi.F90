@@ -34,6 +34,7 @@ MODULE cable_mpi_mod
   CONTAINS
     PROCEDURE :: abort => mpi_grp_abort !! Send abort signal to processes in this group
     PROCEDURE :: split => mpi_grp_split !! Split this group into sub-groups
+    PROCEDURE :: comm_defined => mpi_grp_comm_defined !! Check if communicator is defined
   END TYPE mpi_grp_t
 
   INTERFACE mpi_grp_t
@@ -168,6 +169,12 @@ CONTAINS
     END IF
 
   END SUBROUTINE mpi_grp_split
+
+  LOGICAL FUNCTION mpi_grp_comm_defined(this)
+    !* Class method to check if the communicator is defined.
+    CLASS(mpi_grp_t), INTENT(IN) :: this
+    mpi_grp_comm_defined = this%comm /= MPI_COMM_UNDEFINED
+  END FUNCTION mpi_grp_comm_defined
 
   SUBROUTINE mpi_check_error(ierr)
     !* Check if an MPI return code signaled an error. If so, print the
