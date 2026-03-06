@@ -154,8 +154,8 @@ CONTAINS
                MAX((1._r_2 - ssnow%satfrac(i)),1e-5) ) ) )
 
           rel_s(i) = REAL( MAX(wb_liq(i)-soil%watr(i,1),0._r_2)/(soil%ssat_vec(i,1)-soil%watr(i,1)) )
-          hk_zero(i) = MAX(0.001*soil%hyds_vec(i,1)*(MIN(MAX(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-8)
-          hk_zero_sat(i) = MAX(0.001*soil%hyds_vec(i,1),1e-8)
+          hk_zero(i) = MAX(soil%hyds_vec(i,1)*(MIN(MAX(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-8)
+          hk_zero_sat(i) = MAX(soil%hyds_vec(i,1),1e-8)
 
           soil_moisture_mod(i)     = 1.0/(pi_r_2)/SQRT(wb_liq(i))* ( SQRT((pi_r_2)/(4.0*wb_liq(i)))-1.0)
           soil_moisture_mod_sat(i) = 1.0/(pi_r_2)/SQRT(soil%ssat_vec(i,1))* ( SQRT((pi_r_2)/(4.0*soil%ssat_vec(i,1)))-1.0)
