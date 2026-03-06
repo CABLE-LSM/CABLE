@@ -352,23 +352,34 @@ else()
     if (CABLE_TESTS)
         add_executable(
             cable-tests
+            tests/fixtures/cable_netcdf_fixtures.F90
+            tests/utils/file_utils.F90
             tests/testapp.F90
-            tests/test_example.F90
+            tests/test_cable_netcdf.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)
         else()
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_serial.F90)
         endif()
+        if(NOT TARGET PIO::PIO_Fortran)
+            target_compile_definitions(cable-tests PRIVATE SKIP_PIO_TESTS)
+        endif()
         target_link_libraries(cable-tests PRIVATE cable_common ${fortuno_libs})
         if(CABLE_MPI)
-            add_test(
-                NAME cable-tests
-                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:cable-tests>
+            add_test(NAME cable-tests-serial
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:cable-tests> ~parallel
             )
-            set_tests_properties(cable-tests PROPERTIES PROCESSORS 1)
+            set_tests_properties(cable-tests-serial PROPERTIES PROCESSORS 1)
+            add_test(NAME cable-tests-parallel
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:cable-tests> parallel
+            )
+            set_tests_properties(cable-tests-parallel PROPERTIES PROCESSORS 4)
         else()
-            add_test(NAME cable-tests COMMAND $<TARGET_FILE:cable-tests>)
+            add_test(NAME cable-tests-serial
+                COMMAND $<TARGET_FILE:cable-tests> ~parallel
+            )
+            set_tests_properties(cable-tests-serial PROPERTIES PROCESSORS 1)
         endif()
     endif()
 endif()

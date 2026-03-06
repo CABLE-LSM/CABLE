@@ -6,11 +6,11 @@
 program testapp
   use fortuno_interface_mod, only: execute_cmd_app
   use fortuno_interface_mod, only: test_list => test_list_t
-  use test_example_mod, only: test_example
+  use test_cable_netcdf, only: cable_netcdf_test_list
   implicit none
 
   call execute_cmd_app(test_list([&
-      test_example()&
+      cable_netcdf_test_list()&
   ]))
 
 end program testapp
