@@ -134,6 +134,10 @@ The cable.nml file includes some settings that are common across all CABLE appli
 | cable_user%l_limit_labile        | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Limit labile in spinup.                                                                                 |
 | cable_user%NtilesThruMetFile     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Specify Ntiles through met file.                                                                        |
 | cable_user%l_ice_consistency     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | If true, ensures consistency between soil and vegetation tiles with permanent ice. All tiles with permanent ice for soil will have ice for vegetation and vice-versa. All the parameters for these new ice tiles are updated to the ice parameters.                       |
+| pio_settings%io_tasks            | integer            | any integer greater than 0                                 | 1                                | Number of PIO I/O tasks used to perform distributed I/O operations.                                     |
+| pio_settings%base                | integer            | any integer greater than 0                                 | 1                                | The starting MPI rank index (1-based) used to assign the subset of I/O ranks from compute ranks.        |
+| pio_settings%stride              | integer            | any integer greater than 0                                 | 1                                | The stride used to assign the subset of I/O ranks from compute ranks.                                   |
+| pio_settings%rearr               | character(len=16)  | 'box' 'subset'                                             | 'box'                            | PIO rearranger to use.                                                                                  |
 
 
 <!-- markdown-link-check-disable-line --> [Walker]: https://doi.org/10.1002/ece3.1173

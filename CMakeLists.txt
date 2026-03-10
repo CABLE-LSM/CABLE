@@ -12,6 +12,10 @@ option(CABLE_TESTS "Build CABLE tests" OFF)
 # third party libs
 if(CABLE_MPI)
     find_package(MPI REQUIRED COMPONENTS Fortran)
+    find_package(PIO COMPONENTS Fortran QUIET)
+    if(TARGET PIO::PIO_Fortran)
+        message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
+    endif()
 endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
@@ -302,6 +306,11 @@ else()
         src/offline/spincasacnp.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+        src/util/cable_array_utils.F90
+        src/util/netcdf/cable_netcdf.F90
+        src/util/netcdf/cable_netcdf_init.F90
+        src/util/netcdf/cable_netcdf_stub_types.F90
+        src/util/netcdf/nf90/cable_netcdf_nf90.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
@@ -309,6 +318,13 @@ else()
     if(CABLE_MPI)
     target_compile_definitions(cable_common PRIVATE __MPI__)
     target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
+    endif()
+
+    if(TARGET PIO::PIO_Fortran)
+        target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+    else()
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
     endif()
 
     if(CABLE_MPI)

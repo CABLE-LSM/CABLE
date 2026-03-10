@@ -194,6 +194,15 @@ USE cable_runtime_opts_mod ,ONLY : snmin
 
   TYPE(gw_parameters_type), SAVE :: gw_params
 
+  TYPE pio_settings_type
+    INTEGER :: io_tasks = 1
+    INTEGER :: stride = 1
+    INTEGER :: base = 1
+    CHARACTER(16) :: rearr = "box"
+  END TYPE pio_settings_type
+
+  TYPE(pio_settings_type) :: pio_settings
+
 ! psi_c and psi_o below inserted by rk4417 - phase2 
   REAL, DIMENSION(17),SAVE :: psi_c = (/-2550000.0,-2550000.0,-2550000.0, &  
                                   -2240000.0,-4280000.0,-2750000.0,-2750000.0,&
