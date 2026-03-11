@@ -22,8 +22,5 @@ jobs:
       spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache  # https://github.com/orgs/CABLE-LSM/packages/container/package/build-ci-buildcache
       # Since CABLE-LSM can't access ACCESS-NRI's self-hosted runners, we use a GitHub-hosted version
       run-self-hosted: false
-    secrets:
-      spack-oci-buildcache-username: ${{ github.actor }}
-      spack-oci-buildcache-password: ${{ secrets.SPACK_OCI_BUILDCACHE_PASSWORD }}
-    # permissions:
-    #   packages: write
+    permissions:
+      packages: write
