@@ -27,6 +27,9 @@ TYPE radiation_data_type
   REAL, ALLOCATABLE :: latitude  (:) ! latitude                                            
   REAL, ALLOCATABLE :: lwabv     (:) ! long wave absorbed by vegetation                    
   REAL, ALLOCATABLE :: qssabs    (:) ! absorbed short-wave radiation for soil              
+  REAL, ALLOCATABLE :: swnet     (:) ! net shortwave radiation absorbed by surface (W/m^2)
+  REAL, ALLOCATABLE :: lwnet     (:) ! net longwave radiation absorbed by surface (W/m^2)
+  REAL, ALLOCATABLE :: rnet      (:) ! net radiation absorbed by surface (W/m^2)
   REAL, ALLOCATABLE :: transd    (:) ! frac SW diffuse transmitted through canopy          
   REAL, ALLOCATABLE :: trad      (:) !  radiative temperature (soil and veg)               
   REAL, ALLOCATABLE :: otrad     (:) ! radiative temperature on previous timestep (ACCESS) 
@@ -65,6 +68,9 @@ TYPE radiation_type
   REAL, POINTER :: latitude  (:) ! latitude                                            
   REAL, POINTER :: lwabv     (:) ! long wave absorbed by vegetation                    
   REAL, POINTER :: qssabs    (:) ! absorbed short-wave radiation for soil              
+  REAL, POINTER :: swnet     (:) ! net shortwave radiation absorbed by surface (W/m^2)
+  REAL, POINTER :: lwnet     (:) ! net longwave radiation absorbed by surface (W/m^2)
+  REAL, POINTER :: rnet      (:) ! net radiation absorbed by surface (W/m^2)
   REAL, POINTER :: transd    (:) ! frac SW diffuse transmitted through canopy          
   REAL, POINTER :: trad      (:) !  radiative temperature (soil and veg)               
   REAL, POINTER :: otrad     (:) ! radiative temperature on previous timestep (ACCESS) 
@@ -114,6 +120,9 @@ ALLOCATE( radiation% flws      (mp) )
 ALLOCATE( radiation% latitude  (mp) )
 ALLOCATE( radiation% lwabv     (mp) )
 ALLOCATE( radiation% qssabs    (mp) )
+ALLOCATE( radiation% swnet     (mp) )
+ALLOCATE( radiation% lwnet     (mp) )
+ALLOCATE( radiation% rnet      (mp) )
 ALLOCATE( radiation% transd    (mp) )
 ALLOCATE( radiation% trad      (mp) )
 ALLOCATE( radiation% otrad     (mp) )
@@ -148,6 +157,9 @@ radiation % flws      (:)     = 0.0
 radiation % latitude  (:)     = 0.0      
 radiation % lwabv     (:)     = 0.0      
 radiation % qssabs    (:)     = 0.0      
+radiation % swnet     (:)     = 0.0
+radiation % lwnet     (:)     = 0.0
+radiation % rnet      (:)     = 0.0
 radiation % transd    (:)     = 0.0      
 radiation % trad      (:)     = 0.0      
 radiation % otrad     (:)     = 0.0      
@@ -187,6 +199,9 @@ DEALLOCATE ( radiation % flws      )
 DEALLOCATE ( radiation % latitude  )
 DEALLOCATE ( radiation % lwabv     )
 DEALLOCATE ( radiation % qssabs    )
+DEALLOCATE ( radiation % swnet     )
+DEALLOCATE ( radiation % lwnet     )
+DEALLOCATE ( radiation % rnet      )
 DEALLOCATE ( radiation % transd    )
 DEALLOCATE ( radiation % trad      )
 DEALLOCATE ( radiation % otrad     )
@@ -237,6 +252,9 @@ radiation% flws      => radiation_data% flws
 radiation% latitude  => radiation_data% latitude 
 radiation% lwabv     => radiation_data% lwabv    
 radiation% qssabs    => radiation_data% qssabs   
+radiation% swnet     => radiation_data% swnet
+radiation% lwnet     => radiation_data% lwnet
+radiation% rnet      => radiation_data% rnet
 radiation% transd    => radiation_data% transd   
 radiation% trad      => radiation_data% trad     
 radiation% otrad     => radiation_data% otrad    
@@ -285,6 +303,9 @@ NULLIFY( radiation % flws      )
 NULLIFY( radiation % latitude  )
 NULLIFY( radiation % lwabv     )
 NULLIFY( radiation % qssabs    )
+NULLIFY( radiation % swnet     )
+NULLIFY( radiation % lwnet     )
+NULLIFY( radiation % rnet      )
 NULLIFY( radiation % transd    )
 NULLIFY( radiation % trad      )
 NULLIFY( radiation % otrad     )

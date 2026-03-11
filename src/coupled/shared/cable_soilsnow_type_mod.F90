@@ -56,6 +56,7 @@ TYPE soil_snow_type
        qssrf,   & ! sublimation
        snage,   & ! snow age
        snowd,   & ! snow depth (liquid water)
+       totsdepth, & ! total snow depth (m)
        smelt,   & ! snow melt
        ssdnn,   & ! average snow density
        tss,     & ! surface temperature (weighted soil, snow)
@@ -197,6 +198,7 @@ ALLOCATE( var% sdepth(mp,nsnl) )
 ALLOCATE( var% smass(mp,nsnl) )
 ALLOCATE( var% snage(mp) )
 ALLOCATE( var% snowd(mp) )
+ALLOCATE( var% totsdepth(mp) )
 ALLOCATE( var% smelt(mp) )
 ALLOCATE( var% ssdn(mp,nsnl) )
 ALLOCATE( var% ssdnn(mp) )

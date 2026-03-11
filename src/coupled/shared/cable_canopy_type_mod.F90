@@ -19,12 +19,14 @@ TYPE canopy_type
        frpw,    & ! plant respiration (woody component) (g C m-2 s-1)
        frpr,    & ! plant respiration (root component) (g C m-2 s-1)
        frs,     & ! soil respiration (g C m-2 s-1)
+       fra,     & ! autotrophic respiration (g C m-2 s-1)
        fnee,    & ! net carbon flux (g C m-2 s-1)
        frday,   & ! daytime leaf resp
        fnv,     & ! net rad. avail. to canopy (W/m2)
        fev,     & ! latent hf from canopy (W/m2)
        epot,    & ! total potential evaporation
-       fnpp,    & ! npp flux
+       fnpp,    & ! npp flux (g C m-2 s-1)
+       fgpp,    & ! gpp flux (g C m-2 s-1)
        fevw_pot,& ! potential lat heat from canopy
        gswx_T,  & ! ! stom cond for water
        cdtq,    & ! drag coefficient for momentum
@@ -40,6 +42,7 @@ TYPE canopy_type
        ghflux,  & ! ground heat flux (W/m2) ???
        precis,  & ! throughfall to soil, after snow (mm)
        qscrn,   & ! specific humudity at screen height (g/g)
+       qmom,    & ! surface momentum flux (kg/m/s2)
        rnet,    & ! net radiation absorbed by surface (W/m2)
        rniso,    & !isothermal net radiation absorbed by surface (W/m2)
        segg,    & ! latent heatfl from soil mm
@@ -127,6 +130,7 @@ ALLOCATE( var% frp(mp) )
 ALLOCATE( var% frpw(mp) )
 ALLOCATE( var% frpr(mp) )
 ALLOCATE( var% frs(mp) )
+ALLOCATE( var% fra(mp) )
 ALLOCATE( var% fnee(mp) )
 ALLOCATE( var% frday(mp) )
 ALLOCATE( var% fnv(mp) )
@@ -140,6 +144,7 @@ ALLOCATE( var% ga(mp) )
 ALLOCATE( var% ghflux(mp) )
 ALLOCATE( var% precis(mp) )
 ALLOCATE( var% qscrn(mp) )
+ALLOCATE( var% qmom(mp) )
 ALLOCATE( var% rnet(mp) )
 ALLOCATE( var% rniso(mp) )
 ALLOCATE( var% segg(mp) )
@@ -159,6 +164,7 @@ ALLOCATE( var% fns_cor(mp) )    !REV_CORR variable
 ALLOCATE( var% ga_cor(mp) )     !REV_CORR variable
 ALLOCATE( var% epot(mp) )
 ALLOCATE( var% fnpp(mp) )
+ALLOCATE( var% fgpp(mp) )
 ALLOCATE( var% fevw_pot(mp) )
 ALLOCATE( var% gswx_T(mp) )
 ALLOCATE( var% cdtq(mp) )
