@@ -59,6 +59,7 @@ TYPE soil_snow_data_type
   REAL, ALLOCATABLE :: qssrf        (:) ! sublimation
   REAL, ALLOCATABLE :: snage        (:) ! snow age
   REAL, ALLOCATABLE :: snowd        (:) ! snow depth (liquid water)
+  REAL, ALLOCATABLE :: totsdepth    (:) ! total snow depth (m)
   REAL, ALLOCATABLE :: smelt        (:) ! snow melt
   REAL, ALLOCATABLE :: ssdnn        (:) ! average snow density
   REAL, ALLOCATABLE :: tss          (:) ! surface temperature (weighted soil, snow)
@@ -194,6 +195,7 @@ TYPE soil_snow_type
   REAL, POINTER :: qssrf        (:) ! sublimation
   REAL, POINTER :: snage        (:) ! snow age
   REAL, POINTER :: snowd        (:) ! snow depth (liquid water)
+  REAL, POINTER :: totsdepth    (:) ! total snow depth (m)
   REAL, POINTER :: smelt        (:) ! snow melt
   REAL, POINTER :: ssdnn        (:) ! average snow density
   REAL, POINTER :: tss          (:) ! surface temperature (weighted soil, snow)
@@ -341,6 +343,7 @@ ALLOCATE( soil_snow% qfsrf        (mp) )
 ALLOCATE( soil_snow% qssrf        (mp) )
 ALLOCATE( soil_snow% snage        (mp) )
 ALLOCATE( soil_snow% snowd        (mp) )
+ALLOCATE( soil_snow% totsdepth    (mp) )
 ALLOCATE( soil_snow% smelt        (mp) )
 ALLOCATE( soil_snow% ssdnn        (mp) )
 ALLOCATE( soil_snow% tss          (mp) )
@@ -464,6 +467,7 @@ soil_snow % qfsrf           (:)    = 0.0
 soil_snow % qssrf           (:)    = 0.0      
 soil_snow % snage           (:)    = 0.0      
 soil_snow % snowd           (:)    = 0.0      
+soil_snow % totsdepth       (:)    = 0.0
 soil_snow % smelt           (:)    = 0.0      
 soil_snow % ssdnn           (:)    = 0.0      
 soil_snow % tss             (:)    = 0.0      
@@ -594,6 +598,7 @@ DEALLOCATE ( soil_snow % qfsrf           )
 DEALLOCATE ( soil_snow % qssrf           )
 DEALLOCATE ( soil_snow % snage           )
 DEALLOCATE ( soil_snow % snowd           )
+DEALLOCATE ( soil_snow % totsdepth       )
 DEALLOCATE ( soil_snow % smelt           )
 DEALLOCATE ( soil_snow % ssdnn           )
 DEALLOCATE ( soil_snow % tss             )
@@ -736,6 +741,7 @@ soil_snow% qfsrf            => soil_snow_data% qfsrf
 soil_snow% qssrf            => soil_snow_data% qssrf            
 soil_snow% snage            => soil_snow_data% snage            
 soil_snow% snowd            => soil_snow_data% snowd            
+soil_snow% totsdepth        => soil_snow_data% totsdepth
 soil_snow% smelt            => soil_snow_data% smelt            
 soil_snow% ssdnn            => soil_snow_data% ssdnn            
 soil_snow% tss              => soil_snow_data% tss              
@@ -875,6 +881,7 @@ NULLIFY( soil_snow % qfsrf            )
 NULLIFY( soil_snow % qssrf            )
 NULLIFY( soil_snow % snage            )
 NULLIFY( soil_snow % snowd            )
+NULLIFY( soil_snow % totsdepth        )
 NULLIFY( soil_snow % smelt            )
 NULLIFY( soil_snow % ssdnn            )
 NULLIFY( soil_snow % tss              )

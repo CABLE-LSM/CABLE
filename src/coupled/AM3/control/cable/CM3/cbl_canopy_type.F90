@@ -25,12 +25,14 @@ TYPE canopy_data_type
   REAL, ALLOCATABLE, PUBLIC :: frpw(:)              ! plant respiration (woody component) (g C m-2 s-1)
   REAL, ALLOCATABLE, PUBLIC :: frpr(:)              ! plant respiration (root component) (g C m-2 s-1)
   REAL, ALLOCATABLE, PUBLIC :: frs(:)               ! soil respiration (g C m-2 s-1)
+  REAL, ALLOCATABLE, PUBLIC :: fra(:)               ! autotrophic respiration (g C m-2 s-1)
   REAL, ALLOCATABLE, PUBLIC :: fnee(:)              ! net carbon flux (g C m-2 s-1)
   REAL, ALLOCATABLE, PUBLIC :: frday(:)             ! daytime leaf resp
   REAL, ALLOCATABLE, PUBLIC :: fnv(:)               ! net rad. avail. to canopy (W/m2)
   REAL, ALLOCATABLE, PUBLIC :: fev(:)               ! latent hf from canopy (W/m2)
   REAL, ALLOCATABLE, PUBLIC :: epot(:)              ! total potential evaporation
-  REAL, ALLOCATABLE, PUBLIC :: fnpp(:)              ! npp flux
+  REAL, ALLOCATABLE, PUBLIC :: fnpp(:)              ! npp flux (g C m-2 s-1)
+  REAL, ALLOCATABLE, PUBLIC :: fgpp(:)              ! gpp flux (g C m-2 s-1)
   REAL, ALLOCATABLE, PUBLIC :: fevw_pot(:)          ! potential lat heat from canopy
   REAL, ALLOCATABLE, PUBLIC :: gswx_T(:)            ! ! stom cond for water
   REAL, ALLOCATABLE, PUBLIC :: cdtq(:)              ! drag coefficient for momentum
@@ -46,6 +48,7 @@ TYPE canopy_data_type
   REAL, ALLOCATABLE, PUBLIC :: ghflux(:)            ! ground heat flux (W/m2) ???
   REAL, ALLOCATABLE, PUBLIC :: precis(:)            ! throughfall to soil, after snow (mm)
   REAL, ALLOCATABLE, PUBLIC :: qscrn(:)             ! specific humudity at screen height (g/g)
+  REAL, ALLOCATABLE, PUBLIC :: qmom(:)              ! surface momentum flux (kg/m/s2)
   REAL, ALLOCATABLE, PUBLIC :: rnet(:)              ! net radiation absorbed by surface (W/m2)
   REAL, ALLOCATABLE, PUBLIC :: rniso(:)             !isothermal net radiation absorbed by surface (W/m2)
   REAL, ALLOCATABLE, PUBLIC :: segg(:)              ! latent heatfl from soil mm
@@ -105,12 +108,14 @@ TYPE canopy_type
   REAL, POINTER, PUBLIC :: frpw(:)              ! plant respiration (woody component) (g C m-2 s-1)
   REAL, POINTER, PUBLIC :: frpr(:)              ! plant respiration (root component) (g C m-2 s-1)
   REAL, POINTER, PUBLIC :: frs(:)               ! soil respiration (g C m-2 s-1)
+  REAL, POINTER, PUBLIC :: fra(:)               ! autotrophic respiration (g C m-2 s-1)
   REAL, POINTER, PUBLIC :: fnee(:)              ! net carbon flux (g C m-2 s-1)
   REAL, POINTER, PUBLIC :: frday(:)             ! daytime leaf resp
   REAL, POINTER, PUBLIC :: fnv(:)               ! net rad. avail. to canopy (W/m2)
   REAL, POINTER, PUBLIC :: fev(:)               ! latent hf from canopy (W/m2)
   REAL, POINTER, PUBLIC :: epot(:)              ! total potential evaporation
-  REAL, POINTER, PUBLIC :: fnpp(:)              ! npp flux
+  REAL, POINTER, PUBLIC :: fnpp(:)              ! npp flux (g C m-2 s-1)
+  REAL, POINTER, PUBLIC :: fgpp(:)              ! gpp flux (g C m-2 s-1)
   REAL, POINTER, PUBLIC :: fevw_pot(:)          ! potential lat heat from canopy
   REAL, POINTER, PUBLIC :: gswx_T(:)            ! ! stom cond for water
   REAL, POINTER, PUBLIC :: cdtq(:)              ! drag coefficient for momentum
@@ -126,6 +131,7 @@ TYPE canopy_type
   REAL, POINTER, PUBLIC :: ghflux(:)            ! ground heat flux (W/m2) ???
   REAL, POINTER, PUBLIC :: precis(:)            ! throughfall to soil, after snow (mm)
   REAL, POINTER, PUBLIC :: qscrn(:)             ! specific humudity at screen height (g/g)
+  REAL, POINTER, PUBLIC :: qmom(:)              ! surface momentum flux (kg/m/s2)
   REAL, POINTER, PUBLIC :: rnet(:)              ! net radiation absorbed by surface (W/m2)
   REAL, POINTER, PUBLIC :: rniso(:)             !isothermal net radiation absorbed by surface (W/m2)
   REAL, POINTER, PUBLIC :: segg(:)              ! latent heatfl from soil mm
@@ -198,6 +204,7 @@ ALLOCATE( var% frp(mp) )
 ALLOCATE( var% frpw(mp) )
 ALLOCATE( var% frpr(mp) )
 ALLOCATE( var% frs(mp) )
+ALLOCATE( var% fra(mp) )
 ALLOCATE( var% fnee(mp) )
 ALLOCATE( var% frday(mp) )
 ALLOCATE( var% fnv(mp) )
@@ -211,6 +218,7 @@ ALLOCATE( var% ga(mp) )
 ALLOCATE( var% ghflux(mp) )
 ALLOCATE( var% precis(mp) )
 ALLOCATE( var% qscrn(mp) )
+ALLOCATE( var% qmom(mp) )
 ALLOCATE( var% rnet(mp) )
 ALLOCATE( var% rniso(mp) )
 ALLOCATE( var% segg(mp) )
@@ -230,6 +238,7 @@ ALLOCATE( var% fns_cor(mp) )    !REV_CORR variable
 ALLOCATE( var% ga_cor(mp) )     !REV_CORR variable
 ALLOCATE( var% epot(mp) )
 ALLOCATE( var% fnpp(mp) )
+ALLOCATE( var% fgpp(mp) )
 ALLOCATE( var% fevw_pot(mp) )
 ALLOCATE( var% gswx_T(mp) )
 ALLOCATE( var% cdtq(mp) )
@@ -267,12 +276,14 @@ var % frp(:)         = 0.0
 var % frpw(:)        = 0.0      
 var % frpr(:)        = 0.0      
 var % frs(:)         = 0.0      
+var % fra(:)         = 0.0
 var % fnee(:)        = 0.0      
 var % frday(:)       = 0.0      
 var % fnv(:)         = 0.0      
 var % fev(:)         = 0.0      
 var % epot(:)        = 0.0      
 var % fnpp(:)        = 0.0      
+var % fgpp(:)        = 0.0
 var % fevw_pot(:)    = 0.0      
 var % gswx_T(:)      = 0.0      
 var % cdtq(:)        = 0.0      
@@ -288,6 +299,7 @@ var % ga(:)          = 0.0
 var % ghflux(:)      = 0.0      
 var % precis(:)      = 0.0      
 var % qscrn(:)       = 0.0      
+var % qmom(:)        = 0.0
 var % rnet(:)        = 0.0      
 var % rniso(:)       = 0.0      
 var % segg(:)        = 0.0      
@@ -348,6 +360,7 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% frpw )
    DEALLOCATE( var% frpr )
    DEALLOCATE( var% frs )
+   DEALLOCATE( var% fra )
    DEALLOCATE( var% fnee )
    DEALLOCATE( var% frday )
    DEALLOCATE( var% fnv )
@@ -361,6 +374,7 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% ghflux )
    DEALLOCATE( var% precis )
    DEALLOCATE( var% qscrn )
+   DEALLOCATE( var% qmom )
    DEALLOCATE( var% rnet )
    DEALLOCATE( var% rniso )
    DEALLOCATE( var% segg )
@@ -380,6 +394,7 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% ga_cor )    !REV_CORR variable
    DEALLOCATE( var% epot )
    DEALLOCATE( var% fnpp )
+   DEALLOCATE( var% fgpp )
    DEALLOCATE( var% fevw_pot )
    DEALLOCATE( var% gswx_T )
    DEALLOCATE( var% cdtq )
@@ -430,12 +445,14 @@ canopy% frp         => canopy_data% frp
 canopy% frpw        => canopy_data% frpw
 canopy% frpr        => canopy_data% frpr
 canopy% frs         => canopy_data% frs
+canopy% fra         => canopy_data% fra
 canopy% fnee        => canopy_data% fnee
 canopy% frday       => canopy_data% frday
 canopy% fnv         => canopy_data% fnv
 canopy% fev         => canopy_data% fev
 canopy% epot        => canopy_data% epot
 canopy% fnpp        => canopy_data% fnpp
+canopy% fgpp        => canopy_data% fgpp
 canopy% fevw_pot    => canopy_data% fevw_pot
 canopy% gswx_T      => canopy_data% gswx_T
 canopy% cdtq        => canopy_data% cdtq
@@ -451,6 +468,7 @@ canopy% ga          => canopy_data% ga
 canopy% ghflux      => canopy_data% ghflux
 canopy% precis      => canopy_data% precis
 canopy% qscrn       => canopy_data% qscrn
+canopy% qmom        => canopy_data% qmom
 canopy% rnet        => canopy_data% rnet
 canopy% rniso       => canopy_data% rniso
 canopy% segg        => canopy_data% segg
@@ -521,6 +539,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='NULLIFY_ASSOC_WORK_VARS_CBL'
    NULLIFY( var% frpw )
    NULLIFY( var% frpr )
    NULLIFY( var% frs )
+   NULLIFY( var% fra )
    NULLIFY( var% fnee )
    NULLIFY( var% frday )
    NULLIFY( var% fnv )
@@ -534,6 +553,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='NULLIFY_ASSOC_WORK_VARS_CBL'
    NULLIFY( var% ghflux )
    NULLIFY( var% precis )
    NULLIFY( var% qscrn )
+   NULLIFY( var% qmom )
    NULLIFY( var% rnet )
    NULLIFY( var% rniso )
    NULLIFY( var% segg )
@@ -553,6 +573,7 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='NULLIFY_ASSOC_WORK_VARS_CBL'
    NULLIFY( var% ga_cor )    !REV_CORR variable
    NULLIFY( var% epot )
    NULLIFY( var% fnpp )
+   NULLIFY( var% fgpp )
    NULLIFY( var% fevw_pot )
    NULLIFY( var% gswx_T )
    NULLIFY( var% cdtq )

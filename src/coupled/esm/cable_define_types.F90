@@ -124,6 +124,9 @@ END TYPE balances_type
          latitude,& ! latitude
          lwabv,   & ! long wave absorbed by vegetation
          qssabs,  & ! absorbed short-wave radiation for soil
+         swnet,   & ! net shortwave radiation absorbed by surface (W/m^2)
+         lwnet,   & ! net longwave radiation absorbed by surface (W/m^2)
+         rnet,    & ! net radiation absorbed by surface (W/m^2)
          transd,  & ! frac SW diffuse transmitted through canopy
          trad       !  radiative temperature (soil and veg)
      
@@ -426,6 +429,9 @@ SUBROUTINE alloc_radiation_type(var, mp)
    ALLOCATE( var% lwabv(mp) )
    ALLOCATE( var% qcan(mp,mf,nrb) )
    ALLOCATE( var% qssabs(mp) )
+   ALLOCATE( var% swnet(mp) )
+   ALLOCATE( var% lwnet(mp) )
+   ALLOCATE( var% rnet(mp) )
    ALLOCATE( var% rhocdf(mp,nrb) )
    ALLOCATE( var% rniso(mp,mf) )
    ALLOCATE( var% scalex(mp,mf) )
@@ -684,6 +690,9 @@ SUBROUTINE dealloc_radiation_type(var)
    DEALLOCATE( var% lwabv )
    DEALLOCATE( var% qcan )
    DEALLOCATE( var% qssabs )
+   DEALLOCATE( var% swnet )
+   DEALLOCATE( var% lwnet )
+   DEALLOCATE( var% rnet )
    DEALLOCATE( var% rhocdf )
    DEALLOCATE( var% rniso )
    DEALLOCATE( var% scalex )
