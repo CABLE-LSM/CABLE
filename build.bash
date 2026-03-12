@@ -110,7 +110,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
                 # 2024.0.0 or higher
                 module add intel-compiler-llvm/2024.0.2
             else
-                module add intel-compiler/2019.5.281
+                module add intel-compiler/2021.1.1
             fi
             compiler_lib_install_dir=Intel
             [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
