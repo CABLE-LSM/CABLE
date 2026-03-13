@@ -2085,9 +2085,9 @@ CONTAINS
       IF (output%casa) THEN
         ! rootresp alt: REAL(0.3*casaflux%crmplant(:,2)/86400.0/ c_molar_mass, 4)
         CALL generate_out_write_acc(ovid%RootResp, 'RootResp', out%RootResp, &
-                                    REAL(casaflux%crmplant(:, 3)/86400.0/c_molar_mass, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
+                                    REAL(casaflux%crmplant(:, 3)/(86400.0 * c_molar_mass), 4), ranges%AutoResp, patchout%AutoResp, out_settings)
         CALL generate_out_write_acc(ovid%StemResp, 'StemResp', out%StemResp, &
-                                    REAL(casaflux%crmplant(:, 2)/86400.0/c_molar_mass, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
+                                    REAL(casaflux%crmplant(:, 2)/(86400.0 * c_molar_mass), 4), ranges%AutoResp, patchout%AutoResp, out_settings)
       END IF
     END IF
 
@@ -2111,28 +2111,28 @@ CONTAINS
 
       ! NBP and turnover fluxes [umol/m^2/s]
       IF (output%NBP) THEN
-        CALL generate_out_write_acc(ovid%NBP, 'NBP', out%NBP, REAL(casaflux%cnbp/86400.0/c_molar_mass, 4), ranges%NEE, patchout%NBP, out_settings)
+        CALL generate_out_write_acc(ovid%NBP, 'NBP', out%NBP, REAL(casaflux%cnbp/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%NBP, out_settings)
       END IF
 
       !------------------------WRITE REMAINING CASA DATA----------------------------------
-      CALL generate_out_write_acc(ovid%dCdt, 'dCdt', out%dCdt, REAL(casapool%dCdt/86400.0/c_molar_mass, 4), ranges%NEE, patchout%dCdt, out_settings)
+      CALL generate_out_write_acc(ovid%dCdt, 'dCdt', out%dCdt, REAL(casapool%dCdt/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%dCdt, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnover, 'PlantTurnover', out%PlantTurnover, &
-                                  REAL(casaflux%cplant_turnover_tot/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnover, out_settings)
+                                  REAL(casaflux%cplant_turnover_tot/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnover, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverLeaf, 'PlantTurnoverLeaf', out%PlantTurnoverLeaf, &
-                                  REAL((casaflux%Cplant_turnover(:, 1))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverLeaf, out_settings)
+                                  REAL((casaflux%Cplant_turnover(:, 1))/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnoverLeaf, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverFineRoot, 'PlantTurnoverFineRoot', out%PlantTurnoverFineRoot, &
-                                  REAL((casaflux%Cplant_turnover(:, 3))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverFineRoot, out_settings)
+                                  REAL((casaflux%Cplant_turnover(:, 3))/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnoverFineRoot, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWood, 'PlantTurnoverWood', out%PlantTurnoverWood, &
-                                  REAL((casaflux%Cplant_turnover(:, 2))/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWood, out_settings)
+                                  REAL((casaflux%Cplant_turnover(:, 2))/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnoverWood, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWoodDist, 'PlantTurnoverWoodDist', out%PlantTurnoverWoodDist, &
-                                  REAL(casaflux%Cplant_turnover_disturbance/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWoodDist, out_settings)
+                                  REAL(casaflux%Cplant_turnover_disturbance/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnoverWoodDist, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWoodCrowding, 'PlantTurnoverWoodCrowding', out%PlantTurnoverWoodCrowding, &
-                                  REAL(casaflux%Cplant_turnover_crowding/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWoodCrowding, out_settings)
+                                  REAL(casaflux%Cplant_turnover_crowding/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnoverWoodCrowding, out_settings)
       CALL generate_out_write_acc(ovid%PlantTurnoverWoodResourceLim, 'PlantTurnoverWoodResourceLim', out%PlantTurnoverWoodResourceLim, &
-                                  REAL((casaflux%Cplant_turnover_resource_limitation)/86400.0/c_molar_mass, 4), ranges%NEE, patchout%PlantTurnoverWoodResourceLim, out_settings)
+                                  REAL((casaflux%Cplant_turnover_resource_limitation)/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%PlantTurnoverWoodResourceLim, out_settings)
       IF (cable_user%POPLUC) THEN
         CALL generate_out_write_acc(ovid%LandUseFlux, 'LandUseFlux', out%LandUseFlux, &
-                                    REAL(casaflux%FluxCtoLUC/86400.0/c_molar_mass, 4), ranges%NEE, patchout%LandUseFlux, out_settings)
+                                    REAL(casaflux%FluxCtoLUC/(86400.0 * c_molar_mass), 4), ranges%NEE, patchout%LandUseFlux, out_settings)
       END IF
 
       ! plant carbon [kg C m-2]
