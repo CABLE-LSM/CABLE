@@ -2331,26 +2331,6 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing output file '        &
          //TRIM(filename%out)// '(SUBROUTINE close_output_file)')
 
-    ! Report balance info to log file if verbose writing is requested:
-    IF(output%balances .AND. verbose) THEN
-       WRITE(logn, *)
-       DO i = 1, mland
-          WRITE(logn, '(A51,I7,1X,A11,E12.4,A6)')                              &
-               ' Cumulative energy balance for each patch in site #',         &
-               i,'is (W/m^2):'
-          WRITE(logn, *)                                                       &
-               bal%ebal_tot(landpt(i)%cstart:landpt(i)%cstart +               &
-               landpt(i)%nap - 1)
-          WRITE(logn,'(A50,I7,1X,A8,E12.4,A3)')                                &
-               ' Cumulative water balance for each patch in site #',          &
-               i,'is (mm):'
-          WRITE(logn, *)                                                       &
-               bal%wbal_tot(landpt(i)%cstart:landpt(i)%cstart +               &
-               landpt(i)%nap - 1)
-          WRITE(logn, *)
-       END DO
-    END IF
-
     ! Successful run!
     WRITE(logn, *)
     WRITE(logn, *) 'Run finished and output file closed.'
