@@ -1643,15 +1643,6 @@ CONTAINS
 
     out_settings = output_var_settings_type(met=met, writenow=.FALSE., dimswitch='default')
 
-    ! IF asked to check mass/water balance:
-    IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy,            &
-         met,air,bal)
-
-    ! IF asked to check energy balance:
-    IF(check%energy_bal) CALL energy_balance(dels,ktau,met,rad,                     &
-         canopy,bal,ssnow,                 &
-         SBOLTZ, EMLEAF, EMSOIL )
-     
     ! Initialise output time step counter and month counter:
     IF(ktau == 1) THEN
        out_timestep = 0

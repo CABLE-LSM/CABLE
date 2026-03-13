@@ -92,7 +92,7 @@ MODULE cable_mpimaster
   USE cable_IO_vars_module, ONLY : NO_CHECK
   USE casa_cable
   USE casa_inout_module
-  USE cable_checks_module, ONLY: constant_check_range
+  USE cable_checks_module, ONLY: constant_check_range, mass_balance, energy_balance
   USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
@@ -864,6 +864,12 @@ CONTAINS
 
             IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
 
+              IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, &
+                  met,air,bal)
+
+              IF(check%energy_bal) CALL energy_balance(dels, ktau, met, rad, canopy, &
+                  bal,ssnow, CSBOLTZ, CEMLEAF, CEMSOIL )
+
               SELECT CASE (TRIM(cable_user%MetType))
               CASE ('plum', 'cru', 'gswp', 'gswp3', 'prin')
                 CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
@@ -1064,6 +1070,13 @@ CONTAINS
           ENDIF
 
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
+
+            IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, &
+                met,air,bal)
+
+            IF(check%energy_bal) CALL energy_balance(dels, ktau, met, rad, canopy, &
+                bal,ssnow, CSBOLTZ, CEMLEAF, CEMSOIL )
+
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'gswp', 'gswp3')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
