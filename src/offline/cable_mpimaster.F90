@@ -175,7 +175,7 @@ CONTAINS
          output,check,&
          patch_type,landpt,&
          timeunits, output, &
-         calendar
+         calendar, verbose
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
          CurYear,    &
@@ -319,7 +319,7 @@ CONTAINS
     INTEGER :: count_bal = 0
     INTEGER :: nkend=0
 
-    INTEGER :: kk,m,np,ivt
+    INTEGER :: i,kk,m,np,ivt
     INTEGER, PARAMETER :: mloop = 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime
 
@@ -1222,6 +1222,25 @@ CONTAINS
       CALL close_output_file( bal, air, bgc, canopy, met,                         &
            rad, rough, soil, ssnow,                            &
            sum_flux, veg )
+      ! Report balance info to log file if verbose writing is requested:
+      IF(output%balances .AND. verbose) THEN
+        WRITE(logn, *)
+        DO i = 1, mland
+          WRITE(logn, '(A51,I7,1X,A11,E12.4,A6)')                              &
+                ' Cumulative energy balance for each patch in site #',         &
+                i,'is (W/m^2):'
+          WRITE(logn, *)                                                       &
+                bal%ebal_tot(landpt(i)%cstart:landpt(i)%cstart +               &
+                landpt(i)%nap - 1)
+          WRITE(logn,'(A50,I7,1X,A8,E12.4,A3)')                                &
+                ' Cumulative water balance for each patch in site #',          &
+                i,'is (mm):'
+          WRITE(logn, *)                                                       &
+                bal%wbal_tot(landpt(i)%cstart:landpt(i)%cstart +               &
+                landpt(i)%nap - 1)
+          WRITE(logn, *)
+        END DO
+      END IF
     ENDIF
 
     IF (icycle > 0 .AND. (.NOT.spincasa).AND. (.NOT.casaonly)) THEN

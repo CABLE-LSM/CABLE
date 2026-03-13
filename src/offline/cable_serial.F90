@@ -80,7 +80,7 @@ MODULE cable_serial
        fixedCO2,output,check,&
        patch_type,landpt,&
        defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
-       NO_CHECK
+       NO_CHECK, verbose
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        filename, myhome,            &
@@ -925,6 +925,25 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
     CALL close_output_file( bal, air, bgc, canopy, met,                      &
          rad, rough, soil, ssnow,                                            &
          sum_flux, veg )
+    ! Report balance info to log file if verbose writing is requested:
+    IF(output%balances .AND. verbose) THEN
+      WRITE(logn, *)
+      DO i = 1, mland
+        WRITE(logn, '(A51,I7,1X,A11,E12.4,A6)')                              &
+              ' Cumulative energy balance for each patch in site #',         &
+              i,'is (W/m^2):'
+        WRITE(logn, *)                                                       &
+              bal%ebal_tot(landpt(i)%cstart:landpt(i)%cstart +               &
+              landpt(i)%nap - 1)
+        WRITE(logn,'(A50,I7,1X,A8,E12.4,A3)')                                &
+              ' Cumulative water balance for each patch in site #',          &
+              i,'is (mm):'
+        WRITE(logn, *)                                                       &
+              bal%wbal_tot(landpt(i)%cstart:landpt(i)%cstart +               &
+              landpt(i)%nap - 1)
+        WRITE(logn, *)
+      END DO
+    END IF
   ENDIF
 
   IF ( cable_user%CALL_POP.AND.POP%np.GT.0 ) THEN
