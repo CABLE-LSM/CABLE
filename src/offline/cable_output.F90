@@ -2012,8 +2012,8 @@ CONTAINS
         END IF
         IF (out_settings%writenow) THEN
           !divide by number of records in average (dels*%interval/24/3600)
-          out%Tmx = REAL(86400, 4)*out%Tmx/REAL(output%interval*INT(dels), 4)
-          out%Tmn = REAL(86400, 4)*out%Tmn/REAL(output%interval*INT(dels), 4)
+          out%Tmx = out%Tmx/NINT((output%interval * dels) / 86400)
+          out%Tmn = out%Tmn/NINT((output%interval * dels) / 86400)
           !write to file
           CALL check_and_write(ovid%Txx, 'Txx', &
                                out%Txx, out%Txx, ranges%Tscrn, patchout%Tex, out_settings)
