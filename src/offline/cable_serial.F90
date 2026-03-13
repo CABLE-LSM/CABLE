@@ -109,7 +109,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        ncid_wd,ncid_mask
   USE cable_output_module,  ONLY: create_restart,open_output_file,            &
        write_output,close_output_file
-   USE cable_checks_module, ONLY: constant_check_range
+   USE cable_checks_module, ONLY: constant_check_range, mass_balance, energy_balance
   USE cable_write_module,   ONLY: nullify_write
   USE cable_IO_vars_module, ONLY: timeunits,calendar
    USE cable_cbm_module, ONLY : cbm
@@ -709,6 +709,13 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
           ! or we're spinning up and the spinup has converged:
 
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
+
+            IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, &
+                met,air,bal)
+
+            IF(check%energy_bal) CALL energy_balance(dels, ktau, met, rad, canopy, &
+                bal,ssnow, CSBOLTZ, CEMLEAF, CEMSOIL )
+
             !mpidiff
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
