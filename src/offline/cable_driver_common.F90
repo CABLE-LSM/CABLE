@@ -260,6 +260,7 @@ CONTAINS
   END SUBROUTINE cable_driver_init_site
 
   SUBROUTINE cable_driver_init_default(dels, koffset, kend)
+    USE cable_io_vars_module, ONLY : syear
     !! Model initialisation routine (default met specific).
     REAL, INTENT(OUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
@@ -273,6 +274,17 @@ CONTAINS
       WRITE(*,*) "When using POP, episode must start at Jan 1st!"
       STOP 991
     END IF
+
+    if (cable_user%YearStart == 0) cable_user%YearStart = syear
+
+    ! This is done as the total simulation period is captured in the inner time
+    ! step loop over ktau = kstart, kend for this configuration. If
+    ! cable_user%YearEnd was specified, its value is already reflected in the
+    ! value of kend from the above call to open_met_file. Here we overwrite
+    ! cable_user%YearEnd to cable_user%YearStart so that the outer time loop over
+    ! years is executed only once, and the inner time step loop captures the full
+    ! simulation period.
+    cable_user%YearEnd = cable_user%YearStart
 
   END SUBROUTINE cable_driver_init_default
 
