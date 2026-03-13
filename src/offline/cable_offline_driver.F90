@@ -4,6 +4,9 @@
 PROGRAM cable_offline_driver
   USE iso_fortran_env, ONLY : error_unit
   USE cable_mpi_mod, ONLY : mpi_grp_t, mpi_mod_init, mpi_mod_end
+  USE cable_error_handler_mod, ONLY : cable_error_handler_set
+  USE cable_error_handler_mod, ONLY : cable_error_handler_free
+  USE cable_error_handler_mpi_mod, ONLY : cable_error_handler_mpi_t
   USE cable_driver_common_mod, ONLY: &
       cable_driver_init,             &
       cable_driver_init_gswp,        &
@@ -34,6 +37,8 @@ PROGRAM cable_offline_driver
 
   call mpi_mod_init()
   mpi_grp = mpi_grp_t()
+
+  CALL cable_error_handler_set(cable_error_handler_mpi_t(mpi_grp))
 
   CALL cable_driver_init(mpi_grp, NRRRR)
 
@@ -67,6 +72,8 @@ PROGRAM cable_offline_driver
       CALL mpidrv_worker(mpi_grp%comm%mpi_val)
     END IF
   END IF
+
+  CALL cable_error_handler_free()
 
   CALL mpi_mod_end()
 
