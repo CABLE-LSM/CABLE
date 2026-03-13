@@ -4,6 +4,7 @@
 
 MODULE cable_mpi_mod
   !! Module for handling some common MPI operations and MPI groups
+  USE cable_error_handler_mod, ONLY: cable_abort
 #ifdef __MPI__
   USE mpi_f08
 #else
@@ -32,11 +33,14 @@ MODULE cable_mpi_mod
     INTEGER :: size = -1   !! Size of the communicator
   CONTAINS
     PROCEDURE :: abort => mpi_grp_abort !! Send abort signal to processes in this group
+    PROCEDURE :: split => mpi_grp_split !! Split this group into sub-groups
+    PROCEDURE :: comm_defined => mpi_grp_comm_defined !! Check if communicator is defined
   END TYPE mpi_grp_t
 
   INTERFACE mpi_grp_t
     !* Overload the default construct for mpi_grp_t
     PROCEDURE mpi_grp_constructor
+    PROCEDURE mpi_grp_constructor_legacy
   END INTERFACE mpi_grp_t
 
 CONTAINS
@@ -110,8 +114,7 @@ CONTAINS
       call MPI_Comm_size(mpi_grp%comm, mpi_grp%size, ierr)
       call mpi_check_error(ierr)
 #else
-      WRITE(error_unit,*) "Error initialising mpi group: CABLE was compiled without MPI support."
-      STOP
+      call cable_abort("Error initialising mpi group: CABLE was compiled without MPI support.", file=__FILE__, line=__LINE__)
 #endif
     ELSE
       mpi_grp%rank = 0
@@ -120,21 +123,58 @@ CONTAINS
 
   END FUNCTION mpi_grp_constructor
 
-  SUBROUTINE mpi_grp_abort(this)
+  FUNCTION mpi_grp_constructor_legacy(comm) RESULT(mpi_grp)
+    !* Contructor for mpi_grp_t using the legacy communicator type.
+    INTEGER, INTENT(IN) :: comm !! MPI communicator
+    TYPE(mpi_grp_t) :: mpi_grp
+    mpi_grp = mpi_grp_constructor(MPI_Comm(comm))
+  END FUNCTION mpi_grp_constructor_legacy
+
+  SUBROUTINE mpi_grp_abort(this, error_code)
     !* Class method to abort execution of an MPI group.
     CLASS(mpi_grp_t), INTENT(IN) :: this
+    INTEGER, INTENT(IN) :: error_code
 
     INTEGER :: ierr
 
-    IF (this%comm /= MPI_COMM_UNDEFINED) THEN
-      ! Here we use an arbitrary error code
 #ifdef __MPI__
-      call MPI_Abort(this%comm, 999, ierr)
-#endif
+    IF (this%comm /= MPI_COMM_UNDEFINED) THEN
+      call MPI_Abort(this%comm, error_code, ierr)
       call mpi_check_error(ierr)
     END IF
+#else
+    ! Here we use an arbitrary error code
+    STOP 999
+#endif
 
   END SUBROUTINE mpi_grp_abort
+
+  SUBROUTINE mpi_grp_split(this, color, key, new_grp)
+    !* Class method to split an MPI group.
+    CLASS(mpi_grp_t), INTENT(IN) :: this
+    INTEGER, INTENT(IN) :: color, key
+    TYPE(mpi_grp_t), INTENT(OUT) :: new_grp
+
+    TYPE(MPI_Comm) :: new_comm
+    INTEGER :: ierr
+
+    IF (this%comm /= MPI_COMM_UNDEFINED) THEN
+#ifdef __MPI__
+      CALL MPI_Comm_split(this%comm, color, key, new_comm, ierr)
+#endif
+      call mpi_check_error(ierr)
+      new_grp = mpi_grp_t(new_comm)
+    ELSE
+      new_grp = mpi_grp_t()
+    END IF
+
+  END SUBROUTINE mpi_grp_split
+
+  LOGICAL FUNCTION mpi_grp_comm_defined(this)
+    !* Class method to check if the communicator is defined.
+    CLASS(mpi_grp_t), INTENT(IN) :: this
+    mpi_grp_comm_defined = this%comm /= MPI_COMM_UNDEFINED
+  END FUNCTION mpi_grp_comm_defined
 
   SUBROUTINE mpi_check_error(ierr)
     !* Check if an MPI return code signaled an error. If so, print the
@@ -147,8 +187,7 @@ CONTAINS
 
     IF (ierr /= MPI_SUCCESS ) THEN
       CALL MPI_Error_String(ierr, msg, length, tmp)
-      WRITE(error_unit,*) msg(1:length)
-      CALL MPI_Abort(MPI_COMM_WORLD, 1 , tmp)
+      CALL cable_abort(msg(1:length), file=__FILE__, line=__LINE__)
     END if
 #endif
 

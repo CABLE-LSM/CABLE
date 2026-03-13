@@ -12,6 +12,10 @@ option(CABLE_TESTS "Build CABLE tests" OFF)
 # third party libs
 if(CABLE_MPI)
     find_package(MPI REQUIRED COMPONENTS Fortran)
+    find_package(PIO COMPONENTS Fortran QUIET)
+    if(TARGET PIO::PIO_Fortran)
+        message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
+    endif()
 endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
@@ -19,8 +23,8 @@ pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
 if(CABLE_TESTS)
     if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "2024.0")
         message(WARNING "Intel Fortran 2024.0 or higher is recommended for building tests.")
-    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13.2")
-        message(WARNING "GNU Fortran 13.2 or higher is recommended for building tests.")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14.1")
+        message(WARNING "GNU Fortran 14.1 or higher is recommended for building tests.")
     endif()
     enable_testing()
     option(FORTUNO_WITH_MPI "Fortuno: whether to build the MPI interface" ${CABLE_MPI})
@@ -263,6 +267,9 @@ else()
         src/params/cable_photo_constants_mod.F90
         src/params/cable_other_constants_mod.F90
         src/params/cable_maths_constants_mod.F90
+        src/util/error_handler/cable_error_handler_base.F90
+        src/util/error_handler/cable_error_handler_mpi.F90
+        src/util/error_handler/cable_error_handler.F90
         src/util/cable_runtime_opts_mod.F90
         src/util/cable_common.F90
         src/shared/casa_offline_inout.F90
@@ -299,6 +306,12 @@ else()
         src/offline/spincasacnp.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+        src/util/cable_array_utils.F90
+        src/util/netcdf/cable_netcdf_decomp_util.F90
+        src/util/netcdf/cable_netcdf.F90
+        src/util/netcdf/cable_netcdf_internal.F90
+        src/util/netcdf/cable_netcdf_stub_types.F90
+        src/util/netcdf/nf90/cable_netcdf_nf90.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
@@ -306,6 +319,13 @@ else()
     if(CABLE_MPI)
     target_compile_definitions(cable_common PRIVATE __MPI__)
     target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
+    endif()
+
+    if(TARGET PIO::PIO_Fortran)
+        target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+    else()
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
     endif()
 
     if(CABLE_MPI)
@@ -333,8 +353,10 @@ else()
     if (CABLE_TESTS)
         add_executable(
             cable-tests
+            tests/fixtures/cable_netcdf_fixtures.F90
+            tests/utils/file_utils.F90
             tests/testapp.F90
-            tests/test_example.F90
+            tests/test_cable_netcdf.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)
@@ -342,14 +364,20 @@ else()
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_serial.F90)
         endif()
         target_link_libraries(cable-tests PRIVATE cable_common ${fortuno_libs})
+        if(NOT TARGET PIO::PIO_Fortran)
+            target_compile_definitions(cable-tests PRIVATE SKIP_PIO_TESTS)
+        endif()
         if(CABLE_MPI)
-            add_test(
-                NAME cable-tests
-                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:cable-tests>
+            add_test(NAME cable-tests-serial
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:cable-tests> ~parallel
             )
-            set_tests_properties(cable-tests PROPERTIES PROCESSORS 1)
+            set_tests_properties(cable-tests-serial PROPERTIES PROCESSORS 1)
+            add_test(NAME cable-tests-parallel
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:cable-tests> parallel
+            )
+            set_tests_properties(cable-tests-parallel PROPERTIES PROCESSORS 4)
         else()
-            add_test(NAME cable-tests COMMAND $<TARGET_FILE:cable-tests>)
+            add_test(NAME cable-tests-serial COMMAND $<TARGET_FILE:cable-tests> ~parallel)
         endif()
     endif()
 endif()
