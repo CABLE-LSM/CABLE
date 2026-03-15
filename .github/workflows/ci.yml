@@ -16,6 +16,7 @@ jobs:
     with:
       # For defaults for args not specified here (eg. spack/packages/config refs), see https://github.com/ACCESS-NRI/build-ci/blob/v3/.github/workflows/README.md
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
+      spack-config-ref: repos-no-override
       # We need to install the compilers manually here because the upstream image is too large to run on GitHub-hosted runners
       spack-compiler-manifest-path: .github/build-ci/compilers/spack.yaml
       allow-ssh-into-spack-install: true
