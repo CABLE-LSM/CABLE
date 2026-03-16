@@ -411,7 +411,7 @@ MODULE cable_IO_vars_module
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
          za  = .FALSE.,       & ! something to do with roughness ????
          c13o2 = .false., &      ! carbon pools and flux output for 13C isotopes
-         psi_soil = .FALSE.,       & 
+         psi_soil = .true.,       & 
          kmax = .TRUE.,    &
          psi_rootzone = .FALSE.,       & 
          psix = .TRUE.,       & 

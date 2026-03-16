@@ -4973,7 +4973,7 @@ CONTAINS
         END IF
       END IF
    ! mgk576, 19/2/2019
-   IF(output%soil) THEN
+   IF(output%soil .or. output%psi_soil) THEN
    !IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%psi_soil = out%psi_soil + REAL(ssnow%psi_soil, 4)
