@@ -102,9 +102,9 @@ contains
 
     call file%def_dims(["i"], [LEN])
 
-    call file%def_var("values_1d", ["i"], CABLE_NETCDF_INT)
-    call file%def_var("values_2d", ["i"], CABLE_NETCDF_INT)
-    call file%def_var("values_3d", ["i"], CABLE_NETCDF_INT)
+    call file%def_var("values_1d", CABLE_NETCDF_INT, ["i"])
+    call file%def_var("values_2d", CABLE_NETCDF_INT, ["i"])
+    call file%def_var("values_3d", CABLE_NETCDF_INT, ["i"])
 
     call file%end_def()
 
@@ -162,9 +162,9 @@ contains
 
     call file%def_dims(["i"], [LEN])
 
-    call file%def_var("values_1d", ["i"], CABLE_NETCDF_FLOAT)
-    call file%def_var("values_2d", ["i"], CABLE_NETCDF_FLOAT)
-    call file%def_var("values_3d", ["i"], CABLE_NETCDF_FLOAT)
+    call file%def_var("values_1d", CABLE_NETCDF_FLOAT, ["i"])
+    call file%def_var("values_2d", CABLE_NETCDF_FLOAT, ["i"])
+    call file%def_var("values_3d", CABLE_NETCDF_FLOAT, ["i"])
 
     call file%end_def()
 
@@ -222,9 +222,9 @@ contains
 
     call file%def_dims(["i"], [LEN])
 
-    call file%def_var("values_1d", ["i"], CABLE_NETCDF_DOUBLE)
-    call file%def_var("values_2d", ["i"], CABLE_NETCDF_DOUBLE)
-    call file%def_var("values_3d", ["i"], CABLE_NETCDF_DOUBLE)
+    call file%def_var("values_1d", CABLE_NETCDF_DOUBLE, ["i"])
+    call file%def_var("values_2d", CABLE_NETCDF_DOUBLE, ["i"])
+    call file%def_var("values_3d", CABLE_NETCDF_DOUBLE, ["i"])
 
     call file%end_def()
 
