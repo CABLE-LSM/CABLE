@@ -227,17 +227,17 @@ module cable_netcdf_mod
         ! `CABLE_NETCDF_UNLIMITED` for unlimited dimensions.
     end subroutine
     !> Define a variable in the netCDF file with the specified name, dimensions, and type.
-    subroutine cable_netcdf_file_def_var(this, var_name, dim_names, type)
+    subroutine cable_netcdf_file_def_var(this, var_name, type, dim_names)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: var_name
         !! Name of the variable to define.
-      character(len=*), intent(in), optional :: dim_names(:)
-        !* Array of dimension names for the variable. If not provided, the
-        ! variable will be defined as a scalar.
       integer, intent(in) :: type
         !* Data type of the variable, using the `CABLE_NETCDF_*` constants (e.g.,
         ! `CABLE_NETCDF_INT`, `CABLE_NETCDF_REAL32`).
+      character(len=*), intent(in), optional :: dim_names(:)
+        !* Array of dimension names for the variable. If not provided, the
+        ! variable will be defined as a scalar.
     end subroutine
     !> Define a global attribute with a string value in the netCDF file.
     subroutine cable_netcdf_file_put_att_global_string(this, att_name, att_value)

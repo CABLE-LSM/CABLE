@@ -157,11 +157,11 @@ contains
     integer, intent(in) :: dim_lens(:)
   end subroutine
 
-  subroutine cable_netcdf_stub_file_def_var(this, var_name, dim_names, type)
+  subroutine cable_netcdf_stub_file_def_var(this, var_name, type, dim_names)
     class(cable_netcdf_stub_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
-    character(len=*), intent(in), optional :: dim_names(:)
     integer, intent(in) :: type
+    character(len=*), intent(in), optional :: dim_names(:)
   end subroutine
 
   subroutine cable_netcdf_stub_file_put_att_global_string(this, att_name, att_value)
