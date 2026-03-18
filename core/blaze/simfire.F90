@@ -601,8 +601,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   ! - defaults to annual max
   IF (TRIM(FSTEP) .eq. "daily") THEN
      !over 1950-2020 current_Nestrov is ~0.4 of annual Max Nesterov
+     !increased 2.5 to 3.0 after apply humidity filter as well
      !100000 is max value allowed in cable_climate
-     SF%MAX_NESTEROV = 2.5*climate%Nesterov_Current(landpt(:)%cstart)
+     SF%MAX_NESTEROV = 3.0*climate%Nesterov_Current(landpt(:)%cstart)
      SF%MAX_NESTEROV = MIN(SF%MAX_NESTEROV,100000.0)
 
      !need to increase other input to AB because of cycle in Nesterov_current

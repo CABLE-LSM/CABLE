@@ -1,4 +1,4 @@
-MODULE BLAZE_MOD
+ MODULE BLAZE_MOD
 
 TYPE TYPE_BLAZE
    INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
@@ -435,14 +435,25 @@ FUNCTION AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, AGL_w, AGL_g, K_TUNE_LITTER)
   REAL, INTENT(IN)                  :: K_TUNE_LITTER
   REAL, DIMENSION(3), INTENT(IN)    :: CPLANT_w, CPLANT_g, AGL_w, AGL_g
   REAL                              :: AVAIL_FUEL
+  INTEGER                           :: AF_opt = 2  !1 for original, >1 for revisions
 
-  AVAIL_FUEL = TOF(FLIx, 3) * fbark  * CPLANT_w(WOOD)             + &
+  IF (AF_opt .eq. 1) THEN
+      AVAIL_FUEL = TOF(FLIx, 3) * fbark  * CPLANT_w(WOOD)             + &
                TOF(FLIx,10)          * AGL_w(CWD) * K_TUNE_LITTER + &
                TOF(FLIx,12)          * (AGL_w(METB) + AGL_w(STR)) + &
                TOF(FLIx, 9)          * CPLANT_w(FROOT)            + &
                CPLANT_g(LEAF) + AGL_g(METB) + AGL_g(STR)
-
-  ! CLN maybe take fbark out again
+               ! CLN maybe take fbark out again
+  ELSE
+      !comprises the "readily-combustible fuels" 
+      AVAIL_FUEL = TOF(FLIx, 3) * fbark  * CPLANT_w(WOOD)         + &
+               !TOF(FLIx,2) * fbranch * CPLANT_w(WOOD)             + &
+               TOF(FLIx,10)          * AGL_w(CWD) * K_TUNE_LITTER + &
+               TOF(FLIx,12)          * (AGL_w(METB) + AGL_w(STR)) + &
+               TOF(FLIx, 9)          * CPLANT_w(FROOT)            + &
+               TOF(FLIx, 4)          * CPLANT_w(LEAF)             + &  
+               CPLANT_g(LEAF) + AGL_g(METB) + AGL_g(STR)
+  END IF
 
 END FUNCTION AVAIL_FUEL
 
@@ -860,7 +871,7 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
      ! End here if available fuel doesn't get you into next regime
      IF ( i .GE. FLIx ) EXIT
      w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:), &
-          BLAZE%K_TUNE_LITTER(np) )
+          BLAZE%K_TUNE_LITTER(np))
   END DO
 
   BLAZE%FLIX(np) = flix
@@ -999,6 +1010,13 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
              BLAZE%AGLit_g(np,:),BLAZE%K_TUNE_LITTER(np)) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
      END DO
+     
+     !limit AB during  periods of 'high' humidity - surrogate for fuel moisture 
+     BLAZE%annAB = BLAZE%annAB - BLAZE%AB
+     !BLAZE%AB = BLAZE%AB * ( 1.0  - MIN( 4.*MAX((BLAZE%RH-50.0),0.0),100.0)/100.0 )
+     BLAZE%AB = BLAZE%AB * ( 1.0  - MIN( 5.*MAX((BLAZE%RH-40.0),0.0),100.0)/100.0 )
+     BLAZE%annAB = BLAZE%annAB + BLAZE%AB
+     
      popd = SF%POPD
      mnest= SF%MAX_NESTEROV
   ELSE
@@ -1039,10 +1057,10 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
  !to get additional outputs - investigative purposes only 
   BLAZE%ROS = SF%MAX_NESTEROV
-  BLAZE%KBDI = T1
-  BLAZE%D = T2    !->DMacArthur
-  BLAZE%FFDI = T3
-  BLAZE%LR = T4   !->LastRain
+  !BLAZE%KBDI = T1
+  !BLAZE%D = T2    !->DMacArthur
+  !BLAZE%FFDI = T3
+  !BLAZE%LR = T4   !->LastRain
 
 !  IF ( BLAZE%DAY .EQ. 1 ) &
 !       CALL BLAZE_DIAG( NCELLS, BLAZE, CPLANT_g, CPLANT_w, AGL_g, AGL_w, TO, "dref")

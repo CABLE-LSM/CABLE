@@ -107,7 +107,9 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
      climate%dmoist    = climate%dmoist + sum(real(ssnow%wb(:,:))*veg%froot(:,:), 2)
      climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
      climate%dtemp_max = max(met%tk - 273.15, climate%dtemp_max)
-     climate%drhum     = climate%drhum + met%rhum
+     !climate%drhum     = climate%drhum + met%rhum
+     !for BLAZE set the %drhum to be the daily minimum
+     climate%drhum     = min(climate%drhum, met%rhum)
      climate%du10_max  = max(met%u10, climate%du10_max)
      climate%dprecip   = climate%dprecip + met%precip
   ENDIF
@@ -116,7 +118,7 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
      ! compute daily averages
      climate%dtemp  = climate%dtemp  / real(ktauday)
      climate%dmoist = climate%dmoist / real(ktauday)
-     climate%drhum  = climate%drhum  / real(ktauday)
+     !climate%drhum  = climate%drhum  / real(ktauday)
 
      !call_blaze=0 if blaze off, >0 if blaze on to some extent
      IF (cable_user%CALL_BLAZE>0) then
@@ -153,10 +155,11 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
              + climate%last_precip - 1. )
         climate%D_MacArthur =  MAX(0.,MIN(10.,climate%D_MacArthur))
 
-        ! MacArthur FFDI
+        ! MacArthur FFDI - Nobel et al. 1980 - units RH in %, wind in km/hr, temp in oC
+        ! apply factor 3.6 since met%u10 is in m/s
         climate%FFDI = 2. * EXP( -.45 + .987 * LOG(climate%D_MacArthur + .001) &
              - .03456 *  climate%drhum + .0338 * climate%dtemp_max  + &
-             .0234 *  climate%du10_max )
+             .0234 * 3.6* climate%du10_max )
 
         ! Nesterov Index
         WHERE ( climate%dprecip .GE. 3. .OR. (climate%dtemp_max -climate%dtemp_min) .LT. 4.)

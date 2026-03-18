@@ -106,6 +106,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   BLAZE%AGLit_w(:,METB) = CLITTER_w(:,METB) * ag_litter_frac
   BLAZE%AGLit_w(:, STR) = CLITTER_w(:, STR) * ag_litter_frac 
 
+  !INH - test sensitvity of FLIx and AB to litter fractionation.
+  ag_litter_frac = 0.6
   BLAZE%AGLit_g(:, CWD) = 0.
   BLAZE%AGLit_g(:, STR) = CLITTER_g(:, STR) * ag_litter_frac
   BLAZE%AGLit_g(:,METB) = CLITTER_g(:,METB) * ag_litter_frac
