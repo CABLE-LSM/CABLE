@@ -300,7 +300,7 @@ CONTAINS
     ! Commented ones in cable_def_types need to be checked
     ! Commented ones here need to be range-specified
     ! In future, it's better to have a callback for a derived type having both ranges and values
-    ! This also clashes with range checks in open_output_file
+    ! This also clashes with range checks in the output module
 
     TYPE(soil_parameter_type), INTENT(IN) :: soil
     TYPE(veg_parameter_type), INTENT(IN) :: veg
@@ -467,9 +467,6 @@ CONTAINS
   !          to scrutinise balance in particular sections of the code - largely
   !          for diagnostics/fault finding.
   !
-  ! CALLed from: write_output
-  !
-  !
   !==============================================================================
 
   SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                            &
@@ -560,8 +557,6 @@ CONTAINS
   ! Purpose: Calculate cumulative and per-timestep balance, as well as allow user
   !          to scrutinise balance in particular sections of the code - largely
   !          for diagnostics/fault finding.
-  !
-  ! CALLed from: write_output
   !
   ! MODULEs used: cable_data (inherited)
   !

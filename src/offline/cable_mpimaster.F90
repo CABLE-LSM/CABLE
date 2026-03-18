@@ -38,14 +38,10 @@
 ! CALLs:       point2constants
 !              open_met_file
 !              load_parameters
-!              open_output_file
 !              get_met_data
-!              write_output
 !              casa_poolout
 !              casa_fluxout
-!              create_restart
 !              close_met_file
-!              close_output_file
 !              prepareFiles
 !              find_extents
 !              master_decomp
@@ -94,6 +90,18 @@ MODULE cable_mpimaster
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range, mass_balance, energy_balance
   USE cable_mpi_mod, ONLY: mpi_grp_t
+  USE cable_timing_mod, ONLY: cable_timing_set_start_year
+  use cable_output_mod, only: cable_output_mod_init
+  use cable_output_mod, only: cable_output_mod_end
+  use cable_output_mod, only: cable_output_register_output_variables
+  use cable_output_mod, only: cable_output_init_streams
+  use cable_output_mod, only: cable_output_update
+  use cable_output_mod, only: cable_output_write
+  use cable_output_mod, only: cable_output_write_parameters
+  use cable_output_mod, only: cable_output_write_restart
+  use cable_diagnostics_mod, only: cable_diagnostics
+  use cable_diagnostics_casa_mod, only: cable_diagnostics_casa
+  use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
 
   IMPLICIT NONE
 
@@ -175,7 +183,7 @@ CONTAINS
          output,check,&
          patch_type,landpt,&
          timeunits, output, &
-         calendar, verbose
+         calendar, verbose, patch
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
          CurYear,    &
@@ -190,9 +198,6 @@ CONTAINS
     USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
-    USE cable_output_module,  ONLY: create_restart,open_output_file,            &
-         write_output,close_output_file
-    USE cable_write_module,   ONLY: nullify_write
     USE cable_cbm_module
     USE cable_climate_mod
 
@@ -333,7 +338,9 @@ CONTAINS
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
 
+    call cable_netcdf_mod_init(mpi_grp_master)
 
+    call cable_timing_set_start_year(cable_user%YearStart)
 
     ! END header
 
@@ -427,6 +434,7 @@ CONTAINS
           IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
             CABLE_USER%POPLUC= .FALSE.
 
+
           ! Open output file:
           IF (.NOT.CASAONLY) THEN
             IF ( TRIM(filename%out) .EQ. '' ) THEN
@@ -441,8 +449,13 @@ CONTAINS
                   TRIM(cable_user%RunIden)//'_cable_out.nc'
               ENDIF
             ENDIF
-            CALL nullify_write() ! nullify pointers
-            CALL open_output_file( dels, soil, veg, bgc, rough, met, casamet)
+            call cable_output_mod_init()
+            call cable_output_register_output_variables([ &
+              cable_diagnostics(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
+              cable_diagnostics_casa(casaflux, casapool, casamet) &
+            ])
+            call cable_output_init_streams(dels)
+            call cable_output_write_parameters(kstart, patch, landpt)
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -842,8 +855,6 @@ CONTAINS
 
           ! Write time step's output to file if either: we're not spinning up
           ! or we're spinning up and the spinup has converged:
-          ! MPI: TODO: pull mass and energy balance calculation from write_output
-          ! and refactor into worker code
 
           ktau_gl = oktau
 
@@ -872,12 +883,11 @@ CONTAINS
 
               SELECT CASE (TRIM(cable_user%MetType))
               CASE ('plum', 'cru', 'gswp', 'gswp3', 'prin')
-                CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
-                     ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+                call cable_output_update(ktau_tot, dels, met)
+                call cable_output_write(ktau_tot, dels, met, patch, landpt)
               CASE DEFAULT
-                CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
-                     ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
-
+                call cable_output_update(ktau, dels, met)
+                call cable_output_write(ktau, dels, met, patch, landpt)
               END SELECT
             END IF
           ENDIF
@@ -1079,12 +1089,11 @@ CONTAINS
 
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'gswp', 'gswp3')
-              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
-                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau_tot, dels, met)
+              call cable_output_write(ktau_tot, dels, met, patch, landpt)
             CASE DEFAULT
-              CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
-                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
-
+              call cable_output_update(ktau, dels, met)
+              call cable_output_write(ktau, dels, met, patch, landpt)
             END SELECT
           END IF
 
@@ -1231,10 +1240,6 @@ CONTAINS
     END DO SPINLOOP
 
     IF ( SpinConv .AND. .NOT. CASAONLY) THEN
-      ! Close output file and deallocate main variables:
-      CALL close_output_file( bal, air, bgc, canopy, met,                         &
-           rad, rough, soil, ssnow,                            &
-           sum_flux, veg )
       ! Report balance info to log file if verbose writing is requested:
       IF(output%balances .AND. verbose) THEN
         WRITE(logn, *)
@@ -1292,8 +1297,6 @@ CONTAINS
 
     ! Write restart file if requested:
     IF(output%restart .AND. (.NOT. CASAONLY)) THEN
-      ! MPI: TODO: receive variables that are required by create_restart
-      ! but not write_output
       !CALL receive_restart (comm,ktau,dels,soil,veg,ssnow, &
       !       &              canopy,rough,rad,bgc,bal)
       ! gol124: how about call master_receive (comm, ktau, restart_ts)
@@ -1303,8 +1306,7 @@ CONTAINS
       !       CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
       if(.not.l_landuse) then
-        CALL create_restart( logn, dels, ktau, soil, veg, ssnow,                 &
-             canopy, rough, rad, bgc, bal, met  )
+        call cable_output_write_restart(current_time=ktau * dels)
       endif
 
       IF (cable_user%CALL_climate) THEN
@@ -1368,7 +1370,9 @@ CONTAINS
       call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
     ENDIF
 
+    if (.not. casaonly) call cable_output_mod_end()
 
+    call cable_netcdf_mod_end()
 
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
@@ -8072,8 +8076,6 @@ CONTAINS
 
   END SUBROUTINE master_receive
 
-  ! TODO: receives variables that are required by create_restart
-  ! but not write_output
   ! gol124: how about call master_receive (comm, ktau, restart_ts)
   ! instead of a separate receive_restart sub?
   !SUBROUTINE receive_restart (comm,ktau,dels,soil,veg,ssnow, &
