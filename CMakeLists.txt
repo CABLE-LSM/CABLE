@@ -88,7 +88,7 @@ if(CABLE_LIBRARY)
         src/science/casa-cnp/casa_feedback.F90
         src/science/casa-cnp/casa_inout.F90
         src/science/casa-cnp/casa_param.F90
-        src/science/casa-cnp/casa_phenology.F90
+        #src/science/casa-cnp/casa_phenology.F90
         src/science/casa-cnp/casa_readbiome.F90
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
@@ -208,7 +208,7 @@ else()
         src/science/casa-cnp/casa_feedback.F90
         src/science/casa-cnp/casa_inout.F90
         src/science/casa-cnp/casa_param.F90
-        src/science/casa-cnp/casa_phenology.F90
+        #src/science/casa-cnp/casa_phenology.F90
         src/science/casa-cnp/casa_readbiome.F90
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
