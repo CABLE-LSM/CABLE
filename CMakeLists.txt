@@ -283,6 +283,8 @@ else()
         src/offline/cable_abort.F90
         src/offline/cable_checks.F90
         src/offline/cable_cru_TRENDY.F90
+        src/offline/cable_diagnostics_casa.F90
+        src/offline/cable_diagnostics.F90
         src/offline/cable_driver_common.F90
         src/offline/cable_initialise.F90
         src/offline/cable_input.F90
@@ -290,7 +292,6 @@ else()
         src/offline/cable_mpi_stub_types.F90
         src/offline/cable_mpi.F90
         src/offline/cable_namelist_input.F90
-        src/offline/cable_output.F90
         src/offline/cable_parameters.F90
         src/offline/cable_pft_params.F90
         src/offline/cable_plume_mip.F90
@@ -299,7 +300,6 @@ else()
         src/offline/cable_serial.F90
         src/offline/cable_soil_params.F90
         src/offline/cable_weathergenerator.F90
-        src/offline/cable_write.F90
         src/offline/casa_cable.F90
         src/offline/cbl_model_driver_offline.F90
         src/offline/landuse_inout.F90
@@ -308,11 +308,20 @@ else()
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
         src/util/cable_array_utils.F90
+        src/util/cable_grid_reductions.F90
+        src/util/cable_timing.F90
         src/util/netcdf/cable_netcdf_decomp_util.F90
         src/util/netcdf/cable_netcdf.F90
         src/util/netcdf/cable_netcdf_init.F90
         src/util/netcdf/cable_netcdf_stub_types.F90
         src/util/netcdf/nf90/cable_netcdf_nf90.F90
+        src/util/output/cable_output_decomp.F90
+        src/util/output/cable_output_define.F90
+        src/util/output/cable_output_impl.F90
+        src/util/output/cable_output_internal.F90
+        src/util/output/cable_output_reduction_buffers.F90
+        src/util/output/cable_output_write.F90
+        src/util/output/cable_output.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
