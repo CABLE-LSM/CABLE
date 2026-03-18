@@ -30,18 +30,14 @@
 !
 ! CALLs:       open_met_file
 !              load_parameters
-!              open_output_file
 !              get_met_data
 !              casa_feedback
 !              cbm
 !              bgcdriver
 !              sumcflux
-!              write_output
 !              casa_poolout
 !              casa_fluxout
-!              create_restart
 !              close_met_file
-!              close_output_file
 !              prepareFiles
 !
 !
@@ -80,7 +76,7 @@ MODULE cable_serial
        fixedCO2,output,check,&
        patch_type,landpt,&
        defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
-       NO_CHECK, verbose
+       NO_CHECK, verbose, patch
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        filename, myhome,            &
@@ -107,10 +103,18 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        ncid_qa,         &
        ncid_ta,         &
        ncid_wd,ncid_mask
-  USE cable_output_module,  ONLY: create_restart,open_output_file,            &
-       write_output,close_output_file
    USE cable_checks_module, ONLY: constant_check_range, mass_balance, energy_balance
-  USE cable_write_module,   ONLY: nullify_write
+  use cable_output_mod, only: cable_output_mod_init
+  use cable_output_mod, only: cable_output_mod_end
+  use cable_output_mod, only: cable_output_register_output_variables
+  use cable_output_mod, only: cable_output_profiles_init
+  use cable_output_mod, only: cable_output_update
+  use cable_output_mod, only: cable_output_write
+  use cable_output_mod, only: cable_output_write_parameters
+  use cable_output_mod, only: cable_output_write_restart
+  use cable_diagnostics_core_mod, only: cable_diagnostics_core
+  use cable_diagnostics_casa_mod, only: cable_diagnostics_casa
+  use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
   USE cable_IO_vars_module, ONLY: timeunits,calendar
    USE cable_cbm_module, ONLY : cbm
   !mpidiff
@@ -273,6 +277,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
 ! INISTUFF
 
+  call cable_netcdf_mod_init(mpi_grp)
 
   ! outer loop - spinup loop no. ktau_tot :
   ktau     = 0
@@ -417,8 +422,13 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
                     TRIM(cable_user%RunIden)//'_cable_out.nc'
               ENDIF
             ENDIF
-            CALL nullify_write() ! nullify pointers
-            CALL open_output_file( dels, soil, veg, bgc, rough, met, casamet)
+            call cable_output_mod_init()
+            call cable_output_register_output_variables([ &
+              cable_diagnostics_core(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
+              cable_diagnostics_casa(casaflux, casapool, casamet) &
+            ])
+            call cable_output_profiles_init()
+            call cable_output_write_parameters(kstart, patch, landpt)
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
@@ -719,11 +729,11 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             !mpidiff
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
-              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
-                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau_tot, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau_tot, dels, leaps, cable_user%yearstart, met, patch, landpt)
             CASE DEFAULT
-              CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
-                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+              call cable_output_update(ktau, dels, leaps, cable_user%yearstart, met)
+              call cable_output_write(ktau, dels, leaps, cable_user%yearstart, met, patch, landpt)
             END SELECT
           ENDIF
 
@@ -933,10 +943,6 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
   l_landuse=.false.
 
   IF ( SpinConv .AND. .NOT. CASAONLY ) THEN
-    ! Close output file and deallocate main variables:
-    CALL close_output_file( bal, air, bgc, canopy, met,                      &
-         rad, rough, soil, ssnow,                                            &
-         sum_flux, veg )
     ! Report balance info to log file if verbose writing is requested:
     IF(output%balances .AND. verbose) THEN
       WRITE(logn, *)
@@ -1031,9 +1037,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
   IF ( .NOT. CASAONLY.and. .not. l_landuse ) THEN
     ! Write restart file if requested:
-    IF(output%restart)                                           &
-      CALL create_restart( logn, dels, ktau, soil, veg, ssnow,  &
-           canopy, rough, rad, bgc, bal, met )
+    IF(output%restart) then
+      call cable_output_write_restart(current_time=ktau * dels)
+    end if
     !mpidiff
     IF (cable_user%CALL_climate) &
       CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
@@ -1041,7 +1047,9 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
     !--- LN ------------------------------------------[
   ENDIF
 
+  if (.not. casaonly) call cable_output_mod_end()
 
+  call cable_netcdf_mod_end()
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
        TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
