@@ -16,6 +16,8 @@ module cable_netcdf_mod
 
   use cable_mpi_mod, only: mpi_grp_t
 
+  use cable_error_handler_mod, only: cable_abort
+
   implicit none
 
   private
@@ -1086,46 +1088,68 @@ module cable_netcdf_mod
         ! All procedures in this module should be called collectively by all
         ! processes in this group.
     end subroutine
-    !> Module finalization procedure for the cable_netcdf_mod module.
-    module subroutine cable_netcdf_mod_end()
-    end subroutine
-    !> Create a new netCDF file with the specified path and I/O type.
-    module function cable_netcdf_create_file(path, iotype, mode) result(file)
-      character(len=*), intent(in) :: path
-        !! Path to the netCDF file to create.
-      integer, intent(in) :: iotype
-        !! I/O type to use for the file using the `CABLE_NETCDF_IOTYPE_*` constants.
-      integer, intent(in), optional :: mode
-        !! Optional mode flags for file creation using the `CABLE_NETCDF_MODE_*` constants.
-      class(cable_netcdf_file_t), allocatable :: file
-    end function
-    !> Open an existing netCDF file with the specified path and I/O type.
-    module function cable_netcdf_open_file(path, iotype, mode) result(file)
-      character(len=*), intent(in) :: path
-        !! Path to the netCDF file to open.
-      integer, intent(in) :: iotype
-        !! I/O type to use for the file using the `CABLE_NETCDF_IOTYPE_*` constants.
-      integer, intent(in), optional :: mode
-        !! Optional mode flags for file opening using the `CABLE_NETCDF_MODE_*` constants.
-      class(cable_netcdf_file_t), allocatable :: file
-    end function
-    !> Create a new decomposition for parallel I/O.
-    !! This follows the degree of freedom approach for specifying I/O
-    !! decompositions as described in Denis et al. (2011)
-    !! [[10.1177/1094342011428143](https://www.doi.org/10.1177/1094342011428143)].
-    module function cable_netcdf_create_decomp(compmap, dims, type) result(decomp)
-      integer, intent(in) :: compmap(:)
-        !* An array of data offsets describing where each element of the
-        ! in-memory array is located in the netCDF variable data on disk.
-      integer, intent(in) :: dims(:)
-        !! An array of the global dimensions used to describe the shape of the data in the netCDF file
-      integer, intent(in) :: type
-        !! The data type of the in-memory array using the `CABLE_NETCDF_TYPE_*` constants.
-      class(cable_netcdf_decomp_t), allocatable :: decomp
-    end function
   end interface
 
   !> The internal I/O handler to use for all netCDF file operations.
   class(cable_netcdf_io_t), allocatable, private :: cable_netcdf_io_handler
+
+contains
+
+  !> Module finalization procedure for the cable_netcdf_mod module.
+  subroutine cable_netcdf_mod_end()
+    if (.not. allocated(cable_netcdf_io_handler)) then
+      call cable_abort("cable_netcdf_io_handler is not allocated. Ensure cable_netcdf_mod_init has been called.", file=__FILE__, line=__LINE__)
+    end if
+    call cable_netcdf_io_handler%finalise()
+  end subroutine
+
+  !> Create a new netCDF file with the specified path and I/O type.
+  function cable_netcdf_create_file(path, iotype, mode) result(file)
+    character(len=*), intent(in) :: path
+      !! Path to the netCDF file to create.
+    integer, intent(in) :: iotype
+      !! I/O type to use for the file using the `CABLE_NETCDF_IOTYPE_*` constants.
+    integer, intent(in), optional :: mode
+      !! Optional mode flags for file creation using the `CABLE_NETCDF_MODE_*` constants.
+    class(cable_netcdf_file_t), allocatable :: file
+    if (.not. allocated(cable_netcdf_io_handler)) then
+      call cable_abort("cable_netcdf_io_handler is not allocated. Ensure cable_netcdf_mod_init has been called.", file=__FILE__, line=__LINE__)
+    end if
+    file = cable_netcdf_io_handler%create_file(path, iotype, mode)
+  end function
+
+  !> Open an existing netCDF file with the specified path and I/O type.
+  function cable_netcdf_open_file(path, iotype, mode) result(file)
+    character(len=*), intent(in) :: path
+      !! Path to the netCDF file to open.
+    integer, intent(in) :: iotype
+      !! I/O type to use for the file using the `CABLE_NETCDF_IOTYPE_*` constants.
+    integer, intent(in), optional :: mode
+      !! Optional mode flags for file opening using the `CABLE_NETCDF_MODE_*` constants.
+    class(cable_netcdf_file_t), allocatable :: file
+    if (.not. allocated(cable_netcdf_io_handler)) then
+      call cable_abort("cable_netcdf_io_handler is not allocated. Ensure cable_netcdf_mod_init has been called.", file=__FILE__, line=__LINE__)
+    end if
+    file = cable_netcdf_io_handler%open_file(path, iotype, mode)
+  end function
+
+  !> Create a new decomposition for parallel I/O.
+  !! This follows the degree of freedom approach for specifying I/O
+  !! decompositions as described in Denis et al. (2011)
+  !! [[10.1177/1094342011428143](https://www.doi.org/10.1177/1094342011428143)].
+  function cable_netcdf_create_decomp(compmap, dims, type) result(decomp)
+    integer, intent(in) :: compmap(:)
+      !* An array of data offsets describing where each element of the
+      ! in-memory array is located in the netCDF variable data on disk.
+    integer, intent(in) :: dims(:)
+      !! An array of the global dimensions used to describe the shape of the data in the netCDF file
+    integer, intent(in) :: type
+      !! The data type of the in-memory array using the `CABLE_NETCDF_TYPE_*` constants.
+    class(cable_netcdf_decomp_t), allocatable :: decomp
+    if (.not. allocated(cable_netcdf_io_handler)) then
+      call cable_abort("cable_netcdf_io_handler is not allocated. Ensure cable_netcdf_mod_init has been called.", file=__FILE__, line=__LINE__)
+    end if
+    decomp = cable_netcdf_io_handler%create_decomp(compmap, dims, type)
+  end function
 
 end module cable_netcdf_mod

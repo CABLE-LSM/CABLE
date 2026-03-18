@@ -309,7 +309,7 @@ else()
         src/util/cable_array_utils.F90
         src/util/netcdf/cable_netcdf_decomp_util.F90
         src/util/netcdf/cable_netcdf.F90
-        src/util/netcdf/cable_netcdf_internal.F90
+        src/util/netcdf/cable_netcdf_init.F90
         src/util/netcdf/cable_netcdf_stub_types.F90
         src/util/netcdf/nf90/cable_netcdf_nf90.F90
     )
