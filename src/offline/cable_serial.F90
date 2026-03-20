@@ -71,6 +71,7 @@ MODULE cable_serial
     LUCdriver,                        &
     compare_consistency_check_values
   USE cable_mpi_mod, ONLY: mpi_grp_t
+  USE cable_timing_mod, ONLY: cable_timing_set_start_year
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
@@ -107,7 +108,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   use cable_output_mod, only: cable_output_mod_init
   use cable_output_mod, only: cable_output_mod_end
   use cable_output_mod, only: cable_output_register_output_variables
-  use cable_output_mod, only: cable_output_profiles_init
+  use cable_output_mod, only: cable_output_init_streams
   use cable_output_mod, only: cable_output_update
   use cable_output_mod, only: cable_output_write
   use cable_output_mod, only: cable_output_write_parameters
@@ -279,6 +280,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
   call cable_netcdf_mod_init(mpi_grp)
 
+  call cable_timing_set_start_year(cable_user%YearStart)
+
   ! outer loop - spinup loop no. ktau_tot :
   ktau     = 0
   SPINLOOP:DO WHILE ( SPINon )
@@ -427,7 +430,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
               cable_diagnostics_core(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
               cable_diagnostics_casa(casaflux, casapool, casamet) &
             ])
-            call cable_output_profiles_init()
+            call cable_output_init_streams()
             call cable_output_write_parameters(kstart, patch, landpt)
           ENDIF
 
@@ -729,11 +732,11 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             !mpidiff
             SELECT CASE (TRIM(cable_user%MetType))
             CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
-              call cable_output_update(ktau_tot, dels, leaps, cable_user%yearstart, met)
-              call cable_output_write(ktau_tot, dels, leaps, cable_user%yearstart, met, patch, landpt)
+              call cable_output_update(ktau_tot, dels, met)
+              call cable_output_write(ktau_tot, dels, met, patch, landpt)
             CASE DEFAULT
-              call cable_output_update(ktau, dels, leaps, cable_user%yearstart, met)
-              call cable_output_write(ktau, dels, leaps, cable_user%yearstart, met, patch, landpt)
+              call cable_output_update(ktau, dels, met)
+              call cable_output_write(ktau, dels, met, patch, landpt)
             END SELECT
           ENDIF
 

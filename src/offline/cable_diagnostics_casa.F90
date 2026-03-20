@@ -15,7 +15,7 @@ module cable_diagnostics_casa_mod
   use casaparm, only: STR
   use casaparm, only: CWD
 
-  use cable_timing_utils_mod, only: seconds_per_day
+  use cable_timing_mod, only: seconds_per_day
 
   use cable_phys_constants_mod, only: c_molar_mass
 
