@@ -4,6 +4,7 @@
 
 MODULE cable_mpimaster
   !! Stub for the master driver when MPI is not available.
+  USE cable_mpi_mod, ONLY : mpi_grp_t
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE
   USE CABLE_CRU, ONLY : CRU_TYPE
   IMPLICIT NONE
@@ -13,7 +14,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master(comm, dels, koffset, kend, PLUME, CRU)
+  SUBROUTINE mpidrv_master(comm, dels, koffset, kend, PLUME, CRU, mpi_grp_master)
     !! Stub for when MPI is not available
     INTEGER, INTENT(IN) :: comm
     REAL, INTENT(INOUT) :: dels
@@ -21,6 +22,7 @@ CONTAINS
     INTEGER, INTENT(INOUT) :: kend
     TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
     TYPE(CRU_TYPE), INTENT(IN) :: CRU
+    TYPE(mpi_grp_t), INTENT(INOUT) :: mpi_grp_master
 
     ! This should never be called!
     STOP
