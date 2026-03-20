@@ -47,7 +47,7 @@ contains
 
   end function cable_netcdf_test_list
 
-  logical function check_decomp(compmap, start, end, block_per_pe) result(result)
+  logical function init_decomp(compmap, start, end, block_per_pe) result(result)
     integer, allocatable, intent(out) :: compmap(:)
     integer, intent(out) :: start, end, block_per_pe
     integer i
@@ -66,7 +66,7 @@ contains
     allocate(compmap(start:end))
     compmap(start:end) = [(i, i=start, end, 1)]
 
-  end function check_decomp
+  end function init_decomp
 
   subroutine test_write_read_darray_int32(io_handler_factory, file_name)
     procedure(io_handler_factory_interface) :: io_handler_factory
@@ -79,7 +79,7 @@ contains
     integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: write_buffer_1d(:), write_buffer_2d(:, :), write_buffer_3d(:, :, :)
     integer(kind=CABLE_NETCDF_INT32_KIND), allocatable :: read_buffer_1d(:), read_buffer_2d(:, :), read_buffer_3d(:, :, :)
 
-    if (check_decomp(compmap, start, end, block_per_pe)) return
+    if (init_decomp(compmap, start, end, block_per_pe)) return
 
     buffer_shape_2d = [block_per_pe / 4, 4]
     buffer_shape_3d = [block_per_pe / 4, 2, 2]
@@ -139,7 +139,7 @@ contains
     real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: write_buffer_1d(:), write_buffer_2d(:, :), write_buffer_3d(:, :, :)
     real(kind=CABLE_NETCDF_REAL32_KIND), allocatable :: read_buffer_1d(:), read_buffer_2d(:, :), read_buffer_3d(:, :, :)
 
-    if (check_decomp(compmap, start, end, block_per_pe)) return
+    if (init_decomp(compmap, start, end, block_per_pe)) return
 
     buffer_shape_2d = [block_per_pe / 4, 4]
     buffer_shape_3d = [block_per_pe / 4, 2, 2]
@@ -199,7 +199,7 @@ contains
     real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: write_buffer_1d(:), write_buffer_2d(:, :), write_buffer_3d(:, :, :)
     real(kind=CABLE_NETCDF_REAL64_KIND), allocatable :: read_buffer_1d(:), read_buffer_2d(:, :), read_buffer_3d(:, :, :)
 
-    if (check_decomp(compmap, start, end, block_per_pe)) return
+    if (init_decomp(compmap, start, end, block_per_pe)) return
 
     buffer_shape_2d = [block_per_pe / 4, 4]
     buffer_shape_3d = [block_per_pe / 4, 2, 2]
