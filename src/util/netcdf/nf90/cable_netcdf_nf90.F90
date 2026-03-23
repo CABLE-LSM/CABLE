@@ -761,7 +761,7 @@ contains
       if (present(fill_value)) then
         decomp%values_filled = fill_value
       else
-        decomp%values_filled = NF90_FILL_INT
+        decomp%values_filled = NF90_FILL_FLOAT
       end if
       do i = 1, size(values)
         decomp%values_filled(decomp%compmap(i)) = values(i)
@@ -805,7 +805,7 @@ contains
       if (present(fill_value)) then
         decomp%values_filled = fill_value
       else
-        decomp%values_filled = NF90_FILL_INT
+        decomp%values_filled = NF90_FILL_FLOAT
       end if
       do i = 1, size(values)
         call array_index(i, shape(values), mem_index(:2))
@@ -850,7 +850,7 @@ contains
       if (present(fill_value)) then
         decomp%values_filled = fill_value
       else
-        decomp%values_filled = NF90_FILL_INT
+        decomp%values_filled = NF90_FILL_FLOAT
       end if
       do i = 1, size(values)
         call array_index(i, shape(values), mem_index(:3))
