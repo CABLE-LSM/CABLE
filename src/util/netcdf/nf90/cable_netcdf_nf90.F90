@@ -16,7 +16,6 @@ module cable_netcdf_nf90_mod
 
   use cable_netcdf_mod
 
-  use cable_mpi_mod, only: mpi_grp_t
   use cable_error_handler_mod, only: cable_abort
   use cable_array_utils_mod, only: array_index
 
@@ -33,7 +32,6 @@ module cable_netcdf_nf90_mod
   use netcdf, only: nf90_get_var
   use netcdf, only: nf90_inq_dimid
   use netcdf, only: nf90_inq_varid
-  use netcdf, only: nf90_inquire
   use netcdf, only: nf90_inquire_dimension
   use netcdf, only: nf90_inquire_variable
   use netcdf, only: nf90_enddef
