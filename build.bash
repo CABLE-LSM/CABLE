@@ -116,7 +116,11 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
             [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
             ;;
         gnu)
-            module add gcc/13.2.0
+            # This is required to allow for passing a factory procedure
+            # with a polymorphic function result to various test cases. See
+            # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=118372 for more
+            # details.
+            module add gcc/14.1.0
             compiler_lib_install_dir=GNU
             [[ -n ${mpi} ]] && module add openmpi/4.1.4
             ;;
