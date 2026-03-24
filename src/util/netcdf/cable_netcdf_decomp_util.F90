@@ -60,12 +60,15 @@ contains
   function io_decomp_land_to_x_y(land_x, land_y, mem_shape, var_shape, type, var_x_index, var_y_index, index_map) result(decomp)
     !* Returns a parallel I/O decomposition mapping from a memory layout with a
     ! 'land' dimension to a netCDF variable layout with 'x' and 'y' dimensions.
+    !
+    ! The ‘land’ dimension is assumed to be the first (i.e. fastest varying) index
+    ! in `mem_shape`.
     integer, intent(in) :: land_x(:) !! An array mapping land indexes to x (longitude) indexes.
     integer, intent(in) :: land_y(:) !! An array mapping land indexes to y (latitude) indexes.
     integer, intent(in) :: mem_shape(:) !! The shape of the in-memory array.
     integer, intent(in) :: var_shape(:) !! The shape of the netCDF variable.
     integer, intent(in) :: type
-      !* The data type of the variable for which the decomposition is being
+      !* The data type of the in-memory array for which the decomposition is being
       ! created using `CABLE_NETCDF_TYPE_*` constants from `cable_netcdf_mod`.
     integer, intent(in), optional :: var_x_index
       !! The index of the 'x' dimension in `var_shape`. Defaults to 1 if not provided.
@@ -123,6 +126,9 @@ contains
     ! the 1-dimensional vector of patches, and in the netCDF variable layout, the
     ! 'patch' dimension represents the index of the patch on a particular land
     ! point.
+    !
+    ! The 'patch' dimension is assumed to be the first (i.e. fastest varying)
+    ! index in `mem_shape`.
     integer, intent(in) :: land_x(:) !! An array mapping land indexes to x (longitude) indexes.
     integer, intent(in) :: land_y(:) !! An array mapping land indexes to y (latitude) indexes.
     integer, intent(in) :: cstart(:) !! The starting patch index for each land point.
@@ -130,7 +136,7 @@ contains
     integer, intent(in) :: mem_shape(:) !! The shape of the in-memory array.
     integer, intent(in) :: var_shape(:) !! The shape of the netCDF variable.
     integer, intent(in) :: type
-      !* The data type of the variable for which the decomposition is being
+      !* The data type of the in-memory array for which the decomposition is being
       ! created using `CABLE_NETCDF_TYPE_*` constants from `cable_netcdf_mod`.
     integer, intent(in), optional :: var_x_index
       !! The index of the 'x' dimension in `var_shape`. Defaults to 1 if not provided.
@@ -189,12 +195,15 @@ contains
     !* Returns a parallel I/O decomposition mapping from a memory layout with a
     ! local 'land' dimension to a netCDF variable layout with a global 'land'
     ! dimension.
+    !
+    ! The 'land' dimension is assumed to be the first (i.e. fastest varying)
+    ! index in `mem_shape`.
     integer, intent(in) :: land_decomp_start
       !! The starting index of the first local 'land' index along the global 'land' dimension.
     integer, intent(in) :: mem_shape(:) !! The shape of the in-memory array.
     integer, intent(in) :: var_shape(:) !! The shape of the netCDF variable.
     integer, intent(in) :: type
-      !* The data type of the variable for which the decomposition is being
+      !* The data type of the in-memory array for which the decomposition is being
       ! created using `CABLE_NETCDF_TYPE_*` constants from `cable_netcdf_mod`.
     integer, intent(in), optional :: var_land_index
       !! The index of the 'land' dimension in `var_shape`. Defaults to 1 if not provided.
@@ -244,6 +253,9 @@ contains
     ! the 1-dimensional vector of patches, and in the netCDF variable layout, the
     ! 'patch' dimension represents the index of the patch on a particular land
     ! point.
+    !
+    ! The 'patch' dimension is assumed to be the first (i.e. fastest varying)
+    ! index in `mem_shape`.
     integer, intent(in) :: land_decomp_start
       !! The starting index of the first local 'land' index along the global 'land' dimension.
     integer, intent(in) :: cstart(:) !! The starting patch index for each land point.
@@ -251,7 +263,7 @@ contains
     integer, intent(in) :: mem_shape(:) !! The shape of the in-memory array.
     integer, intent(in) :: var_shape(:) !! The shape of the netCDF variable.
     integer, intent(in) :: type
-      !* The data type of the variable for which the decomposition is being
+      !* The data type of the in-memory array for which the decomposition is being
       ! created using `CABLE_NETCDF_TYPE_*` constants from `cable_netcdf_mod`.
     integer, intent(in), optional :: var_land_index
       !! The index of the 'land' dimension in `var_shape`. Defaults to 1 if not provided.
@@ -304,12 +316,15 @@ contains
     !* Returns a parallel I/O decomposition mapping from a memory layout with a
     ! local 'patch' dimension to a netCDF variable layout with a global 'patch'
     ! dimension.
+    !
+    ! The 'patch' dimension is assumed to be the first (i.e. fastest varying)
+    ! index in `mem_shape`.
     integer, intent(in) :: patch_decomp_start
       !! The starting index of the first local 'patch' index along the global 'patch' dimension.
     integer, intent(in) :: mem_shape(:) !! The shape of the in-memory array.
     integer, intent(in) :: var_shape(:) !! The shape of the netCDF variable.
     integer, intent(in) :: type
-      !* The data type of the variable for which the decomposition is being
+      !* The data type of the in-memory array for which the decomposition is being
       ! created using `CABLE_NETCDF_TYPE_*` constants from `cable_netcdf_mod`.
     integer, intent(in), optional :: var_patch_index
       ! The index of the 'patch' dimension in `var_shape`. Defaults to 1 if not provided.
