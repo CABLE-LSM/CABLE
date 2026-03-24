@@ -1024,7 +1024,7 @@ module cable_netcdf_mod
 
   abstract interface
     !> Initialise the netcdf I/O handler.
-    !! This procedure is called during module initialization and can be used to set
+    !! This procedure is called during module initialisation and can be used to set
     !! up any necessary state or resources for the I/O handler.
     subroutine cable_netcdf_io_init(this)
       import cable_netcdf_io_t
