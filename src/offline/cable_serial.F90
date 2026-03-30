@@ -74,6 +74,7 @@ MODULE cable_serial
     prepareFiles_princeton,           &
     LUCdriver,                        &
     compare_consistency_check_values
+  USE cable_mpi_mod, ONLY: mpi_grp_t
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
@@ -156,7 +157,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi_grp)
   !! Offline serial driver.
   INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
   REAL, INTENT(INOUT) :: dels !! Time step size in seconds
@@ -166,6 +167,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
   TYPE(CRU_TYPE), INTENT(IN) :: CRU
   TYPE (site_TYPE), INTENT(IN) :: site
+  TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -391,7 +393,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
                bal, logn, vegparmnew, casabiome, casapool,           &
                casaflux, sum_casapool, sum_casaflux, &
                casamet, casabal, phen, POP, spinup,        &
-               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
+               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC, mpi_grp)
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"
