@@ -48,6 +48,10 @@ contains
   end function cable_netcdf_test_list
 
   logical function init_decomp(compmap, start, end, block_per_pe) result(result)
+    !* Intialise the `compmap` mapping, `start` and `end` indexes for the current
+    ! rank, and the number of elements each rank will process (`block_per_pe`).
+    !
+    ! Returns `.true.` if any pre-checks fail, `.false.` otherwise.
     integer, allocatable, intent(out) :: compmap(:)
     integer, intent(out) :: start, end, block_per_pe
     integer i
@@ -69,8 +73,11 @@ contains
   end function init_decomp
 
   subroutine test_write_read_darray_int32(io_handler_factory, file_name)
+    !! Test writing and reading 1D, 2D, and 3D integer arrays using the darray API.
     procedure(io_handler_factory_interface) :: io_handler_factory
+      !! Factory procedure to create an IO handler (e.g., NetCDF or PIO)
     character(*), intent(in) :: file_name
+      !! Name of the file to create and read from during the test
     class(cable_netcdf_io_t), allocatable :: io_handler
     class(cable_netcdf_file_t), allocatable :: file
     class(cable_netcdf_decomp_t), allocatable :: decomp
@@ -84,12 +91,6 @@ contains
     buffer_shape_2d = [block_per_pe / 4, 4]
     buffer_shape_3d = [block_per_pe / 4, 2, 2]
 
-    io_handler = io_handler_factory()
-
-    call io_handler%init()
-
-    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
-
     allocate(write_buffer_1d(start:end), source=int(this_rank() + VAL, kind=CABLE_NETCDF_INT32_KIND))
     write_buffer_2d = reshape(write_buffer_1d, buffer_shape_2d)
     write_buffer_3d = reshape(write_buffer_1d, buffer_shape_3d)
@@ -98,7 +99,13 @@ contains
     read_buffer_2d = reshape(read_buffer_1d, buffer_shape_2d)
     read_buffer_3d = reshape(read_buffer_1d, buffer_shape_3d)
 
+    io_handler = io_handler_factory()
+
+    call io_handler%init()
+
     decomp = io_handler%create_decomp(compmap, dims=[LEN], type=CABLE_NETCDF_INT)
+
+    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
 
     call file%def_dims(["i"], [LEN])
 
@@ -129,8 +136,11 @@ contains
   end subroutine test_write_read_darray_int32
 
   subroutine test_write_read_darray_real32(io_handler_factory, file_name)
+    !! Test writing and reading 1D, 2D, and 3D 32-bit real arrays using the darray API.
     procedure(io_handler_factory_interface) :: io_handler_factory
+      !! Factory procedure to create an IO handler (e.g., NetCDF or PIO)
     character(*), intent(in) :: file_name
+      !! Name of the file to create and read from during the test
     class(cable_netcdf_io_t), allocatable :: io_handler
     class(cable_netcdf_file_t), allocatable :: file
     class(cable_netcdf_decomp_t), allocatable :: decomp
@@ -144,12 +154,6 @@ contains
     buffer_shape_2d = [block_per_pe / 4, 4]
     buffer_shape_3d = [block_per_pe / 4, 2, 2]
 
-    io_handler = io_handler_factory()
-
-    call io_handler%init()
-
-    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
-
     allocate(write_buffer_1d(start:end), source=real(this_rank() + VAL, kind=CABLE_NETCDF_REAL32_KIND))
     write_buffer_2d = reshape(write_buffer_1d, buffer_shape_2d)
     write_buffer_3d = reshape(write_buffer_1d, buffer_shape_3d)
@@ -158,7 +162,13 @@ contains
     read_buffer_2d = reshape(read_buffer_1d, buffer_shape_2d)
     read_buffer_3d = reshape(read_buffer_1d, buffer_shape_3d)
 
+    io_handler = io_handler_factory()
+
+    call io_handler%init()
+
     decomp = io_handler%create_decomp(compmap, dims=[LEN], type=CABLE_NETCDF_FLOAT)
+
+    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
 
     call file%def_dims(["i"], [LEN])
 
@@ -189,8 +199,11 @@ contains
   end subroutine test_write_read_darray_real32
 
   subroutine test_write_read_darray_real64(io_handler_factory, file_name)
+    !! Test writing and reading 1D, 2D, and 3D 64-bit real arrays using the darray API.
     procedure(io_handler_factory_interface) :: io_handler_factory
+      !! Factory procedure to create an IO handler (e.g., NetCDF or PIO)
     character(*), intent(in) :: file_name
+      !! Name of the file to create and read from during the test
     class(cable_netcdf_io_t), allocatable :: io_handler
     class(cable_netcdf_file_t), allocatable :: file
     class(cable_netcdf_decomp_t), allocatable :: decomp
@@ -204,12 +217,6 @@ contains
     buffer_shape_2d = [block_per_pe / 4, 4]
     buffer_shape_3d = [block_per_pe / 4, 2, 2]
 
-    io_handler = io_handler_factory()
-
-    call io_handler%init()
-
-    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
-
     allocate(write_buffer_1d(start:end), source=real(this_rank() + VAL, kind=CABLE_NETCDF_REAL64_KIND))
     write_buffer_2d = reshape(write_buffer_1d, buffer_shape_2d)
     write_buffer_3d = reshape(write_buffer_1d, buffer_shape_3d)
@@ -218,7 +225,13 @@ contains
     read_buffer_2d = reshape(read_buffer_1d, buffer_shape_2d)
     read_buffer_3d = reshape(read_buffer_1d, buffer_shape_3d)
 
+    io_handler = io_handler_factory()
+
+    call io_handler%init()
+
     decomp = io_handler%create_decomp(compmap, dims=[LEN], type=CABLE_NETCDF_DOUBLE)
+
+    file = io_handler%create_file(file_name, iotype=CABLE_NETCDF_IOTYPE_NETCDF4P)
 
     call file%def_dims(["i"], [LEN])
 
