@@ -116,7 +116,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
             [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
             ;;
         gnu)
-            module add gcc/13.2.0
+            module add gcc/14.1.0
             compiler_lib_install_dir=GNU
             [[ -n ${mpi} ]] && module add openmpi/4.1.4
             ;;
