@@ -813,18 +813,7 @@ CONTAINS
 !       out%gsw_ref1_sh = zero4 ! initialise
 !
 
-!       CALL define_ovar(ncid_out, ovid%scalex_sl, 'scale_factor_sunlit', '[ ]', &
-!            'canopy scaling factor sl leaves', patchout%TVeg, 'dummy', &
-!            xID, yID, zID, landID, patchID, tID)
-!       ALLOCATE(out%scalex_sl(mp))
-!       out%scalex_sl = zero4 ! initialise
-!
-!       CALL define_ovar(ncid_out, ovid%scalex_sh, 'scale_factor_shaded', '[ ]', &
-!            'canopy scaling factor sh leaves', patchout%TVeg, 'dummy', &
-!            xID, yID, zID, landID, patchID, tID)
-!       ALLOCATE(out%scalex_sh(mp))
-!       out%scalex_sh = zero4 ! initialise
-!
+
        CALL define_ovar(ncid_out, ovid%dlf, 'leaf_to_air_vpd', 'Pa', &
             'leaf to air vapour pressure difference', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
@@ -1617,6 +1606,18 @@ CONTAINS
        out%GPP = zero4 ! initialise
     END IF
     IF(output%GPP_components) THEN
+      CALL define_ovar(ncid_out, ovid%scalex_sl, 'scale_factor_sunlit', '[ ]', &
+           'canopy scaling factor sl leaves', patchout%TVeg, 'dummy', &
+           xID, yID, zID, landID, patchID, tID)
+      ALLOCATE(out%scalex_sl(mp))
+      out%scalex_sl = zero4 ! initialise
+
+      CALL define_ovar(ncid_out, ovid%scalex_sh, 'scale_factor_shaded', '[ ]', &
+           'canopy scaling factor sh leaves', patchout%TVeg, 'dummy', &
+           xID, yID, zID, landID, patchID, tID)
+      ALLOCATE(out%scalex_sh(mp))
+      out%scalex_sh = zero4 ! initialise
+
        CALL define_ovar(ncid_out, ovid%An_sl, 'Anet_sunlit', 'umol/m^2/s', &
             'Anet from sunlit leaves', patchout%GPP, &
             'dummy', xID, yID, zID, landID, patchID, tID)

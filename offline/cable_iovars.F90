@@ -268,11 +268,11 @@ MODULE cable_IO_vars_module
          Wbal = .FALSE.,      & ! cumulative water balance [W/m2]
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
-         Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
+         Fwsoil = .TRUE.,      & ! soil moisture modifier to stomatal conductance
          Fwsoiltmp = .FALSE.,      & 
-         fwpsi = .FALSE.,      & 
+         fwpsi = .TRUE.,      & 
          Area = .FALSE., & ! patch area in km2
-         GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
+         GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy
          uptake_layer = .FALSE.,     &
 
@@ -417,10 +417,10 @@ MODULE cable_IO_vars_module
          psix = .TRUE.,       & 
          psi_can_sl = .FALSE.,       & 
          psi_can_sh = .FALSE.,       &
-         abs_deltpsil_sl = .FALSE.,       & 
-         abs_deltpsil_sh = .FALSE.,       &
-         abs_deltcs_sl = .FALSE.,       & 
-         abs_deltcs_sh = .FALSE.,       &
+         abs_deltpsil_sl = .TRUE.,       & 
+         abs_deltpsil_sh = .TRUE.,       &
+         abs_deltcs_sl = .TRUE.,       & 
+         abs_deltcs_sh = .TRUE.,       &
          abs_deltpsil_sl_vpd = .FALSE.,       & 
          abs_deltpsil_sh_vpd = .FALSE.,       &
          abs_deltcs_sl_vpd = .FALSE.,       & 
@@ -454,8 +454,8 @@ MODULE cable_IO_vars_module
          gsw_sun = .FALSE.,       & 
          gsw_sha = .FALSE.,       &
          kplant = .TRUE.,       &
-         abs_deltlf = .FALSE.,   &
-         abs_deltds = .FALSE.,   &
+         abs_deltlf = .TRUE.,   &
+         abs_deltds = .TRUE.,   &
          abs_deltlf_vpd = .FALSE.,   &
          abs_deltds_vpd = .FALSE.,   &
          abs_deltlf_sw = .FALSE.,   &
