@@ -100,7 +100,7 @@ CONTAINS
 
   !*********************************************************************************************************************
 
-  SUBROUTINE getrex_1d(S, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt)
+  SUBROUTINE getrex_1d(S, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, zr)
 
     ! Lai and Katul formulation for root efficiency function vh 17/07/09
     ! changed to MCs maximum formulation
@@ -117,12 +117,19 @@ CONTAINS
     REAL(r_2),               INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
     REAL(r_2), DIMENSION(:), INTENT(IN)    :: dx     ! layer thicknesses (m)
     REAL(r_2),               INTENT(IN)    :: dt
+    REAL(r_2),               INTENT(IN)    :: zr     ! rooting depth (m)
 
     ! Gets rate of water extraction compatible with CABLE stomatal conductance model
     ! theta(:) - soil moisture(m3 m-3)
     ! rex(:)   - rate of water extraction by roots from layers (cm/h).
-    REAL(r_2), DIMENSION(1:size(S)) :: theta, lthetar, alpha_root, delta_root
+    REAL(r_2), DIMENSION(1:size(S)) :: theta, lthetar, alpha_root, delta_root, layer_depth
     REAL(r_2)                       :: trex
+    INTEGER(i_d)                    :: k
+
+    layer_depth(1) = zero
+    do k = 2, size(S)
+       layer_depth(k) = sum(dx(1:k-1))
+    end do
 
     theta(:)   = S(:)*thetaS(:)
     lthetar(:) = log(max(theta(:)-thetaw(:),e3)/thetaS(:))
@@ -133,7 +140,7 @@ CONTAINS
        alpha_root(:) = zero
     endwhere
 
-    where (Fs(:) > zero)
+    where (Fs(:) > zero .and. layer_depth < zr)
        delta_root(:) = one
     elsewhere
        delta_root(:) = zero
@@ -184,7 +191,7 @@ CONTAINS
 
   END SUBROUTINE getrex_1d
 
-  SUBROUTINE getrex_2d(S, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt)
+  SUBROUTINE getrex_2d(S, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, Zr)
 
     IMPLICIT NONE
 
@@ -198,6 +205,7 @@ CONTAINS
     REAL(r_2), DIMENSION(:),   INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
     REAL(r_2), DIMENSION(:,:), INTENT(IN)    :: dx     ! layer thicknesses (m)
     REAL(r_2),                 INTENT(IN)    :: dt
+    REAL(r_2), DIMENSION(:),   INTENT(IN)    :: Zr     ! rooting depth per landpoint (m)
 
     INTEGER(i_d)                      :: i
     REAL(r_2), DIMENSION(1:size(S,2)) :: rout
@@ -205,7 +213,7 @@ CONTAINS
 
     do i=1, size(S,1) ! landpoints
        fout = fws(i)
-       call getrex_1d(S(i,:), rout, fout, Fs(i,:), thetaS(i,:), thetaw(i,:), Etrans(i), gamma(i), dx(i,:), dt)
+       call getrex_1d(S(i,:), rout, fout, Fs(i,:), thetaS(i,:), thetaw(i,:), Etrans(i), gamma(i), dx(i,:), dt, Zr(i))
        rex(i,:) = rout
        fws(i)   = fout
     end do

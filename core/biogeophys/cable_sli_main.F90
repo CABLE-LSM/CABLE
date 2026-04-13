@@ -476,7 +476,7 @@ contains
 
           do kk=1, mp
              call getrex(ssnow%S(kk,:), ssnow%rex(kk,:), fws(kk), FS(kk,:), par(kk,:)%the, &
-                  par(kk,:)%thw, Etrans(kk), gamm(kk), dx(kk,:), real(dt,r_2))
+                  par(kk,:)%thw, Etrans(kk), gamm(kk), dx(kk,:), real(dt,r_2), real(veg%ZR(kk),r_2))
           enddo
 
        else
