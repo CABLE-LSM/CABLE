@@ -331,6 +331,9 @@ PROGRAM cable_offline_driver
   integer :: nkend=0
   integer :: ioerror
   integer :: count_bal = 0
+  INTEGER :: is_froot, i_froot        ! loop counters for froot zr-masking
+  REAL(r_2) :: layer_depth_froot      ! top depth of current layer (m)
+  REAL(r_2) :: tmp_froot              ! sum for froot renormalisation
 
   ! command line arguments
   integer :: narg, len1, len2
@@ -698,6 +701,20 @@ PROGRAM cable_offline_driver
                if (trim(cable_user%MetType) == 'site' .and. site%zr > 0) then
                veg%zr(:) = site%zr
                end if
+               ! Zero out froot for layers beyond zr, then renormalize.
+               ! veg%froot is (mp, ms); veg%zr is (mp).
+               layer_depth_froot = 0.0_r_2
+               DO is_froot = 1, ms
+                  WHERE (layer_depth_froot >= veg%zr(:))
+                     veg%froot(:, is_froot) = 0.0
+                  END WHERE
+                  layer_depth_froot = layer_depth_froot + real(soil%zse(is_froot), r_2)
+               END DO
+               DO i_froot = 1, mp
+                  tmp_froot = SUM(veg%froot(i_froot, :))
+                  IF (tmp_froot > 0.0_r_2) &
+                     veg%froot(i_froot, :) = veg%froot(i_froot, :) / REAL(tmp_froot)
+               END DO
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
                end if

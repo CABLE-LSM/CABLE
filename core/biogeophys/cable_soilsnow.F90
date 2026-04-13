@@ -1656,6 +1656,7 @@ CONTAINS
       REAL(r_2), DIMENSION(mp)      :: demand, difference
       REAL(r_2), DIMENSION(mp,ms) :: supply
       REAL, DIMENSION(ms) :: root_length
+      REAL(r_2) :: layer_depth_top  ! depth to top of current soil layer (m)
 
 
 
@@ -1684,9 +1685,10 @@ CONTAINS
          xxd = 0.0_r_2
          diff(:,:) = 0.0_r_2
          ssnow%uptake_layer(:,:) = 0.0_r_2
+         layer_depth_top = 0.0_r_2
          DO k = 1, ms
           !  WRITE(logn, *) 'fevc  is: ', canopy%fevc(1)
-             WHERE (canopy%fevc > 0.0_r_2)
+             WHERE (canopy%fevc > 0.0_r_2 .AND. layer_depth_top < veg%zr(:))
 
             !    ! Calculate the amount of water we wish to extract from each
             !    ! layer, kg/m2
@@ -1721,6 +1723,7 @@ CONTAINS
                ssnow%uptake_layer(:,k) = supply(:,k) /  real(dels,r_2) !kg m-2 s-1
              END WHERE   !fvec > 0
 
+             layer_depth_top = layer_depth_top + real(soil%zse(k), r_2)
 
          END DO   !ms
       ELSEIF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
@@ -1729,10 +1732,11 @@ CONTAINS
          xxd = 0.0_r_2
          diff(:,:) = 0.0_r_2
          ssnow%uptake_layer(:,:) = 0.0_r_2
+         layer_depth_top = 0.0_r_2
          DO k = 1, ms
 
             ! Removing transpiration from soil:
-            WHERE (canopy%fevc > 0.0_r_2)     ! convert to mm/dels
+            WHERE (canopy%fevc > 0.0_r_2 .AND. layer_depth_top < veg%zr(:))     ! convert to mm/dels
                ! Calculate the amount (perhaps moisture/ice limited)
                ! which can be removed:
                xx = canopy%fevc * real(dels / C%HL * veg%froot(:,k),r_2) + diff(:,k-1)   ! kg/m2
@@ -1748,8 +1752,10 @@ CONTAINS
                   diff(:,k) = 0.0_r_2
                   ssnow%uptake_layer(:,k) = xx  /  real(dels,r_2) ! kg m-2 s-1
                ENDWHERE
-               
+
             END WHERE
+
+            layer_depth_top = layer_depth_top + real(soil%zse(k), r_2)
 
          END DO
 

@@ -1120,9 +1120,7 @@ CONTAINS
     INTEGER :: e, f, h  ! do loop counter
     INTEGER :: is       ! YP oct07
     INTEGER :: ir       ! BP sep2010
-    INTEGER :: iv       ! vegetation type loop counter
     REAL :: totdepth    ! YP oct07
-    REAL :: layer_depth_m(ms) ! depth to top of each soil layer (m)
     REAL(r_2) :: tmp    ! BP sep2010
 #ifdef __MPI__
     integer :: ierr
@@ -1217,22 +1215,6 @@ CONTAINS
     END DO
     DO is = ms, 2, -1
        vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
-    END DO
-
-    ! Zero out froot in layers whose top is at or beyond the rooting depth,
-    ! then renormalize so froot still sums to 1 for each vegetation type.
-    layer_depth_m(1) = 0.0
-    DO is = 2, ms
-       layer_depth_m(is) = layer_depth_m(is-1) + soil%zse(is-1)
-    END DO
-    DO is = 1, ms
-       WHERE (layer_depth_m(is) >= vegin%zr(:))
-          vegin%froot(is, :) = 0.0
-       END WHERE
-    END DO
-    DO iv = 1, mvtype
-       tmp = SUM(vegin%froot(:, iv))
-       IF (tmp > 0.0_r_2) vegin%froot(:, iv) = vegin%froot(:, iv) / REAL(tmp)
     END DO
 
     ALLOCATE(defaultLAI(mp, 12))
