@@ -5197,6 +5197,7 @@ CONTAINS
       real, parameter :: EaV = 59700.0  ! J/mol
       real, parameter :: EdV = 200000.0 ! J/mol
       real, parameter :: dSV = 639.43   ! J/mol/K
+      real, parameter :: TrefK_vcmax = 298.15 ! reference temperature for Vcmax (K), default 25 degC
 
       ! xVccoef=1.0+exp((EntropJx*C%TREFK-EHdJx)/(Rconst*C%TREFK))
       call point2constants(C)
@@ -5205,8 +5206,8 @@ CONTAINS
       !xvcden = 1.0 + exp( ( EntropVc * Tk - EHdVc) / ( C%rgas * Tk ) )
       !z = max(0.0, xvcnum / xvcden)
 
-      xv = exp(EaV*(Tk - C%TrefK)/(C%TrefK*C%Rgas*Tk))* &
-           (1.0 + exp((C%TrefK*dSV - EdV)/(C%TrefK*C%Rgas)))/ &
+      xv = exp(EaV*(Tk - TrefK_vcmax)/(TrefK_vcmax*C%Rgas*Tk))* &
+           (1.0 + exp((TrefK_vcmax*dSV - EdV)/(TrefK_vcmax*C%Rgas)))/ &
            (1.0 + exp((Tk*dSV - EdV)/(Tk*C%Rgas)))
       z = max(0.0, xv)
 
@@ -5228,6 +5229,7 @@ CONTAINS
       real, parameter :: EHa = 66000.0  ! 67.29e3_r_2   ! J/mol
       real, parameter :: EHd = 145000.0 ! 144.57e3_r_2  ! J/mol
       real, parameter :: Entrop = 469.4217 ! 0.472e3_r_2   ! J/mol/K
+      real, parameter :: TrefK_vcmax = 298.15 ! reference temperature for Vcmax C4 (K), default 25 degC
 
       ! Q10 function replaced with Arrhenius function for the sake of parameter
       ! identifiability/interpretability
@@ -5236,8 +5238,8 @@ CONTAINS
 
       call point2constants(C)
 
-      xc4 = exp(EHa*(Tk - C%TrefK)/(C%TrefK*C%Rgas*Tk))* &
-            (1.0 + exp((C%TrefK*Entrop - EHd)/(C%TrefK*C%Rgas)))/ &
+      xc4 = exp(EHa*(Tk - TrefK_vcmax)/(TrefK_vcmax*C%Rgas*Tk))* &
+            (1.0 + exp((TrefK_vcmax*Entrop - EHd)/(TrefK_vcmax*C%Rgas)))/ &
             (1.0 + exp((Tk*Entrop - EHd)/(Tk*C%Rgas)))
 
       z = max(0.0, xc4)
