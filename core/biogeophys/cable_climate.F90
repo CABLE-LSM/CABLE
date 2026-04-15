@@ -66,6 +66,7 @@ contains
     real, parameter :: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
     real, parameter :: gdd0_rec0 = 250.0
     real, dimension(mp) :: f1, f2, frec0, dkbdi
+    real, dimension(mp) :: wstress_inst  ! instantaneous water stress for accumulation
 
     nsd = ktauday*5 ! number of subdirunal time-steps
     ! to be accumulated for storing variables needed to implement
@@ -112,11 +113,28 @@ contains
        climate%dprecip   = climate%dprecip + met%precip
     endif
 
+    ! accumulate daily water stress
+    if (cable_user%wstress /= 'none') then
+       if (cable_user%wstress == 'fwpsi') then
+          wstress_inst = real(canopy%fwpsi(:,1))
+       else
+          wstress_inst = real(canopy%fwsoil)
+       end if
+
+       if (mod(ktau, ktauday) == 1) then
+          climate%dwstress = wstress_inst
+       else
+          climate%dwstress = climate%dwstress + wstress_inst
+       end if
+    end if
+
     if (mod((ktau-kstart+1), ktauday) == 0) then  ! end of day
        ! compute daily averages
-       climate%dtemp  = climate%dtemp  / real(ktauday)
-       climate%dmoist = climate%dmoist / real(ktauday)
-       climate%drhum  = climate%drhum  / real(ktauday)
+       climate%dtemp    = climate%dtemp    / real(ktauday)
+       climate%dmoist   = climate%dmoist   / real(ktauday)
+       climate%drhum    = climate%drhum    / real(ktauday)
+       if (cable_user%wstress /= 'none') &
+          climate%dwstress = climate%dwstress / real(ktauday)
 
        if (cable_user%CALL_BLAZE) then
           ! update days since last rain and precip since last day without rain
@@ -362,6 +380,19 @@ contains
        climate%qtemp  = climate%qtemp / 91.0  ! average temperature over the last quarter
        climate%mtemp  = climate%mtemp / 31.0  ! average temperature over the last month
        climate%mmoist = climate%mmoist / 31.0 ! average moisture index over the last month
+
+       ! Update N-day rolling mean water stress
+       if (cable_user%wstress == 'none') then
+          climate%mwstress = 1.0
+       else
+          climate%mwstress = climate%dwstress
+          do d = 1, climate%nwstress_days - 1
+             climate%dwstress_buf(:, d) = climate%dwstress_buf(:, d+1)
+             climate%mwstress = climate%mwstress + climate%dwstress_buf(:, d)
+          end do
+          climate%dwstress_buf(:, climate%nwstress_days) = climate%dwstress
+          climate%mwstress = climate%mwstress / real(climate%nwstress_days)
+       end if
 
        ! Reset GDD and chill day counter if mean monthly temperature falls below base
        ! temperature
@@ -872,6 +903,9 @@ contains
     climate%aprecip_20      = 0.0
     climate%Rd_sun          = 0.0
     climate%Rd_shade        = 0.0
+    climate%mwstress        = 0.0
+    climate%dwstress        = 0.0
+    climate%dwstress_buf    = 0.0
 
     !if (.not.cable_user%climate_fromzero) then
     !   CALL READ_CLIMATE_RESTART_NC (climate, ktauday)

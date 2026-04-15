@@ -100,7 +100,7 @@ MODULE cable_output_module
            epotcan1, epotcan2, epotcan3, GPP_epotcan3, epotvpd, epotref, epotref1, total_est_evap, wb_30, psi_30, wb_fr_rootzone, &
           psi_fr_rootzone, gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl, gsw_ref_sh, gsw_ref_sl, &
            gsw_ref1_sh, gsw_ref1_sl, N_neg, N_pos, N_neg_sw, N_pos_sw, rwc_30, wb_depth_rootzone, rwc_fr_rootzone, &
-           rwc_depth_rootzone, psi_depth_rootzone
+           rwc_depth_rootzone, psi_depth_rootzone, mwstress
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -266,6 +266,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: cs_sh => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sl => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sh => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: mwstress  => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dlf => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dva => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
@@ -1516,6 +1517,13 @@ CONTAINS
      ALLOCATE(out%Fwsoiltmp(mp))
      out%Fwsoiltmp = zero4 ! initialise
   END IF
+    IF (output%mwstress) THEN
+       CALL define_ovar(ncid_out, ovid%mwstress, 'mwstress', '[ ]', &
+            'rolling mean water stress', patchout%TVeg, 'dummy', &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%mwstress(mp))
+       out%mwstress = zero4
+    END IF
     IF(output%veg .OR. output%CanopInt) THEN
        CALL define_ovar(ncid_out, ovid%CanopInt, 'CanopInt', 'kg/m^2', &
             'Canopy intercepted water storage', patchout%CanopInt, &
@@ -2647,7 +2655,7 @@ CONTAINS
   !=============================================================================
 
   SUBROUTINE write_output(dels, ktau_in_year, ktau, met, canopy, casaflux, casapool, casamet, ssnow, &
-       rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL, c13o2pools, c13o2flux)
+       rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL, c13o2pools, c13o2flux, climate)
     ! Writes model output variables and, if requested, calls
     ! energy and mass balance routines. This subroutine is called
     ! each timestep, but may only write to the output file periodically,
@@ -2672,6 +2680,7 @@ CONTAINS
     ! 13C
     TYPE(c13o2_pool), INTENT(IN) :: c13o2pools ! 13CO2 pools
     TYPE(c13o2_flux), INTENT(IN) :: c13o2flux  ! 13CO2 fluxes
+    TYPE(climate_type), INTENT(IN) :: climate  ! climate variables
     type(icanopy_type) :: C
     REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
     real(r_2), DIMENSION(mp) :: psi_sat
@@ -3932,6 +3941,15 @@ CONTAINS
           out%fwpsi_sh = zero4
           END IF
      END IF
+    IF (output%mwstress) THEN
+       out%mwstress = out%mwstress + toreal4(climate%mwstress)
+       IF (writenow) THEN
+          out%mwstress = out%mwstress * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%mwstress, 'mwstress', out%mwstress, &
+               ranges%GPP, patchout%GPP, 'default', met)
+          out%mwstress = zero4
+       END IF
+    END IF
     ! CanopInt: total canopy water storage [kg/m^2]
     IF (output%veg .OR. output%CanopInt) THEN
        ! Add current timestep's value to total of temporary output variable:

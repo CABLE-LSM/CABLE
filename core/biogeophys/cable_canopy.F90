@@ -2285,10 +2285,10 @@ CONTAINS
                   temp_sun_c4(i) = temp_c4(i)*veg%vcmax_sun(i)*veg%frac4(i)
                   temp_shade_c4(i) = temp_c4(i)*veg%vcmax_shade(i)*veg%frac4(i)
                end if
-               vcmxt3(i, 1) = rad%scalex(i, 1)*temp_sun_c3(i)*fwsoil_nongs(i)**qb
-               vcmxt3(i, 2) = rad%scalex(i, 2)*temp_shade_c3(i)*fwsoil_nongs(i)**qb
-               vcmxt4(i, 1) = rad%scalex(i, 1)*temp_sun_c4(i)*fwsoil_nongs(i)**qb
-               vcmxt4(i, 2) = rad%scalex(i, 2)*temp_shade_c4(i)*fwsoil_nongs(i)**qb
+               vcmxt3(i, 1) = rad%scalex(i, 1)*temp_sun_c3(i)*fwsoil_nongs(i)**qb*climate%mwstress(i)**qs
+               vcmxt3(i, 2) = rad%scalex(i, 2)*temp_shade_c3(i)*fwsoil_nongs(i)**qb*climate%mwstress(i)**qs
+               vcmxt4(i, 1) = rad%scalex(i, 1)*temp_sun_c4(i)*fwsoil_nongs(i)**qb*climate%mwstress(i)**qs
+               vcmxt4(i, 2) = rad%scalex(i, 2)*temp_shade_c4(i)*fwsoil_nongs(i)**qb*climate%mwstress(i)**qs
                ! temperature response of the CO2 compensation point/gamma star used
                ! for C3 plants (Bernacchi et al. 2001), umol mol-1
                ! N.B.: this is always zero by default in CABLE, which is wrong.

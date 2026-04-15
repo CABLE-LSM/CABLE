@@ -725,8 +725,9 @@ module cable_def_types_mod
   ! Climate data:
   type climate_type
 
-     integer :: nyear_average = 20
-     integer :: nday_average  = 31
+     integer :: nyear_average  = 20
+     integer :: nday_average   = 31
+     integer :: nwstress_days  = 15
      !      INTEGER, POINTER ::                                                  &
      integer :: &
           nyears, & ! number of years in climate record
@@ -786,7 +787,9 @@ module cable_def_types_mod
           Nesterov_current => null(), &            ! current nesterov index
           Nesterov_ann_max => null(), &            ! annual maximum nesterov index (current year)
           Nesterov_ann_max_last_year  => null(), & ! annual maximum nesterov index (last year)
-          Nesterov_ann_running_max => null()
+          Nesterov_ann_running_max => null(), &
+          mwstress => null(), &            ! N-day rolling mean water stress
+          dwstress => null()               ! daily mean water stress (accumulator)
 
      real, dimension(:,:), pointer :: &
           mtemp_min_20 => null(), &    ! mimimum monthly temperatures for the last 20 y
@@ -810,7 +813,8 @@ module cable_def_types_mod
           fwsoil => null(), &          ! soil-moisture modifier to stomatal conductance
           aprecip_20 => null(), &      ! annual average rainfall for the last 20 years
           Rd_sun => null(), &
-          Rd_shade => null()
+          Rd_shade => null(), &
+          dwstress_buf => null()           ! daily water stress buffer (mp, nwstress_days)
   end type climate_type
 
   ! .............................................................................
@@ -1599,6 +1603,9 @@ contains
     allocate(climate%aprecip_20(mp, ny))
     allocate(climate%Rd_sun(mp, ktauday*5))
     allocate(climate%Rd_shade(mp, ktauday*5))
+    allocate(climate%mwstress(mp))
+    allocate(climate%dwstress(mp))
+    allocate(climate%dwstress_buf(mp, climate%nwstress_days))
 
   end subroutine alloc_climate_type
 
@@ -2879,6 +2886,9 @@ contains
     climate%aprecip_20      = 0
     climate%Rd_sun          = 0
     climate%Rd_shade        = 0
+    climate%mwstress        = 0
+    climate%dwstress        = 0
+    climate%dwstress_buf    = 0
 
   end subroutine zero_climate_type
 

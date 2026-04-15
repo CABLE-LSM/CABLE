@@ -269,8 +269,9 @@ MODULE cable_IO_vars_module
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .TRUE.,      & ! soil moisture modifier to stomatal conductance
-         Fwsoiltmp = .FALSE.,      & 
-         fwpsi = .TRUE.,      & 
+         Fwsoiltmp = .FALSE.,      &
+         fwpsi = .TRUE.,      &
+         mwstress = .TRUE.,   & ! N-day rolling mean water stress
          Area = .FALSE., & ! patch area in km2
          GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy
@@ -607,8 +608,9 @@ MODULE cable_IO_vars_module
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
-         Fwsoiltmp = .FALSE.,      & 
-         fwpsi = .FALSE.,      & 
+         Fwsoiltmp = .FALSE.,      &
+         fwpsi = .FALSE.,      &
+         mwstress = .FALSE.,   &
          Area = .FALSE., & ! patch area in km2
          GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy

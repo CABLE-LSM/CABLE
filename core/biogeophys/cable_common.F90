@@ -193,6 +193,7 @@ MODULE cable_common_module
      
      character(len=20) :: SOIL_SCHE  ! soil scheme about soil hydraulics process 
      character(len=20) :: calSoilMean  ! the method to calculate mean soil mositure
+     character(len=20) :: wstress = 'fwsoil'  ! water stress variable: 'fwsoil' or 'fwpsi'
   END TYPE kbl_user_switches
 
   ! instantiate internal switches
