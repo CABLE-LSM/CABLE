@@ -1939,7 +1939,8 @@ CONTAINS
          vpdtmp = met%dva
       end if
       if (iter == iter_ini) then
-         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
+         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0) &
+             .and. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') <= 0)) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
@@ -1951,9 +1952,6 @@ CONTAINS
                fwsoil = 1.0
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
                fwsoil = 0.98
-            elseif (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-               fwsoil = 1.0
-
             else
                write (*, *) 'fwsoil_switch failed.'
 #ifdef __MPI__
@@ -1964,7 +1962,8 @@ CONTAINS
             end if
             canopy%fwsoil = real(fwsoil, r_2)
             canopy%fwsoiltmp = real(fwsoil, r_2)
-         elseif ((cable_user%soil_struc == 'sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
+         elseif ((cable_user%soil_struc == 'sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) &
+                 .or. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0)) then
             fwsoil = real(canopy%fwsoil)
             canopy%fwsoiltmp = real(fwsoil, r_2)
          end if
@@ -2785,7 +2784,8 @@ CONTAINS
                   ! endif
 
                END IF
-               IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
+               IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) &
+                   .or. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0)) then
                   ! avoid root-water extraction when fwsoil is zero
                   if (fwsoil(i) < 1e-6) then
                      anx(i, :) = -rdx(i, :)
@@ -2804,7 +2804,8 @@ CONTAINS
                   canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
                   where (ssnow%rex(i, :) > tiny(1.0_r_2)) &
                      ssnow%evapfbl(i, :) = real(ssnow%rex(i, :))*dels*1000. ! mm water &
-                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) then
+                  IF ((INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) .or. &
+                      (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0)) then
                      fwsoil(i) = real(canopy%fwsoil(i))
                      !(root water extraction) per time step
 
@@ -3583,7 +3584,8 @@ CONTAINS
 #endif
       iter_ini = 4
       if (iter == iter_ini) then
-         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
+         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0) &
+             .and. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') <= 0)) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
@@ -3595,9 +3597,6 @@ CONTAINS
                fwsoil = 1.0
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
                fwsoil = 0.98
-            elseif (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-               fwsoil = 1.0
-
             else
                write (*, *) 'fwsoil_switch failed.'
 #ifdef __MPI__
@@ -3608,7 +3607,8 @@ CONTAINS
             end if
             ! canopy%fwsoil = real(fwsoil, r_2)
             ! canopy%fwsoiltmp = real(fwsoil, r_2)
-         elseif ((cable_user%soil_struc == 'sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
+         elseif ((cable_user%soil_struc == 'sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) &
+                 .or. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0)) then
             fwsoil = real(canopy%fwsoil)
             ! canopy%fwsoiltmp = real(fwsoil, r_2)
          end if

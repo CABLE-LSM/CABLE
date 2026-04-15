@@ -447,8 +447,8 @@ MODULE cable_IO_vars_module
          gsw_ref1_sh = .FALSE.,       &
          gsw_epotcan3_sl = .TRUE.,       &
          gsw_epotcan3_sh = .TRUE.,       &
-         fwpsi_sl = .FALSE.,       &
-         fwpsi_sh = .FALSE.,       &   
+         fwpsi_sl = .TRUE.,       &
+         fwpsi_sh = .TRUE.,       &   
          plc_sat = .FALSE.,       & 
          plc_stem = .FALSE.,       & 
          plc_can = .FALSE.,       & 
