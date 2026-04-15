@@ -201,13 +201,13 @@ MODULE cable_IO_vars_module
       ! variables specified individually:
       LOGICAL ::                                                               &
          fbeam = .FALSE.,     & ! fraction of direct visible radiation
-         SWdown = .FALSE.,    & ! 5 downward short-wave radiation [W/m2]
+         SWdown = .TRUE.,    & ! 5 downward short-wave radiation [W/m2]
          FracDiff = .FALSE.,  & ! 6 Fraction of diffuse radiation [-]
          LWdown = .FALSE.,    & ! 7 downward long-wave radiation [W/m2]
          Rainf = .TRUE.,     & ! 8 rainfall [kg/m2/s]
          Snowf = .FALSE.,     & ! 9 snowfall [kg/m2/s]
          PSurf = .FALSE.,     & ! 10 surface pressure [Pa]
-         Tair = .FALSE.,      & ! 11 surface air temperature [K]
+         Tair = .TRUE.,      & ! 11 surface air temperature [K]
          Qair = .FALSE.,      & ! 12 specific humidity [kg/kg]
          CO2air = .FALSE.,    & ! 13 CO2 concentration [ppmv]
          Wind = .FALSE.,      & ! 14 windspeed [m/s]
