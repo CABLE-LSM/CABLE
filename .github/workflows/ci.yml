@@ -12,7 +12,7 @@ jobs:
         spack-manifest-path:
           - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
-    uses: access-nri/build-ci/.github/workflows/ci.yml@268-github-hosted-pull-fix
+    uses: access-nri/build-ci/.github/workflows/ci.yml@v3
     with:
       # For defaults for args not specified here (eg. spack/packages/config refs), see https://github.com/ACCESS-NRI/build-ci/blob/v3/.github/workflows/README.md
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
