@@ -78,7 +78,7 @@ MODULE cable_output_module
           PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-          vcmax, ejmax, hc, &
+          vcmax_sun, vcmax_shade, ejmax_sun, ejmax_shade, hc, &
           GPP_sl, GPP_sh, GPP_slC, GPP_shC, GPP_slJ, GPP_shJ, &
           eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
           An_sl, An_sh, ci_sl, ci_sh, cs_sl, cs_sh, scalex_sl, scalex_sh, dlf, dva, &
@@ -245,8 +245,10 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodResourceLim => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Area => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: LandUseFlux => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ejmax => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax_sun   => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax_shade => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ejmax_sun   => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ejmax_shade => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: patchfrac => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: hc => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: zr => null()
@@ -1531,17 +1533,29 @@ CONTAINS
 
     ! Alexis
     IF(output%veg .or. output%vcmax) THEN
-       CALL define_ovar(ncid_out, ovid%vcmax, 'vcmax', '-', &
-            'Vcmax at 25 degC [molC/m^2/s]', patchout%LAI, 'dummy', xID, &
+       CALL define_ovar(ncid_out, ovid%vcmax_sun, 'vcmax_sun', 'mol/m^2/s', &
+            'Vcmax sunlit leaves at 25 degC', patchout%LAI, 'dummy', xID, &
             yID, zID, landID, patchID, tID)
-       ALLOCATE(out%vcmax(mp))
-       out%vcmax = zero4 ! initialise
+       ALLOCATE(out%vcmax_sun(mp))
+       out%vcmax_sun = zero4
 
-       CALL define_ovar(ncid_out, ovid%ejmax, 'jmax', '-', &
-            'Jmax at 25 degC [mol(e)/m^2/s]', patchout%LAI, 'dummy', xID, &
+       CALL define_ovar(ncid_out, ovid%vcmax_shade, 'vcmax_shade', 'mol/m^2/s', &
+            'Vcmax shaded leaves at 25 degC', patchout%LAI, 'dummy', xID, &
             yID, zID, landID, patchID, tID)
-       ALLOCATE(out%ejmax(mp))
-       out%ejmax = zero4 ! initialise
+       ALLOCATE(out%vcmax_shade(mp))
+       out%vcmax_shade = zero4
+
+       CALL define_ovar(ncid_out, ovid%ejmax_sun, 'ejmax_sun', 'mol/m^2/s', &
+            'Jmax sunlit leaves at 25 degC', patchout%LAI, 'dummy', xID, &
+            yID, zID, landID, patchID, tID)
+       ALLOCATE(out%ejmax_sun(mp))
+       out%ejmax_sun = zero4
+
+       CALL define_ovar(ncid_out, ovid%ejmax_shade, 'ejmax_shade', 'mol/m^2/s', &
+            'Jmax shaded leaves at 25 degC', patchout%LAI, 'dummy', xID, &
+            yID, zID, landID, patchID, tID)
+       ALLOCATE(out%ejmax_shade(mp))
+       out%ejmax_shade = zero4
     END IF
     ! Alexis
 
@@ -3948,29 +3962,28 @@ CONTAINS
     END IF
     !Alexis
     IF(output%veg .OR. output%vcmax) THEN
-       ! Add current timestep's value to total of temporary output variable:
-       out%vcmax = out%vcmax + toreal4(veg%vcmax)
-       IF(writenow) THEN
-          ! Divide accumulated variable by number of accumulated time steps:
-          out%vcmax = out%vcmax * rinterval
-          ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%vcmax, 'vcmax', out%vcmax, &
-               ranges%vcmax, patchout%LAI, 'default', met)
-          ! Reset temporary output variable:
-          out%vcmax = zero4
-       END IF
-
-       out%ejmax = out%ejmax + toreal4(veg%ejmax)
+       out%vcmax_sun   = out%vcmax_sun   + toreal4(veg%vcmax_sun)
+       out%vcmax_shade = out%vcmax_shade + toreal4(veg%vcmax_shade)
+       out%ejmax_sun   = out%ejmax_sun   + toreal4(veg%ejmax_sun)
+       out%ejmax_shade = out%ejmax_shade + toreal4(veg%ejmax_shade)
        IF (writenow) THEN
-          ! Divide accumulated variable by number of accumulated time steps:
-          out%ejmax = out%ejmax * rinterval
-          ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%ejmax, 'jmax', out%ejmax, &
+          out%vcmax_sun   = out%vcmax_sun   * rinterval
+          out%vcmax_shade = out%vcmax_shade * rinterval
+          out%ejmax_sun   = out%ejmax_sun   * rinterval
+          out%ejmax_shade = out%ejmax_shade * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%vcmax_sun,   'vcmax_sun',   out%vcmax_sun,   &
+               ranges%vcmax, patchout%LAI, 'default', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%vcmax_shade, 'vcmax_shade', out%vcmax_shade, &
+               ranges%vcmax, patchout%LAI, 'default', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%ejmax_sun,   'ejmax_sun',   out%ejmax_sun,   &
                ranges%ejmax, patchout%LAI, 'default', met)
-          ! Reset temporary output variable:
-          out%ejmax = zero4
+          CALL write_ovar(out_timestep, ncid_out, ovid%ejmax_shade, 'ejmax_shade', out%ejmax_shade, &
+               ranges%ejmax, patchout%LAI, 'default', met)
+          out%vcmax_sun   = zero4
+          out%vcmax_shade = zero4
+          out%ejmax_sun   = zero4
+          out%ejmax_shade = zero4
        END IF
-
     END IF
     !------------------------WRITE BALANCES DATA--------------------------------
     ! Ebal: cumulative energy balance [W/m^2]
