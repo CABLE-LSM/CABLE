@@ -811,6 +811,8 @@ module cable_def_types_mod
           scalex_sun => null(), &      ! canopy depth scaling factor on vcmax and jmax (sun leaves)
           scalex_shade => null(), &    ! canopy depth scaling factor on vcmax and jmax (shade leaves)
           fwsoil => null(), &          ! soil-moisture modifier to stomatal conductance
+          fwpsi_sun => null(), &       ! leaf-water-potential modifier, sunlit leaf (Tuzet)
+          fwpsi_shade => null(), &     ! leaf-water-potential modifier, shaded leaf (Tuzet)
           aprecip_20 => null(), &      ! annual average rainfall for the last 20 years
           Rd_sun => null(), &
           Rd_shade => null(), &
@@ -1600,6 +1602,8 @@ contains
     allocate(climate%scalex_sun(mp, ktauday*5))
     allocate(climate%scalex_shade(mp, ktauday*5))
     allocate(climate%fwsoil(mp, ktauday*5))
+    allocate(climate%fwpsi_sun(mp, ktauday*5))
+    allocate(climate%fwpsi_shade(mp, ktauday*5))
     allocate(climate%aprecip_20(mp, ny))
     allocate(climate%Rd_sun(mp, ktauday*5))
     allocate(climate%Rd_shade(mp, ktauday*5))
@@ -2883,6 +2887,8 @@ contains
     climate%scalex_sun      = 0
     climate%scalex_shade    = 0
     climate%fwsoil          = 0
+    climate%fwpsi_sun       = 0
+    climate%fwpsi_shade     = 0
     climate%aprecip_20      = 0
     climate%Rd_sun          = 0
     climate%Rd_shade        = 0

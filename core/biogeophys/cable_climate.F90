@@ -222,8 +222,12 @@ contains
     climate%APAR_leaf_shade(:,nsd)     = rad%qcan(:,2,1)*4.6 !umol m-2 s-1
     climate%Dleaf_sun(:,1:nsd-1)       = climate%Dleaf_sun(:,2:nsd)
     climate%Dleaf_sun(:,nsd)           = real(canopy%dlf)
-    climate%fwsoil(:,1:nsd-1)          = climate%fwsoil(:,2:nsd)
+    climate%fwsoil(:,1:nsd-1)           = climate%fwsoil(:,2:nsd)
     climate%fwsoil(:,nsd)              = real(canopy%fwsoil)
+    climate%fwpsi_sun(:,1:nsd-1)       = climate%fwpsi_sun(:,2:nsd)
+    climate%fwpsi_sun(:,nsd)           = real(canopy%fwpsi(:,1))
+    climate%fwpsi_shade(:,1:nsd-1)     = climate%fwpsi_shade(:,2:nsd)
+    climate%fwpsi_shade(:,nsd)         = real(canopy%fwpsi(:,2))
 
     climate%Dleaf_shade(:,1:nsd-1) = climate%Dleaf_shade(:,2:nsd)
     climate%Dleaf_shade(:,nsd)     = real(canopy%dlf)

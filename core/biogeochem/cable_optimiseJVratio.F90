@@ -30,8 +30,8 @@ MODULE cable_optimise_JV_module
   TYPE( icanopy_type ) :: C
 
   ! variables local to module
-  REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:), g0(:)
-  REAL :: Anet, vcmax00, bjv, g1, kc0, ko0, ekc, eko, gam0, egam, alpha, gm0, a1, D0, qs, qm, qb
+  REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:), fwpsi(:), g0(:)
+  REAL :: Anet, vcmax00, bjv, g1, g1tuzet, kc0, ko0, ekc, eko, gam0, egam, alpha, gm0, a1, D0, qs, qm, qb
   REAL :: convex, Neff, relcost_J, Rd0, Tgrowth, Thome
   INTEGER :: nt,kk
   !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
@@ -74,6 +74,7 @@ CONTAINS
     ALLOCATE(scalex(nt))
     ALLOCATE(g0(nt))
     ALLOCATE(fwsoil(nt))
+    ALLOCATE(fwpsi(nt))
 
     DO k=1,mp
        if (veg%frac4(k) < 0.001) then ! not C4
@@ -111,7 +112,8 @@ CONTAINS
              qm   = 0.0
              qb   = 1.0
           endif
-          g1  = veg%g1(k)
+          g1      = veg%g1(k)
+          g1tuzet = veg%g1tuzet(k)
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
@@ -124,6 +126,7 @@ CONTAINS
           !for distribution between e-limited and c-limited processes
 
           ! optimisation for shade leaves
+          fwpsi = climate%fwpsi_shade(k,:)
           APAR = climate%APAR_leaf_shade(k,:)*1e-6;
           Dleaf = max(climate%Dleaf_shade(k,:), 50.0)*1e-3 ! Pa -> kPa
           Tleaf = climate%Tleaf_shade(k,:)
@@ -159,6 +162,7 @@ CONTAINS
           endif
 
           ! optimisation for sun leaves
+          fwpsi = climate%fwpsi_sun(k,:)
           APAR = climate%APAR_leaf_sun(k,:)*1e-6;
           Dleaf = max(climate%Dleaf_sun(k,:), 50.0)*1e-3 ! Pa -> kPa
           Tleaf = climate%Tleaf_sun(k,:)
@@ -207,6 +211,7 @@ CONTAINS
     DEALLOCATE(g0)
     DEALLOCATE(scalex)
     DEALLOCATE(fwsoil)
+    DEALLOCATE(fwpsi)
 
   END SUBROUTINE optimise_JV
 
@@ -344,7 +349,7 @@ CONTAINS
 
     INTEGER   :: k, j
     REAL      :: kct, kot ! , tdiff
-    REAL      :: x, gamm, beta, gammastar, Rd, gm, jmaxt, trf, vcmax0
+    REAL      :: x, gamm, beta, gammastar, Rd, gm, jmaxt, trf, vcmax0, fwsoil_k
     REAL(r_2) :: a, b, c1, d
     REAL(r_2) :: p, q  ! if cable_user%explicit_gm
     REAL(r_2) :: Anc, Ane
@@ -359,26 +364,34 @@ CONTAINS
     vcmax0 = Neff/(1.+ relcost_J*bjv/4.0)
 
     DO k=1, nt
+       if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+           INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+          fwsoil_k = 1.0
+       else
+          fwsoil_k = fwsoil(k)
+       end if
        if (APAR(k) .gt. C%tAPAR_optim) then
           if (cable_user%GS_SWITCH == 'medlyn') THEN
-             x = 1.0 + (g1 * fwsoil(k)**qs) / SQRT(Dleaf(k))
+             x = 1.0 + (g1 * fwsoil_k**qs) / SQRT(Dleaf(k))
           elseif (cable_user%GS_SWITCH == 'leuning') THEN
              x = 1.0 / ( 1.0/a1 + (Dleaf(k)*1.0e-3/D0))
+          elseif (cable_user%GS_SWITCH == 'tuzet') THEN
+             x = fwpsi(k) * g1tuzet
           endif
           if (cable_user%acclimate_photosyn) then
              CALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
-             gamm = Vcmax0*scalex(k)*trf*fwsoil(k)**qb
+             gamm = Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil(k)**qb
+             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil_k**qb
           endif
-          gm = gm0 * scalex(k) * max(0.15,fwsoil(k)**qm) * xgmesT(Tleaf(k))
+          gm = gm0 * scalex(k) * max(0.15,fwsoil_k**qm) * xgmesT(Tleaf(k))
           ! tdiff = Tleaf(k) - C%Trefk
           ! gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff &
           !     + C%gam2 * tdiff * tdiff )
           gammastar = gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
                * (1.0 - C%trefk/Tleaf(k) ) )
 
-          Rd  = Rd0*scalex(k)*xrdt(Tleaf(k))*fwsoil(k)**qb * light_inhibition(APAR(k)*1.0e6)
+          Rd  = Rd0*scalex(k)*xrdt(Tleaf(k))*fwsoil_k**qb * light_inhibition(APAR(k)*1.0e6)
           kct = kc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
                * ( 1.0 - C%trefk/Tleaf(k) ) )
           kot = ko0 * EXP( ( eko / (C%rgas*C%trefk) ) &
@@ -388,28 +401,28 @@ CONTAINS
           ! Rubisco-limited
           if (cable_user%explicit_gm) then
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a, b, c1, d, p, q)
                 CALL fAm_c3(a, b, c1, d, p, q, Anc)
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabcd(cs(k), 0.0, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a, b, c1, d, p, q)
                 CALL fAm_c3(a, b, c1, d, p, q, Anc)
-                if (g0(k)*fwsoil(k)**qs .gt. Anc*x/cs(k)) then
-                   CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                if (g0(k)*fwsoil_k**qs .gt. Anc*x/cs(k)) then
+                   CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                    CALL fpq(a, b, c1, d, p, q)
                    CALL fAm_c3(a, b, c1, d, p, q, Anc)
                 endif
              endif
           else  ! infinite (implicit) gm
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
+                CALL fabc(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a, b, c1, Anc) ! rubisco-limited
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabc(cs(k), 0.0, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a, b, c1, Anc) ! rubisco-limited
-                if (g0(k)*fwsoil(k)**qs .gt. Anc*x/cs(k)) then
-                   CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
+                if (g0(k)*fwsoil_k**qs .gt. Anc*x/cs(k)) then
+                   CALL fabc(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
                    CALL fAn_c3(a, b, c1, Anc) ! rubisco-limited
                 endif
              endif
@@ -417,37 +430,37 @@ CONTAINS
 
           if (cable_user%acclimate_photosyn) then
              call xejmxt3_acclim(Tleaf(k), Tgrowth, Thome, trf)
-             jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil(k)**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil(k)**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil_k**qb
           endif
           gamm = ej3x(APAR(k), alpha, convex, jmaxt)
           beta = 2.0 * gammastar
           ! RuBP regeneration-limited
           if (cable_user%explicit_gm) then
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a, b, c1, d, p, q)
                 CALL fAm_c3(a, b, c1, d, p, q, Ane)
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabcd(cs(k), 0.0, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a, b, c1, d, p, q)
                 CALL fAm_c3(a, b, c1, d, p, q, Ane)
-                if (g0(k)*fwsoil(k)**qs .gt. Ane*x/cs(k)) then
-                   CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                if (g0(k)*fwsoil_k**qs .gt. Ane*x/cs(k)) then
+                   CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                    CALL fpq(a, b, c1, d, p, q)
                    CALL fAm_c3(a, b, c1, d, p, q, Ane)
                 endif
              endif
           else ! infinite (implicit) gm
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
+                CALL fabc(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a,b,c1,Ane) ! e-transport limited
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabc(cs(k), 0.0, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a,b,c1,Ane) ! e-transport limited
-                if (g0(k)*fwsoil(k)**qs .gt. Ane*x/cs(k)) then
-                   CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
+                if (g0(k)*fwsoil_k**qs .gt. Ane*x/cs(k)) then
+                   CALL fabc(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
                    CALL fAn_c3(a, b, c1, Ane) ! e-transport limited
                 endif
              endif
@@ -501,6 +514,8 @@ CONTAINS
              x = 1.0 + (g1 * fwsoil(k)**qs) / SQRT(Dleaf(k))
           elseif (cable_user%GS_SWITCH == 'leuning') THEN
              x = 1.0 / ( 1.0/a1 + (Dleaf(k)*1.0e-3/D0))
+          elseif (cable_user%GS_SWITCH == 'tuzet') THEN
+             x = fwpsi(k) * g1tuzet
           endif
 
           if (cable_user%acclimate_photosyn) then
@@ -615,7 +630,7 @@ CONTAINS
 
     INTEGER   :: k, j  ! k is timestep!
     REAL      :: kct, kot, tdiff
-    REAL      :: x, gamm,  beta, gammastar, Rd, jmaxt, gm, trf, vcmax0 ! c1 because C already taken
+    REAL      :: x, gamm,  beta, gammastar, Rd, jmaxt, gm, trf, vcmax0, fwsoil_k ! c1 because C already taken
     REAL(r_2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm
     REAL(r_2) :: Anc, Ane
     REAL      :: An(nt), Ac(nt), Aj(nt)
@@ -630,27 +645,35 @@ CONTAINS
     !bjv = (vcmax0/Neff -1.)*4.0/relcost_J
 
     DO k=1,nt
+       if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+           INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+          fwsoil_k = 1.0
+       else
+          fwsoil_k = fwsoil(k)
+       end if
        if (APAR(k) .gt. C%tAPAR_optim) then
           Ac(j) = 0.0
           Aj(j) = 0.0
           if (cable_user%GS_SWITCH == 'medlyn') THEN
-             x = 1.0 + (g1 * fwsoil(k)**qs) / SQRT(Dleaf(k))
+             x = 1.0 + (g1 * fwsoil_k**qs) / SQRT(Dleaf(k))
           elseif (cable_user%GS_SWITCH == 'leuning') THEN
              x = 1.0 / ( 1.0/a1 + (Dleaf(k)*1.0e-3/D0))
+          elseif (cable_user%GS_SWITCH == 'tuzet') THEN
+             x = fwpsi(k) * g1tuzet
           endif
           if (cable_user%acclimate_photosyn) then
              CALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
-             gamm = Vcmax0*scalex(k)*trf*fwsoil(k)**qb
+             gamm = Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil(k)**qb
+             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil_k**qb
           endif
-          gm = gm0 * scalex(k) * max(0.15,fwsoil(k)**qm) * xgmesT(Tleaf(k))
+          gm = gm0 * scalex(k) * max(0.15,fwsoil_k**qm) * xgmesT(Tleaf(k))
           tdiff = Tleaf(k) - C%Trefk
           !gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
           !     + C%gam2 * tdiff * tdiff )
           gammastar = gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
                * (1.0 - C%trefk/Tleaf(k) ) )
-          Rd  = Rd0 * scalex(k) * xrdt(Tleaf(k))*fwsoil(k)**qb * light_inhibition(APAR(k)*1.0e6)
+          Rd  = Rd0 * scalex(k) * xrdt(Tleaf(k))*fwsoil_k**qb * light_inhibition(APAR(k)*1.0e6)
           kct = kc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
                * ( 1.0 - C%trefk/Tleaf(k) ) )
           kot = ko0 * EXP( ( eko / (C%rgas*C%trefk) ) &
@@ -660,28 +683,28 @@ CONTAINS
           ! Rubisco-limited
           if (cable_user%explicit_gm) then
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a,b,c1,d,p,q)
                 CALL fAm_c3(a,b,c1,d,p,q,Anc)
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabcd(cs(k), 0.0, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a,b,c1,d,p,q)
                 CALL fAm_c3(a,b,c1,d,p,q,Anc)
-                if (g0(k)*fwsoil(k)**qs .gt. Anc*x/cs(k)) then
-                   CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                if (g0(k)*fwsoil_k**qs .gt. Anc*x/cs(k)) then
+                   CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                    CALL fpq(a,b,c1,d,p,q)
                    CALL fAm_c3(a,b,c1,d,p,q,Anc)
                 endif
              endif
           else ! infinite (implicit) gm
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
+                CALL fabc(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a,b,c1,Anc) ! rubisco-limited
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabc(cs(k), 0.0, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a,b,c1,Anc) ! rubisco-limited
-                if (g0(k)*fwsoil(k)**qs .gt. Anc*x/cs(k)) then
-                   CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
+                if (g0(k)*fwsoil_k**qs .gt. Anc*x/cs(k)) then
+                   CALL fabc(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
                    CALL fAn_c3(a,b,c1,Anc) ! rubisco-limited
                 endif
              endif
@@ -689,9 +712,9 @@ CONTAINS
 
           if (cable_user%acclimate_photosyn) then
              call xejmxt3_acclim(Tleaf(k), Tgrowth, Thome, trf)
-             jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil(k)**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil(k)**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil_k**qb
           endif
           gamm = ej3x(APAR(k), alpha,convex, jmaxt)
           beta  = 2.0 * gammastar
@@ -699,28 +722,28 @@ CONTAINS
           ! RuBP regeneration-limited
           if (cable_user%explicit_gm) then
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a,b,c1,d,p,q)
                 CALL fAm_c3(a,b,c1,d,p,q,Ane)
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabcd(cs(k), 0.0, x, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                 CALL fpq(a,b,c1,d,p,q)
                 CALL fAm_c3(a,b,c1,d,p,q,Ane)
-                if (g0(k)*fwsoil(k)**qs .gt. Ane*x/cs(k)) then
-                   CALL fabcd(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
+                if (g0(k)*fwsoil_k**qs .gt. Ane*x/cs(k)) then
+                   CALL fabcd(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, gm, a, b, c1, d)
                    CALL fpq(a,b,c1,d,p,q)
                    CALL fAm_c3(a,b,c1,d,p,q,Ane)
                 endif
              endif
           else ! infinite (implicit) gm
              if (TRIM(cable_user%g0_switch) == 'default') then
-                CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
+                CALL fabc(cs(k), g0(k)*fwsoil_k**qs, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a,b,c1,Ane) ! e-transport limited
              elseif (TRIM(cable_user%g0_switch) == 'maximum') then
                 CALL fabc(cs(k), 0.0, x, gamm, beta, gammastar, Rd, a, b, c1)
                 CALL fAn_c3(a,b,c1,Ane) ! e-transport limited
-                if (g0(k)*fwsoil(k)**qs .gt. Ane*x/cs(k)) then
-                   CALL fabc(cs(k), g0(k)*fwsoil(k)**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
+                if (g0(k)*fwsoil_k**qs .gt. Ane*x/cs(k)) then
+                   CALL fabc(cs(k), g0(k)*fwsoil_k**qs, 0.1e-4, gamm, beta, gammastar, Rd, a, b, c1)
                    CALL fAn_c3(a,b,c1,Ane) ! e-transport limited
                 endif
              endif
@@ -852,6 +875,8 @@ CONTAINS
              x = 1.0 + (g1 * fwsoil(k)**qs) / SQRT(Dleaf(k))
           elseif (cable_user%GS_SWITCH == 'leuning') THEN
              x = 1.0 / ( 1.0/a1 + (Dleaf(k)*1.0e-3/D0))
+          elseif (cable_user%GS_SWITCH == 'tuzet') THEN
+             x = fwpsi(k) * g1tuzet
           endif
 
           if (cable_user%acclimate_photosyn) then

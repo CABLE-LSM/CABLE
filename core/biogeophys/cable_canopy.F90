@@ -1804,7 +1804,8 @@ CONTAINS
          temp_shade_c3, & !
          temp_sun_c4, & !
          temp_shade_c4, &    !
-         fwsoil_nongs
+         fwsoil_nongs, &
+         fwsoil_gswmin         ! fwsoil passed to photosynthesis_gm (1.0 for tuzet+LWP)
 
       real(r_2), dimension(mp)  :: &
          ecx, & ! lat. hflux big leaf
@@ -1981,6 +1982,12 @@ CONTAINS
          fwsoil_nongs = 1.0
       else
          fwsoil_nongs = fwsoil
+      end if
+      if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+          INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+         fwsoil_gswmin = 1.0
+      else
+         fwsoil_gswmin = fwsoil
       end if
 
       psixx = real(canopy%psix, r_2)
@@ -2654,16 +2661,30 @@ CONTAINS
          END DO !i=1,mp
          ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
          IF (cable_user%GS_SWITCH /= 'profitmax') THEN
-            CALL photosynthesis_gm(csx(:, :), &
-                                   spread(cx1(:), 2, mf), &
-                                   spread(cx2(:), 2, mf), &
-                                   gswmin(:, :), rdx(:, :), vcmxt3(:, :), &
-                                   vcmxt4(:, :), vx3(:, :), vx4(:, :), &
-                                   ! Ticket #56, xleuning replaced with gs_coeff here
-                                   gs_coeff(:, :), rad%fvlai(:, :), &
-                                   spread(abs_deltlf, 2, mf), abs_deltpsil, &
-                                   anx(:, :), fwsoil(:), qs, gmes(:, :), kc4(:, :), &
-                                   anrubiscox(:, :), anrubpx(:, :), ansinkx(:, :), eta_x(:, :), dAnx(:, :))
+            IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) THEN
+               ! Tuzet+LWP: fwpsi already enters gs_coeff; pass fwsoil=1.0 to avoid double-counting
+               CALL photosynthesis_gm(csx(:, :), &
+                                      spread(cx1(:), 2, mf), &
+                                      spread(cx2(:), 2, mf), &
+                                      gswmin(:, :), rdx(:, :), vcmxt3(:, :), &
+                                      vcmxt4(:, :), vx3(:, :), vx4(:, :), &
+                                      gs_coeff(:, :), rad%fvlai(:, :), &
+                                      spread(abs_deltlf, 2, mf), abs_deltpsil, &
+                                      anx(:, :), fwsoil_gswmin(:), qs, gmes(:, :), kc4(:, :), &
+                                      anrubiscox(:, :), anrubpx(:, :), ansinkx(:, :), eta_x(:, :), dAnx(:, :))
+            ELSE
+               CALL photosynthesis_gm(csx(:, :), &
+                                      spread(cx1(:), 2, mf), &
+                                      spread(cx2(:), 2, mf), &
+                                      gswmin(:, :), rdx(:, :), vcmxt3(:, :), &
+                                      vcmxt4(:, :), vx3(:, :), vx4(:, :), &
+                                      ! Ticket #56, xleuning replaced with gs_coeff here
+                                      gs_coeff(:, :), rad%fvlai(:, :), &
+                                      spread(abs_deltlf, 2, mf), abs_deltpsil, &
+                                      anx(:, :), fwsoil(:), qs, gmes(:, :), kc4(:, :), &
+                                      anrubiscox(:, :), anrubpx(:, :), ansinkx(:, :), eta_x(:, :), dAnx(:, :))
+            END IF
          END IF
 
          ! print*, 'DD28 ', rad%fvlai
