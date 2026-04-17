@@ -954,6 +954,8 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
   INTEGER          :: np, doy, YYYY, MM, DD, DOM(12)
   REAL             :: CPLANT_g(BLAZE%NCELLS,3), CPLANT_w(BLAZE%NCELLS,3), tstp
+
+  REAL, PARAMETER     :: max_ba = 200. !max_ba = maxBA possible per day ~200km2, to match SIMFIRE.F90
   !CLNREAL, DIMENSION(BLAZE%NCELLS,3) :: AGL_g, AGL_w, BGL_g, BGL_w
   REAL, DIMENSION(BLAZE%NCELLS)   :: &
        RAINF,             & ! [mm/d]
@@ -1006,6 +1008,12 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP,  T1,T2,T3,T4  )
 
      DO np = 1, BLAZE%NCELLS
+        ! force all FLIx=5 ("seeders") fires >1km2 to be of larger size (0.5 max_ba)
+        IF ((BLAZE%FLIx(np) .eq. 5) .and. (BLAZE%AB(np)*SF%AREA(np) .ge. 1.0)) THEN
+           BLAZE%annAB(np) = BLAZE%annAB(np) - BLAZE%AB(np)
+           BLAZE%AB(np) = MAX( MIN(max_ba/2./SF%AREA(np), 0.99-BLAZE%annAB(np)), BLAZE%AB(np))
+           BLAZE%annAB(np) =  BLAZE%annAB(np) + BLAZE%AB(np)
+        END IF
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:), &
              BLAZE%AGLit_g(np,:),BLAZE%K_TUNE_LITTER(np)) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
@@ -1013,7 +1021,6 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      
      !limit AB during  periods of 'high' humidity - surrogate for fuel moisture 
      BLAZE%annAB = BLAZE%annAB - BLAZE%AB
-     !BLAZE%AB = BLAZE%AB * ( 1.0  - MIN( 4.*MAX((BLAZE%RH-50.0),0.0),100.0)/100.0 )
      BLAZE%AB = BLAZE%AB * ( 1.0  - MIN( 5.*MAX((BLAZE%RH-40.0),0.0),100.0)/100.0 )
      BLAZE%annAB = BLAZE%annAB + BLAZE%AB
      
