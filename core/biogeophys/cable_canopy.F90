@@ -1978,7 +1978,7 @@ CONTAINS
          ! canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
-      if ((INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) .or. (.NOT. NonStoLim)) Then
+      if ((INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) .and. (.NOT. NonStoLim)) Then
          fwsoil_nongs = 1.0
       else
          fwsoil_nongs = fwsoil
