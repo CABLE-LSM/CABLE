@@ -251,6 +251,8 @@ CONTAINS
       canopy%GPP_sl = 0.0_r_2
       canopy%vx3_sl = 0.0_r_2
       canopy%vx3_sh = 0.0_r_2
+      canopy%vcmxt3_sl = 0.0_r_2
+      canopy%vcmxt3_sh = 0.0_r_2
       canopy%fevc_sh = 0.0_r_2
       canopy%fevc_sl = 0.0_r_2
       canopy%eta_A_cs = 0.0_r_2
@@ -2354,6 +2356,15 @@ CONTAINS
                ! JK: vx4 changed to correspond to formulation in Collatz et al. 1992
                temp2(i, :) = rad%qcan(i, :, 1)*jtomol*(1.0 - veg%frac4(i))
                vx3(i, :) = ej3x(temp2(i, :), veg%alpha(i), veg%convex(i), ejmxt3(i, :))
+               ! if (i == 1 .AND. iter == 1 .AND. k == 1 .AND. &
+               !     mod(real(ktau - 1) * dels / 3600.0, 24.0) >= 22.0 .AND. &
+               !     mod(real(ktau - 1) * dels / 3600.0, 24.0) < 22.5) then
+               !    print*, 'temp2      :', temp2(1, :)
+               !    print*, 'veg%alpha  :', veg%alpha(1)
+               !    print*, 'veg%convex :', veg%convex(1)
+               !    print*, 'ejmxt3     :', ejmxt3(1, :)
+               !    print*, 'vx3        :', vx3(1, :)
+               ! end if
                vx4(i, :) = veg%alpha(i)*rad%qcan(i, :, 1)*jtomol*veg%frac4(i)*fwsoil_nongs(i)**qb
                !vx4(i,:)   = ej4x(temp2(i,:), veg%alpha(i), veg%convex(i), vcmxt4(i,:))
                rdx(i, :) = veg%cfrd(i)*Vcmxt3(i, :) + veg%cfrd(i)*vcmxt4(i, :)
@@ -3274,6 +3285,8 @@ CONTAINS
          canopy%GPP_sl = real(an_y(:, 1) + rdy(:, 1), r_2)
          canopy%vx3_sl = real(vx3(:, 1), r_2)
          canopy%vx3_sh = real(vx3(:, 2), r_2)
+         canopy%vcmxt3_sl = real(vcmxt3(:, 1), r_2)
+         canopy%vcmxt3_sh = real(vcmxt3(:, 2), r_2)
 
          canopy%A_shC = real(anrubiscoy(:, 2), r_2)
          canopy%A_shJ = real(anrubpy(:, 2), r_2)
@@ -4490,6 +4503,8 @@ CONTAINS
          canopy%GPP_sl = real(an_y(:, 1) + rdy(:, 1), r_2)
          canopy%vx3_sl = real(vx3(:, 1), r_2)
          canopy%vx3_sh = real(vx3(:, 2), r_2)
+         canopy%vcmxt3_sl = real(vcmxt3(:, 1), r_2)
+         canopy%vcmxt3_sh = real(vcmxt3(:, 2), r_2)
 
          canopy%A_shC = real(anrubiscoy(:, 2), r_2)
          canopy%A_shJ = real(anrubpy(:, 2), r_2)
