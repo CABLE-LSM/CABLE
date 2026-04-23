@@ -3371,7 +3371,7 @@ CONTAINS
     END IF
 
     ! Qcan: absorbed radiation by sunlit canopy [W/m^2]
-    IF(output%flux) THEN
+    IF(output%flux .OR. output%dlf) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%qcan_sl = out%qcan_sl + toreal4(rad%qcan(:,1,:))
        IF(writenow) THEN
