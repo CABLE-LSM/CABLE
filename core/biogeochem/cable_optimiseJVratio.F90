@@ -32,6 +32,7 @@ MODULE cable_optimise_JV_module
   ! variables local to module
   REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:), fwpsi(:), g0(:)
   REAL :: Anet, vcmax00, bjv, g1, g1tuzet, kc0, ko0, ekc, eko, gam0, egam, alpha, gm0, a1, D0, qs, qm, qb
+  REAL :: EaV_vcmax, EdV_vcmax, dSV_vcmax
   REAL :: convex, Neff, relcost_J, Rd0, Tgrowth, Thome
   INTEGER :: nt,kk
   !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
@@ -112,8 +113,11 @@ CONTAINS
              qm   = 0.0
              qb   = 1.0
           endif
-          g1      = veg%g1(k)
-          g1tuzet = veg%g1tuzet(k)
+          g1        = veg%g1(k)
+          g1tuzet   = veg%g1tuzet(k)
+          EaV_vcmax = veg%EaV(k)
+          EdV_vcmax = veg%EdV(k)
+          dSV_vcmax = veg%dSV(k)
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
@@ -382,7 +386,7 @@ CONTAINS
              CALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
              gamm = Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil_k**qb
+             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k), EaV_vcmax, EdV_vcmax, dSV_vcmax)*fwsoil_k**qb
           endif
           gm = gm0 * scalex(k) * max(0.15,fwsoil_k**qm) * xgmesT(Tleaf(k))
           ! tdiff = Tleaf(k) - C%Trefk
@@ -522,7 +526,7 @@ CONTAINS
              cALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
              gamm = Vcmax0*scalex(k)*trf*fwsoil(k)**qb
           else
-             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil(k)**qb
+             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k), EaV_vcmax, EdV_vcmax, dSV_vcmax)*fwsoil(k)**qb
           endif
           gm = gm0 * scalex(k) * max(0.15,fwsoil(k)**qm) * xgmesT(Tleaf(k))
           tdiff = Tleaf(k) - C%Trefk
@@ -665,7 +669,7 @@ CONTAINS
              CALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
              gamm = Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil_k**qb
+             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k), EaV_vcmax, EdV_vcmax, dSV_vcmax)*fwsoil_k**qb
           endif
           gm = gm0 * scalex(k) * max(0.15,fwsoil_k**qm) * xgmesT(Tleaf(k))
           tdiff = Tleaf(k) - C%Trefk
@@ -883,7 +887,7 @@ CONTAINS
              CALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
              gamm = Vcmax0*scalex(k)*trf*fwsoil(k)**qb
           else
-             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))*fwsoil(k)**qb
+             gamm = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k), EaV_vcmax, EdV_vcmax, dSV_vcmax)*fwsoil(k)**qb
           endif
           gm = gm0 * scalex(k) * max(0.15,fwsoil(k)**qm) * xgmesT(Tleaf(k))
           tdiff = Tleaf(k) - C%Trefk

@@ -2279,8 +2279,8 @@ CONTAINS
                ! Leuning 2002 (PCE) equation for temperature response
                ! used for Vcmax for C3 plants:
                if (.not. cable_user%acclimate_photosyn) then
-                  temp_sun_c3(i) = xvcmxt3(tlfx(i))*veg%vcmax_sun(i)*(1.0 - veg%frac4(i))
-                  temp_shade_c3(i) = xvcmxt3(tlfx(i))*veg%vcmax_shade(i)*(1.0 - veg%frac4(i))
+                  temp_sun_c3(i) = xvcmxt3(tlfx(i), veg%EaV(i), veg%EdV(i), veg%dSV(i))*veg%vcmax_sun(i)*(1.0 - veg%frac4(i))
+                  temp_shade_c3(i) = xvcmxt3(tlfx(i), veg%EaV(i), veg%EdV(i), veg%dSV(i))*veg%vcmax_shade(i)*(1.0 - veg%frac4(i))
                   temp_sun_c4(i) = xvcmxt4(tlfx(i))*veg%vcmax_sun(i)*veg%frac4(i)
                   temp_shade_c4(i) = xvcmxt4(tlfx(i))*veg%vcmax_shade(i)*veg%frac4(i)
                else
@@ -3888,8 +3888,8 @@ CONTAINS
                ! Leuning 2002 (PCE) equation for temperature response
                ! used for Vcmax for C3 plants:
                if (.not. cable_user%acclimate_photosyn) then
-                  temp_sun_c3(i) = xvcmxt3(tlfx(i))*veg%vcmax_sun(i)*(1.0 - veg%frac4(i))
-                  temp_shade_c3(i) = xvcmxt3(tlfx(i))*veg%vcmax_shade(i)*(1.0 - veg%frac4(i))
+                  temp_sun_c3(i) = xvcmxt3(tlfx(i), veg%EaV(i), veg%EdV(i), veg%dSV(i))*veg%vcmax_sun(i)*(1.0 - veg%frac4(i))
+                  temp_shade_c3(i) = xvcmxt3(tlfx(i), veg%EaV(i), veg%EdV(i), veg%dSV(i))*veg%vcmax_shade(i)*(1.0 - veg%frac4(i))
                   temp_sun_c4(i) = xvcmxt4(tlfx(i))*veg%vcmax_sun(i)*veg%frac4(i)
                   temp_shade_c4(i) = xvcmxt4(tlfx(i))*veg%vcmax_shade(i)*veg%frac4(i)
                else
@@ -5200,32 +5200,19 @@ CONTAINS
 
    ! ------------------------------------------------------------------------------
 
-   FUNCTION xvcmxt3(Tk) RESULT(z)
+   FUNCTION xvcmxt3(Tk, EaV, EdV, dSV) RESULT(z)
       !  Vcmax temperature response (Arrhenius function)
 
       implicit none
 
       real, intent(in) :: Tk
+      real, intent(in) :: EaV  ! activation energy (J/mol)
+      real, intent(in) :: EdV  ! deactivation energy (J/mol)
+      real, intent(in) :: dSV  ! entropy term (J/mol/K)
       real             :: xv, z
-      !real :: xvcnum, xvcden
+      real, parameter  :: TrefK_vcmax = 298.15 ! reference temperature (K), 25 degC
 
-      !real, parameter :: EHaVc  = 73637.0  ! J/mol (Leuning 2002)
-      !real, parameter :: EHdVc  = 149252.0 ! J/mol (Leuning 2002)
-      !real, parameter :: EntropVc = 486.0  ! J/mol/K (Leuning 2002)
-      !real, parameter :: xVccoef = 1.17461 ! derived parameter
-
-      ! Parameters calculated from Kumarathunge et al. 2019 with Tgrowth = 15 degC
-      real, parameter :: EaV = 59700.0  ! J/mol
-      real, parameter :: EdV = 200000.0 ! J/mol
-      real, parameter :: dSV = 639.43   ! J/mol/K
-      real, parameter :: TrefK_vcmax = 298.15 ! reference temperature for Vcmax (K), default 25 degC
-
-      ! xVccoef=1.0+exp((EntropJx*C%TREFK-EHdJx)/(Rconst*C%TREFK))
       call point2constants(C)
-
-      !xvcnum = xvccoef * exp(( EHaVc / (C%Rgas * C%TREFK ) )* ( 1.0 - C%TREFK/Tk ) )
-      !xvcden = 1.0 + exp( ( EntropVc * Tk - EHdVc) / ( C%rgas * Tk ) )
-      !z = max(0.0, xvcnum / xvcden)
 
       xv = exp(EaV*(Tk - TrefK_vcmax)/(TrefK_vcmax*C%Rgas*Tk))* &
            (1.0 + exp((TrefK_vcmax*dSV - EdV)/(TrefK_vcmax*C%Rgas)))/ &

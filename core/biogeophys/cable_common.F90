@@ -294,6 +294,9 @@ MODULE cable_common_module
           slope_leaf, &
           g3, &
           psi_50_leaf, &
+          EaV, &         ! Vcmax activation energy (J/mol)
+          EdV, &         ! Vcmax deactivation energy (J/mol)
+          dSV, &         ! Vcmax entropy term (J/mol/K)
           dc, & ! used for iteration in dryLeaf, maybe abandoned later, Zihanlu, 19/12/2024
           root_conduc, & ! root reference conductivity,  kg s-1 Mpa-1 m-1(root length)
           huber_value, & ! sapwood area / leaf area(m2 m-2)
@@ -411,7 +414,8 @@ CONTAINS
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
          vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
          vegin%P50(mvtype), vegin%P88dP50(mvtype),&
-         vegin%slope_leaf(mvtype), vegin%g3(mvtype), vegin%psi_50_leaf(mvtype), & 
+         vegin%slope_leaf(mvtype), vegin%g3(mvtype), vegin%psi_50_leaf(mvtype), &
+         vegin%EaV(mvtype), vegin%EdV(mvtype), vegin%dSV(mvtype), &
          vegin%dc(mvtype), vegin%vcmax_scalar(mvtype),vegin%root_conduc(mvtype),vegin%huber_value(mvtype), &
          vegin%root_shoot(mvtype),vegin%Nmax(mvtype)   )
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
@@ -468,7 +472,8 @@ CONTAINS
           READ(vegunit,*) vegin%P50(jveg), vegin%P88dP50(jveg)
           READ(vegunit,*) vegin%slope_leaf(jveg), vegin%g3(jveg), vegin%psi_50_leaf(jveg), &
                vegin%vcmax_scalar(jveg)
-          READ(vegunit,*) vegin%root_conduc(jveg), vegin%huber_value(jveg), vegin%root_shoot(jveg)
+          READ(vegunit,*) vegin%root_conduc(jveg), vegin%huber_value(jveg), vegin%root_shoot(jveg), &
+               vegin%EaV(jveg), vegin%EdV(jveg), vegin%dSV(jveg)
        END DO
 
     ELSE
@@ -1077,6 +1082,9 @@ CONTAINS
        veg%slope_leaf(h)     = vegin%slope_leaf(veg%iveg(h))
        veg%g3(h)     = vegin%g3(veg%iveg(h))
        veg%psi_50_leaf(h)     = vegin%psi_50_leaf(veg%iveg(h))
+       veg%EaV(h)    = vegin%EaV(veg%iveg(h))
+       veg%EdV(h)    = vegin%EdV(veg%iveg(h))
+       veg%dSV(h)    = vegin%dSV(veg%iveg(h))
        veg%dc(h)      = vegin%dc(veg%iveg(h)) ! used in iteration in dryLeaf
        veg%Nmax(h)      = vegin%Nmax(veg%iveg(h))
 

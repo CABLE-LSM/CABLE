@@ -385,6 +385,9 @@ module cable_def_types_mod
           slope_leaf => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           psi_50_leaf => null(), &
+          EaV => null(), &           ! Vcmax activation energy (J/mol)
+          EdV => null(), &           ! Vcmax deactivation energy (J/mol)
+          dSV => null(), &           ! Vcmax entropy term (J/mol/K)
           dc => null(),  & !used in iteration in dryLeaf
           root_conduc => null(), &
           huber_value => null(), &
@@ -1217,9 +1220,12 @@ contains
     allocate( veg%c_plant(mp) )
     allocate( veg%kmax(mp) ) 
     allocate( veg%PLCcrit(mp) ) 
-    allocate( veg%slope_leaf(mp) ) 
-    allocate( veg%g3(mp) ) 
+    allocate( veg%slope_leaf(mp) )
+    allocate( veg%g3(mp) )
     allocate( veg%psi_50_leaf(mp) )
+    allocate( veg%EaV(mp) )
+    allocate( veg%EdV(mp) )
+    allocate( veg%dSV(mp) )
     allocate(veg%dc(mp)) 
     allocate( veg%root_conduc(mp) )
     allocate( veg%huber_value(mp) )
@@ -1928,9 +1934,12 @@ contains
     deallocate( veg%c_plant ) 
     deallocate( veg%kmax )
     deallocate( veg%PLCcrit )
-    deallocate( veg%slope_leaf ) 
-    deallocate( veg%g3 ) 
-    deallocate( veg%psi_50_leaf ) 
+    deallocate( veg%slope_leaf )
+    deallocate( veg%g3 )
+    deallocate( veg%psi_50_leaf )
+    deallocate( veg%EaV )
+    deallocate( veg%EdV )
+    deallocate( veg%dSV )
     deallocate( veg%dc ) 
     deallocate( veg%root_conduc ) 
     deallocate( veg%huber_value ) 
@@ -2518,6 +2527,9 @@ contains
     veg%slope_leaf = 0
     veg%g3 = 0
     veg%psi_50_leaf = 0
+    veg%EaV = 59700.0
+    veg%EdV = 200000.0
+    veg%dSV = 639.43
     veg%dc = 0
     veg%root_conduc = 0
     veg%huber_value = 0
