@@ -249,6 +249,8 @@ CONTAINS
       canopy%A_slJ = 0.0_r_2
       canopy%GPP_sh = 0.0_r_2
       canopy%GPP_sl = 0.0_r_2
+      canopy%vx3_sl = 0.0_r_2
+      canopy%vx3_sh = 0.0_r_2
       canopy%fevc_sh = 0.0_r_2
       canopy%fevc_sl = 0.0_r_2
       canopy%eta_A_cs = 0.0_r_2
@@ -3270,6 +3272,8 @@ CONTAINS
 
          canopy%GPP_sh = real(an_y(:, 2) + rdy(:, 2), r_2)
          canopy%GPP_sl = real(an_y(:, 1) + rdy(:, 1), r_2)
+         canopy%vx3_sl = real(vx3(:, 1), r_2)
+         canopy%vx3_sh = real(vx3(:, 2), r_2)
 
          canopy%A_shC = real(anrubiscoy(:, 2), r_2)
          canopy%A_shJ = real(anrubpy(:, 2), r_2)
@@ -4484,6 +4488,8 @@ CONTAINS
 
          canopy%GPP_sh = real(an_y(:, 2) + rdy(:, 2), r_2)
          canopy%GPP_sl = real(an_y(:, 1) + rdy(:, 1), r_2)
+         canopy%vx3_sl = real(vx3(:, 1), r_2)
+         canopy%vx3_sh = real(vx3(:, 2), r_2)
 
          canopy%A_shC = real(anrubiscoy(:, 2), r_2)
          canopy%A_shJ = real(anrubpy(:, 2), r_2)

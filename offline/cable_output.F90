@@ -80,6 +80,7 @@ MODULE cable_output_module
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax_sun, vcmax_shade, ejmax_sun, ejmax_shade, hc, &
           GPP_sl, GPP_sh, GPP_slC, GPP_shC, GPP_slJ, GPP_shJ, &
+          vx3_sl, vx3_sh, &
           eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
           An_sl, An_sh, ci_sl, ci_sh, cs_sl, cs_sh, scalex_sl, scalex_sh, dlf, dva, &
           vcmax_ts, jmax_ts, qcan_sl, qcan_sh, &
@@ -254,6 +255,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: zr => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sl => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sh => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vx3_sl => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vx3_sh => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slC => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_shC => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slJ => null()
@@ -1687,6 +1690,18 @@ CONTAINS
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%GPP_sh(mp))
        out%GPP_sh = zero4 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%vx3_sl, 'vx3_sunlit', 'umol/m^2/s', &
+            'RuBP-limited electron-transport capacity, sunlit leaves', patchout%GPP, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%vx3_sl(mp))
+       out%vx3_sl = zero4 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%vx3_sh, 'vx3_shaded', 'umol/m^2/s', &
+            'RuBP-limited electron-transport capacity, shaded leaves', patchout%GPP, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%vx3_sh(mp))
+       out%vx3_sh = zero4 ! initialise
 
        CALL define_ovar(ncid_out, ovid%GPP_slC, 'GPP_sunlit_C', 'umol/m^2/s', &
             'Gross primary production from carboxylation-rate-limited sunlit leaves', &
@@ -4081,6 +4096,8 @@ CONTAINS
        out%cs_sh       = out%cs_sh       + toreal4(canopy%cs_sh)
        out%GPP_sl      = out%GPP_sl      + toreal4(canopy%GPP_sl*1.0e6_r_2)
        out%GPP_sh      = out%GPP_sh      + toreal4(canopy%GPP_sh*1.0e6_r_2)
+       out%vx3_sl      = out%vx3_sl      + toreal4(canopy%vx3_sl*1.0e6_r_2)
+       out%vx3_sh      = out%vx3_sh      + toreal4(canopy%vx3_sh*1.0e6_r_2)
        out%GPP_slC     = out%GPP_slC     + toreal4(canopy%A_slC*1.0e6_r_2)
        out%GPP_shC     = out%GPP_shC     + toreal4(canopy%A_shC*1.0e6_r_2)
        out%GPP_slJ     = out%GPP_slJ     + toreal4(canopy%A_slJ*1.0e6_r_2)
@@ -4120,6 +4137,8 @@ CONTAINS
           out%cs_sh       = out%cs_sh       * rinterval
           out%GPP_sl      = out%GPP_sl      * rinterval
           out%GPP_sh      = out%GPP_sh      * rinterval
+          out%vx3_sl      = out%vx3_sl      * rinterval
+          out%vx3_sh      = out%vx3_sh      * rinterval
           out%GPP_slC     = out%GPP_slC     * rinterval
           out%GPP_shC     = out%GPP_shC     * rinterval
           out%GPP_slJ     = out%GPP_slJ     * rinterval
@@ -4163,6 +4182,12 @@ CONTAINS
                ranges%GPP, patchout%GPP, 'default', met)
 
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh, &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%vx3_sl, 'vx3_sl', out%vx3_sl, &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%vx3_sh, 'vx3_sh', out%vx3_sh, &
                ranges%GPP, patchout%GPP, 'default', met)
 
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slC, 'GPP_slC', out%GPP_slC, &
@@ -4221,6 +4246,8 @@ CONTAINS
           out%cs_sh       = zero4
           out%GPP_sl      = zero4
           out%GPP_sh      = zero4
+          out%vx3_sl      = zero4
+          out%vx3_sh      = zero4
           out%GPP_slC     = zero4
           out%GPP_shC     = zero4
           out%GPP_slJ     = zero4

@@ -511,6 +511,8 @@ module cable_def_types_mod
           A_shJ => null(),   & ! net photosynthesis from shaded leaves  (rubp limited)
           GPP_sl => null(), &  ! gross photosynthesis from sunlit leaves
           GPP_sh => null(), &  ! gross photosynthesis from shaded leaves
+          vx3_sl => null(), &  ! RuBP-limited electron-transport capacity, sunlit (mol/m2/s)
+          vx3_sh => null(), &  ! RuBP-limited electron-transport capacity, shaded (mol/m2/s)
           fevc_sl => null(), &  ! dry canopy transpiration sunlit leaves (W/m2)
           fevc_sh => null(), &  ! dry canopy transpiration shaded leaves (W/m2)
           eta_A_cs => null(),& ! elasticity of net photosynthesis wrt cs, mulitplied by net  photosythesis
@@ -1308,6 +1310,8 @@ contains
     allocate(canopy%A_shJ(mp))
     allocate(canopy%GPP_sl(mp))
     allocate(canopy%GPP_sh(mp))
+    allocate(canopy%vx3_sl(mp))
+    allocate(canopy%vx3_sh(mp))
     allocate(canopy%fevc_sl(mp))
     allocate(canopy%fevc_sh(mp))
     allocate(canopy%eta_A_cs(mp))
@@ -2003,6 +2007,8 @@ contains
     deallocate(canopy%A_shC)
     deallocate(canopy%A_slJ)
     deallocate(canopy%A_shJ)
+    deallocate(canopy%vx3_sl)
+    deallocate(canopy%vx3_sh)
     deallocate(canopy%eta_A_cs)
     deallocate(canopy%cs)
     deallocate(canopy%dAdcs)
@@ -2597,6 +2603,8 @@ contains
     canopy%A_shJ          = 0
     canopy%GPP_sh         = 0
     canopy%GPP_sl         = 0
+    canopy%vx3_sl         = 0
+    canopy%vx3_sh         = 0
     canopy%fevc_sh        = 0
     canopy%fevc_sl        = 0
     canopy%eta_GPP_cs     = 0
