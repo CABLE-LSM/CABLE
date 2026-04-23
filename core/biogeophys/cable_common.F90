@@ -472,8 +472,8 @@ CONTAINS
           READ(vegunit,*) vegin%P50(jveg), vegin%P88dP50(jveg)
           READ(vegunit,*) vegin%slope_leaf(jveg), vegin%g3(jveg), vegin%psi_50_leaf(jveg), &
                vegin%vcmax_scalar(jveg)
-          READ(vegunit,*) vegin%root_conduc(jveg), vegin%huber_value(jveg), vegin%root_shoot(jveg), &
-               vegin%EaV(jveg), vegin%EdV(jveg), vegin%dSV(jveg)
+          READ(vegunit,*) vegin%root_conduc(jveg), vegin%huber_value(jveg), vegin%root_shoot(jveg)
+          READ(vegunit,*) vegin%EaV(jveg), vegin%EdV(jveg), vegin%dSV(jveg)
        END DO
 
     ELSE
