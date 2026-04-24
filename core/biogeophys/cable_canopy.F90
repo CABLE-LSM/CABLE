@@ -4706,7 +4706,8 @@ CONTAINS
                   if (i == 1 .AND. ktau_gl == 498586) then
                      print*, 'phot_gm [not-converged] j=', j, &
                              ' anrubiscoz=', anrubiscoz(i,j), &
-                             ' anrubpz=', anrubpz(i,j), ' ansinkz=', ansinkz(i,j)
+                             ' anrubpz=', anrubpz(i,j), ' ansinkz=', ansinkz(i,j), &
+                             ' vcmxt3z=', vcmxt3z(i,j), ' vx3z=', vx3z(i,j)
                   end if
                   dAmc(i, j) = 0.0_r_2
                   dAme(i, j) = 0.0_r_2
@@ -4874,13 +4875,13 @@ CONTAINS
                      eta_p(i, j) = 0.0_r_2
                      if (Am > 0.0_r_2) eta_p(i, j) = dAmp(i, j)*cs/Am
                   end if ! C3/C4
-
                end if ! deltlfz > 0.1
 
                if (i == 1 .AND. ktau_gl == 498586) then
                   print*, 'phot_gm [pre-min] j=', j, &
                           ' anrubiscoz=', anrubiscoz(i,j), &
-                          ' anrubpz=', anrubpz(i,j), ' ansinkz=', ansinkz(i,j)
+                          ' anrubpz=', anrubpz(i,j), ' ansinkz=', ansinkz(i,j), &
+                          ' vcmxt3z=', vcmxt3z(i,j), ' vx3z=', vx3z(i,j)
                end if
                ! minimal of three limited rates
                tmp3 = (/anrubiscoz(i, j), anrubpz(i, j), ansinkz(i, j)/)
