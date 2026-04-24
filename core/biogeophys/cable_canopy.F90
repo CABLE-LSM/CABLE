@@ -4653,7 +4653,7 @@ CONTAINS
                                 gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA)
 
       use cable_def_types_mod, only: r_2
-      use cable_common_module, only: cable_user
+      use cable_common_module, only: cable_user, ktau_gl
 
       implicit none
 
@@ -4703,6 +4703,11 @@ CONTAINS
                   anrubiscoz(i, j) = -rdxz(i, j)
                   anrubpz(i, j) = -rdxz(i, j)
                   ansinkz(i, j) = -rdxz(i, j)
+                  if (i == 1 .AND. ktau_gl == 498586) then
+                     print*, 'phot_gm [not-converged] j=', j, &
+                             ' anrubiscoz=', anrubiscoz(i,j), &
+                             ' anrubpz=', anrubpz(i,j), ' ansinkz=', ansinkz(i,j)
+                  end if
                   dAmc(i, j) = 0.0_r_2
                   dAme(i, j) = 0.0_r_2
                   dAmp(i, j) = 0.0_r_2
@@ -4872,6 +4877,11 @@ CONTAINS
 
                end if ! deltlfz > 0.1
 
+               if (i == 1 .AND. ktau_gl == 498586) then
+                  print*, 'phot_gm [pre-min] j=', j, &
+                          ' anrubiscoz=', anrubiscoz(i,j), &
+                          ' anrubpz=', anrubpz(i,j), ' ansinkz=', ansinkz(i,j)
+               end if
                ! minimal of three limited rates
                tmp3 = (/anrubiscoz(i, j), anrubpz(i, j), ansinkz(i, j)/)
                ii = minloc(tmp3)
