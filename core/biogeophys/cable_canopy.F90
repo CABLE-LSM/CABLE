@@ -48,6 +48,8 @@ MODULE cable_canopy_module
    USE cable_soil_hydraulics_module, ONLY: calc_soil_root_resistance, calc_swp, calc_psix
    implicit none
 
+   logical :: debug_rubp = .false.
+
    public :: define_canopy, xvcmxt3, xejmxt3, ej3x, xrdt, xgmesT, &
              xvcmxt3_acclim, xejmxt3_acclim, light_inhibition
 
@@ -4784,6 +4786,7 @@ CONTAINS
                      Rd = real(rdxz(i, j), r_2)
                      gm = gmes(i, j)
 
+                     if (i == 1 .AND. ktau_gl == 498586) debug_rubp = .true.
                      if (trim(cable_user%g0_switch) == 'default') then
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
@@ -4811,6 +4814,7 @@ CONTAINS
                            end if
                         end if
                      end if
+                     debug_rubp = .false.
                      anrubpz(i, j) = real(Am)
 
                      if (cable_user%explicit_gm) then
@@ -5709,7 +5713,7 @@ CONTAINS
    ! ------------------------------------------------------------------------------
 
    ! functions for implicit mesophyll conductance
-   elemental pure subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
+   subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
       use cable_def_types_mod, only: r_2
 
@@ -5721,6 +5725,10 @@ CONTAINS
       a = (1.0_r_2 - x)*Cs - x*beta
       b = -g0*Cs**2 + ((1.0_r_2 - x)*(Rd - gamma) - g0*beta)*Cs - x*(gamma*Gammastar + Rd*beta)
       c = -g0*(Rd - gamma)*Cs**2 - g0*(gamma*Gammastar + Rd*beta)*Cs
+
+      if (debug_rubp) then
+         print*, 'fabc [RuBP]: a=', a, ' b=', b, ' c=', c
+      end if
 
    end subroutine fabc
    elemental pure subroutine fabc_givengs(Cs, gs, gamma, beta, Gammastar, Rd, a, b, c)
@@ -5753,7 +5761,7 @@ CONTAINS
 
    end subroutine fabc_c4
 
-   elemental pure subroutine fAn_c3(a, b, c, A2)
+   subroutine fAn_c3(a, b, c, A2)
 
       use cable_def_types_mod, only: r_2
 
@@ -5766,6 +5774,10 @@ CONTAINS
 
       s2 = b**2 - 4.0_r_2*a*c
       A2 = (-b - sqrt(s2))/(2.0_r_2*a)
+
+      if (debug_rubp) then
+         print*, 'fAn_c3 [RuBP]: An=', A2
+      end if
 
    end subroutine fAn_c3
 
@@ -5849,7 +5861,7 @@ CONTAINS
 
    end subroutine fdAn_c4
 
-   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
+   subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
       use cable_def_types_mod, only: r_2
 
@@ -5867,7 +5879,7 @@ CONTAINS
 
    end subroutine fAndAn_c3
 
-   elemental pure subroutine fAndAn_c3_givengs(Cs, gs, gamma, beta, Gammastar, Rd, An)
+   subroutine fAndAn_c3_givengs(Cs, gs, gamma, beta, Gammastar, Rd, An)
 
       use cable_def_types_mod, only: r_2
 
