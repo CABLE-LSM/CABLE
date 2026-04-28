@@ -2851,7 +2851,7 @@ CONTAINS
                      end if
                   END IF
 
-               ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
+               ELSE IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
 
                   IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                      evapfb(i) = (1.0 - canopy%fwet(i))*REAL(ecx(i))*dels &
