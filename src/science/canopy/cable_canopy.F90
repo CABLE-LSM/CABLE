@@ -260,9 +260,9 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        ! AERODYNAMIC PROPERTIES: friction velocity us, thence turbulent
        ! resistances rt0, rt1 (elements of dispersion matrix):
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.46:
-       CALL comp_friction_vel(canopy%us, iter, mp, CVONK, CUMIN, CPI_C,      &
-                             canopy%zetar, rough%zref_uv, rough%zref_tq,     &
-                             rough%z0m, met%ua )
+       CALL comp_friction_vel( canopy%us, mp, CVONK, CUMIN, CPI_C,             &
+                             canopy%zetar(:,iter), rough%zref_uv,              &
+                             rough%zref_tq, rough%z0m, met%ua )
 
        ! E.Kowalczyk 2014
        IF (cable_user%l_new_roughness_soil)                                     &
