@@ -234,7 +234,7 @@ MODULE cable_IO_vars_module
          VegT = .FALSE.,      & ! 31 vegetation temperature [K]
          LeafT = .FALSE.,      & ! leaf temperature [K]
          SoilTemp = .FALSE.,  & ! 32 av.layer soil temperature [K]
-         SoilMoist = .FALSE., & ! 33 av.layer soil moisture [kg/m2]
+         SoilMoist = .TRUE., & ! 33 av.layer soil moisture [kg/m2]
          SoilMoistPFT = .TRUE., & ! Total soil moisture per PFT [kg/m2]
          SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
          Qs = .FALSE.,        & ! 34 surface runoff [kg/m2/s]
