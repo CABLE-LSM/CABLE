@@ -7,8 +7,12 @@ PUBLIC  snowl_adjust
 CONTAINS
 
 SUBROUTINE snowl_adjust(dels, ssnow, canopy )
+  !*## Purpose
+  ! Adjust levels in the snowpack due to snow accumulation/melting,
+  ! snow aging etc...
 
-IMPLICIT NONE
+  IMPLICIT NONE
+  
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
     TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
