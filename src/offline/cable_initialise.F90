@@ -152,7 +152,7 @@ CONTAINS
     ssnow%wtd        = 1000.0
     ssnow%wb_hys  = 0.99*soil%ssat_vec
     ssnow%smp_hys = -0.99*soil%sucs_vec
-    ssnow%ssat_hys = gw_params%ssat_wet_factor*soil%ssat_vec
+!ccc To come back to it    ssnow%ssat_hys = gw_params%ssat_wet_factor*soil%ssat_vec
     ssnow%watr_hys = soil%watr
     ssnow%hys_fac = 1.0
 
