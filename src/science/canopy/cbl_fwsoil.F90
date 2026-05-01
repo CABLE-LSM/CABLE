@@ -49,8 +49,8 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
     REAL, DIMENSION(mp,3)          :: xi, ti, si
     INTEGER :: j
 
-    rwater = MAX(1.0e-9,                                                    &
-         SUM(veg%froot * MAX(0.0,MIN(1.0, REAL((ssnow%wbliq) -                   &
+    rwater = MAX(1.0e-9,                                                       &
+         SUM(veg%froot * MAX(1.0-9,MIN(1.0, REAL((ssnow%wbliq) -               &
          SPREAD(soil%swilt, 2, ms)))),2) /(soil%sfc-soil%swilt))
 
     fwsoil = 1.

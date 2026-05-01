@@ -17,7 +17,8 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
                              ssnow_snowd, ssnow_wb, ssnow_wbice,             &
                              ssnow_pudsto, ssnow_pudsmx, ssnow_potev,          &
                              ssnow_wetfac, ssnow_evapfbl, ssnow_cls,          & 
-                             ssnow_tss, canopy_fes, canopy_fess, canopy_fesp  )
+                             ssnow_tss, canopy_fes, canopy_fess, canopy_fesp, &
+                             cable_user_gw_model, den_rat, soil_watr )  ! line inserted by rk4417 - phase2  )
 
   !*## Purpose
   !
@@ -105,6 +106,15 @@ REAL(KIND=r_2), INTENT(IN) :: ssnow_wbice(mp)
    !! (m\(^{3}\) frozen water m\(^{-3}\) volume of soil)
 REAL, INTENT(IN) :: ssnow_tss(mp)
    !! temperature of surface soil/snow layer (K)
+
+REAL(KIND=r_2), INTENT(IN) :: soil_watr(mp)    ! line inserted by rk4417 - phase2
+!! residual water content of the soil (mm\(^{3}\)/mm\(^{3}\))
+
+LOGICAL , INTENT(IN) :: cable_user_gw_model    ! line inserted by rk4417 - phase2 
+!! NAMELIST switch for gw model
+
+REAL(r_2) :: den_rat    ! line inserted by rk4417 - phase2
+
 
 REAL, DIMENSION(mp) ::                                                      &
   frescale,  flower_limit, fupper_limit
@@ -202,12 +212,29 @@ DO j=1,mp
 !       switch.
 !       The options differ in the amount of water that remains at the end of the time step.
 !
-     IF (.NOT.cable_user_l_new_reduce_soilevp) THEN
-        flower_limit(j) = REAL(ssnow_wb(j))-soil_swilt(j)/2.0
-     ELSE
+
+!     IF (.NOT.cable_user_l_new_reduce_soilevp) THEN
+!        flower_limit(j) = REAL(ssnow_wb(j))-soil_swilt(j)/2.0
+!     ELSE
+!        ! E.Kowalczyk 2014 - reduces the soil evaporation
+!        flower_limit(j) = REAL(ssnow_wb(j))-soil_swilt(j)
+!     ENDIF
+
+! replaced IF block above by below - rk4417 - phase2
+
+    IF (.NOT.cable_user_l_new_reduce_soilevp) THEN
+        IF (cable_user_gw_model) THEN ! MMY
+            flower_limit(j) = REAL(ssnow_wb(j))-REAL(soil_watr(j)) ! MMY
+            ! MMY watr is better than swilt/2., as it has a clear physical meaning
+        ELSE ! MMY
+            flower_limit(j) = REAL(ssnow_wb(j))-soil_swilt(j)/2.0
+        END IF ! MMY
+    ELSE
         ! E.Kowalczyk 2014 - reduces the soil evaporation
         flower_limit(j) = REAL(ssnow_wb(j))-soil_swilt(j)
-     ENDIF
+    END IF
+
+
      fupper_limit(j) = MAX( 0.,                                        &
           flower_limit(j) * frescale(j)                       &
           - ssnow_evapfbl(j)*air_rlam(j)/dels)
@@ -221,8 +248,9 @@ DO j=1,mp
 !        soil latent flux. **WARNING** frozen_limit=0.85 is hard coded - if it is changed
 !        then the corresponding limit in [[cbl_soilsnow]] must also be changed.
 
-     fupper_limit(j) = REAL(ssnow_wb(j)-ssnow_wbice(j)/frozen_limit)*frescale(j)
-     
+!     fupper_limit(j) = REAL(ssnow_wb(j)-ssnow_wbice(j)/0.85)*frescale(j)
+! replaced line above by below - rk4417 - phase2
+     fupper_limit(j) = REAL(ssnow_wb(j)-ssnow_wbice(j)*den_rat/0.85)*frescale(j)  ! MMY keep fupper_limit consistent
      fupper_limit(j) = MAX(REAL(fupper_limit(j),r_2),0.)
 
      canopy_fess(j) = MIN(canopy_fess(j), REAL(fupper_limit(j),r_2))
