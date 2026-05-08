@@ -119,9 +119,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   ! modules related to CASA-CNP
   USE casadimension,        ONLY: icycle
   USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
-                                !mpidiff
-       casa_met, casa_balance, zero_sum_casa, update_sum_casa
-  USE phenvariable,         ONLY: phen_variable
+       casa_met, casa_balance, zero_sum_casa, update_sum_casa, phen_variable
 
   ! vh_js !
   ! modules related to POP
