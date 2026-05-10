@@ -5713,7 +5713,8 @@ CONTAINS
    ! ------------------------------------------------------------------------------
 
    ! functions for implicit mesophyll conductance
-   subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
+   ! subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
+   elemental pure subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
       use cable_def_types_mod, only: r_2
 
@@ -5726,9 +5727,9 @@ CONTAINS
       b = -g0*Cs**2 + ((1.0_r_2 - x)*(Rd - gamma) - g0*beta)*Cs - x*(gamma*Gammastar + Rd*beta)
       c = -g0*(Rd - gamma)*Cs**2 - g0*(gamma*Gammastar + Rd*beta)*Cs
 
-      if (debug_rubp) then
-         print*, 'fabc [RuBP]: a=', a, ' b=', b, ' c=', c
-      end if
+      !if (debug_rubp) then
+      !   print*, 'fabc [RuBP]: a=', a, ' b=', b, ' c=', c
+      !end if
 
    end subroutine fabc
    elemental pure subroutine fabc_givengs(Cs, gs, gamma, beta, Gammastar, Rd, a, b, c)
@@ -5761,7 +5762,8 @@ CONTAINS
 
    end subroutine fabc_c4
 
-   subroutine fAn_c3(a, b, c, A2)
+   !subroutine fAn_c3(a, b, c, A2)
+   elemental pure subroutine fAn_c3(a, b, c, A2)
 
       use cable_def_types_mod, only: r_2
 
@@ -5775,9 +5777,9 @@ CONTAINS
       s2 = b**2 - 4.0_r_2*a*c
       A2 = (-b - sqrt(s2))/(2.0_r_2*a)
 
-      if (debug_rubp) then
-         print*, 'fAn_c3 [RuBP]: An=', A2
-      end if
+      !if (debug_rubp) then
+      !   print*, 'fAn_c3 [RuBP]: An=', A2
+      !end if
 
    end subroutine fAn_c3
 
@@ -5861,7 +5863,8 @@ CONTAINS
 
    end subroutine fdAn_c4
 
-   subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
+   !subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
+   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
       use cable_def_types_mod, only: r_2
 
@@ -5879,7 +5882,8 @@ CONTAINS
 
    end subroutine fAndAn_c3
 
-   subroutine fAndAn_c3_givengs(Cs, gs, gamma, beta, Gammastar, Rd, An)
+   !subroutine fAndAn_c3_givengs(Cs, gs, gamma, beta, Gammastar, Rd, An)
+   elemental pure subroutine fAndAn_c3_givengs(Cs, gs, gamma, beta, Gammastar, Rd, An)
 
       use cable_def_types_mod, only: r_2
 
