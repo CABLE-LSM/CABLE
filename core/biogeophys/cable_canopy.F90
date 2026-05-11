@@ -1984,23 +1984,28 @@ CONTAINS
           canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
-      if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) Then
-         do i = 1, mp
-            psi_sat_i  = soil%sucs(i) * C%grav * C%RHOW * 1.0E-6  ! sucs[m] -> MPa
-            psi_wilt_i = psi_sat_i * MAX(1.E-9, MIN(1.0, soil%swilt(i)/soil%ssat(i))) &
-                        ** (-soil%bch(i))
-            if (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) then
-               fwsoil_nongs(i) = 1.0
-            else if (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) then
-               fwsoil_nongs(i) = 0.0
-            else
-               fwsoil_nongs(i) = (real(ssnow%psi_soilmean(i)) - psi_wilt_i) / &
-                                 (veg%psi_critical(i) - psi_wilt_i)
-            end if
-         end do
+      if (NonStoLim) then
+
+         if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) Then
+            do i = 1, mp
+               psi_sat_i  = soil%sucs(i) * C%grav * C%RHOW * 1.0E-6  ! sucs[m] -> MPa
+               psi_wilt_i = psi_sat_i * MAX(1.E-9, MIN(1.0, soil%swilt(i)/soil%ssat(i))) &
+                           ** (-soil%bch(i))
+               if (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) then
+                  fwsoil_nongs(i) = 1.0
+               else if (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) then
+                  fwsoil_nongs(i) = 0.0
+               else
+                  fwsoil_nongs(i) = (real(ssnow%psi_soilmean(i)) - psi_wilt_i) / &
+                                    (veg%psi_critical(i) - psi_wilt_i)
+               end if
+            end do
+         else
+            fwsoil_nongs = fwsoil
+         end if
       else
-         fwsoil_nongs = fwsoil
-      end if
+         fwsoil_nongs = 1.0
+      end if   
       if (cable_user%GS_SWITCH == 'tuzet' .AND. &
           INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
          fwsoil_gswmin = 1.0
