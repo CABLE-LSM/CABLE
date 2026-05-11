@@ -1947,7 +1947,8 @@ CONTAINS
          vpdtmp = met%dva
       end if
       if (iter == iter_ini) then
-         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0) ) then
+         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0) &
+          .and. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') <= 0)) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
