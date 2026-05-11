@@ -3512,8 +3512,7 @@ CONTAINS
     END IF
      IF(output%soil .OR. output%psi_soilmean) THEN
      ! Add current timestep's value to total of temporary output variable:
-     psi_soilmean_tmp = sum(toreal4(ssnow%uptake_layer),2) / &
-      toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2)) + toreal4(canopy%psix)
+     psi_soilmean_tmp = toreal4(ssnow%psi_soilmean)
 
      out%psi_soilmean= out%psi_soilmean + psi_soilmean_tmp
 

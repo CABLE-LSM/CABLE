@@ -1901,6 +1901,7 @@ CONTAINS
       integer :: NN, m, kmax, Mtag, Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
+      REAL :: psi_sat_i, psi_wilt_i  ! for LWP fwsoil_nongs stress function
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
          Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
@@ -1984,8 +1985,20 @@ CONTAINS
          ! canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
-      if ((INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) .and. (.NOT. NonStoLim)) Then
-         fwsoil_nongs = 1.0
+      if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) Then
+         do i = 1, mp
+            psi_sat_i  = soil%sucs(i) * C%grav * C%RHOW * 1.0E-6  ! sucs[m] -> MPa
+            psi_wilt_i = psi_sat_i * MAX(1.E-9, MIN(1.0, soil%swilt(i)/soil%ssat(i))) &
+                        ** (-soil%bch(i))
+            if (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) then
+               fwsoil_nongs(i) = 1.0
+            else if (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) then
+               fwsoil_nongs(i) = 0.0
+            else
+               fwsoil_nongs(i) = (real(ssnow%psi_soilmean(i)) - psi_wilt_i) / &
+                                 (veg%psi_critical(i) - psi_wilt_i)
+            end if
+         end do
       else
          fwsoil_nongs = fwsoil
       end if

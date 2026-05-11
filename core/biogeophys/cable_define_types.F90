@@ -313,7 +313,8 @@ module cable_def_types_mod
     REAL(r_2), DIMENSION(:), POINTER ::                                      &
           Rsr => null(), &   ! Total belowground resistance across layers (excludes
                    ! root resistance).
-          psi_rootzone => null()
+          psi_rootzone => null(), &
+          psi_soilmean => null()  ! conductance-weighted mean soil water potential (MPa)
 
   end type soil_snow_type
 
@@ -391,7 +392,8 @@ module cable_def_types_mod
           dc => null(),  & !used in iteration in dryLeaf
           root_conduc => null(), &
           huber_value => null(), &
-          root_shoot => null()
+          root_shoot => null(), &
+          psi_critical => null()  ! root-zone psi threshold for stress onset (MPa, negative)
       integer, dimension(:), pointer :: Nmax => null()
 
      logical, dimension(:), pointer :: &
@@ -1136,6 +1138,7 @@ contains
     allocate ( ssnow%uptake_layer(mp,ms) )
     allocate ( ssnow%psi_soil(mp,ms) )
     allocate ( ssnow%psi_rootzone(mp) )
+    allocate ( ssnow%psi_soilmean(mp) )
     allocate ( ssnow%total_est_evap(mp) )
     allocate ( ssnow%wb_30(mp) )
     allocate ( ssnow%psi_30(mp) )
@@ -1234,7 +1237,8 @@ contains
     allocate( veg%root_conduc(mp) )
     allocate( veg%huber_value(mp) )
     allocate( veg%root_shoot(mp) )
-    allocate(veg%Nmax(mp)) 
+    allocate( veg%psi_critical(mp) )
+    allocate(veg%Nmax(mp))
 
   end subroutine alloc_veg_parameter_type
 
@@ -1862,6 +1866,7 @@ contains
     deallocate( ssnow%uptake_layer  )
     deallocate( ssnow%psi_soil )
     deallocate( ssnow%psi_rootzone )
+    deallocate( ssnow%psi_soilmean )
     deallocate( ssnow%total_est_evap )
     deallocate( ssnow%wb_30 )
     deallocate( ssnow%psi_30 )
@@ -1949,10 +1954,11 @@ contains
     deallocate( veg%EdV )
     deallocate( veg%dSV )
     deallocate( veg%dc ) 
-    deallocate( veg%root_conduc ) 
-    deallocate( veg%huber_value ) 
-    deallocate( veg%root_shoot ) 
-    deallocate( veg%Nmax ) 
+    deallocate( veg%root_conduc )
+    deallocate( veg%huber_value )
+    deallocate( veg%root_shoot )
+    deallocate( veg%psi_critical )
+    deallocate( veg%Nmax )
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2448,6 +2454,7 @@ contains
     ssnow%uptake_layer  = 0
     ssnow%psi_soil         = 0
     ssnow%psi_rootzone     = 0
+    ssnow%psi_soilmean     = 0
     ssnow%total_est_evap     = 0
     ssnow%wb_30     = 0
     ssnow%psi_30     = 0
@@ -2539,6 +2546,7 @@ contains
     veg%slope_leaf = 0
     veg%g3 = 0
     veg%psi_50_leaf = 0
+    veg%psi_critical = -1.0
     veg%EaV = 59700.0
     veg%EdV = 200000.0
     veg%dSV = 639.43
