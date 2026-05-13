@@ -64,7 +64,7 @@ CONTAINS
       use cable_sli_main,    only: sli_main
       USE cable_soil_snow_module, ONLY : soil_snow
       USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
-      calc_swp, calc_weighted_swp_and_frac_uptake,calc_psix
+      calc_swp, calc_frac_uptake,calc_psix
       USE cable_IO_vars_module, ONLY: logn
       use cable_optimise_JV_module, ONLY: rtbis
       use mo_constants, only: pi => pi_sp
@@ -140,16 +140,38 @@ CONTAINS
 
       !ENDIF
       if (ktau_tot==1) then
-              print *, 'first call calc_soil_root_resistance'
-      do i = 1, mp
-         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
-         CALL calc_swp(ssnow, soil, i)
-         CALL calc_psix(ssnow, soil, canopy, veg, casapool, sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
-         ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
-         ! print*,'psix:',psix
-         canopy%psix(i) = psix
-         canopy%kplant(i) = kplant
-      end do
+         print *, 'first call calc_soil_root_resistance'
+         do i = 1, mp
+            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
+            CALL calc_swp(ssnow, soil, i)
+            CALL calc_psix(ssnow, soil, canopy, veg, casapool, sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
+            ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
+            ! print*,'psix:',psix
+            canopy%psix(i) = psix
+            canopy%kplant(i) = kplant
+            call calc_frac_uptake(ssnow, veg, psix, i)
+            total_cond_i = SUM(1.0 / MAX(1.0E-30, &
+            real(ssnow%rootR(i,:) + ssnow%soilR(i,:))))
+            if (total_cond_i > 0.0) then
+               ssnow%psi_soilmean(i) = SUM(real(ssnow%psi_soil(i,:)) / MAX(1.0E-30, &
+                  real(ssnow%rootR(i,:) + ssnow%soilR(i,:)))) / total_cond_i
+            else
+               ssnow%psi_soilmean(i) = 0.0_r_2
+            end if
+         end do
+      else
+         do i = 1, mp
+            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
+            call calc_frac_uptake(ssnow, veg, canopy%psix(i) , i)
+            total_cond_i = SUM(1.0 / MAX(1.0E-30, &
+            real(ssnow%rootR(i,:) + ssnow%soilR(i,:))))
+            if (total_cond_i > 0.0) then
+               ssnow%psi_soilmean(i) = SUM(real(ssnow%psi_soil(i,:)) / MAX(1.0E-30, &
+                  real(ssnow%rootR(i,:) + ssnow%soilR(i,:)))) / total_cond_i
+            else
+               ssnow%psi_soilmean(i) = 0.0_r_2
+            end if
+         end do
       endif
       ! Calculate canopy variables
       CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool, casabiome)
@@ -198,21 +220,14 @@ CONTAINS
       ENDIF
       do i = 1, mp
       ! print *, 'cbm: second call calc_soil_root_resistance'
-         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
+         !CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
          CALL calc_swp(ssnow, soil, i)
-         CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
-         ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
-         ! print*,'psix:',psix
-         canopy%psix(i) = psix
-         canopy%kplant(i) = kplant
-         total_cond_i = SUM(1.0 / MAX(1.0E-30, &
-            real(ssnow%rootR(i,:) + ssnow%soilR(i,:))))
-         if (total_cond_i > 0.0) then
-            ssnow%psi_soilmean(i) = SUM(real(ssnow%uptake_layer(i,:))) / total_cond_i &
-                                  + real(canopy%psix(i))
-         else
-            ssnow%psi_soilmean(i) = 0.0_r_2
-         end if
+         ! CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
+         ! ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
+         ! ! print*,'psix:',psix
+         ! canopy%psix(i) = psix
+         ! canopy%kplant(i) = kplant
+
       end do
       layer_depth(1) = 0.0_r_2
       do k=2, ms

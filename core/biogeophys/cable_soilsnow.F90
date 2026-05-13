@@ -1662,70 +1662,80 @@ CONTAINS
 
 
       IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
-         DO i = 1, mp
+         ! DO i = 1, mp
 
-            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
-            CALL calc_swp(ssnow, soil, i)
-            CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
-               root_length, i)
+         !    CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
+         !    CALL calc_swp(ssnow, soil, i)
+         !    CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
+         !       root_length, i)
    
-         END DO
-         ! This follows the default extraction logic, but instead of weighting
-         ! by froot, we are weighting by the frac uptake we calculated when we
-         ! were weighting the soil water potential.
-         !
-         ! Martin De Kauwe, 22/02/19
+         ! END DO
+         ! ! This follows the default extraction logic, but instead of weighting
+         ! ! by froot, we are weighting by the frac uptake we calculated when we
+         ! ! were weighting the soil water potential.
+         ! !
+         ! ! Martin De Kauwe, 22/02/19
          
 
-         demand = 0.0_r_2
-         difference = 0.0_r_2
-         supply = 0.0_r_2
+         ! demand = 0.0_r_2
+         ! difference = 0.0_r_2
+         ! supply = 0.0_r_2
 
-         xx  = 0.0_r_2
-         xxd = 0.0_r_2
-         diff(:,:) = 0.0_r_2
-         ssnow%uptake_layer(:,:) = 0.0_r_2
-         layer_depth_top = 0.0_r_2
-         DO k = 1, ms
-          !  WRITE(logn, *) 'fevc  is: ', canopy%fevc(1)
-             WHERE (canopy%fevc > 0.0_r_2 .AND. layer_depth_top < veg%zr(:))
+         ! xx  = 0.0_r_2
+         ! xxd = 0.0_r_2
+         ! diff(:,:) = 0.0_r_2
+         ! ssnow%uptake_layer(:,:) = 0.0_r_2
+         ! layer_depth_top = 0.0_r_2
+         ! DO k = 1, ms
+         !  !  WRITE(logn, *) 'fevc  is: ', canopy%fevc(1)
+         !     WHERE (canopy%fevc > 0.0_r_2 .AND. layer_depth_top < veg%zr(:))
 
-            !    ! Calculate the amount of water we wish to extract from each
-            !    ! layer, kg/m2
-                demand = canopy%fevc * real(dels / C%HL,r_2) * &
-                   real(ssnow%fraction_uptake(:,k),r_2) + supply(:,k-1)
+         !    !    ! Calculate the amount of water we wish to extract from each
+         !    !    ! layer, kg/m2
+         !        demand = canopy%fevc * real(dels / C%HL,r_2) * &
+         !           real(ssnow%fraction_uptake(:,k),r_2) + supply(:,k-1)
 
-            !    ! Calculate the amount of water available in the layer
-                supply(:,k) = MAX(0.0_r_2, ssnow%wb(:,k) - real(soil%swilt,r_2)) * &
-                   (real(soil%zse(k),r_2) *1000.0_r_2)
+         !    !    ! Calculate the amount of water available in the layer
+         !        supply(:,k) = MAX(0.0_r_2, ssnow%wb(:,k) - real(soil%swilt,r_2)) * &
+         !           (real(soil%zse(k),r_2) *1000.0_r_2)
 
-                difference = demand - supply(:,k)
+         !        difference = demand - supply(:,k)
                 
                 
 
-            !    ! Calculate new layer water balance
-                WHERE (difference > 0.0_r_2)
+         !    !    ! Calculate new layer water balance
+         !        WHERE (difference > 0.0_r_2)
                 
-            !       ! We don't have sufficent water to supply demand, extract only
-            !       ! the remaining SW in the layer
-                   ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
-                    (real(soil%zse(k),r_2)*1000.0_r_2)
-                   supply(:,k) = difference
-                ELSEWHERE
+         !    !       ! We don't have sufficent water to supply demand, extract only
+         !    !       ! the remaining SW in the layer
+         !           ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
+         !            (real(soil%zse(k),r_2)*1000.0_r_2)
+         !           supply(:,k) = difference
+         !        ELSEWHERE
                  
-            !       ! We have sufficent water to supply demand, extract needed SW
-            !       ! from the layer
-                  ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
-                  (real(soil%zse(k),r_2) *1000.0_r_2)
+         !    !       ! We have sufficent water to supply demand, extract needed SW
+         !    !       ! from the layer
+         !          ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
+         !          (real(soil%zse(k),r_2) *1000.0_r_2)
 
-                   supply(:,k) = 0.0_r_2
-                ENDWHERE
-               ssnow%uptake_layer(:,k) = supply(:,k) /  real(dels,r_2) !kg m-2 s-1
-             END WHERE   !fvec > 0
+         !           supply(:,k) = 0.0_r_2
+         !        ENDWHERE
+         !       ssnow%uptake_layer(:,k) = supply(:,k) /  real(dels,r_2) !kg m-2 s-1
+         !     END WHERE   !fvec > 0
 
-             layer_depth_top = layer_depth_top + real(soil%zse(k), r_2)
+         !     layer_depth_top = layer_depth_top + real(soil%zse(k), r_2)
 
-         END DO   !ms
+         ! END DO   !ms
+         WHERE (canopy%fevc .lt. 0.0_r_2)
+            canopy%fevw = canopy%fevw + real(canopy%fevc)
+            canopy%fevc = 0.0_r_2
+         END WHERE
+         DO k = 1,ms
+            ssnow%wb(:,k) = ssnow%wb(:,k) - real(ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0),r_2)
+            ssnow%uptake_layer(:,k) = ssnow%evapfbl(:,k) /  real(dels,r_2) !kg m-2 s-1
+            !  write(59,*) k,  ssnow%wb(:,k),  ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
+            !  write(59,*)
+         ENDDO
       ELSEIF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
       !IF (cable_user%FWSOIL_switch .ne.'Haverd2013') THEN
          xx  = 0.0_r_2

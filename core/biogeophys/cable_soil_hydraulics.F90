@@ -10,7 +10,8 @@ MODULE cable_soil_hydraulics_module
    type(icanopy_type) :: C
    REAL, PARAMETER :: PA_2_MPa = 1E-6
    REAL, PARAMETER :: gC2DM = 1./0.49
-   PUBLIC :: calc_soil_root_resistance, calc_swp, calc_weighted_swp_and_frac_uptake
+   PUBLIC :: calc_soil_root_resistance, calc_swp, calc_weighted_swp_and_frac_uptake, &
+             calc_frac_uptake
 
 CONTAINS
 
@@ -530,6 +531,52 @@ CONTAINS
       !print*, 'Entry kplant: ', casapool%cplant(i,2)/1000.0_r_2, AGB_pl, DBH, BAI, plc, kplant
 
    END SUBROUTINE calc_psix
+   ! ----------------------------------------------------------------------------
+
+   ! ----------------------------------------------------------------------------
+   SUBROUTINE calc_frac_uptake(ssnow, veg, psix, i)
+      ! Compute per-layer water uptake fractions using the actual xylem water
+      ! potential (psix) as the sink, so the driving gradient is
+      ! (psi_soil_j - psix) / (soilR_j + rootR_j).
+      ! Layers where psi_soil_j < psix contribute zero (no reverse flow).
+      ! Requires calc_soil_root_resistance, calc_swp, and calc_psix to have
+      ! already been called for land point i this timestep.
+
+      USE cable_def_types_mod
+      IMPLICIT NONE
+
+      TYPE (soil_snow_type),     INTENT(INOUT) :: ssnow
+      TYPE (veg_parameter_type), INTENT(IN)    :: veg
+      real(r_2),                 INTENT(IN)    :: psix  ! xylem water potential (MPa)
+      INTEGER,                   INTENT(IN)    :: i
+
+      REAL, DIMENSION(ms) :: est_evap
+      REAL :: total_est_evap
+      INTEGER :: j
+
+      est_evap = 0.0
+      ssnow%fraction_uptake(i,:) = 0.0
+
+      DO j = 1, ms
+         IF (ssnow%soilR(i,j) > 0.0 .AND. veg%froot(i,j) > 0.0) THEN
+            est_evap(j) = MAX(0.0, &
+               (real(ssnow%psi_soil(i,j)) - real(psix)) / &
+               (ssnow%soilR(i,j) + ssnow%rootR(i,j)))
+         END IF
+         IF (ssnow%wbice(i,j) > 0.0) est_evap(j) = 0.0
+      END DO
+
+      total_est_evap = SUM(est_evap)
+
+      IF (total_est_evap > 0.0) THEN
+         DO j = 1, ms
+            ssnow%fraction_uptake(i,j) = MAX(1.0E-9, est_evap(j) / total_est_evap)
+         END DO
+      ELSE
+         ssnow%fraction_uptake(i,:) = 1.0 / FLOAT(ms)
+      END IF
+
+   END SUBROUTINE calc_frac_uptake
    ! ----------------------------------------------------------------------------
 
 END MODULE cable_soil_hydraulics_module
