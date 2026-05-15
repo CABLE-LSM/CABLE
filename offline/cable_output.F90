@@ -977,8 +977,7 @@ CONTAINS
        out%psi_30 = zero4
        out%psi_fr_rootzone = zero4
        out%psi_depth_rootzone = zero4
-    END IF
-    IF(output%soil) THEN
+
      CALL define_ovar(ncid_out, ovid%uptake_layer, &
                       'uptake_layer', 'kg m-2 s-1', 'soil water uptake rate', &
                       patchout%uptake_layer, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
@@ -3468,6 +3467,7 @@ CONTAINS
        out%wb_depth_rootzone = out%wb_depth_rootzone + toreal4(ssnow%wb_depth_rootzone)
        out%rwc_depth_rootzone = out%rwc_depth_rootzone + toreal4(ssnow%rwc_depth_rootzone)
        out%psi_depth_rootzone = out%psi_depth_rootzone + toreal4(ssnow%psi_depth_rootzone)
+       out%uptake_layer = out%uptake_layer + toreal4(ssnow%uptake_layer)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%wb_30 = out%wb_30 * rinterval
@@ -3479,6 +3479,7 @@ CONTAINS
           out%wb_depth_rootzone = out%wb_depth_rootzone * rinterval
           out%rwc_depth_rootzone = out%rwc_depth_rootzone * rinterval
           out%psi_depth_rootzone = out%psi_depth_rootzone * rinterval
+          out%uptake_layer = out%uptake_layer * rinterval
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%wb_30, 'wb_30', &
                out%wb_30, ranges%SoilMoist, patchout%wb_30, 'default', met)
@@ -3498,6 +3499,10 @@ CONTAINS
                out%rwc_depth_rootzone, ranges%SoilMoist, patchout%rwc_depth_rootzone, 'default', met)
           CALL write_ovar(out_timestep, ncid_out, ovid%psi_depth_rootzone, 'psi_depth_rootzone', &
                out%psi_depth_rootzone, ranges%psi_soil, patchout%psi_depth_rootzone, 'default', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%uptake_layer, 'uptake_layer', &
+             out%uptake_layer, ranges%TVeg, patchout%uptake_layer, 'soil', met)
+        ! Reset temporary output variable:
+          out%uptake_layer = zero4
           ! Reset temporary output variable:
           out%wb_30 = zero4
           out%psi_30 = zero4
@@ -3647,20 +3652,6 @@ CONTAINS
         out%psi_rootmean = zero4
      END IF
     END IF
-
-    IF(output%soil .OR. output%uptake_layer) THEN
-     ! Add current timestep's value to total of temporary output variable:
-     out%uptake_layer = out%uptake_layer + toreal4(ssnow%uptake_layer)
-     IF(writenow) THEN
-        ! Divide accumulated variable by number of accumulated time steps:
-        out%uptake_layer = out%uptake_layer * rinterval
-        ! Write value to file:
-        CALL write_ovar(out_timestep, ncid_out, ovid%uptake_layer, 'uptake_layer', &
-             out%uptake_layer, ranges%TVeg, patchout%uptake_layer, 'soil', met)
-        ! Reset temporary output variable:
-        out%uptake_layer = zero4
-     END IF
-  END IF
     ! SoilTemp: av.layer soil temperature [K]
     IF(output%soil .OR. output%SoilTemp) THEN
        ! Add current timestep's value to total of temporary output variable:
