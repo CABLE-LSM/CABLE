@@ -1923,7 +1923,6 @@ CONTAINS
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL, dc
       CHARACTER(LEN=200) :: txtname, num_str
-      logical :: NonStoLim = .True.
 
 #ifdef __MPI__
       integer :: ierr
@@ -1984,7 +1983,7 @@ CONTAINS
           canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
-      if (NonStoLim) then
+      if (cable_user%NonStoLim) then
 
          if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) Then
             do i = 1, mp
