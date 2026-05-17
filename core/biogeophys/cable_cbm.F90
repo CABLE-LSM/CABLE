@@ -97,7 +97,6 @@ CONTAINS
 #endif
       REAL, DIMENSION(ms) :: a, root_length
       real(r_2) :: psix, kplant
-      REAL :: total_cond_i
       INTEGER :: diff_Esr_Erl_i
       REAL, PARAMETER :: l_bound = -6.0
       REAL, PARAMETER :: u_bound = 0.0
@@ -149,28 +148,12 @@ CONTAINS
             ! print*,'psix:',psix
             canopy%psix(i) = psix
             canopy%kplant(i) = kplant
-            call calc_frac_uptake(ssnow, veg, psix, i)
-            total_cond_i = SUM(1.0 / MAX(1.0E-30, &
-            real(ssnow%rootR(i,:) + ssnow%soilR(i,:))))
-            if (total_cond_i > 0.0) then
-               ssnow%psi_soilmean(i) = SUM(real(ssnow%psi_soil(i,:)) / MAX(1.0E-30, &
-                  real(ssnow%rootR(i,:) + ssnow%soilR(i,:)))) / total_cond_i
-            else
-               ssnow%psi_soilmean(i) = 0.0_r_2
-            end if
+            call calc_frac_uptake(ssnow, soil, veg, psix, i)
          end do
       else
          do i = 1, mp
             CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
-            call calc_frac_uptake(ssnow, veg, canopy%psix(i) , i)
-            total_cond_i = SUM(1.0 / MAX(1.0E-30, &
-            real(ssnow%rootR(i,:) + ssnow%soilR(i,:))))
-            if (total_cond_i > 0.0) then
-               ssnow%psi_soilmean(i) = SUM(real(ssnow%psi_soil(i,:)) / MAX(1.0E-30, &
-                  real(ssnow%rootR(i,:) + ssnow%soilR(i,:)))) / total_cond_i
-            else
-               ssnow%psi_soilmean(i) = 0.0_r_2
-            end if
+            call calc_frac_uptake(ssnow, soil, veg, canopy%psix(i), i)
          end do
       endif
       ! Calculate canopy variables

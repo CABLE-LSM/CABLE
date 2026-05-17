@@ -552,7 +552,7 @@ CONTAINS
       INTEGER,                    INTENT(IN)    :: i
 
       REAL, DIMENSION(ms) :: est_evap, layer_depth
-      REAL :: total_est_evap
+      REAL :: total_est_evap, sumksoil, sumpsiksoil
       INTEGER :: j
 
       layer_depth(1) = 0.0
@@ -560,7 +560,9 @@ CONTAINS
          layer_depth(j) = SUM(soil%zse(1:j-1))
       END DO
 
-      est_evap = 0.0
+      est_evap    = 0.0
+      sumksoil    = 0.0
+      sumpsiksoil = 0.0
       ssnow%fraction_uptake(i,:) = 0.0
 
       DO j = 1, ms
@@ -569,11 +571,21 @@ CONTAINS
             est_evap(j) = MAX(0.0, &
                (real(ssnow%psi_soil(i,j)) - real(psix)) / &
                (ssnow%soilR(i,j) + ssnow%rootR(i,j)))
+            sumpsiksoil = sumpsiksoil + &
+               real(ssnow%psi_soil(i,j)) / (ssnow%soilR(i,j) + ssnow%rootR(i,j))
+            sumksoil = sumksoil + &
+               1.0 / (ssnow%soilR(i,j) + ssnow%rootR(i,j))
          ELSE
             est_evap(j) = 0.0
          END IF
          IF (ssnow%wbice(i,j) > 0.0) est_evap(j) = 0.0
       END DO
+
+      IF (sumksoil > 0.0) THEN
+         ssnow%psi_soilmean(i) = sumpsiksoil / sumksoil
+      ELSE
+         ssnow%psi_soilmean(i) = 0.0_r_2
+      END IF
 
       total_est_evap = SUM(est_evap)
 
