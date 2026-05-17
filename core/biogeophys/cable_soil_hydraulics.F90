@@ -485,17 +485,16 @@ CONTAINS
       ! endif
 
       ! --- Conductance-weighted soil-xylem water potential ---
+      ! Only include layers whose top depth is within the rooting depth veg%zr(i)
       sumksoil    = 0.0
       sumpsiksoil = 0.0
       DO k = 1, ms
-         sumpsiksoil = sumpsiksoil + &
-            ssnow%psi_soil(i,k) / (ssnow%soilR(i,k) + ssnow%rootR(i,k))
-         sumksoil = sumksoil + &
-            1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k))
-         ! if (k==1) then
-         !    print*, 'calc_psix: psi_soil ', ssnow%psi_soil(i,k)
-         !    print*, 'calc_psix: ksoil, rootR ', 1.0/ssnow%soilR(i,k), ssnow%rootR(i,k)
-         ! endif
+         IF (layer_depth(k) < veg%zr(i)) THEN
+            sumpsiksoil = sumpsiksoil + &
+               ssnow%psi_soil(i,k) / (ssnow%soilR(i,k) + ssnow%rootR(i,k))
+            sumksoil = sumksoil + &
+               1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k))
+         END IF
       END DO
       psix = (sumpsiksoil - ex) / sumksoil
       ! print*, 'calc_psix: psix ', psix
@@ -534,34 +533,44 @@ CONTAINS
    ! ----------------------------------------------------------------------------
 
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_frac_uptake(ssnow, veg, psix, i)
+   SUBROUTINE calc_frac_uptake(ssnow, soil, veg, psix, i)
       ! Compute per-layer water uptake fractions using the actual xylem water
       ! potential (psix) as the sink, so the driving gradient is
       ! (psi_soil_j - psix) / (soilR_j + rootR_j).
-      ! Layers where psi_soil_j < psix contribute zero (no reverse flow).
+      ! Layers where psi_soil_j < psix, wbice > 0, or layer top >= veg%zr(i)
+      ! contribute zero.
       ! Requires calc_soil_root_resistance, calc_swp, and calc_psix to have
       ! already been called for land point i this timestep.
 
       USE cable_def_types_mod
       IMPLICIT NONE
 
-      TYPE (soil_snow_type),     INTENT(INOUT) :: ssnow
-      TYPE (veg_parameter_type), INTENT(IN)    :: veg
-      real(r_2),                 INTENT(IN)    :: psix  ! xylem water potential (MPa)
-      INTEGER,                   INTENT(IN)    :: i
+      TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
+      TYPE (soil_parameter_type), INTENT(IN)    :: soil
+      TYPE (veg_parameter_type),  INTENT(IN)    :: veg
+      real(r_2),                  INTENT(IN)    :: psix  ! xylem water potential (MPa)
+      INTEGER,                    INTENT(IN)    :: i
 
-      REAL, DIMENSION(ms) :: est_evap
+      REAL, DIMENSION(ms) :: est_evap, layer_depth
       REAL :: total_est_evap
       INTEGER :: j
+
+      layer_depth(1) = 0.0
+      DO j = 2, ms
+         layer_depth(j) = SUM(soil%zse(1:j-1))
+      END DO
 
       est_evap = 0.0
       ssnow%fraction_uptake(i,:) = 0.0
 
       DO j = 1, ms
-         IF (ssnow%soilR(i,j) > 0.0 .AND. veg%froot(i,j) > 0.0) THEN
+         IF (layer_depth(j) < veg%zr(i) .AND. &
+             ssnow%soilR(i,j) > 0.0 .AND. veg%froot(i,j) > 0.0) THEN
             est_evap(j) = MAX(0.0, &
                (real(ssnow%psi_soil(i,j)) - real(psix)) / &
                (ssnow%soilR(i,j) + ssnow%rootR(i,j)))
+         ELSE
+            est_evap(j) = 0.0
          END IF
          IF (ssnow%wbice(i,j) > 0.0) est_evap(j) = 0.0
       END DO
@@ -569,9 +578,7 @@ CONTAINS
       total_est_evap = SUM(est_evap)
 
       IF (total_est_evap > 0.0) THEN
-         DO j = 1, ms
-            ssnow%fraction_uptake(i,j) = MAX(1.0E-9, est_evap(j) / total_est_evap)
-         END DO
+         ssnow%fraction_uptake(i,:) = est_evap / total_est_evap
       ELSE
          ssnow%fraction_uptake(i,:) = 1.0 / FLOAT(ms)
       END IF
