@@ -1819,6 +1819,7 @@ CONTAINS
          rnx, &          ! net rad prev timestep
          ecxs, &  ! lat. hflux big leaf (sap flux)
          psixx, &
+         psixy,&
          kplantx
 
       real(r_2) :: psixxi, kplantxi
@@ -2987,6 +2988,7 @@ CONTAINS
                vcmxt3y(i, :) = vcmxt3(i, :)
                vcmxt4y(i, :) = vcmxt4(i, :)
                cx2y(i) = cx2(i)
+               psixy(i) = psixx(i)
             END IF
             ! if (ktau>=5184) then
             ! print*, 'check y=x ktau & k= ',ktau,k
@@ -3033,6 +3035,7 @@ CONTAINS
                vcmxt3y(i, :) = vcmxt3(i, :)
                vcmxt4y(i, :) = vcmxt4(i, :)
                cx2y(i) = cx2(i)
+               psixy(i) = psixx(i)
             END IF
             !print*, 'check after k==1 ',ktau,k
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
@@ -3284,6 +3287,7 @@ CONTAINS
 
          END IF
          ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
+         canopy%psix = real(psixy, r_2)
          canopy%psi_can = real(psily, r_2)
          canopy%frday = 12.0*SUM(rdy, 2)
          !! vh !! inserted min to avoid -ve values of GPP
