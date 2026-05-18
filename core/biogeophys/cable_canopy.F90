@@ -2003,6 +2003,13 @@ CONTAINS
                fwsoil_nongs(i) = (1.0 + exp(veg%slope_leaf(i) * veg%psi_critical(i))) / &
                                   (1.0 + exp(veg%slope_leaf(i) * &
                                   (veg%psi_critical(i) - real(ssnow%psi_soilmean(i)))))
+            else if (cable_user%NonStoLim == 'weibull') then
+               ! f = exp(-ln2 * (psi_soilmean/psi_critical)^b_plant)
+               ! psi_critical = 50% stress point; b_plant controls curve shape
+               ! ratio of two negatives is positive; MAX guards psi_soilmean >= 0
+               fwsoil_nongs(i) = exp(-log(2.0) * &
+                                  MAX(0.0, real(ssnow%psi_soilmean(i)) / veg%psi_critical(i)) &
+                                  ** veg%b_plant(i))
             end if
          end do
       else
