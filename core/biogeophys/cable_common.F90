@@ -119,6 +119,7 @@ MODULE cable_common_module
      ! Options: Bernacchi_2002 or Walker_2013.
      !          Only used if explicit_gm = .true.
      CHARACTER(LEN=50)  :: Rubisco_parameters = 'Bernacchi_2002'    ! Rubisco kinetic parameters
+     CHARACTER(LEN=20)  :: NonStoLim = 'None'   ! non-stomatal limitation: 'None', 'linear-plateau', 'logistic'
      LOGICAL ::                                                               &
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &
@@ -138,8 +139,7 @@ MODULE cable_common_module
           amphistomatous           = .FALSE., &
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
           perturb_Ta               = .FALSE., &  ! switch to perturb air temp by Ta_perturbation (site met only)
-          calc_fdiff             = .FALSE., &    ! switch to calculate diffuse radiation or prescribe from met
-          NonStoLim              = .TRUE.        ! enable non-stomatal limitation of photosynthesis
+          calc_fdiff             = .FALSE.        ! switch to calculate diffuse radiation or prescribe from met
      INTEGER ::  &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &
