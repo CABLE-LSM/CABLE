@@ -89,12 +89,9 @@ contains
             call cable_abort("Data shape does not match aggregator shape for variable " // output_var%field_name, __FILE__, __LINE__)
           end if
         end if
-        if (allocated(output_var%range)) then
-          if (output_var%range(1) >= output_var%range(2)) then
-            call cable_abort("Invalid range specified for variable " // output_var%field_name, __FILE__, __LINE__)
-          end if
+        if (output_var%range(1) >= output_var%range(2)) then
+          call cable_abort("Invalid range specified for variable " // output_var%field_name, __FILE__, __LINE__)
         end if
-
       end associate
     end do
 
@@ -147,7 +144,6 @@ contains
         end if
         if (output_var%patchout) output_var%reduction_method = "none"
         if (global_output_stream%sampling_frequency == "all") output_var%aggregation_method = "point"
-        if (allocated(output_var%range)) output_var%range_native = (output_var%range - output_var%offset_by) * output_var%divide_by / output_var%scale_by
       end associate
     end do
 

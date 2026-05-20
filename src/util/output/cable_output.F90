@@ -220,10 +220,7 @@ module cable_output_mod
     real :: offset_by = 0.0
       !* An additive offset to apply to the native diagnostic values when
       ! writing output.
-    real, private :: range_native(2) = [-huge(0.0), huge(0.0)]
-      !* The valid range of physical values for the output variable in the units
-      ! of the native diagnostic.
-    real, allocatable :: range(:)
+    real :: range(2) = [-huge(0.0), huge(0.0)]
       !* The valid range of physical values for the output variable. If a unit
       ! conversion is applied to the native diagnostic via the `scale_by`,
       ! `divide_by`, or `offset_by` components, the range should be given in the
@@ -464,12 +461,7 @@ contains
     parameter, distributed, restart, patchout, var_type, scale_by, divide_by, &
     offset_by, range, data_shape, metadata &
   ) result(this)
-    !* Custom constructor for `cable_output_variable_t`.
-    !
-    ! This is a work-around for older gfortran compilers < 14 which require
-    ! allocating polymorphic components, like `aggregator`, before assignment,
-    ! which prevents the use of the default constructor for
-    ! `cable_output_variable_t` with the `aggregator` argument.
+    !! Constructor for `cable_output_variable_t`.
     character(*), intent(in) :: field_name
     class(aggregator_t), intent(in) :: aggregator
     character(*), intent(in), optional :: netcdf_name
@@ -505,7 +497,10 @@ contains
     if (present(scale_by)) this%scale_by = scale_by
     if (present(divide_by)) this%divide_by = divide_by
     if (present(offset_by)) this%offset_by = offset_by
-    if (present(range)) this%range = range
+    if (present(range)) then
+      ! Convert range to native units for comparison with working variable:
+      this%range = (range - this%offset_by) * this%divide_by / this%scale_by
+    end if
     if (present(data_shape)) this%data_shape = data_shape
     if (present(metadata)) this%metadata = metadata
 
