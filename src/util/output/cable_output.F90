@@ -35,6 +35,10 @@ module cable_output_mod
   !         ])
   !
   !
+  !     Here, `"patch"` is a reserved dimension name which is recognised by the
+  !     output module. Please see [[cable_output_get_dimension]] for more
+  !     information on which dimensions are supported and how to add new ones.
+  !
   !     Note that registering an output variable does not necessarily mean that the
   !     variable will be written to an output stream - this can depend on whether the
   !     output variable is active, which often depends on the output configuration,
@@ -384,7 +388,7 @@ contains
     ! definitions of all dimensions used to describe the in-memory data shapes
     ! of CABLE variables.
     !
-    ! @note "Note on adding new dimensions and shapes for output variables"
+    ! @note "Adding new dimensions"
     ! Adding new dimensions and shapes for output variables is possible, however
     ! it is currently more involved than adding new output variables and requires
     ! making changes to the output module implementation. The steps to add a new
