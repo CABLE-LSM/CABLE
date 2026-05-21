@@ -53,10 +53,6 @@ contains
     integer :: last_day_of_month_in_total_elapsed_days(months_in_year)
 
     select case (frequency)
-    case ('user')
-      read(frequency(5:7), *) interval_in_hours
-      time_steps_per_interval = seconds_per_hour * interval_in_hours / int(dels)
-      match = mod(ktau, time_steps_per_interval) == 0
     case ('all')
       match = .true.
     case ('daily')
@@ -81,7 +77,13 @@ contains
       end if
       match = any(int(real(last_day_of_month_in_total_elapsed_days) * seconds_per_day / dels) == ktau)
     case default
-      call cable_abort('Error: unknown frequency "' // trim(adjustl(frequency)) // '"', __FILE__, __LINE__)
+      if (frequency(:4) == 'user') then
+        read(frequency(5:7), *) interval_in_hours
+        time_steps_per_interval = seconds_per_hour * interval_in_hours / int(dels)
+        match = mod(ktau, time_steps_per_interval) == 0
+      else
+        call cable_abort('Error: unknown frequency "' // trim(adjustl(frequency)) // '"', __FILE__, __LINE__)
+      end if
     end select
 
   end function
@@ -102,19 +104,9 @@ contains
     case ("all")
       if (freq_b == "all") then
         freq_a_greater_than_b = .false.
-      else if (freq_b == "user") then
+      else if (freq_b(:4) == "user") then
         read(freq_b(5:7), *) period_in_hours_b
         freq_a_greater_than_b = dels / seconds_per_hour < period_in_hours_b
-      else
-        freq_a_greater_than_b = .true.
-      end if
-    case ("user")
-      read(freq_a(5:7), *) period_in_hours_a
-      if (freq_b == "user") then
-        read(freq_b(5:7), *) period_in_hours_b
-        freq_a_greater_than_b = period_in_hours_a < period_in_hours_b
-      else if (freq_b == "all") then
-        freq_a_greater_than_b = period_in_hours_a < dels / seconds_per_hour
       else
         freq_a_greater_than_b = .true.
       end if
@@ -123,7 +115,19 @@ contains
     case ("monthly")
       freq_a_greater_than_b = .false.
     case default
-      call cable_abort("Unexpected sampling frequency '" // freq_a, __FILE__, __LINE__)
+      if (freq_a(:4) == "user") then
+        read(freq_a(5:7), *) period_in_hours_a
+        if (freq_b(:4) == "user") then
+          read(freq_b(5:7), *) period_in_hours_b
+          freq_a_greater_than_b = period_in_hours_a < period_in_hours_b
+        else if (freq_b == "all") then
+          freq_a_greater_than_b = period_in_hours_a < dels / seconds_per_hour
+        else
+          freq_a_greater_than_b = .true.
+        end if
+      else
+        call cable_abort("Unexpected sampling frequency '" // freq_a, __FILE__, __LINE__)
+      end if
     end select
 
   end function

@@ -110,16 +110,18 @@ contains
     call output_stream%output_file%put_att("CABLE_input_file", trim(filename%met))
 
     select case (output_stream%sampling_frequency)
-    case ("user")
-       call output_stream%output_file%put_att("Output_averaging", TRIM(output_stream%sampling_frequency(5:7)) // "-hourly output")
     case ("all")
-       call output_stream%output_file%put_att("Output_averaging", "all timesteps recorded")
+      call output_stream%output_file%put_att("Output_averaging", "all timesteps recorded")
     case ("daily")
-       call output_stream%output_file%put_att("Output_averaging", "daily")
+      call output_stream%output_file%put_att("Output_averaging", "daily")
     case ("monthly")
-       call output_stream%output_file%put_att("Output_averaging", "monthly")
+      call output_stream%output_file%put_att("Output_averaging", "monthly")
     case default
-       call cable_abort("Invalid sampling frequency '" // output_stream%sampling_frequency // "'", __FILE__, __LINE__)
+      if (output_stream%sampling_frequency(:4) == "user") then
+        call output_stream%output_file%put_att("Output_averaging", TRIM(output_stream%sampling_frequency(5:7)) // "-hourly output")
+      else
+        call cable_abort("Invalid sampling frequency '" // output_stream%sampling_frequency // "'", __FILE__, __LINE__)
+      end if
     end select
 
   end subroutine set_global_attributes
