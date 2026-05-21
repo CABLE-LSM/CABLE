@@ -788,7 +788,7 @@ contains
         data_shape=[dim_patch], &
         var_type=CABLE_NETCDF_FLOAT, &
         range=ranges%Tscrn, &
-        active=(output%veg .or. output%Tex) .and. any(output%averaging == ["da", "mo"]), &
+        active=(output%veg .or. output%Tex) .and. any(output%averaging(:2) == ["da", "mo"]), &
         patchout=output%patch .or. patchout%Tex, &
         reduction_method="grid_cell_average", &
         aggregation_method="max", &
@@ -804,7 +804,7 @@ contains
         data_shape=[dim_patch], &
         var_type=CABLE_NETCDF_FLOAT, &
         range=ranges%Tscrn, &
-        active=(output%veg .or. output%Tex) .and. any(output%averaging == ["da", "mo"]), &
+        active=(output%veg .or. output%Tex) .and. any(output%averaging(:2) == ["da", "mo"]), &
         patchout=output%patch .or. patchout%Tex, &
         reduction_method="grid_cell_average", &
         aggregation_method="min", &
