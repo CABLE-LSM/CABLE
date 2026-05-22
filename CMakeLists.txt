@@ -166,6 +166,23 @@ if(CABLE_LIBRARY)
         endif()
 
     elseif(CABLE_LIBRARY_TARGET STREQUAL "access3")
+        list(APPEND SOURCES
+            src/coupled/AM3/control/CM3/air_type.F90
+            src/coupled/AM3/control/CM3/balances_type.F90
+            src/coupled/AM3/control/CM3/bgc_pool_type.F90
+            src/coupled/AM3/control/CM3/cable_define_types.F90
+            src/coupled/AM3/control/CM3/cbl_canopy_type.F90
+            src/coupled/AM3/control/CM3/cable_cbm_mod.F90
+            src/coupled/AM3/control/CM3/climate_type.F90
+            src/coupled/AM3/control/CM3/met_type_cbl.F90
+            src/coupled/AM3/control/CM3/radiation_type.F90
+            src/coupled/AM3/control/CM3/read_cable_namelists_mod.F90
+            src/coupled/AM3/control/CM3/roughness_type.F90
+            src/coupled/AM3/control/CM3/soil_type_cbl.F90
+            src/coupled/AM3/control/CM3/ssnow_type.F90
+            src/coupled/AM3/control/CM3/sum_flux_type.F90
+            src/coupled/AM3/control/CM3/veg_type.F90
+        )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)
         elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
