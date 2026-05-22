@@ -12,7 +12,9 @@ jobs:
         spack-manifest-path:
           - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
-    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@v2
+          - .github/build-ci/manifests/library-gcc.spack.yaml.j2
+          - .github/build-ci/manifests/library-intel.spack.yaml.j2
+    uses: access-nri/build-ci/.github/workflows/ci.yml@v3
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       spack-config-ref: 2025.11.000  # Before build-ci@v2-breaking change to spack-config, don't go any further forward!
