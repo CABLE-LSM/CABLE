@@ -460,8 +460,8 @@ CONTAINS
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-       ! CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
-       !      filename%restart_in,max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'zr',dummy,veg%zr, &
+            filename%restart_in,max_vegpatches,'def',from_restart,mp)
        ! CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
        !      filename%restart_in,max_vegpatches,'def',from_restart,mp)
        ! CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in, &
