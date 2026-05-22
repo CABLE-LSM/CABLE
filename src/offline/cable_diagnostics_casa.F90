@@ -71,7 +71,7 @@ contains
         data_shape=[dim_patch], &
         var_type=CABLE_NETCDF_FLOAT, &
         range=ranges%AutoResp, &
-        active=output%carbon .or. output%casa, &
+        active=output%carbon .or. output%casa .or. output%AutoResp, &
         patchout=output%patch .or. patchout%casa, &
         reduction_method="grid_cell_average", &
         aggregation_method="mean", &
@@ -88,7 +88,7 @@ contains
         data_shape=[dim_patch], &
         var_type=CABLE_NETCDF_FLOAT, &
         range=ranges%AutoResp, &
-        active=output%carbon .or. output%casa, &
+        active=output%carbon .or. output%casa .or. output%AutoResp, &
         patchout=output%patch .or. patchout%casa, &
         reduction_method="grid_cell_average", &
         aggregation_method="mean", &
@@ -479,7 +479,7 @@ contains
         data_shape=[dim_patch], &
         var_type=CABLE_NETCDF_FLOAT, &
         range=ranges%NEE, &
-        active=cable_user%POPLUC .or. output%LandUseFlux, &
+        active=output%LandUseFlux .and. cable_user%POPLUC, &
         patchout=output%patch .or. patchout%LandUseFlux, &
         reduction_method="grid_cell_average", &
         aggregation_method="mean", &
