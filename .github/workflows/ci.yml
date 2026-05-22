@@ -20,6 +20,7 @@ jobs:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       # We need to install the compilers manually here because the upstream image is too large to run on GitHub-hosted runners
       spack-compiler-manifest-path: .github/build-ci/compilers/spack.yaml
+      access-spack-packages-ref: 1d9acf45c39229ff4e90a9aa49922b1169305476
       allow-ssh-into-spack-install: false
       spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache  # https://github.com/orgs/CABLE-LSM/packages/container/package/build-ci-buildcache
       # Since CABLE-LSM can't access ACCESS-NRI's self-hosted runners, we use a GitHub-hosted version
