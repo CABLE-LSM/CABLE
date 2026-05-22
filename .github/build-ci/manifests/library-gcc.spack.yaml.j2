@@ -2,8 +2,8 @@ spack:
   specs:
   # package is defined in the workflows inputs.spack-manifest-data-pairs
   # gcc_compiler_ver is defined in the standard_definitions.json data file
-  - 'cable@git.{{ ref }} +mpi library=access3'
-  - 'cable@git.{{ ref }} ~mpi library=access3'
+  - cable@git.{{ ref }} +mpi library=access3
+  - cable@git.{{ ref }} ~mpi library=access3
   packages:
     gcc:
       require:
@@ -11,7 +11,7 @@ spack:
     all:
       require:
         - '%access_gcc'
-        - 'target=x86_64
+        - target=x86_64
   concretizer:
     unify: false
   view: false
