@@ -132,19 +132,6 @@ if(CABLE_LIBRARY)
         src/science/soilsnow/cbl_surfbv.F90
         src/science/soilsnow/cbl_thermal.F90
         src/science/soilsnow/cbl_trimb.F90
-        src/params/cable_phys_constants_mod.F90
-        src/params/grid_constants_cbl.F90
-        src/params/cable_photo_constants_mod.F90
-        src/params/cable_other_constants_mod.F90
-        src/params/cable_maths_constants_mod.F90
-        src/util/cable_runtime_opts_mod.F90
-        src/util/cable_common.F90
-        src/coupled/shared/cable_canopy_type_mod.F90
-        src/coupled/shared/cable_soilsnow_type_mod.F90
-        src/coupled/shared/cable_soil_type_mod.F90
-        src/coupled/shared/cable_veg_type_mod.F90
-        src/util/cable_climate_type_mod.F90
-        src/util/masks_cbl.F90
     )
 
     if(CABLE_LIBRARY_TARGET STREQUAL "access-esm1.6")
@@ -156,6 +143,19 @@ if(CABLE_LIBRARY)
             src/coupled/esm/cable_pft_params_mod.F90
             src/coupled/esm/casa_landuse.F90
             src/coupled/esm/LAI_canopy_height_cbl.F90
+            src/params/cable_phys_constants_mod.F90
+            src/params/grid_constants_cbl.F90
+            src/params/cable_photo_constants_mod.F90
+            src/params/cable_other_constants_mod.F90
+            src/params/cable_maths_constants_mod.F90
+            src/util/cable_runtime_opts_mod.F90
+            src/util/cable_common.F90
+            src/coupled/shared/cable_canopy_type_mod.F90
+            src/coupled/shared/cable_soilsnow_type_mod.F90
+            src/coupled/shared/cable_soil_type_mod.F90
+            src/coupled/shared/cable_veg_type_mod.F90
+            src/util/cable_climate_type_mod.F90
+            src/util/masks_cbl.F90
         )
         if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)
@@ -165,6 +165,14 @@ if(CABLE_LIBRARY)
             message(STATUS "Cannot compile library with unknown compiler")
         endif()
 
+    elseif(CABLE_LIBRARY_TARGET STREQUAL "access3")
+        if (CMAKE_Fortran_COMPILER_ID MATHCES "Intel")
+            add_compile_options(-r8 -i8)
+        elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+            add_compile_options(-fdefault-real-8 -fdefault-integer-8 -fdefault-double-8)
+        else()
+            message(STATUS "Cannot compile library with unknown compiler")
+        endif()
     else()
         message(STATUS "Specified library application does not exist")
     endif()
