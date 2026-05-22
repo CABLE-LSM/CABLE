@@ -1092,7 +1092,7 @@ contains
         data_shape=[dim_patch], &
         var_type=CABLE_NETCDF_FLOAT, &
         range=ranges%NEE, &
-        active=output%flux .or. output%NEE, &
+        active=output%carbon .or. output%flux .or. output%NEE, &
         patchout=output%patch .or. patchout%NEE, &
         reduction_method="grid_cell_average", &
         aggregation_method="mean", &
