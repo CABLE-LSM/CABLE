@@ -1985,7 +1985,8 @@ CONTAINS
          canopy%fwpsi = real(fwpsi, r_2)
       end if
       if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0 .AND. &
-          cable_user%NonStoLim /= 'None') then
+          cable_user%NonStoLim /= 'None' .AND. &
+          .NOT. present(wbpsdo)) then
          do i = 1, mp
             if (cable_user%NonStoLim == 'linear-plateau') then
                psi_sat_i  = soil%sucs(i) * C%grav * C%RHOW * 1.0E-6
