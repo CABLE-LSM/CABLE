@@ -149,7 +149,6 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/cable/CM3/climate_type.F90
             src/coupled/AM3/control/cable/CM3/met_type_cbl.F90
             src/coupled/AM3/control/cable/CM3/radiation_type.F90
-            src/coupled/AM3/control/cable/CM3/read_cable_namelists_mod.F90
             src/coupled/AM3/control/cable/CM3/roughness_type.F90
             src/coupled/AM3/control/cable/CM3/soil_type_cbl.F90
             src/coupled/AM3/control/cable/CM3/ssnow_type.F90
