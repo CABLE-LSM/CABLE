@@ -172,7 +172,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/cable/CM3/bgc_pool_type.F90
             src/coupled/AM3/control/cable/CM3/cable_define_types.F90
             src/coupled/AM3/control/cable/CM3/cbl_canopy_type.F90
-            src/coupled/AM3/control/cable/CM3/cable_cbm_mod.F90
+            src/coupled/AM3/control/cable/CM3/cbl_cbm_mod.F90
             src/coupled/AM3/control/cable/CM3/climate_type.F90
             src/coupled/AM3/control/cable/CM3/met_type_cbl.F90
             src/coupled/AM3/control/cable/CM3/radiation_type.F90
