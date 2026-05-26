@@ -181,6 +181,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/cable/CM3/ssnow_type.F90
             src/coupled/AM3/control/cable/CM3/sum_flux_type.F90
             src/coupled/AM3/control/cable/CM3/veg_type.F90
+	    src/coupled/AM3/control/shared/cable_surface_types_mod.F90
         )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)
