@@ -129,8 +129,8 @@ if(CABLE_LIBRARY)
         src/science/soilsnow/cbl_surfbv.F90
         src/science/soilsnow/cbl_thermal.F90
         src/science/soilsnow/cbl_trimb.F90
-	src/science/landuse/landuse.F90
-	src/science/landuse/landuse_constant.F90
+	    src/science/landuse/landuse3.F90
+        src/science/landuse/landuse_constant.F90
         src/params/cable_phys_constants_mod.F90
         src/params/grid_constants_cbl.F90
         src/params/cable_photo_constants_mod.F90
