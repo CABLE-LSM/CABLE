@@ -25,10 +25,10 @@ MODULE cable_surface_types_mod
 
 CONTAINS
 
-  SUBROUTINE set_JULES_surface_types(surface_type_ids, nnpft, npft, nnvg,&
-      ntype, urban, lake, soil, ice)
+  SUBROUTINE set_JULES_surface_types(surface_type_ids, nnpft, ncpft, npft,&
+      nnvg, ntype, urban, lake, soil, ice)
     INTEGER, INTENT(INOUT) :: surface_type_ids
-    INTEGER, INTENT(OUT) :: nnpft, npft, nnvp, ntype, urban, lake,&
+    INTEGER, INTENT(OUT) :: nnpft, ncpft, npft, nnvg, ntype, urban, lake,&
       soil, ice
 
     surface_type_ids(evergreen_needleleaf) = 1
@@ -52,7 +52,7 @@ CONTAINS
     npft = 13
     nnvg = 4
     urban = urban_cable
-    lake = lake_cable
+    lake = lakes_cable
     soil = barren_cable
     ice = ice_cable
 
