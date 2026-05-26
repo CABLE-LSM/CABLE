@@ -27,7 +27,7 @@ CONTAINS
 
   SUBROUTINE set_JULES_surface_types(surface_type_ids, nnpft, ncpft, npft,&
       nnvg, ntype, urban, lake, soil, ice)
-    INTEGER, INTENT(INOUT) :: surface_type_ids
+    INTEGER, INTENT(INOUT), DIMENSION(:) :: surface_type_ids
     INTEGER, INTENT(OUT) :: nnpft, ncpft, npft, nnvg, ntype, urban, lake,&
       soil, ice
 
