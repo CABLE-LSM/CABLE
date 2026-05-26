@@ -40,6 +40,6 @@ CONTAINS
     ntype = npft - nnvg
     nnpft = npft - ncpft
 
-  END SUBROUTINE set_JULES_PFT_info
+  END SUBROUTINE set_JULES_surface_types
 
 END MODULE cable_surface_types_mod
