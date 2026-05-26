@@ -90,15 +90,12 @@ if(CABLE_LIBRARY)
         src/science/casa-cnp/casa_cnp.F90
         src/science/casa-cnp/casa_dimension.F90
         src/science/casa-cnp/casa_feedback.F90
-        src/science/casa-cnp/casa_inout.F90
         src/science/casa-cnp/casa_param.F90
         src/science/casa-cnp/casa_phenology.F90
         src/science/casa-cnp/casa_readbiome.F90
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
         src/science/casa-cnp/casa_variable.F90
-        src/science/landuse/landuse3.F90
-        src/science/landuse/landuse_constant.F90
         src/science/misc/cable_air.F90
         src/science/misc/cable_carbon.F90
         src/science/misc/cable_climate.F90
@@ -156,6 +153,8 @@ if(CABLE_LIBRARY)
             src/coupled/shared/cable_soilsnow_type_mod.F90
             src/coupled/shared/cable_soil_type_mod.F90
             src/coupled/shared/cable_veg_type_mod.F90
+	    src/science/landuse/landuse3.F90
+	    src/science/landuse/landuse_constant.F90
         )
         if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)
