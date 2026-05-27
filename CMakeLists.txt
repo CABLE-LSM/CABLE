@@ -129,8 +129,6 @@ if(CABLE_LIBRARY)
             src/coupled/shared/cable_soilsnow_type_mod.F90
             src/coupled/shared/cable_soil_type_mod.F90
             src/coupled/shared/cable_veg_type_mod.F90
-	    src/science/landuse/landuse3.F90
-	    src/science/landuse/landuse_constant.F90
         )
         if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)
@@ -155,7 +153,8 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/cable/CM3/ssnow_type.F90
             src/coupled/AM3/control/cable/CM3/sum_flux_type.F90
             src/coupled/AM3/control/cable/CM3/veg_type.F90
-	    src/coupled/AM3/control/cable/shared/cable_surface_types_mod.F90
+	        src/coupled/AM3/control/cable/shared/cable_surface_types_mod.F90
+            src/offline/cable_iovars.F90
         )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)

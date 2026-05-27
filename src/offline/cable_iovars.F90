@@ -93,6 +93,15 @@ MODULE cable_IO_vars_module
        max_vegpatches,   & ! The maximum # of patches in any grid cell
        nmetpatches         ! size of patch dimension in met file, if exists
 
+  INTEGER :: land_decomp_start = 1
+    !! Starting land point index of this MPI rank in global land array
+  INTEGER :: land_decomp_end
+    !! Ending land point index of this MPI rank in global land array
+  INTEGER :: patch_decomp_start
+    !! Starting patch index of this MPI rank in global patch array
+  INTEGER :: patch_decomp_end
+    !! Ending patch index of this MPI rank in global patch array
+
   ! =============== File details ==========================
    TYPE globalMet_type
      LOGICAL           ::                                                     &
@@ -553,4 +562,18 @@ CONTAINS
 
   END SUBROUTINE set_group_output_values
 
+<<<<<<< HEAD
+=======
+  FUNCTION to_land_index_global(land_index_local) RESULT(land_index_global)
+    !! Translate local land index on current MPI rank to global land index
+    INTEGER, INTENT(IN) :: land_index_local
+    INTEGER :: land_index_global
+#ifdef UM_CBL
+    land_index_global = land_index_local
+#else
+    land_index_global = land_decomp_start + land_index_local - 1
+#endif
+  END FUNCTION to_land_index_global
+
+>>>>>>> feb632be (Add cable_iovars.F90 to the build with slight adjustment)
 END MODULE cable_IO_vars_module
