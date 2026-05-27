@@ -2588,6 +2588,22 @@ CONTAINS
 
                   g1 = veg%g1(i)
 
+                  ! Temperature correction of g1: Cheesman et al. (2026)
+                  ! New Phytologist doi:10.1111/nph.71249, Eqn 8.
+                  ! g1(T) = g1(Tref) * sqrt(Gamma*(T)/Gamma*(Tref)
+                  !                         * eta(Tref)/eta(T) * Hs(Tref)/Hs(T))
+                  ! Tref = C%trefk = 298.15 K (25 deg C)
+                  ! Gamma* ratio: uses egam (selected by explicit_gm/Rubisco_parameters, consistent with cx2)
+                  ! eta(T) = 1.95e14 * T^(-7) Pa s  =>  eta_ref/eta_T = (T/Tref)^7
+                  ! Hs: Henry's law, B=2300 K  =>  Hs_ref/Hs_T = exp(2300*(1/Tref - 1/T))
+                  if (cable_user%g1_Tcorr) then
+                     g1 = g1 * SQRT( &
+                        EXP(egam/(C%rgas*C%trefk)*(1.0 - C%trefk/tlfx(i))) * &  ! Gamma*(T)/Gamma*(Tref)
+                        (tlfx(i)/C%trefk)**7 * &                                   ! eta(Tref)/eta(T)
+                        EXP(2300.0*(1.0/C%trefk - 1.0/tlfx(i))) &                 ! Hs(Tref)/Hs(T)
+                     )
+                  end if
+
                   !gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,1)
                   !gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,2)
 
@@ -2625,6 +2641,18 @@ CONTAINS
                   gswmin(i, 1) = veg%g0(i)*rad%scalex(i, 1)
                   gswmin(i, 2) = veg%g0(i)*rad%scalex(i, 2)
                   g1 = veg%g1tuzet(i)
+
+                  ! Temperature correction of g1: Cheesman et al. (2026)
+                  ! New Phytologist doi:10.1111/nph.71249, Eqn 8.
+                  ! Uses egam consistent with cx2 (selected by explicit_gm/Rubisco_parameters)
+                  if (cable_user%g1_Tcorr) then
+                     g1 = g1 * SQRT( &
+                        EXP(egam/(C%rgas*C%trefk)*(1.0 - C%trefk/tlfx(i))) * &  ! Gamma*(T)/Gamma*(Tref)
+                        (tlfx(i)/C%trefk)**7 * &                                   ! eta(Tref)/eta(T)
+                        EXP(2300.0*(1.0/C%trefk - 1.0/tlfx(i))) &                 ! Hs(Tref)/Hs(T)
+                     )
+                  end if
+
                   psilxx(i, :) = psilx(i, :)
                   if (present(fwpsdo)) then
                      gs_coeff(i, 1) = g1/real(csx(i, 1))*fwpsdo

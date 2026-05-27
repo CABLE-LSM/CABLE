@@ -139,7 +139,8 @@ MODULE cable_common_module
           amphistomatous           = .FALSE., &
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
           perturb_Ta               = .FALSE., &  ! switch to perturb air temp by Ta_perturbation (site met only)
-          calc_fdiff             = .FALSE.        ! switch to calculate diffuse radiation or prescribe from met
+          calc_fdiff             = .FALSE., &     ! switch to calculate diffuse radiation or prescribe from met
+          g1_Tcorr               = .FALSE.        ! temperature correction of g1 (Cheesman et al. 2026, New Phytologist)
      INTEGER ::  &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &
