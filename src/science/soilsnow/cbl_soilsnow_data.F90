@@ -1,8 +1,5 @@
 MODULE cbl_ssnow_data_mod
 
-USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
-       veg_parameter_type, canopy_type, met_type,        &
-       balances_type, r_2, ms, mp
 !distribute these per sbr
 USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
 USE cable_phys_constants_mod, ONLY : CHL => HL

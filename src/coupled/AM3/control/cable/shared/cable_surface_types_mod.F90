@@ -28,8 +28,9 @@ CONTAINS
   SUBROUTINE set_JULES_surface_types(surface_type_ids, nnpft, ncpft, npft,&
       nnvg, ntype, urban, lake, soil, ice)
     INTEGER, INTENT(INOUT), DIMENSION(:) :: surface_type_ids
-    INTEGER, INTENT(OUT) :: nnpft, ncpft, npft, nnvg, ntype, urban, lake,&
+    INTEGER, INTENT(OUT) :: nnpft, npft, nnvg, ntype, urban, lake,&
       soil, ice
+    INTEGER, INTENT(IN) :: ncpft
 
     surface_type_ids(evergreen_needleleaf) = 1
     surface_type_ids(evergreen_broadleaf ) = 2
