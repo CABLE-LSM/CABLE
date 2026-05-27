@@ -106,7 +106,7 @@ MODULE cable_IO_vars_module
        max_vegpatches,   & ! The maximum # of patches in any grid cell
        nmetpatches         ! size of patch dimension in met file, if exists
 
-  INTEGER :: land_decomp_start
+  INTEGER :: land_decomp_start = 0
     !! Starting land point index of this MPI rank in global land array
   INTEGER :: land_decomp_end
     !! Ending land point index of this MPI rank in global land array
