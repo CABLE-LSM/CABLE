@@ -5,15 +5,17 @@ MODULE casavariable
 USE casa_biome_type_mod,    ONLY: casa_biome_data_type,      &
                                   casa_biome => casa_biome_type
 USE casa_pool_type_mod,     ONLY: casa_pool_data_type,       &
-                                  casa_pool  => casa_pool_type
+                                  casa_pool => casa_pool_type
 USE casa_flux_type_mod,     ONLY: casa_flux_data_type,       &
-                                  casa_flux  => casa_flux_type
+                                  casa_flux => casa_flux_type
 USE casa_met_type_mod,      ONLY: casa_met_data_type,        &
-                                  casa_met   =>  casa_met_type
+                                  casa_met =>  casa_met_type
 USE casa_balance_type_mod,  ONLY: casa_bal_data_type,        &
-                                  casa_bal   => casa_bal_type             
+                                  casa_balance => casa_bal_type             
 USE phenology_type_mod,     ONLY: phenology_data_type,       &
                                   phenology_type
+USE casa_files_type_mod,    ONLY: casa_files_type, casafile
+
 IMPLICIT NONE
 
 PUBLIC :: zero_sum_casa
@@ -73,7 +75,7 @@ TYPE (casa_pool),            INTENT(INOUT) :: sum_casapool
 TYPE (casa_pool_data_type),  INTENT(INOUT) :: sum_casapool_data
 TYPE (casa_flux),            INTENT(INOUT) :: sum_casaflux
 TYPE (casa_flux_data_type),  INTENT(INOUT) :: sum_casaflux_data
-TYPE (casa_bal),             INTENT(INOUT) :: casabal 
+TYPE (casa_balance),         INTENT(INOUT) :: casabal 
 TYPE (casa_bal_data_type),   INTENT(INOUT) :: casabal_data 
 TYPE (casa_met),             INTENT(INOUT) :: casamet 
 TYPE (casa_met_data_type),   INTENT(INOUT) :: casamet_data 
