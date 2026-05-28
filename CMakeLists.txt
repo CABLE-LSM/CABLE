@@ -70,7 +70,6 @@ if(CABLE_LIBRARY)
         src/science/casa-cnp/casa_readbiome.F90
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
-        src/science/casa-cnp/casa_variable.F90
         src/science/misc/cable_air.F90
         src/science/misc/cable_carbon.F90
         src/science/misc/cable_climate.F90
