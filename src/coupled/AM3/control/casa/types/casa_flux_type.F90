@@ -13,6 +13,7 @@ TYPE casa_flux_data_type
 
   REAL(r_2), ALLOCATABLE :: Cgpp          (:)
   REAL(r_2), ALLOCATABLE :: Cnpp          (:)
+  REAL(r_2), ALLOCATABLE :: Cnbp          (:)
   REAL(r_2), ALLOCATABLE :: Crp           (:)
   REAL(r_2), ALLOCATABLE :: Crgplant      (:)
   REAL(r_2), ALLOCATABLE :: Nminfix       (:)
@@ -22,6 +23,7 @@ TYPE casa_flux_data_type
   REAL(r_2), ALLOCATABLE :: fracClabile   (:)
   REAL(r_2), ALLOCATABLE :: stemnpp       (:) 
   REAL(r_2), ALLOCATABLE :: frac_sapwood  (:) 
+  REAL(r_2), ALLOCATABLE :: Cplant_turnover_tot  (:) 
   REAL(r_2), ALLOCATABLE :: sapwood_area  (:)   
   REAL(r_2), ALLOCATABLE :: Crsoil        (:)
   REAL(r_2), ALLOCATABLE :: Nmindep       (:)
@@ -89,6 +91,7 @@ TYPE casa_flux_type
 
   REAL(r_2), POINTER, PUBLIC :: Cgpp          (:)
   REAL(r_2), POINTER, PUBLIC :: Cnpp          (:)
+  REAL(r_2), POINTER, PUBLIC :: Cnbp          (:)
   REAL(r_2), POINTER, PUBLIC :: Crp           (:)
   REAL(r_2), POINTER, PUBLIC :: Crgplant      (:)
   REAL(r_2), POINTER, PUBLIC :: Nminfix       (:)
@@ -98,6 +101,7 @@ TYPE casa_flux_type
   REAL(r_2), POINTER, PUBLIC :: fracClabile   (:)
   REAL(r_2), POINTER, PUBLIC :: stemnpp       (:) 
   REAL(r_2), POINTER, PUBLIC :: frac_sapwood  (:) 
+  REAL(r_2), POINTER, PUBLIC :: Cplant_turnover_tot  (:) 
   REAL(r_2), POINTER, PUBLIC :: sapwood_area  (:)   
   REAL(r_2), POINTER, PUBLIC :: Crsoil        (:)
   REAL(r_2), POINTER, PUBLIC :: Nmindep       (:)
@@ -174,6 +178,7 @@ INTEGER,                    INTENT(IN)    :: arraysize
 
 ALLOCATE ( casaflux_data % Cgpp         (  arraysize ) ) 
 ALLOCATE ( casaflux_data % Cnpp         (  arraysize ) ) 
+ALLOCATE ( casaflux_data % Cnbp         (  arraysize ) ) 
 ALLOCATE ( casaflux_data % Crp          (  arraysize ) ) 
 ALLOCATE ( casaflux_data % Crgplant     (  arraysize ) ) 
 ALLOCATE ( casaflux_data % Nminfix      (  arraysize ) ) 
@@ -183,6 +188,7 @@ ALLOCATE ( casaflux_data % Clabloss     (  arraysize ) )
 ALLOCATE ( casaflux_data % fracClabile  (  arraysize ) ) 
 ALLOCATE ( casaflux_data % stemnpp      (  arraysize ) ) 
 ALLOCATE ( casaflux_data % frac_sapwood (  arraysize ) ) 
+ALLOCATE ( casaflux_data % Cplant_turnover_tot (  arraysize ) ) 
 ALLOCATE ( casaflux_data % sapwood_area (  arraysize ) ) 
 ALLOCATE ( casaflux_data % Crsoil       (  arraysize ) ) 
 ALLOCATE ( casaflux_data % Nmindep      (  arraysize ) ) 
@@ -256,6 +262,7 @@ TYPE (casa_flux_data_type), INTENT(INOUT) :: casaflux_data
 
 casaflux_data % Cgpp          (:)     = 0.0 
 casaflux_data % Cnpp          (:)     = 0.0
+casaflux_data % Cnbp          (:)     = 0.0
 casaflux_data % Crp           (:)     = 0.0
 casaflux_data % Crgplant      (:)     = 0.0
 casaflux_data % Nminfix       (:)     = 0.0
@@ -265,6 +272,7 @@ casaflux_data % Clabloss      (:)     = 0.0
 casaflux_data % fracClabile   (:)     = 0.0
 casaflux_data % stemnpp       (:)     = 0.0 
 casaflux_data % frac_sapwood  (:)     = 0.0 
+casaflux_data % Cplant_turnover_tot  (:)     = 0.0 
 casaflux_data % sapwood_area  (:)     = 0.0   
 casaflux_data % Crsoil        (:)     = 0.0
 casaflux_data % Nmindep       (:)     = 0.0
@@ -338,6 +346,7 @@ TYPE (casa_flux_data_type), INTENT(INOUT), TARGET :: casaflux_data
 
 casaflux % Cgpp          => casaflux_data % Cgpp            
 casaflux % Cnpp          => casaflux_data % Cnpp           
+casaflux % Cnpp          => casaflux_data % Cnbp           
 casaflux % Crp           => casaflux_data % Crp            
 casaflux % Crgplant      => casaflux_data % Crgplant       
 casaflux % Nminfix       => casaflux_data % Nminfix        
@@ -347,6 +356,7 @@ casaflux % Clabloss      => casaflux_data % Clabloss
 casaflux % fracClabile   => casaflux_data % fracClabile    
 casaflux % stemnpp       => casaflux_data % stemnpp        
 casaflux % frac_sapwood  => casaflux_data % frac_sapwood   
+casaflux % Cplant_turnover_tot  => casaflux_data % Cplant_turnover_tot
 casaflux % sapwood_area  => casaflux_data % sapwood_area   
 casaflux % Crsoil        => casaflux_data % Crsoil         
 casaflux % Nmindep       => casaflux_data % Nmindep        

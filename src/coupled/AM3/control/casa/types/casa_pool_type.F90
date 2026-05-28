@@ -12,10 +12,14 @@ PUBLIC :: zero_casa_pool_data_type
 
 TYPE casa_pool_data_type
 
+ REAL(r_2), ALLOCATABLE :: dCdt           (:)
  REAL(r_2), ALLOCATABLE :: Clabile        (:)
  REAL(r_2), ALLOCATABLE :: dClabiledt     (:)
  REAL(r_2), ALLOCATABLE :: Ctot           (:)         
  REAL(r_2), ALLOCATABLE :: Ctot_0         (:)         
+ REAL(r_2), ALLOCATABLE :: Cplanttot      (:)         
+ REAL(r_2), ALLOCATABLE :: Clittertot     (:)         
+ REAL(r_2), ALLOCATABLE :: Csoiltot       (:)         
  REAL(r_2), ALLOCATABLE :: Nsoilmin       (:)
  REAL(r_2), ALLOCATABLE :: Psoillab       (:)
  REAL(r_2), ALLOCATABLE :: Psoilsorb      (:)
@@ -63,10 +67,14 @@ END TYPE casa_pool_data_type
 
 TYPE casa_pool_type
 
+ REAL(r_2), POINTER, PUBLIC :: dCdt           (:)
  REAL(r_2), POINTER, PUBLIC :: Clabile        (:)
  REAL(r_2), POINTER, PUBLIC :: dClabiledt     (:)
  REAL(r_2), POINTER, PUBLIC :: Ctot           (:)         
  REAL(r_2), POINTER, PUBLIC :: Ctot_0         (:)         
+ REAL(r_2), POINTER, PUBLIC :: Cplanttot      (:)         
+ REAL(r_2), POINTER, PUBLIC :: Clittertot     (:)         
+ REAL(r_2), POINTER, PUBLIC :: Csoiltot       (:)         
  REAL(r_2), POINTER, PUBLIC :: Nsoilmin       (:)
  REAL(r_2), POINTER, PUBLIC :: Psoillab       (:)
  REAL(r_2), POINTER, PUBLIC :: Psoilsorb      (:)
@@ -123,10 +131,14 @@ IMPLICIT NONE
 TYPE (casa_pool_data_type), INTENT(INOUT) :: casapool_data 
 INTEGER,                    INTENT(IN)    :: arraysize
 
+ALLOCATE ( casapool_data % dCdt           ( arraysize ) )
 ALLOCATE ( casapool_data % Clabile        ( arraysize ) )
 ALLOCATE ( casapool_data % dClabiledt     ( arraysize ) )
 ALLOCATE ( casapool_data % Ctot           ( arraysize ) )
 ALLOCATE ( casapool_data % Ctot_0         ( arraysize ) )
+ALLOCATE ( casapool_data % Cplanttot      ( arraysize ) )
+ALLOCATE ( casapool_data % Clittertot     ( arraysize ) )
+ALLOCATE ( casapool_data % Csoiltot       ( arraysize ) )
 ALLOCATE ( casapool_data % Nsoilmin       ( arraysize ) )
 ALLOCATE ( casapool_data % Psoillab       ( arraysize ) )
 ALLOCATE ( casapool_data % Psoilsorb      ( arraysize ) )
@@ -178,10 +190,14 @@ IMPLICIT NONE
 
 TYPE (casa_pool_data_type), INTENT(INOUT) :: casapool_data 
 
+casapool_data % dCdt           = 0.0 
 casapool_data % Clabile        = 0.0 
 casapool_data % dClabiledt     = 0.0 
 casapool_data % Ctot           = 0.0 
 casapool_data % Ctot_0         = 0.0 
+casapool_data % Cplanttot      = 0.0 
+casapool_data % Clittertot     = 0.0 
+casapool_data % Csoiltot       = 0.0 
 casapool_data % Nsoilmin       = 0.0 
 casapool_data % Psoillab       = 0.0 
 casapool_data % Psoilsorb      = 0.0 
@@ -235,10 +251,14 @@ IMPLICIT NONE
 TYPE (casa_pool_type),      INTENT(INOUT) :: casapool
 TYPE (casa_pool_data_type), INTENT(INOUT), TARGET :: casapool_data
 
+casapool % dCdt           => casapool_data % dCdt
 casapool % Clabile        => casapool_data % Clabile         
 casapool % dClabiledt     => casapool_data % dClabiledt      
 casapool % Ctot           => casapool_data % Ctot            
 casapool % Ctot_0         => casapool_data % Ctot_0          
+casapool % Cplanttot      => casapool_data % Cplanttot          
+casapool % Clittertot     => casapool_data % Clittertot          
+casapool % Csoiltot       => casapool_data % Csoiltot          
 casapool % Nsoilmin       => casapool_data % Nsoilmin        
 casapool % Psoillab       => casapool_data % Psoillab        
 casapool % Psoilsorb      => casapool_data % Psoilsorb       
