@@ -153,6 +153,20 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/cable/CM3/ssnow_type.F90
             src/coupled/AM3/control/cable/CM3/sum_flux_type.F90
             src/coupled/AM3/control/cable/CM3/veg_type.F90
+            src/coupled/AM3/control/casa/types/casa_balance_type.F90
+            src/coupled/AM3/control/casa/types/casa_biome_type.F90
+            src/coupled/AM3/control/casa/types/casa_files_type.F90
+            src/coupled/AM3/control/casa/types/casa_flux_type.F90
+            src/coupled/AM3/control/casa/types/casa_met_type.F90
+            src/coupled/AM3/control/casa/types/casa_phenology_type.F90
+            src/coupled/AM3/control/casa/types/casa_pool_type.F90
+            src/coupled/AM3/control/casa/types/sum_casa_flux_type.F90
+            src/coupled/AM3/control/casa/types/sum_casa_pool_type.F90
+            src/coupled/AM3/control/casa/types/casa_variable.F90
+            src/coupled/AM3/control/casa/types/phen_variable.F90
+            src/coupled/AM3/control/casa/types/casa_dimension.F90
+            src/coupled/AM3/control/casa/types/casa_inout.F90
+            src/coupled/AM3/control/casa/types/casa_readbiome.F90
 	        src/coupled/AM3/control/cable/shared/cable_surface_types_mod.F90
             src/offline/cable_iovars.F90
         )
