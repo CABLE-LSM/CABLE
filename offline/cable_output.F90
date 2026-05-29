@@ -3440,7 +3440,7 @@ CONTAINS
        IF(writenow) THEN
           out%qcan_dif = out%qcan_dif * rinterval
           CALL write_ovar(out_timestep, ncid_out, ovid%qcan_dif, 'qcan_dif', out%qcan_dif, &
-               ranges%Qcan, patchout%Qcan, 'radiation', met)
+               ranges%Qcan, patchout%Qcan, 'leaf', met)
           out%qcan_dif = zero4
        END IF
     END IF

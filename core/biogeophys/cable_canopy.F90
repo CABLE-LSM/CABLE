@@ -2345,9 +2345,9 @@ CONTAINS
                ! Leuning 2002 (PCE) equation for temperature response
                ! used for Jmax for C3 plants:
                if (.not. cable_user%acclimate_photosyn) then
-                  temp_sun_c3(i) = xejmxt3(tlfx(i))* &
+                  temp_sun_c3(i) = xejmxt3(tlfx(i), veg%EaJ(i), veg%EdJ(i), veg%dSJ(i))* &
                                    veg%ejmax_sun(i)*(1.0 - veg%frac4(i))
-                  temp_shade_c3(i) = xejmxt3(tlfx(i))* &
+                  temp_shade_c3(i) = xejmxt3(tlfx(i), veg%EaJ(i), veg%EdJ(i), veg%dSJ(i))* &
                                      veg%ejmax_shade(i)*(1.0 - veg%frac4(i))
                else
                   call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp_c3(i))
@@ -3995,9 +3995,9 @@ CONTAINS
                ! Leuning 2002 (PCE) equation for temperature response
                ! used for Jmax for C3 plants:
                if (.not. cable_user%acclimate_photosyn) then
-                  temp_sun_c3(i) = xejmxt3(tlfx(i))* &
+                  temp_sun_c3(i) = xejmxt3(tlfx(i), veg%EaJ(i), veg%EdJ(i), veg%dSJ(i))* &
                                    veg%ejmax_sun(i)*(1.0 - veg%frac4(i))
-                  temp_shade_c3(i) = xejmxt3(tlfx(i))* &
+                  temp_shade_c3(i) = xejmxt3(tlfx(i), veg%EaJ(i), veg%EdJ(i), veg%dSJ(i))* &
                                      veg%ejmax_shade(i)*(1.0 - veg%frac4(i))
                else
                   call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp_c3(i))
@@ -5418,30 +5418,18 @@ CONTAINS
 
    ! ------------------------------------------------------------------------------
 
-   FUNCTION xejmxt3(Tk) RESULT(z)
+   FUNCTION xejmxt3(Tk, EaJ, EdJ, dSJ) RESULT(z)
       ! Temperature response of Jmax (Arrhenius function)
 
       implicit none
 
-      real, intent(in) :: Tk  ! Leaf temperature in Kelvin
+      real, intent(in) :: Tk   ! Leaf temperature in Kelvin
+      real, intent(in) :: EaJ  ! Jmax activation energy (J/mol)
+      real, intent(in) :: EdJ  ! Jmax deactivation energy (J/mol)
+      real, intent(in) :: dSJ  ! Jmax entropy term (J/mol/K)
       real             :: xj, z
 
-      !real :: xjxnum, xjxden
-      !real, parameter :: EHaJx  = 50300.0  ! J/mol (Leuning 2002)
-      !real, parameter :: EHdJx  = 152044.0 ! J/mol (Leuning 2002)
-      !real, parameter :: EntropJx = 495.0  ! J/mol/K (Leuning 2002)
-      !real, parameter :: xjxcoef = 1.16715 ! derived parameter
-
-      ! Parameters calculated from Kumarathunge et al. 2019 with Thome = 25degC and Tgrowth = 15degC
-      real, parameter :: EaJ = 40710  ! J/mol (Leuning 2002)
-      real, parameter :: EdJ = 200000 ! J/mol (Leuning 2002)
-      real, parameter :: dSJ = 642.97 ! J/mol/K (Leuning 2002)
-
       call point2constants(C)
-
-      !xjxnum = xjxcoef*exp( ( EHaJx / ( C%Rgas * C%TREFK)) * (1.0 - C%TREFK / Tk ) )
-      !xjxden = 1.0 + exp((EntropJx * Tk - EHdJx) / ( C%Rgas * Tk ) )
-      !z = max(0.0, xjxnum/xjxden)
 
       xj = exp(EaJ*(Tk - C%TrefK)/(C%TrefK*C%Rgas*Tk))* &
            (1.0 + exp((C%TrefK*dSJ - EdJ)/(C%TrefK*C%Rgas)))/ &

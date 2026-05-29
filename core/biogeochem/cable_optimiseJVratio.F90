@@ -33,6 +33,7 @@ MODULE cable_optimise_JV_module
   REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:), fwpsi(:), g0(:)
   REAL :: Anet, vcmax00, bjv, g1, g1tuzet, kc0, ko0, ekc, eko, gam0, egam, alpha, gm0, a1, D0, qs, qm, qb
   REAL :: EaV_vcmax, EdV_vcmax, dSV_vcmax
+  REAL :: EaJ_jmax, EdJ_jmax, dSJ_jmax
   REAL :: convex, Neff, relcost_J, Rd0, Tgrowth, Thome
   INTEGER :: nt,kk
   !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
@@ -118,6 +119,9 @@ CONTAINS
           EaV_vcmax = veg%EaV(k)
           EdV_vcmax = veg%EdV(k)
           dSV_vcmax = veg%dSV(k)
+          EaJ_jmax  = veg%EaJ(k)
+          EdJ_jmax  = veg%EdJ(k)
+          dSJ_jmax  = veg%dSJ(k)
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
@@ -436,7 +440,7 @@ CONTAINS
              call xejmxt3_acclim(Tleaf(k), Tgrowth, Thome, trf)
              jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil_k**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k), EaJ_jmax, EdJ_jmax, dSJ_jmax)*fwsoil_k**qb
           endif
           gamm = ej3x(APAR(k), alpha, convex, jmaxt)
           beta = 2.0 * gammastar
@@ -575,7 +579,7 @@ CONTAINS
              call xejmxt3_acclim(Tleaf(k), Tgrowth, Thome, trf)
              jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil(k)**qb
           else
-             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil(k)**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k), EaJ_jmax, EdJ_jmax, dSJ_jmax)*fwsoil(k)**qb
           endif
           gamm = ej3x(APAR(k), alpha,convex, jmaxt)
           beta = 2.0 * gammastar
@@ -718,7 +722,7 @@ CONTAINS
              call xejmxt3_acclim(Tleaf(k), Tgrowth, Thome, trf)
              jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil_k**qb
           else
-             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil_k**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k), EaJ_jmax, EdJ_jmax, dSJ_jmax)*fwsoil_k**qb
           endif
           gamm = ej3x(APAR(k), alpha,convex, jmaxt)
           beta  = 2.0 * gammastar
@@ -926,7 +930,7 @@ CONTAINS
              call xejmxt3_acclim(Tleaf(k), Tgrowth, Thome, trf)
              jmaxt = bjv*Vcmax0*scalex(k)*trf*fwsoil(k)**qb
           else
-             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))*fwsoil(k)**qb
+             jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k), EaJ_jmax, EdJ_jmax, dSJ_jmax)*fwsoil(k)**qb
           endif
 
           gamm = ej3x(APAR(k), alpha,convex, jmaxt)

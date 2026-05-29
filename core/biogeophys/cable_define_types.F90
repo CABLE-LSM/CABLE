@@ -389,6 +389,9 @@ module cable_def_types_mod
           EaV => null(), &           ! Vcmax activation energy (J/mol)
           EdV => null(), &           ! Vcmax deactivation energy (J/mol)
           dSV => null(), &           ! Vcmax entropy term (J/mol/K)
+          EaJ => null(), &           ! Jmax activation energy (J/mol)
+          EdJ => null(), &           ! Jmax deactivation energy (J/mol)
+          dSJ => null(), &           ! Jmax entropy term (J/mol/K)
           dc => null(),  & !used in iteration in dryLeaf
           root_conduc => null(), &
           huber_value => null(), &
@@ -1236,6 +1239,9 @@ contains
     allocate( veg%EaV(mp) )
     allocate( veg%EdV(mp) )
     allocate( veg%dSV(mp) )
+    allocate( veg%EaJ(mp) )
+    allocate( veg%EdJ(mp) )
+    allocate( veg%dSJ(mp) )
     allocate(veg%dc(mp)) 
     allocate( veg%root_conduc(mp) )
     allocate( veg%huber_value(mp) )
@@ -1957,6 +1963,9 @@ contains
     deallocate( veg%EaV )
     deallocate( veg%EdV )
     deallocate( veg%dSV )
+    deallocate( veg%EaJ )
+    deallocate( veg%EdJ )
+    deallocate( veg%dSJ )
     deallocate( veg%dc ) 
     deallocate( veg%root_conduc )
     deallocate( veg%huber_value )
@@ -2555,6 +2564,9 @@ contains
     veg%EaV = 59700.0
     veg%EdV = 200000.0
     veg%dSV = 639.43
+    veg%EaJ = 40710.0
+    veg%EdJ = 200000.0
+    veg%dSJ = 642.97
     veg%dc = 0
     veg%root_conduc = 0
     veg%huber_value = 0

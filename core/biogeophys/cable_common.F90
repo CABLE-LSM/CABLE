@@ -299,6 +299,9 @@ MODULE cable_common_module
           EaV, &         ! Vcmax activation energy (J/mol)
           EdV, &         ! Vcmax deactivation energy (J/mol)
           dSV, &         ! Vcmax entropy term (J/mol/K)
+          EaJ, &         ! Jmax activation energy (J/mol)
+          EdJ, &         ! Jmax deactivation energy (J/mol)
+          dSJ, &         ! Jmax entropy term (J/mol/K)
           dc, & ! used for iteration in dryLeaf, maybe abandoned later, Zihanlu, 19/12/2024
           root_conduc, & ! root reference conductivity,  kg s-1 Mpa-1 m-1(root length)
           huber_value, & ! sapwood area / leaf area(m2 m-2)
@@ -419,6 +422,7 @@ CONTAINS
          vegin%P50(mvtype), vegin%P88dP50(mvtype),&
          vegin%slope_leaf(mvtype), vegin%g3(mvtype), vegin%psi_50_leaf(mvtype), &
          vegin%EaV(mvtype), vegin%EdV(mvtype), vegin%dSV(mvtype), &
+         vegin%EaJ(mvtype), vegin%EdJ(mvtype), vegin%dSJ(mvtype), &
          vegin%dc(mvtype), vegin%vcmax_scalar(mvtype),vegin%root_conduc(mvtype),vegin%huber_value(mvtype), &
          vegin%root_shoot(mvtype),vegin%Nmax(mvtype), &
          vegin%psi_critical(mvtype)   )
@@ -478,6 +482,7 @@ CONTAINS
                vegin%vcmax_scalar(jveg)
           READ(vegunit,*) vegin%root_conduc(jveg), vegin%huber_value(jveg), vegin%root_shoot(jveg)
           READ(vegunit,*) vegin%EaV(jveg), vegin%EdV(jveg), vegin%dSV(jveg)
+          READ(vegunit,*) vegin%EaJ(jveg), vegin%EdJ(jveg), vegin%dSJ(jveg)
        END DO
 
     ELSE
@@ -1090,6 +1095,9 @@ CONTAINS
        veg%EaV(h)    = vegin%EaV(veg%iveg(h))
        veg%EdV(h)    = vegin%EdV(veg%iveg(h))
        veg%dSV(h)    = vegin%dSV(veg%iveg(h))
+       veg%EaJ(h)    = vegin%EaJ(veg%iveg(h))
+       veg%EdJ(h)    = vegin%EdJ(veg%iveg(h))
+       veg%dSJ(h)    = vegin%dSJ(veg%iveg(h))
        veg%dc(h)      = vegin%dc(veg%iveg(h)) ! used in iteration in dryLeaf
        veg%Nmax(h)      = vegin%Nmax(veg%iveg(h))
 
