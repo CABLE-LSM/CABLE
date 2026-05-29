@@ -381,6 +381,9 @@ CONTAINS
           ! of this dim:
           IF( .NOT. ASSOCIATED(otmp5xyprt))                                    &
                 ALLOCATE(otmp5xyprt(xdimsize, ydimsize, max_vegpatches, nrb, 1))
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
+          IF( .NOT. ASSOCIATED(otmp5xyprt))                                    &
+                ALLOCATE(otmp5xyprt(xdimsize, ydimsize, max_vegpatches, nrb, 1))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           ! If not already allocated, allocate a temporary storage variable
@@ -422,6 +425,9 @@ CONTAINS
         ELSE IF(dimswitch == 'radiation') THEN ! other dim is radiation bands
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
+          IF( .NOT. ASSOCIATED(otmp4xyrt))                                     &
+                                 ALLOCATE(otmp4xyrt(xdimsize, ydimsize, nrb, 1))
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
           IF( .NOT. ASSOCIATED(otmp4xyrt))                                     &
                                  ALLOCATE(otmp4xyrt(xdimsize, ydimsize, nrb, 1))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
@@ -479,6 +485,9 @@ CONTAINS
 
           IF( .NOT. ASSOCIATED(otmp4lprt))                                     &
                               ALLOCATE(otmp4lprt(mland, max_vegpatches, nrb, 1))
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
+          IF( .NOT. ASSOCIATED(otmp4lprt))                                     &
+                              ALLOCATE(otmp4lprt(mland, max_vegpatches, nrb, 1))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           ! If not already allocated, allocate a temporary storage variable
@@ -520,6 +529,8 @@ CONTAINS
         ELSE IF(dimswitch == 'radiation') THEN ! other dim is radiation bands
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
+          IF( .NOT. ASSOCIATED(otmp3lrt)) ALLOCATE(otmp3lrt(mland, nrb, 1))
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
           IF( .NOT. ASSOCIATED(otmp3lrt)) ALLOCATE(otmp3lrt(mland, nrb, 1))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
@@ -1251,6 +1262,18 @@ CONTAINS
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, nrb, 1/))
 
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
+          DO i = 1, mland
+             otmp5xyprt(land_x(i), land_y(i), 1:landpt(i)%nap, :, 1)           &
+                                     = var_r2(landpt(i)%cstart:landpt(i)%cend,:)
+              IF(landpt(i)%nap < max_vegpatches) otmp5xyprt(land_x(i),         &
+               land_y(i), (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
+          END DO
+          WHERE(mask /= 1) otmp5xyprt(:, :, 1, 1, 1) = ncmissingr
+          WHERE(mask /= 1) otmp5xyprt(:, :, 1, 2, 1) = ncmissingr
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xyprt(:, :, :, 1:mf, 1), r_1), &
+                            start = (/1, 1, 1, 1, ktau/),                      &
+                         count = (/xdimsize, ydimsize, max_vegpatches, mf, 1/))
 
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
@@ -1434,6 +1457,20 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyrt, r_1),                   &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, nrb, 1/)) ! write data to file
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
+          DO i = 1, mland
+            DO j = 1, mf
+               otmp4xyrt(land_x(i), land_y(i), j, 1) = SUM(                   &
+                                  var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
+            END DO
+          END DO
+          DO j = 1, mf
+            WHERE(mask /= 1) otmp4xyrt(:, :, j, 1) = ncmissingr
+          END DO
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyrt(:,:,1:mf,:), r_1),     &
+                            start = (/1, 1, 1, ktau/),                         &
+                    count = (/xdimsize, ydimsize, mf, 1/)) ! write data to file
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           DO i = 1, mland ! over all land grid points
@@ -1603,8 +1640,16 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lprt(:, :, :, 1), r_1),       &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, nrb, 1/))
-!write(*,*) 'var', var_r2(landpt(1)%cstart:landpt(1)%cend,:)
-!write(*,*) 'otmp', otmp4lprt( 1, :, :, 1)
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
+          DO i = 1, mland
+             otmp4lprt(i, 1:landpt(i)%nap, :, 1) =                             &
+                                      var_r2(landpt(i)%cstart:landpt(i)%cend, :)
+              IF(landpt(i)%nap < max_vegpatches) otmp4lprt(i,                  &
+                          (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
+          END DO
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lprt(:, :, 1:mf, 1), r_1),  &
+                            start = (/1, 1, 1, ktau/),                         &
+                            count = (/mland, max_vegpatches, mf, 1/))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           DO i = 1, mland ! over all land grid points
@@ -1753,6 +1798,17 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lrt, r_1),                    &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, nrb, 1/)) ! write data to file
+        ELSE IF(dimswitch == 'leaf') THEN ! other dim is sunlit/shaded leaf type
+          DO i = 1, mland
+            DO j = 1, mf
+               otmp3lrt(i, j, 1) = SUM(                                        &
+                                  var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
+            END DO
+          END DO
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lrt(:,1:mf,:), r_1),        &
+                            start = (/1, 1, ktau/),                            &
+                            count = (/mland, mf, 1/)) ! write data to file
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           DO i = 1, mland ! over all land grid points
