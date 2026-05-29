@@ -83,7 +83,7 @@ MODULE cable_output_module
           vx3_sl, vx3_sh, vcmxt3_sl, vcmxt3_sh, &
           eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
           An_sl, An_sh, ci_sl, ci_sh, cs_sl, cs_sh, scalex_sl, scalex_sh, dlf, dva, &
-          vcmax_ts, jmax_ts, qcan_sl, qcan_sh, &
+          vcmax_ts, jmax_ts, qcan_sl, qcan_sh, qcan_dif, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
@@ -287,6 +287,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: StemResp => null()   ! autotrophic stem respiration [umol/m2/s]
      REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_sl => null()   ! absorbed radiation by canopy (sunlit leaves) [W/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_sh => null()   ! absorbed radiation by canopy (shaded leaves) [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_dif => null()  ! diffuse+scattered beam absorbed by sunlit(:,1) and shaded(:,2) leaf, PAR+NIR summed [W/m2]
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: An => null()        ! total net assimilation
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: Rd => null()        ! total leaf respiration
      REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: cplant => null()    ! plant carbon pools
@@ -411,7 +412,7 @@ CONTAINS
     ! REAL, POINTER,DIMENSION(:,:) :: surffrac ! fraction of each surf type
 
     INTEGER :: xID, yID, zID, radID, soilID, soilcarbID, &
-         plantcarbID, tID, landID, patchID ! dimension IDs
+         plantcarbID, tID, landID, patchID, leafID ! dimension IDs
     INTEGER :: latID, lonID, llatvID, llonvID ! time,lat,lon variable ID
     INTEGER :: xvID, yvID   ! coordinate variable IDs for GrADS readability
     !    INTEGER :: surffracID         ! surface fraction varaible ID
@@ -455,6 +456,10 @@ CONTAINS
     ok = NF90_DEF_DIM(ncid_out, 'rad', nrb, radID) ! number of radiation bands
     IF (ok /= NF90_NOERR) CALL nc_abort &
          (ok, 'Error defining radiation dimension in output file. '// &
+         '(SUBROUTINE open_output_file)')
+    ok = NF90_DEF_DIM(ncid_out, 'leaf', mf, leafID) ! sunlit/shaded leaf types
+    IF (ok /= NF90_NOERR) CALL nc_abort &
+         (ok, 'Error defining leaf dimension in output file. '// &
          '(SUBROUTINE open_output_file)')
     ok = NF90_DEF_DIM(ncid_out, 'soil_carbon_pools', ncs, soilcarbID) ! # pools
     IF (ok /= NF90_NOERR) CALL nc_abort &
@@ -839,6 +844,12 @@ CONTAINS
             xID, yID, zID, landID, patchID, radID, tID)
        ALLOCATE(out%qcan_sh(mp,nrb))
        out%qcan_sh = zero4 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%qcan_dif, 'qcan_dif', 'W/m^2', &
+            'diffuse+scattered beam absorbed by sunlit(1) and shaded(2) leaf, PAR+NIR summed', &
+            patchout%Qcan, 'radiation', xID, yID, zID, landID, patchID, leafID, tID)
+       ALLOCATE(out%qcan_dif(mp,mf))
+       out%qcan_dif = zero4 ! initialise
     END IF
 
     if (output%flux .OR. output%gsw_epotcan3_sl) THEN 
@@ -3422,6 +3433,15 @@ CONTAINS
                ranges%Qcan, patchout%Qcan, 'radiation', met)
           ! Reset temporary output variable:
           out%qcan_sh = zero4
+       END IF
+
+       ! qcan_dif: diffuse + scattered beam for sunlit(:,1) and shaded(:,2) leaf
+       out%qcan_dif = out%qcan_dif + toreal4(rad%qcan_dif)
+       IF(writenow) THEN
+          out%qcan_dif = out%qcan_dif * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%qcan_dif, 'qcan_dif', out%qcan_dif, &
+               ranges%Qcan, patchout%Qcan, 'radiation', met)
+          out%qcan_dif = zero4
        END IF
     END IF
     !-----------------------WRITE SOIL STATE DATA-------------------------------

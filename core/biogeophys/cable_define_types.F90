@@ -631,6 +631,9 @@ module cable_def_types_mod
      real, dimension(:,:,:), pointer :: &
           qcan => null() ! absorbed radiation for canopy (W/m^2)
 
+     real, dimension(:,:), pointer :: &
+          qcan_dif => null() ! diffuse+scattered beam radiation absorbed by sunlit(:,1) and shaded(:,2) leaf, summed over PAR+NIR bands (W/m^2)
+
   end type radiation_type
 
   ! .............................................................................
@@ -1445,6 +1448,7 @@ contains
     allocate(rad%rhocbm(mp,nrb))
     allocate(rad%gradis(mp,mf))
     allocate(rad%qcan(mp,mf,nrb))
+    allocate(rad%qcan_dif(mp,mf))
 
   end subroutine alloc_radiation_type
 
@@ -2111,6 +2115,7 @@ contains
     deallocate(rad%latitude)
     deallocate(rad%lwabv)
     deallocate(rad%qcan)
+    deallocate(rad%qcan_dif)
     deallocate(rad%qssabs)
     deallocate(rad%rhocdf)
     deallocate(rad%rniso)
@@ -2729,6 +2734,7 @@ contains
     rad%latitude  = 0
     rad%lwabv     = 0
     rad%qcan      = 0
+    rad%qcan_dif  = 0
     rad%qssabs    = 0
     rad%rhocdf    = 0
     rad%rniso     = 0

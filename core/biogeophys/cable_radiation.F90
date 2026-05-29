@@ -253,6 +253,7 @@ SUBROUTINE radiation(ssnow, veg, air, met, rad, canopy)
 
    rad%gradis = 0.0 ! initialise radiative conductance
    rad%qcan = 0.0   ! initialise radiation absorbed by canopy
+   rad%qcan_dif = 0.0 ! initialise diffuse+scattered beam absorbed by each leaf type
 
    ! print*, 'AA08 ', air%rho
    ! print*, 'AA09 ', rad%flws
@@ -334,6 +335,22 @@ SUBROUTINE radiation(ssnow, veg, air, met, rad, canopy)
                            ( 1.0 - veg%taul(:,b) -veg%refl(:,b)) * rad%extkb &
                            * ( ( 1 - rad%transb ) / rad%extkb - &
                            ( 1 - rad%transb**2 ) / ( rad%extkb + rad%extkb ) ) )
+
+         ! Diffuse + scattered beam absorbed by sunlit leaf (Terms 1+2), summed over bands:
+         rad%qcan_dif(:,1) = rad%qcan_dif(:,1) + met%fsd(:,b) * ( &
+                             ( 1.0 - rad%fbeam(:,b) ) * ( 1.0 - rad%reffdf(:,b) ) &
+                             * rad%extkdm(:,b) * cf1 &
+                             + rad%fbeam(:,b) * ( 1.0 - rad%reffbm(:,b) ) &
+                             * rad%extkbm(:,b) * cf3 )
+
+         ! Diffuse + scattered beam absorbed by shaded leaf (Terms 1+2), summed over bands:
+         rad%qcan_dif(:,2) = rad%qcan_dif(:,2) + met%fsd(:,b) * ( &
+                             ( 1.0 - rad%fbeam(:,b) ) * ( 1.0 - rad%reffdf(:,b) ) &
+                             * rad%extkdm(:,b) * &
+                             ( ( 1.0 - rad%cexpkdm(:,b) ) / rad%extkdm(:,b) - cf1 ) &
+                             + rad%fbeam(:,b) * ( 1.0 - rad%reffbm(:,b) ) &
+                             * rad%extkbm(:,b) * &
+                             ( ( 1.0 - rad%cexpkbm(:,b) ) / rad%extkbm(:,b) - cf3 ) )
 
       END WHERE
 
