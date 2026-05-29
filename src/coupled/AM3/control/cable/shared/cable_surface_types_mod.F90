@@ -33,7 +33,8 @@ CONTAINS
     ! surfaces are PFTs (they always occupy the first N slots), how many
     ! non-PFT surfaces there are to round out the total count, which IDs are
     ! urban, lake, soil or ice as they get special treatment.
-    INTEGER, INTENT(INOUT) :: surface_type_ids
+    INTEGER, INTENT(INOUT), DIMENSION(:) :: surface_type_ids
+    INTEGER, INTENT(IN ) :: ncpft
     INTEGER, INTENT(OUT) :: nnpft, ncpft, npft, nnvp, ntype, urban, lake,&
       soil, ice
 
@@ -62,7 +63,7 @@ CONTAINS
     soil = barren_cable
     ice = ice_cable
 
-    ntype = npft - nnvg
+    ntype = npft + nnvg
     nnpft = npft - ncpft
 
   END SUBROUTINE link_JULES_surface_ids_to_CABLE
