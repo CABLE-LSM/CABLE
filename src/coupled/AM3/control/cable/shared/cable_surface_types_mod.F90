@@ -25,12 +25,17 @@ MODULE cable_surface_types_mod
 
 CONTAINS
 
-  SUBROUTINE set_JULES_surface_types(surface_type_ids, nnpft, ncpft, npft,&
-      nnvg, ntype, urban, lake, soil, ice)
-    INTEGER, INTENT(INOUT), DIMENSION(:) :: surface_type_ids
-    INTEGER, INTENT(OUT) :: nnpft, npft, nnvg, ntype, urban, lake,&
+  SUBROUTINE link_JULES_surface_ids_to_CABLE(surface_type_ids, nnpft, ncpft,&
+      npft, nnvg, ntype, urban, lake, soil, ice)
+    ! JULES permits surface IDs to be assigned in the namelist, and needs to
+    ! link these IDs to I/O machinery (via the surface_type_ids) array and to
+    ! the science via the integer parameters. The parameters specify how many
+    ! surfaces are PFTs (they always occupy the first N slots), how many
+    ! non-PFT surfaces there are to round out the total count, which IDs are
+    ! urban, lake, soil or ice as they get special treatment.
+    INTEGER, INTENT(INOUT) :: surface_type_ids
+    INTEGER, INTENT(OUT) :: nnpft, ncpft, npft, nnvp, ntype, urban, lake,&
       soil, ice
-    INTEGER, INTENT(IN) :: ncpft
 
     surface_type_ids(evergreen_needleleaf) = 1
     surface_type_ids(evergreen_broadleaf ) = 2
@@ -53,13 +58,13 @@ CONTAINS
     npft = 13
     nnvg = 4
     urban = urban_cable
-    lake = lakes_cable
+    lake = lake_cable
     soil = barren_cable
     ice = ice_cable
 
     ntype = npft - nnvg
     nnpft = npft - ncpft
 
-  END SUBROUTINE set_JULES_surface_types
+  END SUBROUTINE link_JULES_surface_ids_to_CABLE
 
 END MODULE cable_surface_types_mod
