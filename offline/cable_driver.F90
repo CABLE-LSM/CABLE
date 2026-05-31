@@ -715,6 +715,10 @@ PROGRAM cable_offline_driver
                   IF (tmp_froot > 0.0_r_2) &
                      veg%froot(i_froot, :) = veg%froot(i_froot, :) / REAL(tmp_froot)
                END DO
+               if (trim(cable_user%MetType) == 'site' .and. site%sfc > 0) then
+                  soil%sfc(:) = site%sfc
+                  print *,'sfc from site.nml is:', soil%sfc(:)
+               end if
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
                end if

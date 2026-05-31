@@ -57,6 +57,7 @@ MODULE CABLE_site
      REAL :: Ndep  ! Ndep for current time step
      REAL :: Pdep  ! Pdep for current time step
      REAL :: zr ! root length
+     REAL :: sfc ! vol H2O @ field capacity
      REAL :: gamma
      REAL :: dc ! fraction 0-1
      INTEGER :: soiltype
@@ -93,8 +94,9 @@ CONTAINS
     REAL :: spinCO2 ! ppm (pre-industrial)
     REAL :: spinNdep  ! kgNha-1y-1 (pre-industrial)
     REAL :: spinPdep  ! kgPha-1y-1 (pre-industrial)
-    REAL :: zr ! root maximum length, zihanlu
-    REAL :: gamma ! parameter in fwsoil calculation in haverd2013 zihanlu
+    REAL :: zr = 0.0 ! root maximum length, zihanlu
+    REAL :: sfc = 0.0 ! vol H2O @ field capacity (m3/m3)
+    REAL :: gamma = 0.0 ! parameter in fwsoil calculation in haverd2013 zihanlu
     REAL :: dc ! parameter used in iteration in dryLeaf, maybe abandoned later
     INTEGER :: soiltype, vegtype, Nmax
     ! I/O checker
@@ -103,7 +105,7 @@ CONTAINS
     ! Flag for errors
 
     NAMELIST /siteNML/ RunType, CO2NdepFile, spinstartyear, spinendyear, spinCO2, &
-         spinNdep, spinPdep, zr, gamma, dc, soiltype, vegtype, Nmax
+         spinNdep, spinPdep, zr, sfc, gamma, dc, soiltype, vegtype, Nmax
 
     ! Read site namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
@@ -121,6 +123,7 @@ CONTAINS
     site%spinNdep = spinNdep    
     site%spinPdep = spinPdep
     site%zr = zr
+    site%sfc = sfc
     site%gamma = gamma
     site%dc = dc
     site%soiltype = soiltype
@@ -147,6 +150,10 @@ CONTAINS
     WRITE(logn,*)" Pdep value for spinup [kg n ha-1 y-1] ", site%spinPdep
 
    
+    WRITE(*   ,*)" zr (root depth) [m]             : ", site%zr
+    WRITE(*   ,*)" sfc (field capacity) [m3/m3]   : ", site%sfc
+    WRITE(logn,*)" zr (root depth) [m]             : ", site%zr
+    WRITE(logn,*)" sfc (field capacity) [m3/m3]   : ", site%sfc
     WRITE(*   ,*)"========================================= site ============"
     WRITE(logn,*)"========================================= site ============"
 

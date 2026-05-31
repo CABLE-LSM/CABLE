@@ -6,4 +6,6 @@
 	spinCO2 = 284.7
 	spinNdep = 0.79  ! kg N ha-1 y-1
         spinPdep = 0.144 ! kg P ha-1 y-1
+        zr = 0.0         ! root depth (m); 0 = use default from veg param file
+        sfc = 0.0        ! field capacity (m3/m3); 0 = use default from soil param file
 &end

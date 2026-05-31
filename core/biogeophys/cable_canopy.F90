@@ -2588,21 +2588,30 @@ CONTAINS
 
                   g1 = veg%g1(i)
 
-                  ! Temperature correction of g1: Cheesman et al. (2026)
-                  ! New Phytologist doi:10.1111/nph.71249, Eqn 8.
-                  ! g1(T) = g1(Tref) * sqrt(Gamma*(T)/Gamma*(Tref)
-                  !                         * eta(Tref)/eta(T) * Hs(Tref)/Hs(T))
-                  ! Tref = C%trefk = 298.15 K (25 deg C)
-                  ! Gamma* ratio: uses egam (selected by explicit_gm/Rubisco_parameters, consistent with cx2)
-                  ! eta(T) = 1.95e14 * T^(-7) Pa s  =>  eta_ref/eta_T = (T/Tref)^7
-                  ! Hs: Henry's law, B=2300 K  =>  Hs_ref/Hs_T = exp(2300*(1/Tref - 1/T))
-                  if (cable_user%g1_Tcorr) then
+                  ! Temperature correction of g1
+                  IF (cable_user%g1_Tcorr == 'cheesman') THEN
+                     ! Cheesman et al. (2026) New Phytologist doi:10.1111/nph.71249, Eqn 8.
+                     ! g1(T) = g1(Tref) * sqrt(Gamma*(T)/Gamma*(Tref)
+                     !                         * eta(Tref)/eta(T) * Hs(Tref)/Hs(T))
+                     ! Tref = C%trefk (25 deg C); egam consistent with cx2
+                     ! eta(T) = 1.95e14 * T^(-7) Pa s  =>  eta_ref/eta_T = (T/Tref)^7
+                     ! Hs: Henry's law, B=2300 K  =>  Hs_ref/Hs_T = exp(2300*(1/Tref - 1/T))
                      g1 = g1 * SQRT( &
                         EXP(egam/(C%rgas*C%trefk)*(1.0 - C%trefk/tlfx(i))) * &  ! Gamma*(T)/Gamma*(Tref)
                         (tlfx(i)/C%trefk)**7 * &                                   ! eta(Tref)/eta(T)
                         EXP(2300.0*(1.0/C%trefk - 1.0/tlfx(i))) &                 ! Hs(Tref)/Hs(T)
                      )
-                  end if
+                  ELSE IF (cable_user%g1_Tcorr == 'lu') THEN
+                     ! Piecewise-parabola correction; min 0.5 at 15 °C, 1.0 at <=5 °C and 45 °C
+                     ! T5=278.15 K, T15=288.15 K, T45=318.15 K
+                     IF (tlfx(i) <= 278.15) THEN
+                        ! g1 unchanged above T5
+                     ELSE IF (tlfx(i) <= 288.15) THEN
+                        g1 = g1 * (0.5 + 0.5*(tlfx(i) - 288.15)**2 / (278.15 - 288.15)**2)
+                     ELSE
+                        g1 = g1 * (0.5 + 0.5*(tlfx(i) - 288.15)**2 / (318.15 - 288.15)**2)
+                     END IF
+                  END IF
 
                   !gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,1)
                   !gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,2)
@@ -2642,16 +2651,26 @@ CONTAINS
                   gswmin(i, 2) = veg%g0(i)*rad%scalex(i, 2)
                   g1 = veg%g1tuzet(i)
 
-                  ! Temperature correction of g1: Cheesman et al. (2026)
-                  ! New Phytologist doi:10.1111/nph.71249, Eqn 8.
-                  ! Uses egam consistent with cx2 (selected by explicit_gm/Rubisco_parameters)
-                  if (cable_user%g1_Tcorr) then
+                  ! Temperature correction of g1
+                  IF (cable_user%g1_Tcorr == 'cheesman') THEN
+                     ! Cheesman et al. (2026) New Phytologist doi:10.1111/nph.71249, Eqn 8.
+                     ! Uses egam consistent with cx2 (selected by explicit_gm/Rubisco_parameters)
                      g1 = g1 * SQRT( &
                         EXP(egam/(C%rgas*C%trefk)*(1.0 - C%trefk/tlfx(i))) * &  ! Gamma*(T)/Gamma*(Tref)
                         (tlfx(i)/C%trefk)**7 * &                                   ! eta(Tref)/eta(T)
                         EXP(2300.0*(1.0/C%trefk - 1.0/tlfx(i))) &                 ! Hs(Tref)/Hs(T)
                      )
-                  end if
+                  ELSE IF (cable_user%g1_Tcorr == 'lu') THEN
+                     ! Piecewise-parabola correction; min 0.5 at 15 °C, 1.0 at <=5 °C and 45 °C
+                     ! T5=278.15 K, T15=288.15 K, T45=318.15 K
+                     IF (tlfx(i) <= 278.15) THEN
+                        ! g1 unchanged above T5
+                     ELSE IF (tlfx(i) <= 288.15) THEN
+                        g1 = g1 * (0.5 + 0.5*(tlfx(i) - 288.15)**2 / (278.15 - 288.15)**2)
+                     ELSE
+                        g1 = g1 * (0.5 + 0.5*(tlfx(i) - 288.15)**2 / (318.15 - 288.15)**2)
+                     END IF
+                  END IF
 
                   psilxx(i, :) = psilx(i, :)
                   if (present(fwpsdo)) then
