@@ -35,7 +35,7 @@ CONTAINS
     ! urban, lake, soil or ice as they get special treatment.
     INTEGER, INTENT(INOUT), DIMENSION(:) :: surface_type_ids
     INTEGER, INTENT(IN ) :: ncpft
-    INTEGER, INTENT(OUT) :: nnpft, npft, nnvp, ntype, urban, lake, soil, ice
+    INTEGER, INTENT(OUT) :: nnpft, npft, nnvg, ntype, urban, lake, soil, ice
 
     surface_type_ids(evergreen_needleleaf) = 1
     surface_type_ids(evergreen_broadleaf ) = 2
@@ -58,7 +58,7 @@ CONTAINS
     npft = 13
     nnvg = 4
     urban = urban_cable
-    lake = lake_cable
+    lake = lakes_cable
     soil = barren_cable
     ice = ice_cable
 
