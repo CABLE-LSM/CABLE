@@ -216,6 +216,8 @@ MODULE cable_IO_vars_module
          LAI = .FALSE.,       & !
          Qh = .TRUE.,        & ! 17 sensible heat flux [W/m2]
          Qle = .TRUE.,       & ! 18 latent heat flux [W/m2]
+         fev = .FALSE.,      & ! vegetation latent heat flux [W/m2]
+         fes = .FALSE.,      & ! soil latent heat flux [W/m2]
          Qg = .FALSE.,        & ! 19 ground heat flux [W/m2]
          SWnet = .FALSE.,     & ! 20 net shortwave [W/m2]
          LWnet = .FALSE.,     & ! 21 net longwave [W/m2]
@@ -555,6 +557,8 @@ MODULE cable_IO_vars_module
          LAI = .FALSE.,       & !
          Qh = .FALSE.,        & ! 17 sensible heat flux [W/m2]
          Qle = .FALSE.,       & ! 18 latent heat flux [W/m2]
+         fev = .FALSE.,      & ! vegetation latent heat flux [W/m2]
+         fes = .FALSE.,      & ! soil latent heat flux [W/m2]
          Qg = .FALSE.,        & ! 19 ground heat flux [W/m2]
          SWnet = .FALSE.,     & ! 20 net shortwave [W/m2]
          LWnet = .FALSE.,     & ! 21 net longwave [W/m2]

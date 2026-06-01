@@ -57,7 +57,7 @@ MODULE cable_output_module
   TYPE out_varID_type ! output variable IDs in netcdf file
      INTEGER :: SWdown, FracDiff, LWdown, Wind, Wind_E, PSurf, &
           Tair, Qair, Rainf, Snowf, CO2air, &
-          Qle, Qh, Qg, NEE, fbeam, SWnet, &
+          Qle, fev, fes, Qh, Qg, NEE, fbeam, SWnet, &
           LWnet, SoilMoist, SoilMoistPFT, SoilTemp, Albedo, &
           visAlbedo, nirAlbedo, SoilMoistIce, &
           Qs, Qsb, Evap, BaresoilT, SWE, SnowT, &
@@ -124,6 +124,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: LAI => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qh => null()     ! 17 sensible heat flux [W/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qle => null()    ! 18 latent heat flux [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fev => null()    ! vegetation latent heat [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fes => null()    ! soil latent heat [W/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qg => null()     ! 19 ground heat flux [W/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fbeam => null()  ! 20 fracion of direct radiation
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWnet => null()  ! 20 net shortwave [W/m2]
@@ -669,6 +671,16 @@ CONTAINS
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%Qle(mp))
        out%Qle = zero4 ! initialise
+       CALL define_ovar(ncid_out, ovid%fev, 'fev', 'W/m^2', &
+            'Vegetation latent heat flux', patchout%Qle, 'dummy', &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%fev(mp))
+       out%fev = zero4
+       CALL define_ovar(ncid_out, ovid%fes, 'fes', 'W/m^2', &
+            'Soil latent heat flux', patchout%Qle, 'dummy', &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%fes(mp))
+       out%fes = zero4
     END IF
     IF(output%flux .OR. output%Tsap) THEN
      CALL define_ovar(ncid_out, ovid%Tsap, 'Tsap', 'kg/m^2/s', &
@@ -3023,16 +3035,22 @@ CONTAINS
     !-----------------------WRITE FLUX DATA-------------------------------------
     ! Qle: latent heat flux [W/m^2]
     IF(output%flux .OR. output%Qle) THEN
-       ! Add current timestep's value to total of temporary output variable:
        out%Qle = out%Qle + toreal4(canopy%fe)
+       out%fev = out%fev + toreal4(canopy%fev)
+       out%fes = out%fes + toreal4(canopy%fes)
        IF(writenow) THEN
-          ! Divide accumulated variable by number of accumulated time steps:
           out%Qle = out%Qle * rinterval
-          ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%Qle, 'Qle', out%Qle, &
                ranges%Qle, patchout%Qle, 'default', met)
-          ! Reset temporary output variable:
           out%Qle = zero4
+          out%fev = out%fev * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%fev, 'fev', out%fev, &
+               ranges%Qle, patchout%Qle, 'default', met)
+          out%fev = zero4
+          out%fes = out%fes * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%fes, 'fes', out%fes, &
+               ranges%Qle, patchout%Qle, 'default', met)
+          out%fes = zero4
        END IF
     END IF
     ! Qh: sensible heat flux [W/m^2]

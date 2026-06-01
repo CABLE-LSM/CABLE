@@ -71,6 +71,8 @@ MODULE cable_checks_module
                                 ! possible output variables
            Qh = (/-2000.0,2000.0/),                       & ! W/m^2
            Qle = (/-2500.0,2500.0/),                      & ! W/m^2
+           fev = (/-2500.0,2500.0/),                      & ! W/m^2
+           fes = (/-2500.0,2500.0/),                      & ! W/m^2
            Qg = (/-4000.0,4000.0/),                       & ! W/m^2
            SWnet = (/0.0,1350.0/),                        & ! W/m^2 (YP oct07)
                                 ! SWnet = (/0.0,1250.0/), & ! W/m^2
