@@ -579,11 +579,7 @@ CONTAINS
     !! Translate local land index on current MPI rank to global land index
     INTEGER, INTENT(IN) :: land_index_local
     INTEGER :: land_index_global
-#ifdef UM_CBL
-    land_index_global = land_index_local
-#else
     land_index_global = land_decomp_start + land_index_local - 1
-#endif
   END FUNCTION to_land_index_global
 
 END MODULE cable_IO_vars_module
