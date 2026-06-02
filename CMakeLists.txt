@@ -62,12 +62,9 @@ if(CABLE_LIBRARY)
         src/science/casa-cnp/bgcdriver.F90
         src/science/casa-cnp/biogeochem_casa.F90
         src/science/casa-cnp/casa_cnp.F90
-        src/science/casa-cnp/casa_dimension.F90
         src/science/casa-cnp/casa_feedback.F90
         src/science/casa-cnp/casa_inout.F90
         src/science/casa-cnp/casa_param.F90
-        src/science/casa-cnp/casa_phenology.F90
-        src/science/casa-cnp/casa_readbiome.F90
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
         src/science/misc/cable_air.F90
