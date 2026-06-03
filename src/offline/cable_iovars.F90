@@ -575,6 +575,12 @@ CONTAINS
 
   END SUBROUTINE set_group_output_values
 
+  SUBROUTINE set_decomp_for_coupled()
+    ! In coupled mode, we leave the decomposition up to the controlling UM-
+    ! treat every process as it's own simulation
+    land_decomp_start = 1
+  END SUBROUTINE set_decomp_for_coupled
+
   FUNCTION to_land_index_global(land_index_local) RESULT(land_index_global)
     !! Translate local land index on current MPI rank to global land index
     INTEGER, INTENT(IN) :: land_index_local
