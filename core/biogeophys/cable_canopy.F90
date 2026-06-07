@@ -2013,6 +2013,9 @@ CONTAINS
                                   ** veg%b_plant(i))
             end if
          end do
+      else if (cable_user%NonStoLim /= 'None' .AND. &
+               .NOT. present(wbpsdo)) then
+         fwsoil_nongs = fwsoil
       else
          fwsoil_nongs = 1.0
       end if
