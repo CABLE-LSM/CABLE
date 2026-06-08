@@ -139,8 +139,6 @@ CONTAINS
     USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
-    USE cable_output_module,  ONLY: create_restart,open_output_file,            &
-         write_output,close_output_file
     USE cable_cbm_module
     USE cable_climate_mod
 
@@ -367,10 +365,6 @@ CONTAINS
 
           END IF
 
-          ! Open output file:
-          ! MPI: only the master writes to the files
-          !CALL open_output_file( dels, soil, veg, bgc, rough )
-
           ssnow%otss_0   = ssnow%tgg(:,1)
           ssnow%otss     = ssnow%tgg(:,1)
           ssnow%rtevap_sat(:) = 0.0
@@ -514,6 +508,8 @@ CONTAINS
           ssnow%rnof2  = ssnow%rnof2*dels
           ssnow%runoff = ssnow%runoff*dels
 
+          call canopy%tscrn_max_daily%accumulate()
+          call canopy%tscrn_min_daily%accumulate()
 
           !jhan this is insufficient testing. condition for
           !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
@@ -558,11 +554,12 @@ CONTAINS
           ! Write time step's output to file if either: we're not spinning up
           ! or we're spinning up and the spinup has converged:
           ! MPI: writing done only by the master
-          !IF((.NOT.spinup).OR.(spinup.AND.spinConv))                         &
-          !   CALL write_output( dels, ktau, met, canopy, ssnow,                    &
-          !                      rad, bal, air, soil, veg, C%SBOLTZ, &
-          !                      C%EMLEAF, C%EMSOIL )
 
+          IF (.not. casaonly .and. ktau > kstart .and. mod(ktau - kstart + 1, ktauday) == 0) THEN
+            ! Reset daily aggregators if it is the end of day
+            CALL canopy%tscrn_max_daily%reset()
+            CALL canopy%tscrn_min_daily%reset()
+          END IF
 
           CALL1 = .FALSE.
 
@@ -705,7 +702,7 @@ CONTAINS
 
     ! Write restart file if requested:
     IF(output%restart .AND. (.NOT. CASAONLY)) THEN
-      ! MPI: send variables that are required by create_restart
+      ! MPI: send variables that are required to write restart
       CALL MPI_Send (MPI_BOTTOM, 1, restart_t, 0, ktau_gl, comm, ierr)
       ! MPI: output file written by master only
 
@@ -718,11 +715,6 @@ CONTAINS
     ! MPI: open and close by master only
     ! Close met data input file:
     !CALL close_met_file
-    ! MPI: open and close by master only
-    ! Close output file and deallocate main variables:
-    !CALL close_output_file( bal, air, bgc, canopy, met,                         &
-    !                        rad, rough, soil, ssnow,                            &
-    !                        sum_flux, veg )
 
     !WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
 
@@ -1746,7 +1738,13 @@ CONTAINS
     CALL MPI_Get_address (canopy%wcint, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_max_daily%aggregated_data, displs(bidx), ierr)
+    blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_min_daily%aggregated_data, displs(bidx), ierr)
+    blen(bidx) = r1len
 
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater, displs(bidx), ierr)
@@ -3612,7 +3610,7 @@ CONTAINS
 
   ! MPI: creates send_t type to send the results to the master
   !
-  ! list of fields that master needs to receive for use in write_output:
+  ! list of fields that master needs to receive to write output:
   !
   ! air%          rlam
   !
@@ -4597,6 +4595,14 @@ CONTAINS
     !blen(vidx) = cnt * extr1
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%wcint(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_max_daily%aggregated_data(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%tscrn_min_daily%aggregated_data(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1
