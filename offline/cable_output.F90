@@ -3986,6 +3986,8 @@ CONTAINS
           ! Reset temporary output variable:
           out%fwpsi_sl = zero4
           END IF
+     END IF
+     IF (output%veg .OR. output%fwpsi_sh) THEN
           ! Add current timestep's value to total of temporary output variable:
           out%fwpsi_sh = out%fwpsi_sh + toreal4(canopy%fwpsi(:,2))
           IF (writenow) THEN
