@@ -164,7 +164,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/casa/types/casa_dimension.F90
             src/coupled/AM3/control/casa/types/casa_inout.F90
             src/coupled/AM3/control/casa/types/casa_readbiome.F90
-	        src/coupled/AM3/control/cable/shared/cable_surface_types_mod.F90
+	        src/offline/cable_surface_types_mod.F90
             src/offline/cable_iovars.F90
         )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
