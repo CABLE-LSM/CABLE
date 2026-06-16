@@ -64,7 +64,7 @@ MODULE cable_output_module
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp, &
           StemResp,LeafResp, HeteroResp, GPP, NPP, LAI, &
           ECanop, TVeg, ESoil, CanopInt, SnowDepth, &
-          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoiltmp,fwpsi_sl, fwpsi_sh, RnetSoil, SnowMelt, &
+          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoil_nongs,fwpsi_sl, fwpsi_sh, RnetSoil, SnowMelt, &
                                 ! vh_mc ! additional variables for ESM-SnowMIP
           hfds, hfdsn, hfls, hfmlt, hfrs, hfsbl, hfss, rlus, rsus, &
           esn, evspsbl, evspsblsoi, evspsblveg, mrrob, mrros, sbl, &
@@ -220,7 +220,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wbal => null()  ! cumulative water balance [W/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoiltmp => null()  !
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil_nongs => null()  ! non-stomatal stress coefficient [-]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sl => null()  !
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sh => null()  !
      ! [umol/m2/s]
@@ -1517,11 +1517,18 @@ CONTAINS
        out%CanT = zero4 ! initialise
     END IF
     IF(output%veg .OR. output%Fwsoil) THEN
-       CALL define_ovar(ncid_out, ovid%Fwsoil, 'Fwsoil', '[-]', &
+       CALL define_ovar(ncid_out, ovid%Fwsoil, 'fwsoil', '[-]', &
             'soil moisture modifier to stomatal conductance', patchout%Fwsoil, &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%Fwsoil(mp))
        out%Fwsoil = zero4 ! initialise
+    END IF
+    IF(output%veg .OR. output%Fwsoil_nongs) THEN
+       CALL define_ovar(ncid_out, ovid%Fwsoil_nongs, 'fwsoil_nongs', '[-]', &
+            'non-stomatal stress coefficient', patchout%Fwsoil_nongs, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Fwsoil_nongs(mp))
+       out%Fwsoil_nongs = zero4 ! initialise
     END IF
     IF(output%veg .OR. output%fwpsi_sl) THEN
      CALL define_ovar(ncid_out, ovid%fwpsi_sl, 'fwpsi_sl', '[-]', &
@@ -1537,13 +1544,6 @@ CONTAINS
           ALLOCATE(out%fwpsi_sh(mp))
           out%fwpsi_sh = zero4 ! initialise
      END IF
-    IF(output%veg) THEN
-     CALL define_ovar(ncid_out, ovid%Fwsoiltmp, 'Fwsoiltmp', '[-]', &
-          'soil moisture modifier to stomatal conductance', patchout%Fwsoiltmp, &
-          'dummy', xID, yID, zID, landID, patchID, tID)
-     ALLOCATE(out%Fwsoiltmp(mp))
-     out%Fwsoiltmp = zero4 ! initialise
-  END IF
     IF (output%mwstress) THEN
        CALL define_ovar(ncid_out, ovid%mwstress, 'mwstress', '[ ]', &
             'rolling mean water stress', patchout%TVeg, 'dummy', &
@@ -3955,25 +3955,21 @@ CONTAINS
           ! Divide accumulated variable by number of accumulated time steps:
           out%Fwsoil = out%Fwsoil * rinterval
           ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoil, 'Fwsoil', out%Fwsoil, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoil, 'fwsoil', out%Fwsoil, &
                ranges%Fwsoil, patchout%Fwsoil, 'default', met)
           ! Reset temporary output variable:
           out%Fwsoil = zero4
        END IF
     END IF
-    IF (output%veg) THEN
-     ! Add current timestep's value to total of temporary output variable:
-          out%Fwsoiltmp = out%Fwsoiltmp + toreal4(canopy%fwsoiltmp)
-          IF (writenow) THEN
-          ! Divide accumulated variable by number of accumulated time steps:
-          out%Fwsoiltmp = out%Fwsoiltmp * rinterval
-          ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoiltmp, 'Fwsoiltmp', out%Fwsoiltmp, &
-               ranges%Fwsoiltmp, patchout%Fwsoiltmp, 'default', met)
-          ! Reset temporary output variable:
-          out%Fwsoiltmp = zero4
-          END IF
-     END IF
+    IF (output%veg .OR. output%Fwsoil_nongs) THEN
+       out%Fwsoil_nongs = out%Fwsoil_nongs + toreal4(canopy%fwsoil_nongs)
+       IF (writenow) THEN
+          out%Fwsoil_nongs = out%Fwsoil_nongs * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoil_nongs, 'fwsoil_nongs', out%Fwsoil_nongs, &
+               ranges%Fwsoil_nongs, patchout%Fwsoil_nongs, 'default', met)
+          out%Fwsoil_nongs = zero4
+       END IF
+    END IF
      IF (output%veg .or. output%fwpsi_sl) THEN
           ! Add current timestep's value to total of temporary output variable:
           out%fwpsi_sl = out%fwpsi_sl + toreal4(canopy%fwpsi(:,1))

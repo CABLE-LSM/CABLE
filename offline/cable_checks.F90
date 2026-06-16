@@ -122,8 +122,8 @@ MODULE cable_checks_module
                                 !! vh_js !!
            CanT = (/213.0,333.0/),                        &
            Fwsoil = (/0.0,1.0/),                          &
+           Fwsoil_nongs = (/0.0,1.0/),                    &
                                 ! parameters:
-           Fwsoiltmp = (/0.0,1.0/),                          &
            fwpsi = (/0.0,1.0/),                          &
            albsoil = (/0.0,0.9/),                         &
            isoil = (/1.0,30.0/),                          &

@@ -123,8 +123,6 @@ CONTAINS
          dsypsdo => null(), &
          fwsoil => null(), & ! soil water modifier of stom. cond
          fwsoilpsdo => null(), &
-         fwsoiltmp => null(), &
-         fwsoiltmppsdo => null(), &
          tlfx => null(), & ! leaf temp prev. iter (K)
          tlfxpsdo => null(), &
          tlfy => null(), & ! leaf temp (K)
@@ -161,6 +159,7 @@ CONTAINS
       REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat, rt0bus
 
       INTEGER :: j
+      REAL(r_2) :: fws_tmp, psi_sat_j, psi_wilt_j
 
       INTEGER, SAVE :: call_number = 0
       REAL, DIMENSION(ms) :: root_length
@@ -175,7 +174,7 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE (cansat(mp), gbhu(mp, mf))
-      ALLOCATE (dsx(mp), dsxpsdo(mp), dsy(mp), dsypsdo(mp), fwsoil(mp), fwsoilpsdo(mp), fwsoiltmp(mp), fwsoiltmppsdo(mp), &
+      ALLOCATE (dsx(mp), dsxpsdo(mp), dsy(mp), dsypsdo(mp), fwsoil(mp), fwsoilpsdo(mp), &
                 tlfx(mp), tlfxpsdo(mp), tlfy(mp), tlfypsdo(mp))
       ALLOCATE (ecy(mp), ecypsdo(mp), hcy(mp), hcypsdo(mp), rny(mp), rnypsdo(mp))
       ALLOCATE (gbhf(mp, mf), csx(mp, mf), csxpsdo(mp, mf), psilx(mp, mf), psilxpsdo(mp, mf), psily(mp, mf), psilypsdo(mp, mf), &
@@ -225,7 +224,7 @@ CONTAINS
 
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
 
-      if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+      if (cable_user%FWSOIL_SWITCH == 'LWP1') then
          fwpsi(:, 1) = (1.0_r_2 + exp(veg%slope_leaf(:)*veg%psi_50_leaf(:)))/ &
                        (1.0_r_2 + exp(veg%slope_leaf(:)*(veg%psi_50_leaf(:) - psilx(:, 1))))
          fwpsi(:, 2) = (1.0_r_2 + exp(veg%slope_leaf(:)*veg%psi_50_leaf(:)))/ &
@@ -324,6 +323,92 @@ CONTAINS
       ! canopy%tscrn=   met%tk
       ! canopy%qscrn  = met%qv
       ! !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+      ! Compute Haverd2013 fwsoil/fwsoil_nongs once before the iteration loop,
+      ! using previous-timestep canopy%fevc as the transpiration demand estimate.
+      if (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') then
+         do j = 1, mp
+            fws_tmp = 1.0_r_2
+            call getrex_1d(real(ssnow%wb(j,:), r_2) - real(ssnow%wbice(j,:), r_2), &
+                           ssnow%rex(j,:), fws_tmp, &
+                           real(veg%froot(j,:), r_2), SPREAD(real(soil%ssat(j), r_2), 1, ms), &
+                           SPREAD(real(soil%swilt(j), r_2), 1, ms), &
+                           max(canopy%fevc(j)/real(air%rlam(j), r_2)/1000.0_r_2, 0.0_r_2), &
+                           veg%gamma(j), real(soil%zse, r_2), real(dels, r_2), veg%zr(j))
+            if (cable_user%FWSOIL_SWITCH == 'Haverd2013') canopy%fwsoil(j) = fws_tmp
+            if (cable_user%NSL_switch   == 'Haverd2013') canopy%fwsoil_nongs(j) = fws_tmp
+         end do
+         ssnow%rex = 0.0_r_2   ! reset after pre-loop probe; in-loop getrex_1d will repopulate
+      end if
+
+      ! Compute LWP2 fwsoil/fwsoil_nongs once before the iteration loop using psi_soilmean.
+      if (cable_user%FWSOIL_SWITCH == 'LWP2' .OR. cable_user%NSL_switch == 'LWP2') then
+         do j = 1, mp
+            select case (cable_user%psi_soil_func)
+            case ('linear-plateau')
+               psi_sat_j  = real(soil%sucs(j), r_2) * C%grav * C%RHOW * 1.0E-6
+               psi_wilt_j = psi_sat_j * MAX(1.E-9_r_2, MIN(1.0_r_2, &
+                            real(soil%swilt(j), r_2)/real(soil%ssat(j), r_2))) &
+                            ** (-real(soil%bch(j), r_2))
+               if (real(ssnow%psi_soilmean(j)) >= veg%psi_critical(j)) then
+                  fws_tmp = 1.0_r_2
+               else if (real(ssnow%psi_soilmean(j)) <= psi_wilt_j) then
+                  fws_tmp = 0.0_r_2
+               else
+                  fws_tmp = (real(ssnow%psi_soilmean(j), r_2) - psi_wilt_j) / &
+                             (real(veg%psi_critical(j), r_2) - psi_wilt_j)
+               end if
+            case ('logistic')
+               fws_tmp = (1.0_r_2 + exp(real(veg%slope_leaf(j), r_2) * real(veg%psi_critical(j), r_2))) / &
+                          (1.0_r_2 + exp(real(veg%slope_leaf(j), r_2) * &
+                          (real(veg%psi_critical(j), r_2) - ssnow%psi_soilmean(j))))
+            case ('weibull')
+               fws_tmp = exp(-log(2.0_r_2) * &
+                          MAX(0.0_r_2, ssnow%psi_soilmean(j) / real(veg%psi_critical(j), r_2)) &
+                          ** real(veg%b_plant(j), r_2))
+            case default
+               fws_tmp = 1.0_r_2
+            end select
+            if (cable_user%FWSOIL_SWITCH == 'LWP2') canopy%fwsoil(j)       = fws_tmp
+            if (cable_user%NSL_switch   == 'LWP2') canopy%fwsoil_nongs(j) = fws_tmp
+         end do
+      end if
+
+      ! For soil_struc='default', compute canopy%fwsoil for all remaining FWSOIL_SWITCH cases.
+      if (cable_user%soil_struc == 'default' .and. &
+          cable_user%FWSOIL_SWITCH /= 'Haverd2013' .and. &
+          cable_user%FWSOIL_SWITCH /= 'LWP2') then
+         select case (cable_user%FWSOIL_SWITCH)
+         case ('standard')
+            call fwsoil_calc_std(fwsoil, soil, ssnow, veg, ssnow%wb)
+            canopy%fwsoil = real(fwsoil, r_2)
+         case ('non-linear extrapolation')
+            call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, ssnow%wb)
+            canopy%fwsoil = real(fwsoil, r_2)
+         case ('Lai and Katul 2000')
+            call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, ssnow%wb)
+            canopy%fwsoil = real(fwsoil, r_2)
+         case ('profitmax')
+            canopy%fwsoil = 1.0_r_2
+         case ('constant1')
+            canopy%fwsoil = 0.98_r_2
+         case ('LWP1')
+            canopy%fwsoil = 1.0_r_2
+         end select
+      end if
+
+      ! Compute canopy%fwsoil_nongs independently for soil-water-based NSL_switch cases.
+      select case (cable_user%NSL_switch)
+      case ('standard')
+         call fwsoil_calc_std(fwsoil, soil, ssnow, veg, ssnow%wb)
+         canopy%fwsoil_nongs = real(fwsoil, r_2)
+      case ('non-linear extrapolation')
+         call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, ssnow%wb)
+         canopy%fwsoil_nongs = real(fwsoil, r_2)
+      case ('Lai and Katul 2000')
+         call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, ssnow%wb)
+         canopy%fwsoil_nongs = real(fwsoil, r_2)
+      end select
 
       ! print*, 'SS03.1 ', niter, ssnow%rtsoil
       ! print*, 'SS03.2 ', ssnow%tss
@@ -545,7 +630,6 @@ CONTAINS
             psilxpsdo = psilx
             psilypsdo = psily
             fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
             fwpsipsdo = fwpsi
             tlfxpsdo = tlfx
             tlfypsdo = tlfy
@@ -555,7 +639,7 @@ CONTAINS
             csxpsdo = csx
             CALL dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
                          veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo, &
-                         fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo, &
+                         fwsoilpsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo, &
                          rnypsdo, gbhu, gbhf, csxpsdo, cansat, &
                          ghwet, iter, climate, wbpsdo=wbpsdo)
 !            !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
@@ -620,7 +704,7 @@ CONTAINS
          end if
          CALL dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
                       veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily, &
-                      fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
+                      fwsoil, fwpsi, tlfx, tlfy, ecy, hcy, &
                       rny, gbhu, gbhf, csx, cansat, &
                       ghwet, iter, climate)
 
@@ -1023,7 +1107,7 @@ CONTAINS
       CALL Penman_Monteith_canopy(gbhu, gbhf)
       DEALLOCATE (cansat, gbhu)
       DEALLOCATE (dsx, dsxpsdo, dsy, dsypsdo, fwsoil, fwsoilpsdo, &
-                  fwsoiltmp, fwsoiltmppsdo, fwpsi, fwpsipsdo, tlfx, tlfxpsdo, tlfy, tlfypsdo)
+                  fwpsi, fwpsipsdo, tlfx, tlfxpsdo, tlfy, tlfypsdo)
       DEALLOCATE (ecy, ecypsdo, hcy, hcypsdo, rny, rnypsdo)
       DEALLOCATE (gbhf, csx, csxpsdo)
       DEALLOCATE (ghwet)
@@ -1728,7 +1812,7 @@ CONTAINS
 
    SUBROUTINE dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
                       veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily, &
-                      fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
+                      fwsoil, fwpsi, tlfx, tlfy, ecy, hcy, &
                       rny, gbhu, gbhf, csx, &
                       cansat, ghwet, iter, climate, wbpsdo, vpdpsdo, fwpsdo)
 
@@ -1755,7 +1839,6 @@ CONTAINS
          dsx, & ! leaf surface vpd
          dsy, & ! leaf surface vpd
          fwsoil, & ! soil water modifier of stom. cond
-         fwsoiltmp, &
          tlfx, & ! leaf temp prev. iter (K)
          tlfy  ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
@@ -1947,80 +2030,20 @@ CONTAINS
          vpdtmp = met%dva
       end if
       if (iter == iter_ini) then
-         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0) &
-          .and. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') <= 0)) then
-            if (cable_user%fwsoil_switch == 'standard') then
-               call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
-            elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
-               !EAK, 09/10 - replace linear approx by polynomial fitting
-               call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, wbtmp)
-            elseif (cable_user%fwsoil_switch == 'Lai and Katul 2000') then
-               call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, wbtmp)
-            elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
-               fwsoil = 1.0
-            elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
-               fwsoil = 0.98
-            else
-               write (*, *) 'fwsoil_switch failed.'
-#ifdef __MPI__
-               call MPI_Abort(0, 126, ierr) ! Do not know comm nor rank here
-#else
-               stop 126
-#endif
-            end if
-            canopy%fwsoil = real(fwsoil, r_2)
-            canopy%fwsoiltmp = real(fwsoil, r_2)
-         elseif ((cable_user%soil_struc == 'sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
-            fwsoil = real(canopy%fwsoil)
-            canopy%fwsoiltmp = real(fwsoil, r_2)
-         end if
-
+         ! canopy%fwsoil was computed in define_canopy before the iteration loop
+         fwsoil = real(canopy%fwsoil)
       end if
-      ! that could be changed later  zihanlu
-      if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-         !print*, 'fwsoil switch:  LWP'
-          fwsoil = 1.0
-          canopy%fwsoil = real(fwsoil, r_2)
-          canopy%fwsoiltmp = real(fwsoil, r_2)
-         canopy%fwpsi = real(fwpsi, r_2)
-      end if
-      if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0 .AND. &
-          cable_user%NonStoLim /= 'None' .AND. &
-          .NOT. present(wbpsdo)) then
-         do i = 1, mp
-            if (cable_user%NonStoLim == 'linear-plateau') then
-               psi_sat_i  = soil%sucs(i) * C%grav * C%RHOW * 1.0E-6
-               psi_wilt_i = psi_sat_i * MAX(1.E-9, MIN(1.0, soil%swilt(i)/soil%ssat(i))) &
-                           ** (-soil%bch(i))
-               if (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) then
-                  fwsoil_nongs(i) = 1.0
-               else if (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) then
-                  fwsoil_nongs(i) = 0.0
-               else
-                  fwsoil_nongs(i) = (real(ssnow%psi_soilmean(i)) - psi_wilt_i) / &
-                                    (veg%psi_critical(i) - psi_wilt_i)
-               end if
-            else if (cable_user%NonStoLim == 'logistic') then
-               fwsoil_nongs(i) = (1.0 + exp(veg%slope_leaf(i) * veg%psi_critical(i))) / &
-                                  (1.0 + exp(veg%slope_leaf(i) * &
-                                  (veg%psi_critical(i) - real(ssnow%psi_soilmean(i)))))
-            else if (cable_user%NonStoLim == 'weibull') then
-               ! f = exp(-ln2 * (psi_soilmean/psi_critical)^b_plant)
-               ! psi_critical = 50% stress point; b_plant controls curve shape
-               ! ratio of two negatives is positive; MAX guards psi_soilmean >= 0
-               fwsoil_nongs(i) = exp(-log(2.0) * &
-                                  MAX(0.0, real(ssnow%psi_soilmean(i)) / veg%psi_critical(i)) &
-                                  ** veg%b_plant(i))
-            end if
-         end do
-      else if (cable_user%NonStoLim /= 'None' .AND. &
-               .NOT. present(wbpsdo)) then
-         fwsoil_nongs = fwsoil
-      else
+      if (present(wbpsdo)) fwsoil = 1.0
+      if (cable_user%FWSOIL_SWITCH == 'LWP1') canopy%fwpsi = real(fwpsi, r_2)
+      if (cable_user%NSL_switch == 'None' .OR. present(wbpsdo)) then
          fwsoil_nongs = 1.0
+      else
+         ! Haverd2013 / LWP2 / standard / non-linear extrapolation / Lai and Katul 2000:
+         ! all computed independently in define_canopy before the iteration loop
+         fwsoil_nongs = real(canopy%fwsoil_nongs)
       end if
       if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-          INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+          cable_user%FWSOIL_SWITCH == 'LWP1') then
          fwsoil_gswmin = 1.0
       else
          fwsoil_gswmin = fwsoil
@@ -2099,7 +2122,7 @@ CONTAINS
       sum_rad_rniso = SUM(rad%rniso, 2)
       sum_rad_gradis = SUM(rad%gradis, 2)
       IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
-          INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+          cable_user%FWSOIL_SWITCH == 'LWP1') then
          abs_deltpsil(:, :) = SPREAD(SPREAD(999.0_r_2, 1, mp), 2, mf)
       else
          abs_deltpsil(:, :) = SPREAD(SPREAD(0.0_r_2, 1, mp), 2, mf)
@@ -2542,7 +2565,7 @@ CONTAINS
                   gswmin(i, 1) = veg%g0(i)*rad%scalex(i, 1)
                   gswmin(i, 2) = veg%g0(i)*rad%scalex(i, 2)
                   vpd = dsx(i)
-                  if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+                  if (cable_user%FWSOIL_SWITCH == 'LWP1') then
                      fwpsi(i, 1) = (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)))/ &
                                    (1.0_r_2 + exp(veg%slope_leaf(i)*(veg%psi_50_leaf(i) - psilx(i, 1))))
                      fwpsi(i, 2) = (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)))/ &
@@ -2620,7 +2643,7 @@ CONTAINS
                   !gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,2)
 
                   ! gs_coeff for CO2, hence no 1.6 factor as in the original model
-                  if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+                  if (cable_user%FWSOIL_SWITCH == 'LWP1') then
                      fwpsi(i, 1) = (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)))/ &
                                    (1.0_r_2 + exp(veg%slope_leaf(i)*(veg%psi_50_leaf(i) - psilx(i, 1))))
                      fwpsi(i, 2) = (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)))/ &
@@ -2649,7 +2672,7 @@ CONTAINS
                                       *fwpsdo
                   end if
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                        INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) THEN
+                        cable_user%FWSOIL_SWITCH == 'LWP1') THEN
                   gswmin(i, 1) = veg%g0(i)*rad%scalex(i, 1)
                   gswmin(i, 2) = veg%g0(i)*rad%scalex(i, 2)
                   g1 = veg%g1tuzet(i)
@@ -2754,8 +2777,8 @@ CONTAINS
          ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
          IF (cable_user%GS_SWITCH /= 'profitmax') THEN
             IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) THEN
-               ! Tuzet+LWP: fwpsi already enters gs_coeff; pass fwsoil=1.0 to avoid double-counting
+                cable_user%FWSOIL_SWITCH == 'LWP1') THEN
+               ! Tuzet+LWP1: fwpsi already enters gs_coeff; pass fwsoil=1.0 to avoid double-counting
                CALL photosynthesis_gm(csx(:, :), &
                                       spread(cx1(:), 2, mf), &
                                       spread(cx2(:), 2, mf), &
@@ -2857,7 +2880,7 @@ CONTAINS
                !    met%dva(i) * ghr(i,2) ) / &
                !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
 
-               IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+               IF (cable_user%FWSOIL_SWITCH == 'LWP1') then
 
                   ! ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2)
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
@@ -2897,7 +2920,7 @@ CONTAINS
                   ! endif
 
                END IF
-               IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) ) then
+               IF (cable_user%SOIL_SCHE == 'Haverd2013') then
                   ! avoid root-water extraction when fwsoil is zero
                   if (fwsoil(i) < 1e-6) then
                      anx(i, :) = -rdx(i, :)
@@ -2913,10 +2936,9 @@ CONTAINS
                                  max(canopy%fevc(i)/real(air%rlam(i), r_2)/1000.0_r_2, 0.0_r_2), &
                                  veg%gamma(i), &
                                  real(soil%zse, r_2), real(dels, r_2), veg%zr(i))
-                  canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
                   where (ssnow%rex(i, :) > tiny(1.0_r_2)) &
                      ssnow%evapfbl(i, :) = real(ssnow%rex(i, :))*dels*1000. ! mm water &
-                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) then
+                  IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
                      fwsoil(i) = real(canopy%fwsoil(i))
                      !(root water extraction) per time step
 
@@ -3003,7 +3025,7 @@ CONTAINS
                deltlf(i) = tlfxx(i) - tlfx(i)
 
                if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                   INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+                   cable_user%FWSOIL_SWITCH == 'LWP1') then
                   abs_deltpsil(i, :) = ABS(psilxx(i, :) - psilx(i, :))
                end if
                abs_deltlf(i) = ABS(deltlf(i))
@@ -3701,35 +3723,8 @@ CONTAINS
 #endif
       iter_ini = 4
       if (iter == iter_ini) then
-         if ((cable_user%soil_struc == 'default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0) &
-             .and. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') <= 0)) then
-            if (cable_user%fwsoil_switch == 'standard') then
-               call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
-            elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
-               !EAK, 09/10 - replace linear approx by polynomial fitting
-               call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, wbtmp)
-            elseif (cable_user%fwsoil_switch == 'Lai and Katul 2000') then
-               call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, wbtmp)
-            elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
-               fwsoil = 1.0
-            elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
-               fwsoil = 0.98
-            else
-               write (*, *) 'fwsoil_switch failed.'
-#ifdef __MPI__
-               call MPI_Abort(0, 126, ierr) ! Do not know comm nor rank here
-#else
-               stop 126
-#endif
-            end if
-            ! canopy%fwsoil = real(fwsoil, r_2)
-            ! canopy%fwsoiltmp = real(fwsoil, r_2)
-         elseif ((cable_user%soil_struc == 'sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) &
-                 .or. (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0)) then
-            fwsoil = real(canopy%fwsoil)
-            ! canopy%fwsoiltmp = real(fwsoil, r_2)
-         end if
-
+         ! canopy%fwsoil was computed in define_canopy before the iteration loop
+         fwsoil = real(canopy%fwsoil)
       end if
       ! END header
       ! allocate(gswmin(mp,mf))

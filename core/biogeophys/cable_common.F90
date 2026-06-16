@@ -119,7 +119,8 @@ MODULE cable_common_module
      ! Options: Bernacchi_2002 or Walker_2013.
      !          Only used if explicit_gm = .true.
      CHARACTER(LEN=50)  :: Rubisco_parameters = 'Bernacchi_2002'    ! Rubisco kinetic parameters
-     CHARACTER(LEN=20)  :: NonStoLim = 'None'   ! non-stomatal limitation: 'None', 'linear-plateau', 'logistic'
+     CHARACTER(LEN=20)  :: psi_soil_func = 'None'   ! psi-based stress function: 'None', 'linear-plateau', 'logistic', 'weibull'
+     CHARACTER(LEN=20)  :: NSL_switch    = 'None'   ! non-stomatal lim switch: 'None', 'standard', 'non-linear extrapolation', 'Lai and Katul 2000', 'Haverd2013', 'LWP2'
      LOGICAL ::                                                               &
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &

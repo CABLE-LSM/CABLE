@@ -373,7 +373,7 @@ CONTAINS
 
     DO k=1, nt
        if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-           INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+           cable_user%FWSOIL_SWITCH == 'LWP1') then
           fwsoil_k = 1.0
        else
           fwsoil_k = fwsoil(k)
@@ -654,7 +654,7 @@ CONTAINS
 
     DO k=1,nt
        if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-           INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+           cable_user%FWSOIL_SWITCH == 'LWP1') then
           fwsoil_k = 1.0
        else
           fwsoil_k = fwsoil(k)

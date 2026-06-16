@@ -271,7 +271,7 @@ MODULE cable_IO_vars_module
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .TRUE.,      & ! soil moisture modifier to stomatal conductance
-         Fwsoiltmp = .FALSE.,      &
+         Fwsoil_nongs = .TRUE.,    & ! non-stomatal stress coefficient
          fwpsi = .TRUE.,      &
          mwstress = .TRUE.,   & ! N-day rolling mean water stress
          Area = .FALSE., & ! patch area in km2
@@ -612,7 +612,7 @@ MODULE cable_IO_vars_module
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
-         Fwsoiltmp = .FALSE.,      &
+         Fwsoil_nongs = .FALSE.,   & ! non-stomatal stress coefficient
          fwpsi = .FALSE.,      &
          mwstress = .FALSE.,   &
          Area = .FALSE., & ! patch area in km2

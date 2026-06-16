@@ -551,8 +551,8 @@ module cable_def_types_mod
      REAL(r_2), DIMENSION(:,:),   POINTER :: ecxs => null()  ! sunlit and shaded leaf latent heat flux (sap flux)
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
-     real(r_2), dimension(:),     pointer :: fwsoiltmp => null() ! zihanlu 25/09/2024
      real(r_2), dimension(:,:),     pointer :: fwpsi => null() ! zihanlu 10/11/2024
+     real(r_2), dimension(:),     pointer :: fwsoil_nongs => null() ! non-stomatal stress from Haverd2013 getrex_1d
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      real(r_2), dimension(:), pointer :: kthLitt => null()
      real(r_2), dimension(:), pointer :: DvLitt => null()
@@ -1367,8 +1367,8 @@ contains
     allocate(canopy%ecx(mp,mf))    ! sunlit and shaded leaf latent heat flux
     ! allocate(canopy%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
     allocate(canopy%fwsoil(mp))
-    allocate(canopy%fwsoiltmp(mp))
     allocate(canopy%fwpsi(mp,mf))
+    allocate(canopy%fwsoil_nongs(mp))
     allocate(canopy%psix(mp))
     ! vh_js - litter resistances to heat and vapour transfer
     allocate(canopy%kthLitt(mp))
@@ -2057,8 +2057,8 @@ contains
     deallocate(canopy%zetar)
     deallocate(canopy%zetash)
     deallocate(canopy%fwsoil)
-    deallocate(canopy%fwsoiltmp)
     deallocate(canopy%fwpsi)
+    deallocate(canopy%fwsoil_nongs)
     deallocate(canopy%psix)
     deallocate(canopy%ofes)
     !! vh_js !! litter resistances to heat and vapour transfer
@@ -2668,8 +2668,9 @@ contains
     canopy%oldcansto = 0
     canopy%zetar     = 0
     canopy%zetash    = 0
-    canopy%fwsoil    = 0
-    canopy%fwpsi    = 0
+    canopy%fwsoil       = 0
+    canopy%fwsoil_nongs = 1
+    canopy%fwpsi        = 0
     canopy%psix    = 0
     canopy%ofes      = 0
     canopy%gw     = 0
@@ -2677,7 +2678,6 @@ contains
     canopy%tlfy   = 0
     canopy%ecy    = 0
     canopy%ecx    = 0
-    canopy%fwsoiltmp = 0
     canopy%kthLitt = 0
     canopy%DvLitt  = 0
     canopy%An        = 0
@@ -3370,7 +3370,6 @@ contains
     write(*,*) 'canopy%tlfy ', canopy%tlfy
     write(*,*) 'canopy%ecy ', canopy%ecy
     write(*,*) 'canopy%ecx ', canopy%ecx
-    write(*,*) 'canopy%fwsoiltmp ', canopy%fwsoiltmp
     write(*,*) 'canopy%kthLitt ', canopy%kthLitt
     write(*,*) 'canopy%DvLitt ', canopy%DvLitt
     write(*,*) 'canopy%An ', canopy%An
