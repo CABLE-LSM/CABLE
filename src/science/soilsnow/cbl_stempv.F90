@@ -47,12 +47,14 @@ IMPLICIT NONE
     INTEGER :: j,k
     REAL :: exp_arg
     LOGICAL :: direct2min = .FALSE.
-REAL :: heat_cap_lower_limit(mp,ms)
+    REAL :: heat_cap_lower_limit(mp,ms)    ! best to declare INTENT here - rk4417 - phase2
 
     at = 0.0
     bt = 1.0
     ct = 0.0
     coeff = 0.0
+
+    ssnow%otgg(:,:) = ssnow%tgg  ! FEEDBACK (OK to insert this line as per MMY code?) --rk4417 
 
     IF (cable_user%soil_thermal_fix) THEN
        ccnsw = total_soil_conductivity(ssnow,soil)

@@ -149,6 +149,10 @@ CONTAINS
 
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
+! Two lines inserted below  - rk4417 - phase2
+    REAL, DIMENSION(0:ms+1) :: diff ! MMY      ! Martin's fix on water extraction from soil
+    REAL :: xx,xxd                  ! MMY
+
     INTEGER :: i, j, k, kk  ! iteration count
 
     ! For the calculation of the amount of transpired water
@@ -245,6 +249,11 @@ CONTAINS
              ghwet(i) = 2.0   * sum_gbh(i)
              gwwet(i) = 1.075 * sum_gbh(i)
              ghrwet(i) = sum_rad_gradis(i) + ghwet(i)
+
+! I checked with Claire...appears fine commented out - rk4417 - phase2             
+!             ! Calculate fraction of canopy which is wet:       ! inserted by rk4417 - phase2               
+!             canopy%fwet(i) = MAX( 0.0, MIN( 1.0, 0.8 * canopy%cansto(i)/ MAX(  &
+!                  cansat(i),0.01 ) ) )             
 
              ! Calculate lat heat from wet canopy, may be neg.
              ! if dew on wet canopy to avoid excessive evaporation:

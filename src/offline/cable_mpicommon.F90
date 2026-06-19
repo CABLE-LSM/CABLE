@@ -29,7 +29,10 @@ MODULE cable_mpicommon
 
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
-  INTEGER, PARAMETER :: nparam = 347
+! Values from rebase in main. Do we need to update the value from 351 considering this one is higher than expected? ccc
+!  INTEGER, PARAMETER :: nparam = 347
+!  INTEGER, PARAMETER :: nparam = 341 ! replaced by below by ccc - GW
+  INTEGER, PARAMETER :: nparam =351  
    
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
@@ -77,7 +80,8 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
-  INTEGER, PARAMETER :: nmat = 39
+!  INTEGER, PARAMETER :: nmat = 40 ! replaced by below by rk4417 - phase2
+  INTEGER, PARAMETER :: nmat = 45  !hysteresis 41
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
@@ -94,7 +98,11 @@ MODULE cable_mpicommon
   ! vh sli nvec + 6 162 -> 168
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
+
+! Keeping the highest value here but might need adjustment. ccc
   INTEGER, PARAMETER :: nvec = 183
+!  INTEGER, PARAMETER :: nvec = 175  ! replaced by below by rk4417 - phase2
+!  INTEGER, PARAMETER :: nvec = 176! 176!175
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
