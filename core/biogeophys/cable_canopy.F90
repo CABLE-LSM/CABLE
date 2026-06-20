@@ -1905,7 +1905,7 @@ CONTAINS
          psixy,&
          kplantx
 
-      real(r_2) :: psixxi, kplantxi
+      real(r_2) :: psixxi, kplantxi, supply_cap
       real, dimension(mp, ms)  :: oldevapfbl
 
       real, dimension(mp, mf)  :: &
@@ -2955,19 +2955,12 @@ CONTAINS
                                  /air%rlam(i)
 
                      DO kk = 1, ms
-
-                        !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
-                        !                          ssnow%fraction_uptake(i,kk),  &
-                        !                          MAX(0.0, &
-                        !                              REAL(ssnow%wb(i,kk)) -    &
-                        !                              soil%swilt(i)) * &
-                        !                          soil%zse(kk) * 1000.0)
-
-                        ! ms8355: no bounding by swilt in this version, or the
-                        ! "beneits" from hydraulics are cancelled
-                        ssnow%evapfbl(i, kk) = evapfb(i)* &
-                                               ssnow%fraction_uptake(i, kk)
-
+                        supply_cap = MAX(0.0_r_2, &
+                                         (real(ssnow%psi_soil(i, kk), r_2) - canopy%psix(i)) / &
+                                         (real(ssnow%soilR(i, kk), r_2) + real(ssnow%rootR(i, kk), r_2))) &
+                                     * real(dels, r_2)
+                        ssnow%evapfbl(i, kk) = MIN(evapfb(i)*ssnow%fraction_uptake(i, kk), &
+                                                   real(supply_cap))
                      END DO
                      canopy%fevc(i) = SUM(ssnow%evapfbl(i, :))*air%rlam(i)/dels
 
