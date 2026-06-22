@@ -31,7 +31,6 @@ MODULE cable_driver_common_mod
     ncciy,                         &
     gswpfile,                      &
     globalMetfile,                 &
-    set_group_output_values,       &
     timeunits,                     &
     exists,                        &
     calendar
@@ -153,12 +152,6 @@ CONTAINS
     IF (IARGC() > 0 .AND. arg_not_namelist) THEN
       CALL GETARG(1, filename%met)
       CALL GETARG(2, casafile%cnpipool)
-    END IF
-
-    ! Initialise flags to output individual variables according to group
-    ! options from the namelist file
-    IF (mpi_grp%rank == 0) THEN
-      CALL set_group_output_values()
     END IF
 
     IF (TRIM(cable_user%POPLUC_RunType) == 'static') THEN
