@@ -44,7 +44,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     IMPLICIT NONE
     !  INTEGER,              INTENT(IN)    :: mvt
     TYPE (veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
@@ -131,7 +130,6 @@ CONTAINS
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     ! for first time reading file *_1220.csv  (BP may2010)
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: landpt, patch
@@ -447,7 +445,6 @@ USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     USE cable_common_module, ONLY: cable_user
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: ktau
@@ -608,7 +605,6 @@ USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     !  USE casaDeclare
     IMPLICIT NONE
     TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters

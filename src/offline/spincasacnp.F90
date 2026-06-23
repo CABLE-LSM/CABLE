@@ -10,7 +10,6 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE casa_cable !jhan:also put this in mod
   USE casa_inout_module
   USE casavariable
-  USE phenvariable
   USE POP_Types,  ONLY: POP_TYPE
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp

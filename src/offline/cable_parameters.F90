@@ -35,7 +35,6 @@
 !                casadimension
 !                casaparm
 !                cable_IO_vars_module
-!                phenvariable
 !                physical_constants
 !                netcdf
 
@@ -56,7 +55,6 @@ MODULE cable_param_module
   USE cable_def_types_mod
   USE casadimension, ONLY: icycle
   USE casavariable
-  USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
   USE cable_common_module, ONLY: cable_user, gw_params

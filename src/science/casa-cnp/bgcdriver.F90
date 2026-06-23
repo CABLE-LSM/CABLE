@@ -14,7 +14,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE casadimension
    USE casaparm
    USE casavariable
-   USE phenvariable
    USE cable_common_module,  ONLY: CurYear, CABLE_USER
    USE TypeDef,              ONLY: i4b, dp
 #  ifndef UM_CBL
