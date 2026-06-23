@@ -533,7 +533,7 @@ CONTAINS
    ! ----------------------------------------------------------------------------
 
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_frac_uptake(ssnow, soil, veg, psix, i)
+   SUBROUTINE calc_frac_uptake(ssnow, soil, veg, psix, i, dels)
       ! Compute per-layer water uptake fractions using the actual xylem water
       ! potential (psix) as the sink, so the driving gradient is
       ! (psi_soil_j - psix) / (soilR_j + rootR_j).
@@ -550,6 +550,7 @@ CONTAINS
       TYPE (veg_parameter_type),  INTENT(IN)    :: veg
       real(r_2),                  INTENT(IN)    :: psix  ! xylem water potential (MPa)
       INTEGER,                    INTENT(IN)    :: i
+      REAL,                       INTENT(IN)    :: dels  ! timestep (s)
 
       REAL, DIMENSION(ms) :: est_evap, layer_depth
       REAL :: total_est_evap, sumksoil, sumpsiksoil
@@ -571,6 +572,9 @@ CONTAINS
             est_evap(j) = MAX(0.0, &
                (real(ssnow%psi_soil(i,j)) - real(psix)) / &
                (ssnow%soilR(i,j) + ssnow%rootR(i,j)))
+            est_evap(j) = MIN(est_evap(j), &
+               MAX(0.0, REAL(ssnow%wb(i,j)) - 1.1*soil%swilt(i)) &
+               * soil%zse(j) * 1000.0 / dels)
             sumpsiksoil = sumpsiksoil + &
                real(ssnow%psi_soil(i,j)) / (ssnow%soilR(i,j) + ssnow%rootR(i,j))
             sumksoil = sumksoil + &

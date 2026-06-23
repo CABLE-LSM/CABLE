@@ -148,12 +148,12 @@ CONTAINS
             ! print*,'psix:',psix
             canopy%psix(i) = psix
             canopy%kplant(i) = kplant
-            call calc_frac_uptake(ssnow, soil, veg, psix, i)
+            call calc_frac_uptake(ssnow, soil, veg, psix, i, dels)
          end do
       else
          do i = 1, mp
             CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
-            call calc_frac_uptake(ssnow, soil, veg, canopy%psix(i), i)
+            call calc_frac_uptake(ssnow, soil, veg, canopy%psix(i), i, dels)
          end do
       endif
       ! Calculate canopy variables

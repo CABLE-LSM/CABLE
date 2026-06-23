@@ -45,7 +45,7 @@ MODULE cable_canopy_module
    use cable_common_module, only: cable_user
    use cable_veg_hydraulics_module, only: optimisation, arrh, get_xylem_vulnerability, calc_plc
    USE cable_IO_vars_module, ONLY: logn
-   USE cable_soil_hydraulics_module, ONLY: calc_soil_root_resistance, calc_swp, calc_psix
+   USE cable_soil_hydraulics_module, ONLY: calc_soil_root_resistance, calc_swp, calc_psix, calc_frac_uptake
    implicit none
 
    logical :: debug_rubp = .false.
@@ -1905,7 +1905,7 @@ CONTAINS
          psixy,&
          kplantx
 
-      real(r_2) :: psixxi, kplantxi, supply_cap
+      real(r_2) :: psixxi, kplantxi
       real, dimension(mp, ms)  :: oldevapfbl
 
       real, dimension(mp, mf)  :: &
@@ -2880,45 +2880,18 @@ CONTAINS
                !    met%dva(i) * ghr(i,2) ) / &
                !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
 
-               IF (cable_user%FWSOIL_SWITCH == 'LWP1') then
-
-                  ! ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2)
-                  ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
-                  !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2
-                  ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
-                  ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
-
-                  CALL calc_psix(ssnow, soil, canopy, veg, casapool, max(sum(real(ex(i, :), r_2)), 0.0_r_2), psixxi, kplantxi, i)
-                  psixx(i) = psixxi
+               IF (cable_user%FWSOIL_SWITCH == 'LWP1' .OR. cable_user%SOIL_SCHE == 'hydraulics') THEN
+                  CALL calc_psix(ssnow, soil, canopy, veg, casapool, &
+                                 max(sum(real(ex(i, :), r_2)), 0.0_r_2), psixxi, kplantxi, i)
+                  psixx(i)   = psixxi
                   kplantx(i) = kplantxi
-                  psilx(i, 1) = psixx(i) - max(ex(i, 1), 0.0_r_2)/kplantx(i)
-                  psilx(i, 2) = psixx(i) - max(ex(i, 2), 0.0_r_2)/kplantx(i)
-                  ! if (any(allktau == ktau_tot) .and. (iter==4)) then
-                  ! print*,'ktau_tot, i and k',ktau_tot, iter, k
-                  ! if (present(wbpsdo)) then
-                  !    print*, '    psdo ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                  !    print*, '    psdo psilx: ', psilx(i,1)
-                  ! else
-
-                  !    print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                  !    print*, '         psilx: ', psilx(i,1)
-                  ! endif
-                  ! endif
-
-                  ! !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
-                  ! psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
-                  ! psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  ! if (any(allktau == ktau_tot)) then
-                  !    print*,'ktau_tot, i and k',ktau_tot, iter, k
-                  !    print*, '         ex, psilx, Lastkplant: ', max(sum(real(ex(i,:),r_2)), 0.0_r_2), psilx(i,1), kplantx(i)
-                  ! endif
-                  ! CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
-                  ! psixx(i) = psixxi
-                  ! kplantx(i) = kplantxi
-                  ! if (any(allktau == ktau_tot)) then
-                  !    print*, '         psixx and kplant: ', psixx(i), kplantx(i)
-                  ! endif
-
+                  IF (cable_user%FWSOIL_SWITCH == 'LWP1') THEN
+                     psilx(i, 1) = psixx(i) - max(ex(i, 1), 0.0_r_2) / kplantx(i)
+                     psilx(i, 2) = psixx(i) - max(ex(i, 2), 0.0_r_2) / kplantx(i)
+                  END IF
+                  IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
+                     CALL calc_frac_uptake(ssnow, soil, veg, psixxi, i, dels)
+                  END IF
                END IF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
                   ! avoid root-water extraction when fwsoil is zero
@@ -2955,12 +2928,9 @@ CONTAINS
                                  /air%rlam(i)
 
                      DO kk = 1, ms
-                        supply_cap = MAX(0.0_r_2, &
-                                         (real(ssnow%psi_soil(i, kk), r_2) - canopy%psix(i)) / &
-                                         (real(ssnow%soilR(i, kk), r_2) + real(ssnow%rootR(i, kk), r_2))) &
-                                     * real(dels, r_2)
                         ssnow%evapfbl(i, kk) = MIN(evapfb(i)*ssnow%fraction_uptake(i, kk), &
-                                                   real(supply_cap))
+                                                   MAX(0.0, REAL(wbtmp(i, kk)) - 1.1*soil%swilt(i)) &
+                                                   * soil%zse(kk) * 1000.0)
                      END DO
                      canopy%fevc(i) = SUM(ssnow%evapfbl(i, :))*air%rlam(i)/dels
 
