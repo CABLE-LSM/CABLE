@@ -253,8 +253,7 @@ CONTAINS
 
     INTEGER :: k
 
-    IF( cable_user%DIAG_SOIL_RESP == 'off' .OR.                                 &
-         cable_user%DIAG_SOIL_RESP == 'OFF' )  THEN
+    IF( cable_user%DIAG_SOIL_RESP )  THEN
 
        ! key parameter for this scheme is veg%rs20
 
