@@ -871,12 +871,12 @@ CONTAINS
        ALLOCATE(out%gsw_sl(mp))
        out%gsw_sl = zero4 ! initialise
 
-!       CALL define_ovar(ncid_out, ovid%gsw_sh, 'gsw_sh', 'mol/m^2/s', &
-!            'stomatal conductance sh leaves', patchout%TVeg, 'dummy', &
-!            xID, yID, zID, landID, patchID, tID)
-!       ALLOCATE(out%gsw_sh(mp))
-!       out%gsw_sh = zero4 ! initialise
-!
+       CALL define_ovar(ncid_out, ovid%gsw_sh, 'gsw_sh', 'mol/m^2/s', &
+            'stomatal conductance sh leaves', patchout%TVeg, 'dummy', &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%gsw_sh(mp))
+       out%gsw_sh = zero4 ! initialise
+
    CALL define_ovar(ncid_out, ovid%gsw_epotcan3_sl, 'gsw_epotcan3_sl', 'mol/m^2/s', &
             'stomatal conductance sl leaves when wb=ssat', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
@@ -3241,16 +3241,16 @@ CONTAINS
           out%gsw_sl = zero4
        END IF
        ! Add current timestep's value to total of temporary output variable:
-!       out%gsw_sh = out%gsw_sh + toreal4(canopy%gswx(:,2))
-!       IF(writenow) THEN
-!          ! Divide accumulated variable by number of accumulated time steps:
-!          out%gsw_sh = out%gsw_sh * rinterval
-!          ! Write value to file:
-!          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_sh, 'gsw_sh', out%gsw_sh, &
-!               ranges%gsw_sh, patchout%Tveg, 'default', met)
-!          ! Reset temporary output variable:
-!          out%gsw_sh = zero4
-!       END IF
+       out%gsw_sh = out%gsw_sh + toreal4(canopy%gswx(:,2))
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%gsw_sh = out%gsw_sh * rinterval
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_sh, 'gsw_sh', out%gsw_sh, &
+               ranges%gsw_sh, patchout%Tveg, 'default', met)
+          ! Reset temporary output variable:
+          out%gsw_sh = zero4
+       END IF
 !!       ! because it is converted to gsc in cable_canopy, so need to be converted back here by x C%RGSWC
 !       out%gsw_epotvpd_sl = out%gsw_epotvpd_sl + toreal4(canopy%gsw_epotvpd(:,1)) * C%RGSWC
 !       IF(writenow) THEN
