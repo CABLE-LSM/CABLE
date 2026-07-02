@@ -77,7 +77,6 @@ REAL :: veg_wt(mp)
 REAL :: veg_trad(mp)      
 REAL :: soil_wt(mp)       
 REAL :: soil_trad(mp)     
-REAL :: trad_corr(mp)     
 
 CHARACTER(LEN=8),  PARAMETER :: subr_name = "ExpCbmT_"
 
@@ -173,9 +172,8 @@ veg_wt    = 1.0 - rad%transd
 veg_trad  = Cemleaf * canopy%tv**4
 soil_wt   = rad%transd 
 soil_trad = Cemsoil * ssnow%otss**4
-trad_corr = canopy%fns_cor/CSBOLTZ
 
-rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad ) + trad_corr  
+rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad )
 rad%trad = rad%trad**0.25
 
 RETURN
@@ -260,7 +258,6 @@ REAL ::  veg_wt(mp)
 REAL ::  veg_trad(mp)      
 REAL ::  soil_wt(mp)       
 REAL ::  soil_trad(mp)     
-REAL ::  trad_corr(mp)     
 
 CHARACTER(LEN=8),  PARAMETER :: subr_name = "cbm_impl"
 
@@ -375,9 +372,8 @@ veg_wt    = 1.0 - rad%transd
 veg_trad  = Cemleaf * canopy%tv**4
 soil_wt   = rad%transd 
 soil_trad = Cemsoil * ssnow%otss**4
-trad_corr = canopy%fns_cor/CSBOLTZ
 
-rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad ) + trad_corr  
+rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad )
 rad%trad = rad%trad**0.25
 
 ! In physical model only (i.e. without CASA-CNP)
