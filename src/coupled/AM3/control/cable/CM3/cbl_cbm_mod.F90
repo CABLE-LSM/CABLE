@@ -171,7 +171,7 @@ canopy%rnet = canopy%fns + canopy%fnv
 veg_wt    = 1.0 - rad%transd
 veg_trad  = Cemleaf * canopy%tv**4
 soil_wt   = rad%transd 
-soil_trad = Cemsoil * ssnow%otss**4
+soil_trad = Cemsoil * ssnow%tss**4
 
 rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad )
 rad%trad = rad%trad**0.25
@@ -371,7 +371,7 @@ canopy%rnet = canopy%fns + canopy%fnv
 veg_wt    = 1.0 - rad%transd
 veg_trad  = Cemleaf * canopy%tv**4
 soil_wt   = rad%transd 
-soil_trad = Cemsoil * ssnow%otss**4
+soil_trad = Cemsoil * ssnow%tss**4
 
 rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad )
 rad%trad = rad%trad**0.25
