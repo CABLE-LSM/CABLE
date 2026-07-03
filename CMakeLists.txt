@@ -160,7 +160,6 @@ if(CABLE_LIBRARY)
         else()
             message(STATUS "Cannot compile library with unknown compiler")
         endif()
-
     elseif(CABLE_LIBRARY_TARGET STREQUAL "access3")
         list(APPEND SOURCES
             src/coupled/AM3/control/cable/CM3/air_type_cbl.F90
