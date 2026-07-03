@@ -2893,7 +2893,8 @@ CONTAINS
                      CALL calc_frac_uptake(ssnow, soil, veg, psixxi, i, dels)
                   END IF
                END IF
-               IF (cable_user%SOIL_SCHE == 'Haverd2013') then
+               IF (cable_user%SOIL_SCHE == 'Haverd2013' .OR. cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. &
+                   cable_user%NSL_switch == 'Haverd2013') then
                   ! avoid root-water extraction when fwsoil is zero
                   if (fwsoil(i) < 1e-6) then
                      anx(i, :) = -rdx(i, :)
@@ -2920,8 +2921,13 @@ CONTAINS
                         fwsoil(i) = real(canopy%fwsoil(i))
                      end if
                   END IF
+                  IF (cable_user%NSL_switch == 'Haverd2013') then
+                     canopy%fwsoil_nongs(i) = real(canopy%fwsoil(i))
+                  END IF
 
-               ELSE IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
+               END IF
+
+               IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
 
                   IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                      evapfb(i) = (1.0 - canopy%fwet(i))*REAL(ecx(i))*dels &
