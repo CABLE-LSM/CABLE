@@ -89,12 +89,12 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
 
   ! soilsnow_init_spec, special initalizations in um_init NA for ESM1.5
 
-   xx=soil%css * soil%rhosoil
-   IF (ktau <= 1)                                                              &
-     ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
-            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
-            & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1) +   &
-            & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
+   !xx=soil%css * soil%rhosoil
+   !IF (ktau <= 1)                                                              &
+   !  ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
+   !         & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
+   !         & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1) +   &
+   !         & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
 
 
 
