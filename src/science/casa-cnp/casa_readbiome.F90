@@ -35,13 +35,8 @@ CONTAINS
     USE cable_def_types_mod
     USE casadimension
     USE casaparm
-USE casavariable, ONLY : casafile
-USE casavariable, ONLY :  casa_biome
-USE casavariable, ONLY :  casa_pool
-USE casavariable, ONLY :  casa_flux
-USE casavariable, ONLY :  casa_met
-   
-    USE phenvariable
+    USE casavariable, ONLY : casafile, casa_biome, casa_pool, casa_flux,&
+                             casa_met, phen_variable
     !! vh_js !!
     USE cable_common_module, ONLY: cable_user
     IMPLICIT NONE
