@@ -11,7 +11,7 @@ spack:
     all:
       require:
       - '%access_intel'  # https://github.com/ACCESS-NRI/spack-config/blob/main/v1.1/toolchains.yaml
-      - target=x86_64
+      - target={{ target }}
   concretizer:
     unify: false
   view: false

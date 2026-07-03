@@ -37,8 +37,6 @@ CONTAINS
   !              open_met_file
   !              get_met_data
   !              load_parameters
-  !              open_output_file
-  !              write_output
   !              read_gridinfo
   !              countpatch
   !              get_type_parameters
@@ -47,16 +45,6 @@ CONTAINS
   !              readpar_rd
   !              readpar_r2
   !              readpar_r2d
-  !              define_output_variable_r1
-  !              define_output_variable_r2
-  !              define_output_parameter_r1
-  !              define_output_parameter_r2
-  !              write_output_variable_r1
-  !              write_output_variable_r2
-  !              write_output_parameter_r1
-  !              write_output_parameter_r1d
-  !              write_output_parameter_r2
-  !              write_output_parameter_r2d
   !
   !==============================================================================
 
@@ -83,26 +71,12 @@ CONTAINS
   !              get_met_data
   !              close_met_file
   !              load_parameters
-  !              open_output_file
-  !              write_output
-  !              close_output_file
-  !              create_restart
   !              read_gridinfo
   !              readpar_i
   !              readpar_r
   !              readpar_rd
   !              readpar_r2
   !              readpar_r2d
-  !              define_output_variable_r1
-  !              define_output_variable_r2
-  !              define_output_parameter_r1
-  !              define_output_parameter_r2
-  !              write_output_variable_r1
-  !              write_output_variable_r2
-  !              write_output_parameter_r1
-  !              write_output_parameter_r1d
-  !              write_output_parameter_r2
-  !              write_output_parameter_r2d
   !
   ! MODULEs used: netcdf
   !
@@ -129,9 +103,6 @@ CONTAINS
   !
   ! Purpose: Prints an error message and localisation information then stops the
   !          code
-  !
-  ! CALLed from: write_output_variable_r1
-  !              write_output_variable_r2
   !
   ! MODULEs used: cable_def_types_mod
   !               cable_IO_vars_module

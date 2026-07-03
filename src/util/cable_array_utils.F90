@@ -4,12 +4,18 @@
 
 module cable_array_utils_mod
   !! Utility procedures for working with arrays.
+  use iso_fortran_env, only: int32
   implicit none
   private
 
   public array_offset
   public array_index
   public array_partition
+  public array_eq
+
+  interface array_eq
+    module procedure array_eq_int32
+  end interface
 
 contains
 
@@ -67,5 +73,15 @@ contains
     end if
 
   end subroutine array_partition
+
+  !> Check if two integer arrays are equal.
+  logical function array_eq_int32(a, b)
+    integer(kind=int32), dimension(:), intent(in) :: a, b
+    if (size(a) /= size(b)) then
+      array_eq_int32 = .false.
+    else
+      array_eq_int32 = all(a == b)
+    end if
+  end function array_eq_int32
 
 end module cable_array_utils_mod

@@ -87,6 +87,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
 
     ssnow%wbliq = ssnow%wb - ssnow%wbice
 
+<<<<<<< make-AM3-library
   ! soilsnow_init_spec, special initalizations in um_init NA for ESM1.5
 
    !xx=soil%css * soil%rhosoil
@@ -98,6 +99,8 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
 
 
 
+=======
+>>>>>>> main
     DO k = 1, ms ! for stempv
 
        ! Set liquid soil water fraction (fraction of saturation value):
