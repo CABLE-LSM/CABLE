@@ -2993,8 +2993,7 @@ CONTAINS
                ! Store change in leaf temperature between successive iterations:
                deltlf(i) = tlfxx(i) - tlfx(i)
 
-               if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                   cable_user%FWSOIL_SWITCH == 'LWP1') then
+               if (cable_user%FWSOIL_SWITCH == 'LWP1') then
                   abs_deltpsil(i, :) = ABS(psilxx(i, :) - psilx(i, :))
                end if
                abs_deltlf(i) = ABS(deltlf(i))
