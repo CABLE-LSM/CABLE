@@ -126,7 +126,7 @@ if(CABLE_LIBRARY)
         src/science/soilsnow/cbl_surfbv.F90
         src/science/soilsnow/cbl_thermal.F90
         src/science/soilsnow/cbl_trimb.F90
-	src/science/landuse/landuse3.F90
+	    src/science/landuse/landuse3.F90
         src/science/landuse/landuse_constant.F90
         src/params/cable_phys_constants_mod.F90
         src/params/grid_constants_cbl.F90
@@ -190,7 +190,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/casa/types/casa_dimension.F90
             src/coupled/AM3/control/casa/types/casa_inout.F90
             src/coupled/AM3/control/casa/types/casa_readbiome.F90
-	    src/offline/cable_surface_types.F90
+	        src/offline/cable_surface_types.F90
             src/offline/cable_iovars.F90
             src/science/landuse/casa_ESM15landuse.F90
         )

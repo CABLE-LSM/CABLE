@@ -1,5 +1,3 @@
-# define ESM15 YES
-#ifdef ESM15
 module landuse_mod
 
 contains
@@ -341,4 +339,3 @@ SUBROUTINE newsoil(nd,csoil_x,frac_x,ifpre_x,csoil_y,frac_y,ifpre_y)
 END SUBROUTINE newsoil
 
 End module landuse_mod
-#endif
