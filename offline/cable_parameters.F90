@@ -1432,6 +1432,7 @@ CONTAINS
           veg%g1(h)      = vegin%g1(veg%iveg(h))
           veg%g1tuzet(h)  = vegin%g1tuzet(veg%iveg(h))
           veg%slope_leaf(h)      = vegin%slope_leaf(veg%iveg(h))
+          veg%slope_soil(h)      = vegin%slope_soil(veg%iveg(h))
           veg%g3(h)      = vegin%g3(veg%iveg(h))
           veg%psi_50_leaf(h) = vegin%psi_50_leaf(veg%iveg(h))
           veg%xalbnir(h) = vegin%xalbnir(veg%iveg(h))

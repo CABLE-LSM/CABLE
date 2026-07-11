@@ -359,8 +359,8 @@ CONTAINS
                              (real(veg%psi_critical(j), r_2) - psi_wilt_j)
                end if
             case ('logistic')
-               fws_tmp = (1.0_r_2 + exp(real(veg%slope_leaf(j), r_2) * real(veg%psi_critical(j), r_2))) / &
-                          (1.0_r_2 + exp(real(veg%slope_leaf(j), r_2) * &
+               fws_tmp = (1.0_r_2 + exp(real(veg%slope_soil(j), r_2) * real(veg%psi_critical(j), r_2))) / &
+                          (1.0_r_2 + exp(real(veg%slope_soil(j), r_2) * &
                           (real(veg%psi_critical(j), r_2) - ssnow%psi_soilmean(j))))
             case ('weibull')
                fws_tmp = exp(-log(2.0_r_2) * &

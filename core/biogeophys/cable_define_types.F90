@@ -384,6 +384,7 @@ module cable_def_types_mod
           kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, kg m-1 s-1 Mpa-1
           PLCcrit => null(), &    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
           slope_leaf => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
+          slope_soil => null(),      & !  slope coefficient of the LWP2 logistic soil-water-potential stress curve (fws_tmp)
           g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           psi_50_leaf => null(), &
           EaV => null(), &           ! Vcmax activation energy (J/mol)
@@ -1234,6 +1235,7 @@ contains
     allocate( veg%kmax(mp) ) 
     allocate( veg%PLCcrit(mp) ) 
     allocate( veg%slope_leaf(mp) )
+    allocate( veg%slope_soil(mp) )
     allocate( veg%g3(mp) )
     allocate( veg%psi_50_leaf(mp) )
     allocate( veg%EaV(mp) )
@@ -1958,6 +1960,7 @@ contains
     deallocate( veg%kmax )
     deallocate( veg%PLCcrit )
     deallocate( veg%slope_leaf )
+    deallocate( veg%slope_soil )
     deallocate( veg%g3 )
     deallocate( veg%psi_50_leaf )
     deallocate( veg%EaV )
@@ -2558,6 +2561,7 @@ contains
     veg%kmax = 0
     veg%PLCcrit = 0
     veg%slope_leaf = 0
+    veg%slope_soil = 0
     veg%g3 = 0
     veg%psi_50_leaf = 0
     veg%psi_critical = -1.0
