@@ -145,11 +145,11 @@ if(CABLE_LIBRARY)
         src/coupled/shared/cable_veg_type_mod.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+        src/offline/cable_iovars.F90
     )
 
     if(CABLE_LIBRARY_TARGET STREQUAL "access-esm1.6")
         list(APPEND SOURCES
-            src/coupled/esm/cable_iovars.F90
             src/coupled/esm/cable_surface_types.F90
             src/coupled/esm/cable_define_types.F90
             src/coupled/esm/cable_soil_params_mod.F90
