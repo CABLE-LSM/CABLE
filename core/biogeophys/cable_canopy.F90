@@ -162,7 +162,6 @@ CONTAINS
       REAL(r_2) :: fws_tmp, psi_sat_j, psi_wilt_j
 
       INTEGER, SAVE :: call_number = 0
-      REAL, DIMENSION(ms) :: root_length
 
       ! END header
 
@@ -622,7 +621,7 @@ CONTAINS
             !  print *,'in cable_canopy, wbpsdo, calc_soil_root_resistance'
             wbpsdo = SPREAD(real(soil%ssat, r_2), 2, ms)
             DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
             dsxpsdo = dsx
@@ -638,7 +637,7 @@ CONTAINS
             rnypsdo = rny
             csxpsdo = csx
             CALL dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
-                         veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo, &
+                         veg, canopy, soil, ssnow, casapool, casabiome, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo, &
                          fwsoilpsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo, &
                          rnypsdo, gbhu, gbhf, csxpsdo, cansat, &
                          ghwet, iter, climate, wbpsdo=wbpsdo)
@@ -698,12 +697,12 @@ CONTAINS
          if (iter == 4) then
             DO j = 1, mp
                ! reset psi_soil, soilR and rootR back to the realistic value
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j)
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, j)
                CALL calc_swp(ssnow, soil, j)
             END DO
          end if
          CALL dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
-                      veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily, &
+                      veg, canopy, soil, ssnow, casapool, casabiome, dsx, dsy, psilx, psily, &
                       fwsoil, fwpsi, tlfx, tlfy, ecy, hcy, &
                       rny, gbhu, gbhf, csx, cansat, &
                       ghwet, iter, climate)
@@ -1811,7 +1810,7 @@ CONTAINS
    ! -----------------------------------------------------------------------------
 
    SUBROUTINE dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
-                      veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily, &
+                      veg, canopy, soil, ssnow, casapool, casabiome, dsx, dsy, psilx, psily, &
                       fwsoil, fwpsi, tlfx, tlfy, ecy, hcy, &
                       rny, gbhu, gbhf, csx, &
                       cansat, ghwet, iter, climate, wbpsdo, vpdpsdo, fwpsdo)
@@ -1835,6 +1834,7 @@ CONTAINS
       type(soil_parameter_type), intent(inout) :: soil
       type(soil_snow_type), intent(inout) :: ssnow
       TYPE(casa_pool), INTENT(IN)           :: casapool
+      TYPE(casa_biome), INTENT(IN)          :: casabiome
       real, dimension(:), intent(inout) :: &
          dsx, & ! leaf surface vpd
          dsy, & ! leaf surface vpd
@@ -1986,6 +1986,10 @@ CONTAINS
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
       REAL :: psi_sat_i, psi_wilt_i  ! for LWP fwsoil_nongs stress function
+      real(r_2), dimension(mp, ms) :: wb_probe        ! per-point probed soil moisture for the LWP2+hydraulics refinement
+      real(r_2) :: fws_tmp_hyd                        ! probed fwsoil value (dryLeaf-local; distinct from define_canopy's fws_tmp)
+      logical, dimension(ms) :: layer_breach          ! per-layer breach mask for the probe
+      real, dimension(ms) :: layer_demand             ! per-layer demand signal for the LWP2 breach check
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
          Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
@@ -2023,6 +2027,7 @@ CONTAINS
       else
          wbtmp = ssnow%wb
       end if
+      wb_probe = wbtmp
       if (present(vpdpsdo)) then
          iter_ini = 4
          vpdtmp = vpdpsdo
@@ -2880,7 +2885,8 @@ CONTAINS
                !    met%dva(i) * ghr(i,2) ) / &
                !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
 
-               IF (cable_user%FWSOIL_SWITCH == 'LWP1' .OR. cable_user%SOIL_SCHE == 'hydraulics') THEN
+               IF (cable_user%FWSOIL_SWITCH == 'LWP1' .OR. cable_user%SOIL_SCHE == 'hydraulics' .OR. &
+                   cable_user%FWSOIL_SWITCH == 'LWP2' .OR. cable_user%NSL_switch == 'LWP2') THEN
                   CALL calc_psix(ssnow, soil, canopy, veg, casapool, &
                                  max(sum(real(ex(i, :), r_2)), 0.0_r_2), psixxi, kplantxi, i)
                   psixx(i)   = psixxi
@@ -2969,6 +2975,103 @@ CONTAINS
                   END IF
 
                END IF
+
+               IF ((cable_user%SOIL_SCHE == 'hydraulics' .OR. cable_user%SOIL_SCHE == 'Haverd2013') .AND. &
+                   (cable_user%FWSOIL_SWITCH == 'LWP2' .OR. cable_user%NSL_switch == 'LWP2')) THEN
+
+                  ! Per-layer demand signal, appropriate to whichever extraction scheme is active.
+                  IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
+                     ! evapfb(i) is only freshly assigned under this same guard in the hydraulics
+                     ! extraction block above; without it, evapfb(i) could be stale/uninitialized.
+                     IF (ecx(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0) THEN
+                        layer_demand = evapfb(i)*ssnow%fraction_uptake(i, :)
+                     ELSE
+                        layer_demand = 0.0
+                     END IF
+                  ELSE ! SOIL_SCHE == 'Haverd2013'
+                     layer_demand = real(ssnow%evapfbl(i, :))
+                  END IF
+
+                  ! Breach check per layer, mirroring getrex_1d's any(...) check, using the
+                  ! same bound already applied in the hydraulics extraction block.
+                  layer_breach = .FALSE.
+                  DO kk = 1, ms
+                     IF (layer_demand(kk) > &
+                         MAX(0.0, REAL(wbtmp(i, kk)) - 1.1*soil%swilt(i)) * soil%zse(kk) * 1000.0) THEN
+                        layer_breach(kk) = .TRUE.
+                     END IF
+                  END DO
+
+                  IF (ANY(layer_breach)) THEN
+
+                     ! psixx(i) is already fresh this iteration: the calc_psix call above is now
+                     ! gated on FWSOIL_SWITCH=='LWP1' .OR. SOIL_SCHE=='hydraulics' .OR.
+                     ! FWSOIL_SWITCH=='LWP2' .OR. NSL_switch=='LWP2', and this block's own outer
+                     ! guard already requires FWSOIL_SWITCH/NSL_switch=='LWP2' -- so calc_psix has
+                     ! always already run this iteration by the time we get here, for either
+                     ! SOIL_SCHE. Reused as-is for both calc_frac_uptake calls below.
+
+                     ! Probe: what would psi_soilmean be if the breached layer(s) were
+                     ! drawn down to wilting point?
+                     wb_probe(i, :) = wbtmp(i, :)
+                     WHERE (layer_breach) wb_probe(i, :) = real(soil%swilt(i), r_2)
+
+                     CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, &
+                                                    i, wb_probe)
+                     CALL calc_swp(ssnow, soil, i, wb_probe)
+                     CALL calc_frac_uptake(ssnow, soil, veg, psixx(i), i, dels)
+
+                     ! Compute stressed fwsoil from the probed psi_soilmean(i), using the
+                     ! identical formulas as the pre-loop LWP2 block (define_canopy,
+                     ! cable_canopy.F90:344-375), substituted per-point.
+                     SELECT CASE (cable_user%psi_soil_func)
+                     CASE ('linear-plateau')
+                        psi_sat_i  = real(soil%sucs(i), r_2) * C%grav * C%RHOW * 1.0E-6
+                        psi_wilt_i = psi_sat_i * MAX(1.E-9_r_2, MIN(1.0_r_2, &
+                                     real(soil%swilt(i), r_2)/real(soil%ssat(i), r_2))) &
+                                     ** (-real(soil%bch(i), r_2))
+                        IF (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) THEN
+                           fws_tmp_hyd = 1.0_r_2
+                        ELSE IF (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) THEN
+                           fws_tmp_hyd = 0.0_r_2
+                        ELSE
+                           fws_tmp_hyd = (real(ssnow%psi_soilmean(i), r_2) - psi_wilt_i) / &
+                                         (real(veg%psi_critical(i), r_2) - psi_wilt_i)
+                        END IF
+                     CASE ('logistic')
+                        fws_tmp_hyd = (1.0_r_2 + exp(real(veg%slope_soil(i), r_2) * real(veg%psi_critical(i), r_2))) / &
+                                      (1.0_r_2 + exp(real(veg%slope_soil(i), r_2) * &
+                                      (real(veg%psi_critical(i), r_2) - ssnow%psi_soilmean(i))))
+                     CASE ('weibull')
+                        fws_tmp_hyd = exp(-log(2.0_r_2) * &
+                                      MAX(0.0_r_2, ssnow%psi_soilmean(i) / real(veg%psi_critical(i), r_2)) &
+                                      ** real(veg%b_plant(i), r_2))
+                     CASE DEFAULT
+                        fws_tmp_hyd = 1.0_r_2
+                     END SELECT
+
+                     IF (cable_user%FWSOIL_SWITCH == 'LWP2') THEN
+                        canopy%fwsoil(i) = fws_tmp_hyd
+                        fwsoil(i) = real(canopy%fwsoil(i))
+                     END IF
+                     IF (cable_user%NSL_switch == 'LWP2') THEN
+                        canopy%fwsoil_nongs(i) = fws_tmp_hyd
+                        fwsoil_nongs(i) = real(canopy%fwsoil_nongs(i))
+                     END IF
+
+                     ! Revert: restore soilR/rootR/Rsr/psi_soil/fraction_uptake/psi_soilmean
+                     ! to real-moisture-based values (reusing the same real-state psixx(i)) so
+                     ! the probe doesn't leak into the next iteration's calc_frac_uptake call
+                     ! (top of loop) or the real extraction physics.
+                     CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, &
+                                                    i, wbtmp)
+                     CALL calc_swp(ssnow, soil, i, wbtmp)
+                     CALL calc_frac_uptake(ssnow, soil, veg, psixx(i), i, dels)
+
+                  END IF
+
+               END IF
+
                ! Update canopy sensible heat flux:
                hcx(i) = (SUM(real(rad%rniso(i, :), r_2)) - ecx(i) &
                          - real(C%capp*C%rmair*(met%tvair(i) - met%tk(i)), r_2) &

@@ -17,7 +17,7 @@ CONTAINS
 
    ! ----------------------------------------------------------------------------
    SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, &
-         root_length_density, i, wbpsdo)
+         i, wbpsdo)
       ! Calculate root & soil hydraulic resistance following SPA approach
       ! (Williams et al.)
       !
@@ -61,7 +61,6 @@ CONTAINS
       TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
       TYPE (casa_pool),           INTENT(IN)    :: casapool
       TYPE (casa_biome),          INTENT(IN)    :: casabiome
-      REAL, DIMENSION(:),         INTENT(INOUT) :: root_length_density
       real(r_2), dimension(:,:),  INTENT(IN), optional :: wbpsdo
       INTEGER,                    INTENT(IN)    :: i
 
@@ -85,7 +84,7 @@ CONTAINS
       REAL, PARAMETER :: WD             = 300.0                   ! Wood density kgC/m3
       INTEGER, PARAMETER :: STEM_INDEX  = 2
 
-      REAL, DIMENSION(ms) :: depth
+      REAL, DIMENSION(ms) :: depth, root_length_density
       REAL :: root_mass, rs, Ksoil0, Ksoil, root_biomass, root_depth
       REAL :: root_mass_density, RAI, Lsr
       REAL :: soil_resist, rsum, conv, shoot_biomass, leaf_biomass

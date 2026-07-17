@@ -95,7 +95,7 @@ CONTAINS
       INTEGER :: ICYCLE
       ICYCLE = 0
 #endif
-      REAL, DIMENSION(ms) :: a, root_length
+      REAL, DIMENSION(ms) :: a
       real(r_2) :: psix, kplant
       INTEGER :: diff_Esr_Erl_i
       REAL, PARAMETER :: l_bound = -6.0
@@ -141,7 +141,7 @@ CONTAINS
       if (ktau_tot==1) then
          print *, 'first call calc_soil_root_resistance'
          do i = 1, mp
-            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
+            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, i)
             CALL calc_swp(ssnow, soil, i)
             CALL calc_psix(ssnow, soil, canopy, veg, casapool, sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
             ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
@@ -152,7 +152,7 @@ CONTAINS
          end do
       else
          do i = 1, mp
-            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
+            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, i)
             call calc_frac_uptake(ssnow, soil, veg, canopy%psix(i), i, dels)
          end do
       endif
