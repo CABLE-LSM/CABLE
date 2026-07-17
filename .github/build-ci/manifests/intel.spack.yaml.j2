@@ -7,7 +7,7 @@ spack:
         - '@3.11.14'
     intel-oneapi-compilers-classic:
       require:
-      - '@2021.10.0'
+      - '@{{ oneapi_compiler_version }}'
     all:
       require:
       - '%access_intel'  # https://github.com/ACCESS-NRI/spack-config/blob/main/v1.1/toolchains.yaml

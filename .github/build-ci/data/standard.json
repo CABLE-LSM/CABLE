@@ -1,3 +1,5 @@
 {
+    "gcc_compiler_ver": "@13.2.0",
+    "oneapi_compiler_ver": "@2021.10.0",
     "target": "x86_64"
 }
