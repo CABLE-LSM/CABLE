@@ -2923,6 +2923,7 @@ CONTAINS
                   END IF
                   IF (cable_user%NSL_switch == 'Haverd2013') then
                      canopy%fwsoil_nongs(i) = real(canopy%fwsoil(i))
+                     fwsoil_nongs(i) = real(canopy%fwsoil_nongs(i))
                   END IF
 
                END IF
