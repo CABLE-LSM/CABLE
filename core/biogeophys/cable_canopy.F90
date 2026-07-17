@@ -123,6 +123,8 @@ CONTAINS
          dsypsdo => null(), &
          fwsoil => null(), & ! soil water modifier of stom. cond
          fwsoilpsdo => null(), &
+         fwsoil_nongs => null(), & ! non-stomatal soil water stress
+         fwsoil_nongspsdo => null(), &
          tlfx => null(), & ! leaf temp prev. iter (K)
          tlfxpsdo => null(), &
          tlfy => null(), & ! leaf temp (K)
@@ -174,6 +176,7 @@ CONTAINS
 
       ALLOCATE (cansat(mp), gbhu(mp, mf))
       ALLOCATE (dsx(mp), dsxpsdo(mp), dsy(mp), dsypsdo(mp), fwsoil(mp), fwsoilpsdo(mp), &
+                fwsoil_nongs(mp), fwsoil_nongspsdo(mp), &
                 tlfx(mp), tlfxpsdo(mp), tlfy(mp), tlfypsdo(mp))
       ALLOCATE (ecy(mp), ecypsdo(mp), hcy(mp), hcypsdo(mp), rny(mp), rnypsdo(mp))
       ALLOCATE (gbhf(mp, mf), csx(mp, mf), csxpsdo(mp, mf), psilx(mp, mf), psilxpsdo(mp, mf), psily(mp, mf), psilypsdo(mp, mf), &
@@ -629,6 +632,7 @@ CONTAINS
             psilxpsdo = psilx
             psilypsdo = psily
             fwsoilpsdo = fwsoil
+            fwsoil_nongspsdo = fwsoil_nongs
             fwpsipsdo = fwpsi
             tlfxpsdo = tlfx
             tlfypsdo = tlfy
@@ -638,7 +642,7 @@ CONTAINS
             csxpsdo = csx
             CALL dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
                          veg, canopy, soil, ssnow, casapool, casabiome, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo, &
-                         fwsoilpsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo, &
+                         fwsoilpsdo, fwsoil_nongspsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo, &
                          rnypsdo, gbhu, gbhf, csxpsdo, cansat, &
                          ghwet, iter, climate, wbpsdo=wbpsdo)
 !            !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
@@ -703,7 +707,7 @@ CONTAINS
          end if
          CALL dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
                       veg, canopy, soil, ssnow, casapool, casabiome, dsx, dsy, psilx, psily, &
-                      fwsoil, fwpsi, tlfx, tlfy, ecy, hcy, &
+                      fwsoil, fwsoil_nongs, fwpsi, tlfx, tlfy, ecy, hcy, &
                       rny, gbhu, gbhf, csx, cansat, &
                       ghwet, iter, climate)
 
@@ -1106,6 +1110,7 @@ CONTAINS
       CALL Penman_Monteith_canopy(gbhu, gbhf)
       DEALLOCATE (cansat, gbhu)
       DEALLOCATE (dsx, dsxpsdo, dsy, dsypsdo, fwsoil, fwsoilpsdo, &
+                  fwsoil_nongs, fwsoil_nongspsdo, &
                   fwpsi, fwpsipsdo, tlfx, tlfxpsdo, tlfy, tlfypsdo)
       DEALLOCATE (ecy, ecypsdo, hcy, hcypsdo, rny, rnypsdo)
       DEALLOCATE (gbhf, csx, csxpsdo)
@@ -1811,7 +1816,7 @@ CONTAINS
 
    SUBROUTINE dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
                       veg, canopy, soil, ssnow, casapool, casabiome, dsx, dsy, psilx, psily, &
-                      fwsoil, fwpsi, tlfx, tlfy, ecy, hcy, &
+                      fwsoil, fwsoil_nongs, fwpsi, tlfx, tlfy, ecy, hcy, &
                       rny, gbhu, gbhf, csx, &
                       cansat, ghwet, iter, climate, wbpsdo, vpdpsdo, fwpsdo)
 
@@ -1839,6 +1844,7 @@ CONTAINS
          dsx, & ! leaf surface vpd
          dsy, & ! leaf surface vpd
          fwsoil, & ! soil water modifier of stom. cond
+         fwsoil_nongs, & ! non-stomatal soil water stress
          tlfx, & ! leaf temp prev. iter (K)
          tlfy  ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
@@ -1893,7 +1899,6 @@ CONTAINS
          temp_shade_c3, & !
          temp_sun_c4, & !
          temp_shade_c4, &    !
-         fwsoil_nongs, &
          fwsoil_gswmin         ! fwsoil passed to photosynthesis_gm (1.0 for tuzet+LWP)
 
       real(r_2), dimension(mp)  :: &
@@ -1988,8 +1993,10 @@ CONTAINS
       REAL :: psi_sat_i, psi_wilt_i  ! for LWP fwsoil_nongs stress function
       real(r_2), dimension(mp, ms) :: wb_probe        ! per-point probed soil moisture for the LWP2+hydraulics refinement
       real(r_2) :: fws_tmp_hyd                        ! probed fwsoil value (dryLeaf-local; distinct from define_canopy's fws_tmp)
+      real(r_2) :: fws_haverd_i                       ! scratch getrex_1d output; feeds only the local fwsoil/fwsoil_nongs arrays
       logical, dimension(ms) :: layer_breach          ! per-layer breach mask for the probe
       real, dimension(ms) :: layer_demand             ! per-layer demand signal for the LWP2 breach check
+      real, dimension(mp) :: fwsoily, fwsoil_nongsy   ! best-converged-iteration fwsoil/fwsoil_nongs, tracked like tlfy/ecy/etc.
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
          Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
@@ -2040,13 +2047,16 @@ CONTAINS
       end if
       if (present(wbpsdo)) fwsoil = 1.0
       if (cable_user%FWSOIL_SWITCH == 'LWP1') canopy%fwpsi = real(fwpsi, r_2)
-      if (cable_user%NSL_switch == 'None' .OR. present(wbpsdo)) then
-         fwsoil_nongs = 1.0
-      else
-         ! Haverd2013 / LWP2 / standard / non-linear extrapolation / Lai and Katul 2000:
-         ! all computed independently in define_canopy before the iteration loop
-         fwsoil_nongs = real(canopy%fwsoil_nongs)
+      if (iter == iter_ini) then
+         if (cable_user%NSL_switch == 'None') then
+            fwsoil_nongs = 1.0
+         else
+            ! Haverd2013 / LWP2 / standard / non-linear extrapolation / Lai and Katul 2000:
+            ! all computed independently in define_canopy before the iteration loop
+            fwsoil_nongs = real(canopy%fwsoil_nongs)
+         end if
       end if
+      if (present(wbpsdo)) fwsoil_nongs = 1.0
       if (cable_user%GS_SWITCH == 'tuzet' .AND. &
           cable_user%FWSOIL_SWITCH == 'LWP1') then
          fwsoil_gswmin = 1.0
@@ -2910,7 +2920,7 @@ CONTAINS
                   canopy%fevc(i) = ecx(i)*(1.0_r_2 - real(canopy%fwet(i), r_2))
 
                   call getrex_1d(wbtmp(i, :) - real(ssnow%wbice(i, :), r_2), ssnow%rex(i, :), &
-                                 canopy%fwsoil(i), &
+                                 fws_haverd_i, &
                                  real(veg%froot(i, :), r_2), SPREAD(real(soil%ssat(i), r_2), 1, ms), &
                                  SPREAD(real(soil%swilt(i), r_2), 1, ms), &
                                  max(canopy%fevc(i)/real(air%rlam(i), r_2)/1000.0_r_2, 0.0_r_2), &
@@ -2919,17 +2929,15 @@ CONTAINS
                   where (ssnow%rex(i, :) > tiny(1.0_r_2)) &
                      ssnow%evapfbl(i, :) = real(ssnow%rex(i, :))*dels*1000. ! mm water &
                   IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
-                     fwsoil(i) = real(canopy%fwsoil(i))
+                     fwsoil(i) = real(fws_haverd_i)
                      !(root water extraction) per time step
 
                      if (cable_user%Cumberland_soil) then
-                        canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
-                        fwsoil(i) = real(canopy%fwsoil(i))
+                        fwsoil(i) = max(fwsoil(i), 0.6)
                      end if
                   END IF
                   IF (cable_user%NSL_switch == 'Haverd2013') then
-                     canopy%fwsoil_nongs(i) = real(canopy%fwsoil(i))
-                     fwsoil_nongs(i) = real(canopy%fwsoil_nongs(i))
+                     fwsoil_nongs(i) = real(fws_haverd_i)
                   END IF
 
                END IF
@@ -3051,12 +3059,10 @@ CONTAINS
                      END SELECT
 
                      IF (cable_user%FWSOIL_SWITCH == 'LWP2') THEN
-                        canopy%fwsoil(i) = fws_tmp_hyd
-                        fwsoil(i) = real(canopy%fwsoil(i))
+                        fwsoil(i) = real(fws_tmp_hyd)
                      END IF
                      IF (cable_user%NSL_switch == 'LWP2') THEN
-                        canopy%fwsoil_nongs(i) = fws_tmp_hyd
-                        fwsoil_nongs(i) = real(canopy%fwsoil_nongs(i))
+                        fwsoil_nongs(i) = real(fws_tmp_hyd)
                      END IF
 
                      ! Revert: restore soilR/rootR/Rsr/psi_soil/fraction_uptake/psi_soilmean
@@ -3118,6 +3124,8 @@ CONTAINS
                deltlfy(i) = deltlf(i)
                tlfy(i) = tlfx(i)
                dsy(i) = dsx(i)
+               fwsoily(i) = fwsoil(i)
+               fwsoil_nongsy(i) = fwsoil_nongs(i)
                !print*,'when dT<last dT, tlfy: ', tlfy(i)
                psily(i, :) = psilx(i, :)
                rny(i) = rnx(i)
@@ -3166,6 +3174,8 @@ CONTAINS
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
                dsy(i) = dsx(i)
+               fwsoily(i) = fwsoil(i)
+               fwsoil_nongsy(i) = fwsoil_nongs(i)
                !print*,'when k=1, tlfy: ', tlfy(i)
                psily(i, :) = psilx(i, :)
                rny(i) = rnx(i)
@@ -3327,6 +3337,8 @@ CONTAINS
          !        print*, 'value x:',anrubiscox(:,1),anx(:,1)
          ! endif
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
+      fwsoil = fwsoily
+      fwsoil_nongs = fwsoil_nongsy
       !print*,'when k end, tlfy: ', tlfy(1)
       ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
       ! i = 1
