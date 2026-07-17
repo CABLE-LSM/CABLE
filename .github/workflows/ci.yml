@@ -38,3 +38,6 @@ jobs:
       # access-spack-packages-ref: api-v2
       # spack-config-ref: main
       # spack-ref: releases/v1.1
+      
+      # CABLE isn't part of the ACCESS-NRI org so can't access the runners
+      run-self-hosted: false
