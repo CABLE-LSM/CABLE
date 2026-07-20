@@ -1,0 +1,17 @@
+spack:
+  specs:
+  - cable@git.{{ ref }} ~mpi library=access-esm1.6
+
+  packages:
+    gcc:
+      require:
+      - '@13.2.0'
+
+    all:
+      require:
+      - '%access_gcc'
+      - 'target={{ target }}'
+
+  concretizer:
+    unify: false
+  view: false
