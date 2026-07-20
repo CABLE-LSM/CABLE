@@ -1,0 +1,7 @@
+spack:
+  specs:
+  - gcc@13.2.0 %gcc@8.5.0
+  - intel-oneapi-compilers-classic@2021.10.0
+  view: false
+  concretizer:
+    unify: false
