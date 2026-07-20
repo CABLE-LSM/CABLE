@@ -2943,7 +2943,7 @@ CONTAINS
                   END IF
 
                   IF ((cable_user%FWSOIL_SWITCH == 'LWP2' .OR. cable_user%NSL_switch == 'LWP2') .AND. &
-                      ecx(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0) THEN
+                     ecx(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0) THEN
 
                      ! Breach test against the genuinely unconstrained per-layer demand (rex_raw_haverd,
                      ! captured inside getrex_1d before its own internal efficiency-reduction rescale) --
@@ -3004,7 +3004,11 @@ CONTAINS
                END IF
 
                IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
-
+                  if (fwsoil(i) < 1e-6) then
+                     anx(i, :) = -rdx(i, :)
+                     ecx(i) = 0.0_r_2
+                  end if
+                  canopy%fevc(i) = ecx(i)*(1.0_r_2 - real(canopy%fwet(i), r_2))
                   IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                      evapfb(i) = (1.0 - canopy%fwet(i))*REAL(ecx(i))*dels &
                                  /air%rlam(i)
@@ -3020,9 +3024,9 @@ CONTAINS
                                                    MAX(0.0, REAL(wbtmp(i, kk)) - 1.1*soil%swilt(i)) &
                                                    * soil%zse(kk) * 1000.0)
                      END DO
-                     canopy%fevc(i) = SUM(ssnow%evapfbl(i, :))*air%rlam(i)/dels
+                     ! canopy%fevc(i) = SUM(ssnow%evapfbl(i, :))*air%rlam(i)/dels
 
-                     ecx(i) = canopy%fevc(i)/(1.0 - canopy%fwet(i))
+                     ! ecx(i) = canopy%fevc(i)/(1.0 - canopy%fwet(i))
 
                      IF (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') THEN
                         theta_hyd(:) = wbtmp(i, :) - real(ssnow%wbice(i, :), r_2)
