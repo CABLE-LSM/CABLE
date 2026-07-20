@@ -35,7 +35,6 @@ jobs:
       allow-ssh-into-spack-install: false  # If true, PR author must ssh into instance to complete job
       spack-manifest-data-path: .github/build-ci/data/standard.json
       spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache
-      allow-ssh-into-spack-install: false
       spack-compiler-manifest-path: .github/build-ci/compilers/spack.yaml
       # builtin-spack-packages-ref: develop
       # access-spack-packages-ref: api-v2
