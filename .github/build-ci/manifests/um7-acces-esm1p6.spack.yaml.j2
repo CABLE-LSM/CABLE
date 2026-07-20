@@ -1,0 +1,38 @@
+# Building UM7 stand-alone using access-esm1.6 spack version
+spack:
+  specs:
+  - 'um7@access-esm1.6'
+  packages:
+    dummygrib:
+      require:
+        - '@1.0'
+    oasis3-mct:
+      require:
+        - '@git.access-esm1.5-2025.03.001=access-esm1.5'
+    cable:
+      require:
+      - '@{{ ref }}'
+      - library=access-esm1.6
+    openmpi:
+      require:
+        - '@5.0.8'
+    netcdf-c:
+      require:
+        - '@4.9.2'
+    netcdf-fortran:
+      require:
+        - '@4.5.2'
+    fcm:
+      require:
+        - '@2021.05.0'
+        - 'site=nci-gadi'
+    intel-oneapi-compilers:
+      require:
+      - '@{{ oneapi_compiler_version }}'
+    all:
+      require:
+      - '%access_oneapi'
+      - 'target={{ target }}'
+  concretizer:
+    unify: false
+  view: false
