@@ -4,7 +4,7 @@ spack:
   packages:
     gcc:
       require:
-      - '@13.2.0'
+      - '@{{ gcc_compiler_ver }}'
     all:
       require:
       - '%access_gcc'  # https://github.com/ACCESS-NRI/spack-config/blob/main/v1.1/toolchains.yaml
