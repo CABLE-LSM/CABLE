@@ -1,28 +1,45 @@
 name: Build
 on:
   pull_request:
+  push:
     branches:
-      - main
+      - '[0-9]*.[0-9]*' # Default branch naming
 jobs:
+  pre-ci:
+    name: Pre-CI
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up matrix
+        id: set-matrix
+        # Find all relevant files under .github/build-ci/manifests
+        # then output them as a JSON array (minus the last comma)
+        run: |
+          files=$(find .github/build-ci/manifests/ -iname '*.j2' -printf '"%p",')
+          echo "matrix=[${files%,}]" >> $GITHUB_OUTPUT
+
   ci:
     name: CI
+    needs: pre-ci
     strategy:
       fail-fast: false
+      max-parallel: 5
       matrix:
-        spack-manifest-path:
-          - .github/build-ci/manifests/gcc.spack.yaml.j2
-          - .github/build-ci/manifests/intel.spack.yaml.j2
-          - .github/build-ci/manifests/library-intel.spack.yaml.j2
+        file: ${{ fromJson(needs.pre-ci.outputs.matrix) }}
     uses: access-nri/build-ci/.github/workflows/ci.yml@v3
     with:
-      # For defaults for args not specified here (eg. spack/packages/config refs), see https://github.com/ACCESS-NRI/build-ci/blob/v3/.github/workflows/README.md
-      spack-manifest-path: ${{ matrix.spack-manifest-path }}
+      spack-manifest-path: ${{ matrix.file }}
+      allow-ssh-into-spack-install: false  # If true, PR author must ssh into instance to complete job
       spack-manifest-data-path: .github/build-ci/data/standard.json
-      # We need to install the compilers manually here because the upstream image is too large to run on GitHub-hosted runners
+      spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache
       spack-compiler-manifest-path: .github/build-ci/compilers/spack.yaml
-      allow-ssh-into-spack-install: false
-      spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache  # https://github.com/orgs/CABLE-LSM/packages/container/package/build-ci-buildcache
-      # Since CABLE-LSM can't access ACCESS-NRI's self-hosted runners, we use a GitHub-hosted version
+      # builtin-spack-packages-ref: develop
+      # access-spack-packages-ref: api-v2
+      # spack-config-ref: main
+      # spack-ref: releases/v1.1
+      
+      # CABLE isn't part of the ACCESS-NRI org so can't access the runners
       run-self-hosted: false
-    permissions:
-      packages: write
