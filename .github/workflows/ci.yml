@@ -46,4 +46,4 @@ jobs:
 
     secrets:
       # Needed to access private ACCESS-NRI repos
-      spack-install-command-path: ${{ secrets.SPACK_INSTALL_COMMAND_PAT }}
+      spack-install-command-pat: ${{ secrets.SPACK_INSTALL_COMMAND_PAT }}
