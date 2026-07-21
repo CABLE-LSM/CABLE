@@ -3061,11 +3061,9 @@ CONTAINS
                               (1.1_r_2*real(layer_demand(:), r_2))
                         end where
 
-                        IF (ANY(layer_breach)) THEN
-                           fws_haverd_i = 0.0_r_2
-                        ELSE
-                           fws_haverd_i = maxval(alpha_root_hyd(2:)*delta_root_hyd(2:))
-                        END IF
+
+                        fws_haverd_i = maxval(alpha_root_hyd(2:)*delta_root_hyd(2:))
+
 
                         IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
                            fwsoil(i) = real(fws_haverd_i)
