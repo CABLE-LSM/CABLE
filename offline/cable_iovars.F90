@@ -272,6 +272,8 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .TRUE.,      & ! soil moisture modifier to stomatal conductance
          Fwsoil_nongs = .TRUE.,    & ! non-stomatal stress coefficient
+         Fwsoil_end = .TRUE.,      & ! fwsoil after the dryLeaf convergence loop
+         Fwsoil_nongs_end = .TRUE.,    & ! fwsoil_nongs after the dryLeaf convergence loop
          fwpsi = .TRUE.,      &
          mwstress = .TRUE.,   & ! N-day rolling mean water stress
          Area = .FALSE., & ! patch area in km2
@@ -613,6 +615,8 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Fwsoil_nongs = .FALSE.,   & ! non-stomatal stress coefficient
+         Fwsoil_end = .FALSE.,      & ! fwsoil after the dryLeaf convergence loop
+         Fwsoil_nongs_end = .FALSE.,   & ! fwsoil_nongs after the dryLeaf convergence loop
          fwpsi = .FALSE.,      &
          mwstress = .FALSE.,   &
          Area = .FALSE., & ! patch area in km2

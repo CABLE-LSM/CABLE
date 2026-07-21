@@ -64,7 +64,7 @@ MODULE cable_output_module
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp, &
           StemResp,LeafResp, HeteroResp, GPP, NPP, LAI, &
           ECanop, TVeg, ESoil, CanopInt, SnowDepth, &
-          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoil_nongs,fwpsi_sl, fwpsi_sh, RnetSoil, SnowMelt, &
+          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoil_nongs,Fwsoil_end,Fwsoil_nongs_end,fwpsi_sl, fwpsi_sh, RnetSoil, SnowMelt, &
                                 ! vh_mc ! additional variables for ESM-SnowMIP
           hfds, hfdsn, hfls, hfmlt, hfrs, hfsbl, hfss, rlus, rsus, &
           esn, evspsbl, evspsblsoi, evspsblveg, mrrob, mrros, sbl, &
@@ -221,6 +221,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil_nongs => null()  ! non-stomatal stress coefficient [-]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil_end => null()  ! fwsoil after the dryLeaf convergence loop [-]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil_nongs_end => null()  ! fwsoil_nongs after the dryLeaf convergence loop [-]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sl => null()  !
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sh => null()  !
      ! [umol/m2/s]
@@ -1529,6 +1531,20 @@ CONTAINS
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%Fwsoil_nongs(mp))
        out%Fwsoil_nongs = zero4 ! initialise
+    END IF
+    IF(output%veg .OR. output%Fwsoil_end) THEN
+       CALL define_ovar(ncid_out, ovid%Fwsoil_end, 'fwsoil_end', '[-]', &
+            'soil moisture modifier to stomatal conductance after the dryLeaf convergence loop', patchout%Fwsoil_end, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Fwsoil_end(mp))
+       out%Fwsoil_end = zero4 ! initialise
+    END IF
+    IF(output%veg .OR. output%Fwsoil_nongs_end) THEN
+       CALL define_ovar(ncid_out, ovid%Fwsoil_nongs_end, 'fwsoil_nongs_end', '[-]', &
+            'non-stomatal stress coefficient after the dryLeaf convergence loop', patchout%Fwsoil_nongs_end, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Fwsoil_nongs_end(mp))
+       out%Fwsoil_nongs_end = zero4 ! initialise
     END IF
     IF(output%veg .OR. output%fwpsi_sl) THEN
      CALL define_ovar(ncid_out, ovid%fwpsi_sl, 'fwpsi_sl', '[-]', &
@@ -3968,6 +3984,24 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoil_nongs, 'fwsoil_nongs', out%Fwsoil_nongs, &
                ranges%Fwsoil_nongs, patchout%Fwsoil_nongs, 'default', met)
           out%Fwsoil_nongs = zero4
+       END IF
+    END IF
+    IF (output%veg .OR. output%Fwsoil_end) THEN
+       out%Fwsoil_end = out%Fwsoil_end + toreal4(canopy%fwsoil_end)
+       IF (writenow) THEN
+          out%Fwsoil_end = out%Fwsoil_end * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoil_end, 'fwsoil_end', out%Fwsoil_end, &
+               ranges%Fwsoil_end, patchout%Fwsoil_end, 'default', met)
+          out%Fwsoil_end = zero4
+       END IF
+    END IF
+    IF (output%veg .OR. output%Fwsoil_nongs_end) THEN
+       out%Fwsoil_nongs_end = out%Fwsoil_nongs_end + toreal4(canopy%fwsoil_nongs_end)
+       IF (writenow) THEN
+          out%Fwsoil_nongs_end = out%Fwsoil_nongs_end * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoil_nongs_end, 'fwsoil_nongs_end', out%Fwsoil_nongs_end, &
+               ranges%Fwsoil_nongs_end, patchout%Fwsoil_nongs_end, 'default', met)
+          out%Fwsoil_nongs_end = zero4
        END IF
     END IF
      IF (output%veg .or. output%fwpsi_sl) THEN

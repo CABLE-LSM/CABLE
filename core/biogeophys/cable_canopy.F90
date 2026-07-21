@@ -711,6 +711,9 @@ CONTAINS
                       rny, gbhu, gbhf, csx, cansat, &
                       ghwet, iter, climate)
 
+         canopy%fwsoil_end = real(fwsoil, r_2)
+         canopy%fwsoil_nongs_end = real(fwsoil_nongs, r_2)
+
          CALL wetLeaf(dels, rad, air, met, &
                       canopy, cansat, tlfy, &
                       gbhu, gbhf, ghwet)

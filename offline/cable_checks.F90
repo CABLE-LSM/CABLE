@@ -123,6 +123,8 @@ MODULE cable_checks_module
            CanT = (/213.0,333.0/),                        &
            Fwsoil = (/0.0,1.0/),                          &
            Fwsoil_nongs = (/0.0,1.0/),                    &
+           Fwsoil_end = (/0.0,1.0/),                      &
+           Fwsoil_nongs_end = (/0.0,1.0/),                &
                                 ! parameters:
            fwpsi = (/0.0,1.0/),                          &
            albsoil = (/0.0,0.9/),                         &

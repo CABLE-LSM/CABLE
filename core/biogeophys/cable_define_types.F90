@@ -554,6 +554,8 @@ module cable_def_types_mod
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
      real(r_2), dimension(:,:),     pointer :: fwpsi => null() ! zihanlu 10/11/2024
      real(r_2), dimension(:),     pointer :: fwsoil_nongs => null() ! non-stomatal stress from Haverd2013 getrex_1d
+     real(r_2), dimension(:),     pointer :: fwsoil_end => null() ! fwsoil after the dryLeaf convergence loop
+     real(r_2), dimension(:),     pointer :: fwsoil_nongs_end => null() ! fwsoil_nongs after the dryLeaf convergence loop
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      real(r_2), dimension(:), pointer :: kthLitt => null()
      real(r_2), dimension(:), pointer :: DvLitt => null()
@@ -1371,6 +1373,8 @@ contains
     allocate(canopy%fwsoil(mp))
     allocate(canopy%fwpsi(mp,mf))
     allocate(canopy%fwsoil_nongs(mp))
+    allocate(canopy%fwsoil_end(mp))
+    allocate(canopy%fwsoil_nongs_end(mp))
     allocate(canopy%psix(mp))
     ! vh_js - litter resistances to heat and vapour transfer
     allocate(canopy%kthLitt(mp))
@@ -2062,6 +2066,8 @@ contains
     deallocate(canopy%fwsoil)
     deallocate(canopy%fwpsi)
     deallocate(canopy%fwsoil_nongs)
+    deallocate(canopy%fwsoil_end)
+    deallocate(canopy%fwsoil_nongs_end)
     deallocate(canopy%psix)
     deallocate(canopy%ofes)
     !! vh_js !! litter resistances to heat and vapour transfer
@@ -2674,6 +2680,8 @@ contains
     canopy%zetash    = 0
     canopy%fwsoil       = 0
     canopy%fwsoil_nongs = 1
+    canopy%fwsoil_end       = 0
+    canopy%fwsoil_nongs_end = 0
     canopy%fwpsi        = 0
     canopy%psix    = 0
     canopy%ofes      = 0
