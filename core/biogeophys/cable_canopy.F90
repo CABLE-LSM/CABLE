@@ -2213,41 +2213,24 @@ CONTAINS
       else
          txtname = trim(filename%path)//'testIteration_cable_out.txt'
       end if
-      ! if (any(nktau == ktau_tot) .and. iter==1) then
-      !    if (ktau_tot == nktau(1)) then
-      !        ! Open the file for overwrite if k is the first element
-      !        open(unit=134, file=txtname, status="unknown", action="write")
-      !    else
-      !        ! Open the file for appending otherwise
-      !        open(unit=134, file=txtname, status="unknown", position="append", action="write")
-      !    end if
-      ! end if
-!      if (present(wbpsdo) .and. present(vpdpsdo)) then
-!         if (ktau_tot == nktau(1) .and. iter==4) then
-!            ! Open the file for overwrite if k is the first element
-!            open(unit=137, file=txtname, status="unknown", action="write")
-!         end if
-!      elseif (present(wbpsdo) .and. present(fwpsdo)) then
-!      elseif (present (wbpsdo)) then
-!         if (ktau_tot == nktau(1) .and. iter==4) then
-!            ! Open the file for overwrite if k is the first element
-!            open(unit=135, file=txtname, status="unknown", action="write")
-!         end if
-!      elseif (present (vpdpsdo)) then
-!         if (ktau_tot == nktau(1) .and. iter==4) then
-!            ! Open the file for overwrite if k is the first element
-!            open(unit=136, file=txtname, status="unknown", action="write")
-!         end if
-!      else
-!         if (ktau_tot == nktau(1) .and. iter==1) then
-!            ! Open the file for overwrite if k is the first element
-!            open(unit=134, file=txtname, status="unknown", action="write")
-!         end if
-!      endif
-      ! if (ktau_tot==nktau .and. iter==1) then
-      ! open(unit=134, file=txtname)
-      ! !print*, 'write iteration file '
-      ! end if
+      IF (cable_user%write_iteration_txt .and. .not. present(wbpsdo) .and. .not. present(vpdpsdo)) THEN
+         if (any(nktau == ktau_tot) .and. iter == 1) then
+            if (ktau_tot == nktau(1)) then
+               ! Open the file for overwrite if k is the first element
+               open (unit=134, file=txtname, status="unknown", action="write")
+               write (134, *) 'ktau_tot iter i k tlfxx tlfx tlfxm deltlf dsxx dsx dsxm abs_deltds Mtag '// &
+                  'psilxx_sl psilxx_sh psilx_sl psilx_sh psilxm_sl psilxm_sh abs_deltpsil_sl abs_deltpsil_sh '// &
+                  'fwpsixx_sl fwpsixx_sh fwpsi_sl fwpsi_sh fwpsi1_tmp_sl fwpsi1_tmp_sh psixx csx_sl csx_sh '// &
+                  'abs_deltcs_sl abs_deltcs_sh anx_sl anx_sh anrubiscox_sl anrubiscox_sh anrubpx_sl anrubpx_sh '// &
+                  'ansinkx_sl ansinkx_sh gswx_sl gswx_sh gswx_sl_dup gswx_sh_dup vcmxt3_sl vcmxt3_sh '// &
+                  'gs_coeff_sl gs_coeff_sh rdx_sl rdx_sh ex_sl ex_sh rootR1 rootR2 rootR3 rootR4 '// &
+                  'soilR1 soilR2 soilR3 soilR4 kplantx fwsoil fwsoil_nongs'
+            else
+               ! Open the file for appending otherwise
+               open (unit=134, file=txtname, status="unknown", position="append", action="write")
+            end if
+         end if
+      END IF
       k = 0
       if (present(wbpsdo) .or. present(vpdpsdo)) then
          kmax = veg%Nmax(1)
@@ -3345,64 +3328,21 @@ CONTAINS
             elseif (k > 5 .AND. k < kmax) then
                Numtag = Numtag - 1
             end if
-!            if (any(allktau == ktau_tot)) then
-!               if (present(wbpsdo) .and. present(vpdpsdo)) then
-!                  write(137,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
-!                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
-!                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-!                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
-!                  fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
-!                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-!                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-!                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-!                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-!                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-!                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-!                  kplantx(i)
-!               elseif (present(wbpsdo) .and. present(fwpsdo)) then
-!               elseif (present (wbpsdo)) then
-!                  write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
-!                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
-!                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-!                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
-!                  fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
-!                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-!                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-!                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-!                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-!                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-!                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-!                  kplantx(i)
-!               elseif (present (vpdpsdo)) then
-!                  write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
-!                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
-!                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-!                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
-!                  fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
-!                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-!                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-!                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-!                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-!                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-!                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-!                  kplantx(i)
-!               else
-!                  write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
-!                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
-!                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-!                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
-!                  fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
-!                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-!                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-!                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-!                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-!                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-!                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-!                  kplantx(i)
-!
-!               endif
-
-!            END IF
+            IF (cable_user%write_iteration_txt .and. any(allktau == ktau_tot) .and. &
+                .not. present(wbpsdo) .and. .not. present(vpdpsdo)) THEN
+               write (134, *) ktau_tot, iter, i, k, tlfxx(i), tlfx(i), tlfxm(i), deltlf(i), &
+                  dsxx(i), dsx(i), dsxm(i), abs_deltds(i), Mtag, &
+                  psilxx(i, 1), psilxx(i, 2), psilx(i, 1), psilx(i, 2), psilxm(i, 1), psilxm(i, 2), &
+                  abs_deltpsil(i, 1), abs_deltpsil(i, 2), &
+                  fwpsixx(i, 1), fwpsixx(i, 2), fwpsi(i, 1), fwpsi(i, 2), fwpsi1_tmp(i, 1), fwpsi1_tmp(i, 2), &
+                  psixx(i), csx(i, 1), csx(i, 2), abs_deltcs(i, 1), abs_deltcs(i, 2), anx(i, 1), anx(i, 2), anrubiscox(i, 1), &
+                  anrubiscox(i, 2), anrubpx(i, 1), anrubpx(i, 2), ansinkx(i, 1), ansinkx(i, 2), &
+                  canopy%gswx(i, 1), canopy%gswx(i, 2), canopy%gswx(i, 1), canopy%gswx(i, 2), &
+                  vcmxt3(i, 1), vcmxt3(i, 2), gs_coeff(i, 1), gs_coeff(i, 2), rdx(i, 1), rdx(i, 2), ex(i, 1), ex(i, 2), &
+                  ssnow%rootR(i, 1), ssnow%rootR(i, 2), ssnow%rootR(i, 3), ssnow%rootR(i, 4), &
+                  ssnow%soilR(i, 1), ssnow%soilR(i, 2), ssnow%soilR(i, 3), ssnow%soilR(i, 4), &
+                  kplantx(i),fwsoil(i),fwsoil_nongs(i)
+            END IF
             if ((abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i, :) > 0.1)) .AND. k > 5 .AND. k < kmax) then
                psilx = psilxm
                tlfx = tlfxm

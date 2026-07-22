@@ -136,6 +136,7 @@ MODULE cable_common_module
           acclimate_autoresp_seasonal = .FALSE., & ! acclimates to last 30 d, otherwise annual.
           limit_labile           = .FALSE., &
           Cumberland_soil        = .FALSE., &    ! sets special CP soil params in calbe_sli_utils.F90
+          write_iteration_txt    = .FALSE., &    ! write dryLeaf's per-iteration diagnostics to testIteration_cable_out.txt
           within_canopy_isothermal = .FALSE., &
           amphistomatous           = .FALSE., &
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
