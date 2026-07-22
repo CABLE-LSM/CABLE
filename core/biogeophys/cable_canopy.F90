@@ -3027,6 +3027,14 @@ CONTAINS
                                                    MAX(0.0, REAL(wbtmp(i, kk)) - 1.1*soil%swilt(i)) &
                                                    * soil%zse(kk) * 1000.0)
                      END DO
+
+                     ! Recalculate evapfbl so the total extraction across layers matches
+                     ! the total transpiration demand (evapfb), rescaling each layer's
+                     ! already-capped share proportionally.
+                     IF (SUM(ssnow%evapfbl(i, :)) > 0.0) THEN
+                        ssnow%evapfbl(i, :) = ssnow%evapfbl(i, :)/SUM(ssnow%evapfbl(i, :))*evapfb(i)
+                     END IF
+
                      ! canopy%fevc(i) = SUM(ssnow%evapfbl(i, :))*air%rlam(i)/dels
 
                      ! ecx(i) = canopy%fevc(i)/(1.0 - canopy%fwet(i))
