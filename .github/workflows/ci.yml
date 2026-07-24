@@ -43,3 +43,7 @@ jobs:
       
       # CABLE isn't part of the ACCESS-NRI org so can't access the runners
       run-self-hosted: false
+
+    secrets:
+      # Needed to access private ACCESS-NRI repos
+      spack-install-command-pat: ${{ secrets.SPACK_INSTALL_COMMAND_PAT }}
