@@ -154,7 +154,7 @@ if(CABLE_LIBRARY)
             src/coupled/shared/cable_veg_type_mod.F90
             # These had to be removed from the generic library section,
             # as AM3 provides a different definition for them
-            src/science/casa-cnp/casa_dimensions.F90
+            src/science/casa-cnp/casa_dimension.F90
             src/science/casa-cnp/casa_phenology.F90
             src/science/casa-cnp/casa_readbiome.F90
             src/science/casa-cnp/casa_variable.F90
