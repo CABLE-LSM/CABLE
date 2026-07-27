@@ -168,34 +168,34 @@ if(CABLE_LIBRARY)
         endif()
     elseif(CABLE_LIBRARY_TARGET STREQUAL "access3")
         list(APPEND SOURCES
-            src/coupled/AM3/control/cable/CM3/air_type_cbl.F90
-            src/coupled/AM3/control/cable/CM3/balances_type_cbl.F90
-            src/coupled/AM3/control/cable/CM3/bgc_pool_type.F90
-            src/coupled/AM3/control/cable/CM3/cable_define_types.F90
-            src/coupled/AM3/control/cable/CM3/cbl_canopy_type.F90
-            src/coupled/AM3/control/cable/CM3/cbl_cbm_mod.F90
-            src/coupled/AM3/control/cable/CM3/climate_type.F90
-            src/coupled/AM3/control/cable/CM3/met_type_cbl.F90
-            src/coupled/AM3/control/cable/CM3/radiation_type.F90
-            src/coupled/AM3/control/cable/CM3/roughness_type.F90
-            src/coupled/AM3/control/cable/CM3/soil_type_cbl.F90
-            src/coupled/AM3/control/cable/CM3/ssnow_type.F90
-            src/coupled/AM3/control/cable/CM3/sum_flux_type.F90
-            src/coupled/AM3/control/cable/CM3/veg_type.F90
-            src/coupled/AM3/control/casa/types/casa_balance_type.F90
-            src/coupled/AM3/control/casa/types/casa_biome_type.F90
-            src/coupled/AM3/control/casa/types/casa_files_type.F90
-            src/coupled/AM3/control/casa/types/casa_flux_type.F90
-            src/coupled/AM3/control/casa/types/casa_met_type.F90
-            src/coupled/AM3/control/casa/types/casa_phenology_type.F90
-            src/coupled/AM3/control/casa/types/casa_pool_type.F90
-            src/coupled/AM3/control/casa/types/sum_casa_flux_type.F90
-            src/coupled/AM3/control/casa/types/sum_casa_pool_type.F90
-            src/coupled/AM3/control/casa/types/casa_variable.F90
-            src/coupled/AM3/control/casa/types/phen_variable.F90
-            src/coupled/AM3/control/casa/types/casa_dimension.F90
-            src/coupled/AM3/control/casa/types/casa_inout.F90
-            src/coupled/AM3/control/casa/types/casa_readbiome.F90
+            src/coupled/AM3/cable/types/air_type_cbl.F90
+            src/coupled/AM3/cable/types/balances_type_cbl.F90
+            src/coupled/AM3/cable/types/bgc_pool_type.F90
+            src/coupled/AM3/cable/types/cable_define_types.F90
+            src/coupled/AM3/cable/types/cbl_canopy_type.F90
+            src/coupled/AM3/cable/types/cbl_cbm_mod.F90
+            src/coupled/AM3/cable/types/climate_type.F90
+            src/coupled/AM3/cable/types/met_type_cbl.F90
+            src/coupled/AM3/cable/types/radiation_type.F90
+            src/coupled/AM3/cable/types/roughness_type.F90
+            src/coupled/AM3/cable/types/soil_type_cbl.F90
+            src/coupled/AM3/cable/types/ssnow_type.F90
+            src/coupled/AM3/cable/types/sum_flux_type.F90
+            src/coupled/AM3/cable/types/veg_type.F90
+            src/coupled/AM3/casa/types/casa_balance_type.F90
+            src/coupled/AM3/casa/types/casa_biome_type.F90
+            src/coupled/AM3/casa/types/casa_files_type.F90
+            src/coupled/AM3/casa/types/casa_flux_type.F90
+            src/coupled/AM3/casa/types/casa_met_type.F90
+            src/coupled/AM3/casa/types/casa_phenology_type.F90
+            src/coupled/AM3/casa/types/casa_pool_type.F90
+            src/coupled/AM3/casa/types/sum_casa_flux_type.F90
+            src/coupled/AM3/casa/types/sum_casa_pool_type.F90
+            src/coupled/AM3/casa/types/casa_variable.F90
+            src/coupled/AM3/casa/types/phen_variable.F90
+            src/coupled/AM3/casa/types/casa_dimension.F90
+            src/coupled/AM3/casa/types/casa_inout.F90
+            src/coupled/AM3/casa/types/casa_readbiome.F90
 	        src/offline/cable_surface_types.F90
             src/science/landuse/casa_ESM15landuse.F90
         )
