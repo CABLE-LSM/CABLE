@@ -138,6 +138,15 @@ if(CABLE_LIBRARY)
         src/util/cable_common.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+
+        # These files should in theory be included in the base library
+        # build, but the AM3 versions had diverged fairly significantly
+        # from these. The AM3 versions should be brought in sync with
+        # the offline versions sooner rather than later.
+        #src/science/casa-cnp/casa_dimension.F90
+        #src/science/casa-cnp/casa_phenology.F90
+        #src/science/casa-cnp/casa_readbiome.F90
+        #src/science/casa-cnp/casa_variable.F90
     )
 
     if(CABLE_LIBRARY_TARGET STREQUAL "access-esm1.6")
