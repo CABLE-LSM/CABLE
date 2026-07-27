@@ -1,6 +1,6 @@
 spack:
   specs:
-  - cable@git.{{ ref }}
+  - cable@git.{{ ref }} ~mpi library=access3
 
   packages:
     intel-oneapi-compilers-classic:
@@ -9,8 +9,8 @@ spack:
 
     all:
       require:
-      - '%access_intel'  # https://github.com/ACCESS-NRI/spack-config/blob/main/v1.1/toolchains.yaml
-      - target={{ target }}
+      - '%access_intel'
+      - 'target={{ target }}'
 
   concretizer:
     unify: false
