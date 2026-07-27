@@ -69,6 +69,7 @@ if(CABLE_LIBRARY)
 
     # Set the core sources
     set(SOURCES
+        src/offline/cable_iovars.F90
         src/science/albedo/cbl_albedo.F90
         src/science/albedo/cbl_snow_albedo.F90
         src/science/albedo/cbl_soilColour_albedo.F90
@@ -197,7 +198,6 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/control/casa/types/casa_inout.F90
             src/coupled/AM3/control/casa/types/casa_readbiome.F90
 	        src/offline/cable_surface_types.F90
-            src/offline/cable_iovars.F90
             src/science/landuse/casa_ESM15landuse.F90
         )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
