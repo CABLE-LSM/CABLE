@@ -1,0 +1,23 @@
+spack:
+  specs:
+  - um@13.0 model=vn13.0 jules_ref="AM3-dev" ukca_ref="AM3-2026.03.0"
+
+  packages:
+    cable:
+    require:
+      - '@git.{{ ref }}'
+      - '~mpi'
+      - 'library=access3'
+
+    intel-oneapi-compilers-classic:
+      require:
+      - '{{ oneapi_compiler_classic_ver }}'
+
+    all:
+      require:
+      - '%access_intel'
+      - 'target={{ target }}'
+
+  view: false
+  concretizer:
+    unify: false
