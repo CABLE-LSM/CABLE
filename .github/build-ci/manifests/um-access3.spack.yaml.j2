@@ -1,6 +1,6 @@
 spack:
   specs:
-  - um@13.0 model=vn13 jules_ref="AM3-dev" ukca_ref="AM3-2026.03.0"
+  - um@13.0 model=vn13 um_ref="AM3-dev" jules_ref="AM3-dev" ukca_ref="AM3-2026.03.0"
 
   packages:
     cable:
@@ -9,13 +9,9 @@ spack:
       - '~mpi'
       - 'library=access3'
 
-    python:
-      require:
-        - '@3.11.14'
-
     intel-oneapi-compilers-classic:
       require:
-      - '{{ oneapi_compiler_classic_ver }}'
+      - '@{{ oneapi_compiler_classic_ver }}'
 
     all:
       require:
