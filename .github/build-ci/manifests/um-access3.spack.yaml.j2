@@ -9,6 +9,10 @@ spack:
       - '~mpi'
       - 'library=access3'
 
+    python:
+      require:
+        - '@3.11.14'
+
     intel-oneapi-compilers-classic:
       require:
       - '@{{ oneapi_compiler_classic_ver }}'
