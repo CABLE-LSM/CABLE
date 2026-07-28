@@ -1216,7 +1216,8 @@ CONTAINS
          pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
 
     integer   :: npt, nL, nP
-    real(r_2) :: Ygrow, ratioPNplant
+    real(r_2) :: Ygrow, ratioPNplant, Cnpp_min, dnpp
+    real(r_2) :: rm_old, rm_new
     ! real(r_2) :: dF
 
     ! casa
@@ -1316,15 +1317,40 @@ CONTAINS
              endwhere
              ! 2nd, nothing to labile pool
              casaflux%fracClabile(npt) = 0.0_r_2
-             ! 3rd, only respire less than available carbon
+             !!! 3rd, only respire less than available carbon
+             !!if ((casaflux%Cgpp(npt) - sum(casaflux%Crmplant(npt,:))) < 0.0_r2) then
+             !!   casaflux%Crgplant(npt) = 0.0_r2
+             !!   where (casaflux%fracCalloc(npt,:) > 0.0_r2)
+             !!      casaflux%Crmplant(npt,:) = min(casaflux%Crmplant(npt,:), &
+             !!           casaflux%Cgpp(npt) + casapool%Cplant(npt,:) / casaflux%fracCalloc(npt,:) / deltpool)
+             !!   elsewhere
+             !!      casaflux%Crmplant(npt,:) = 0.0_r2
+             !!   endwhere
+             ! 3rd, only respire less than available carbon in a way that keeps Cplant => 0
              if ((casaflux%Cgpp(npt) - sum(casaflux%Crmplant(npt,:))) < 0.0_r_2) then
                 casaflux%Crgplant(npt) = 0.0_r_2
-                where (casaflux%fracCalloc(npt,:) > 0.0_r_2)
-                   casaflux%Crmplant(npt,:) = min(casaflux%Crmplant(npt,:), &
-                        casaflux%Cgpp(npt) + casapool%Cplant(npt,:) / casaflux%fracCalloc(npt,:) / deltpool)
-                elsewhere
-                   casaflux%Crmplant(npt,:) = 0.0_r_2
-                endwhere
+
+                ! NPP after zero Rg and labile allocation
+                casaflux%Cnpp(npt) = casaflux%Cgpp(npt) - sum(casaflux%Crmplant(npt,:)) - &
+                      casaflux%Crgplant(npt) - casaflux%fracClabile(npt) * casaflux%Cgpp(npt)
+                
+                ! Minimum NPP that still permits non-negative total biomass
+                Cnpp_min = -sum(casapool%Cplant(npt,:)) / deltpool
+
+                if (casaflux%Cnpp(npt) < Cnpp_min) then
+
+                  dnpp = Cnpp_min - casaflux%Cnpp(npt)
+                  rm_old = sum(casaflux%Crmplant(npt,:))
+                  rm_new = max(0.0_r_2, rm_old - dnpp)
+
+                  ! Reduce maintenance respiration by the carbon deficit while
+                  ! preserving GPP = NPP + Ra.
+                  if (rm_old > 0.0_r_2) then
+                     casaflux%Crmplant(npt,:) = &
+                         casaflux%Crmplant(npt,:) * rm_new / rm_old
+                  endif
+                endif
+
              endif
              ! recalc
              casaflux%Cnpp(npt) = casaflux%Cgpp(npt) - sum(casaflux%Crmplant(npt,:)) - &
