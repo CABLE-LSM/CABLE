@@ -206,7 +206,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/casa/types/casa_inout.F90
             src/coupled/AM3/casa/types/casa_readbiome.F90
 	        src/offline/cable_surface_types.F90
-            src/science/landuse/casa_ESM15landuse.F90
+            src/coupled/AM3/cable/landuse/casa_ESM15landuse.F90
         )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
             add_compile_options(-r8 -i8)
