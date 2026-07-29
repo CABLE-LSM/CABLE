@@ -326,21 +326,17 @@ CONTAINS
       ! canopy%qscrn  = met%qv
       ! !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-      ! Compute Haverd2013 fwsoil/fwsoil_nongs once before the iteration loop,
-      ! using previous-timestep canopy%fevc as the transpiration demand estimate.
+      ! Seed Haverd2013 fwsoil/fwsoil_nongs from last timestep's converged end-of-loop value.
+      ! On the very first timestep (ktau_tot==1), fwsoil_end/fwsoil_nongs_end hold no meaningful
+      ! prior state yet (just zero-initialized at cold start), so default to no stress (1.0).
       if (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') then
-         do j = 1, mp
-            fws_tmp = 1.0_r_2
-            call getrex_1d(real(ssnow%wb(j,:), r_2) - real(ssnow%wbice(j,:), r_2), &
-                           ssnow%rex(j,:), fws_tmp, &
-                           real(veg%froot(j,:), r_2), SPREAD(real(soil%ssat(j), r_2), 1, ms), &
-                           SPREAD(real(soil%swilt(j), r_2), 1, ms), &
-                           max(canopy%fevc(j)/real(air%rlam(j), r_2)/1000.0_r_2, 0.0_r_2), &
-                           veg%gamma(j), real(soil%zse, r_2), real(dels, r_2), veg%zr(j))
-            if (cable_user%FWSOIL_SWITCH == 'Haverd2013') canopy%fwsoil(j) = fws_tmp
-            if (cable_user%NSL_switch   == 'Haverd2013') canopy%fwsoil_nongs(j) = fws_tmp
-         end do
-         ssnow%rex = 0.0_r_2   ! reset after pre-loop probe; in-loop getrex_1d will repopulate
+         if (ktau_tot == 1) then
+            if (cable_user%FWSOIL_SWITCH == 'Haverd2013') canopy%fwsoil = 1.0_r_2
+            if (cable_user%NSL_switch   == 'Haverd2013') canopy%fwsoil_nongs = 1.0_r_2
+         else
+            if (cable_user%FWSOIL_SWITCH == 'Haverd2013') canopy%fwsoil = canopy%fwsoil_end
+            if (cable_user%NSL_switch   == 'Haverd2013') canopy%fwsoil_nongs = canopy%fwsoil_nongs_end
+         end if
       end if
 
       ! Compute LWP2 fwsoil/fwsoil_nongs once before the iteration loop using psi_soilmean.
