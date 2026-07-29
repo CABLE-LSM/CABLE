@@ -2184,8 +2184,8 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       !allocate(nktau(4), nktau_end(4))
-      nktau = [192212]
-      NN = 14
+      nktau = [327188]
+      NN = 2
       nktau_end = nktau + NN - 1
 
       m = size(nktau)*NN
@@ -2909,7 +2909,10 @@ CONTAINS
                                  max(canopy%fevc(i)/real(air%rlam(i), r_2)/1000.0_r_2, 0.0_r_2), &
                                  veg%gamma(i), &
                                  real(soil%zse, r_2), real(dels, r_2), veg%zr(i), &
-                                 rex_raw_haverd)
+                                 rex_raw_haverd, &
+                                 print_diag=(cable_user%write_iteration_txt .and. any(allktau == ktau_tot) .and. &
+                                             .not. present(wbpsdo) .and. .not. present(vpdpsdo)), &
+                                 ktau_tot_dbg=ktau_tot, i_dbg=i, k_dbg=k)
                   where (ssnow%rex(i, :) > tiny(1.0_r_2)) &
                      ssnow%evapfbl(i, :) = real(ssnow%rex(i, :))*dels*1000. ! mm water &
                   IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
@@ -5737,7 +5740,8 @@ CONTAINS
 
    ! ------------------------------------------------------------------------------
 
-   SUBROUTINE getrex_1d(theta, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, zr, rex_raw)
+   SUBROUTINE getrex_1d(theta, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, zr, rex_raw, &
+                        print_diag, ktau_tot_dbg, i_dbg, k_dbg)
 
       ! root extraction : Haverd et al. 2013
       USE cable_def_types_mod, only: r_2
@@ -5756,6 +5760,8 @@ CONTAINS
       REAL(r_2), INTENT(IN)    :: dt
       REAL(r_2), INTENT(IN)    :: zr
       REAL(r_2), DIMENSION(:), INTENT(OUT), OPTIONAL :: rex_raw ! per-layer extraction before the efficiency-reduction rescale
+      LOGICAL, INTENT(IN), OPTIONAL :: print_diag ! print alpha_root/delta_root/fws diagnostics if .TRUE.
+      INTEGER, INTENT(IN), OPTIONAL :: ktau_tot_dbg, i_dbg, k_dbg ! identifying context for the diagnostic print
 
       ! Gets rate of water extraction compatible with CABLE stomatal conductance model
       ! theta(:) - soil moisture(m3 m-3)
@@ -5834,6 +5840,17 @@ CONTAINS
       else
          fws = maxval(alpha_root(2:)*delta_root(2:))
       end if
+
+      IF (PRESENT(print_diag)) THEN
+         IF (print_diag) THEN
+            print*, 'getrex_1d diag: ktau_tot=', ktau_tot_dbg, ' i=', i_dbg, ' k=', k_dbg
+            print*, 'getrex_1d diag: rooted layers=', PACK([(k, k=2,size(theta))], delta_root(2:) == one)
+            print*, 'getrex_1d diag: alpha_root(rooted)=', PACK(alpha_root(2:), delta_root(2:) == one)
+            print*, 'getrex_1d diag: theta(rooted)=', PACK(theta(2:), delta_root(2:) == one)
+            print*, 'getrex_1d diag: thetaw=', thetaw(1)
+            print*, 'getrex_1d diag: fws=', fws
+         END IF
+      END IF
 
    END SUBROUTINE getrex_1d
 
