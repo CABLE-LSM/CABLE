@@ -1,0 +1,17 @@
+spack:
+  specs:
+  - cable@git.{{ ref }} ~mpi library=access3
+
+  packages:
+    gcc:
+      require:
+      - '@{{ gcc_compiler_ver }}'
+
+    all:
+      require:
+      - '%access_gcc'
+      - 'target={{ target }}'
+
+  concretizer:
+    unify: false
+  view: false

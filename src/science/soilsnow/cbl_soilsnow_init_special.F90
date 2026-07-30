@@ -1,6 +1,7 @@
 MODULE cbl_soil_snow_init_special_module
 
 USE cbl_ssnow_data_mod
+USE cable_def_types_mod
 
   IMPLICIT NONE
 

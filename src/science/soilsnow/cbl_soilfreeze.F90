@@ -1,6 +1,7 @@
 MODULE soilfreeze_mod
 
 USE cbl_ssnow_data_mod
+USE cable_def_types_mod
 
 PUBLIC  soilfreeze
 

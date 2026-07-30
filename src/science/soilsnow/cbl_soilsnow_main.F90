@@ -27,6 +27,7 @@ CONTAINS
   !        ssnow
   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
     USE cable_common_module
+USE cable_def_types_mod
 USE cbl_ssnow_data_mod
 !called subrs
 USE hydraulic_redistribution_mod, ONLY: hydraulic_redistribution

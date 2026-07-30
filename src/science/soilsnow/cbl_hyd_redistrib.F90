@@ -1,6 +1,7 @@
 MODULE hydraulic_redistribution_mod
 
 USE cbl_ssnow_data_mod
+USE cable_def_types_mod
 
 PUBLIC  hydraulic_redistribution
 

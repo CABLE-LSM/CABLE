@@ -1,6 +1,7 @@
 MODULE snow_accum_mod
 
 USE cbl_ssnow_data_mod
+USE cable_def_types_mod
 
 PUBLIC  snow_accum
 

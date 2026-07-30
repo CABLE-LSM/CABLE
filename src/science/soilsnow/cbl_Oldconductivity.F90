@@ -1,6 +1,8 @@
 MODULE old_soil_conductivity_mod
 
 USE cbl_ssnow_data_mod
+USE cable_def_types_mod
+
 
 CONTAINS
 

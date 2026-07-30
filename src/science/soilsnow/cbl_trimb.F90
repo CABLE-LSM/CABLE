@@ -1,6 +1,7 @@
 MODULE trimb_mod
 
-USE cbl_ssnow_data_mod, ONLY : r_2
+USE cbl_ssnow_data_mod
+USE cable_def_types_mod, ONLY : r_2
 
 PUBLIC  trimb
 
