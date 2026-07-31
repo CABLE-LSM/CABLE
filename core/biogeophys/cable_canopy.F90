@@ -2928,6 +2928,10 @@ CONTAINS
                   END IF
                   IF (cable_user%NSL_switch == 'Haverd2013') then
                      fwsoil_nongs(i) = real(fws_haverd_i)
+
+                     if (cable_user%fwsoil_floor) then
+                        fwsoil_nongs(i) = max(fwsoil_nongs(i), 0.1)
+                     end if
                   END IF
 
                   IF ((cable_user%FWSOIL_SWITCH == 'LWP2' .OR. cable_user%NSL_switch == 'LWP2') .AND. &
@@ -2980,8 +2984,18 @@ CONTAINS
                            fws_tmp_hyd = 1.0_r_2
                         END SELECT
 
-                        IF (cable_user%FWSOIL_SWITCH == 'LWP2') fwsoil(i) = real(fws_tmp_hyd)
-                        IF (cable_user%NSL_switch == 'LWP2') fwsoil_nongs(i) = real(fws_tmp_hyd)
+                        IF (cable_user%FWSOIL_SWITCH == 'LWP2') then
+                           fwsoil(i) = real(fws_tmp_hyd)
+                           if (cable_user%fwsoil_floor) then
+                              fwsoil(i) = max(fwsoil(i), 0.1)
+                           end if
+                        END IF
+                        IF (cable_user%NSL_switch == 'LWP2') then
+                           fwsoil_nongs(i) = real(fws_tmp_hyd)
+                           if (cable_user%fwsoil_floor) then
+                              fwsoil_nongs(i) = max(fwsoil_nongs(i), 0.1)
+                           end if
+                        END IF
 
                         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, i, wbtmp)
                         CALL calc_swp(ssnow, soil, i, wbtmp)
