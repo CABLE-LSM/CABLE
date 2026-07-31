@@ -2922,6 +2922,9 @@ CONTAINS
                      if (cable_user%Cumberland_soil) then
                         fwsoil(i) = max(fwsoil(i), 0.6)
                      end if
+                     if (cable_user%fwsoil_floor) then
+                        fwsoil(i) = max(fwsoil(i), 0.1)
+                     end if
                   END IF
                   IF (cable_user%NSL_switch == 'Haverd2013') then
                      fwsoil_nongs(i) = real(fws_haverd_i)

@@ -137,6 +137,7 @@ MODULE cable_common_module
           limit_labile           = .FALSE., &
           Cumberland_soil        = .FALSE., &    ! sets special CP soil params in calbe_sli_utils.F90
           write_iteration_txt    = .FALSE., &    ! write dryLeaf's per-iteration diagnostics to testIteration_cable_out.txt
+          fwsoil_floor           = .FALSE., &    ! floor fwsoil at 0.1 under native Haverd2013 (see Cumberland_soil)
           within_canopy_isothermal = .FALSE., &
           amphistomatous           = .FALSE., &
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
