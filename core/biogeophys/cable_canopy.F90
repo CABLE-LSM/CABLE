@@ -3125,6 +3125,13 @@ CONTAINS
                      END IF
                   END IF
 
+                  if (cable_user%fwsoil_floor) then
+                     if (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. &
+                         cable_user%FWSOIL_SWITCH == 'LWP2') fwsoil(i) = max(fwsoil(i), 0.1)
+                     if (cable_user%NSL_switch == 'Haverd2013' .OR. &
+                         cable_user%NSL_switch == 'LWP2') fwsoil_nongs(i) = max(fwsoil_nongs(i), 0.1)
+                  end if
+
                ELSE IF (cable_user%SOIL_SCHE /= 'Haverd2013' .AND. &
                         cable_user%SOIL_SCHE /= 'hydraulics') THEN
 
