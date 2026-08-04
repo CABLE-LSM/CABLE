@@ -397,7 +397,8 @@ module cable_def_types_mod
           root_conduc => null(), &
           huber_value => null(), &
           root_shoot => null(), &
-          psi_critical => null()  ! root-zone psi threshold for stress onset (MPa, negative)
+          psi_critical => null(), & ! root-zone psi threshold for stress onset (MPa, negative)
+          psi_delta => null()  ! prescribed margin: psi_wilt = psi_critical - psi_delta (MPa, positive)
       integer, dimension(:), pointer :: Nmax => null()
 
      logical, dimension(:), pointer :: &
@@ -1251,6 +1252,7 @@ contains
     allocate( veg%huber_value(mp) )
     allocate( veg%root_shoot(mp) )
     allocate( veg%psi_critical(mp) )
+    allocate( veg%psi_delta(mp) )
     allocate(veg%Nmax(mp))
 
   end subroutine alloc_veg_parameter_type
@@ -1978,6 +1980,7 @@ contains
     deallocate( veg%huber_value )
     deallocate( veg%root_shoot )
     deallocate( veg%psi_critical )
+    deallocate( veg%psi_delta )
     deallocate( veg%Nmax )
 
   end subroutine dealloc_veg_parameter_type
@@ -2571,6 +2574,7 @@ contains
     veg%g3 = 0
     veg%psi_50_leaf = 0
     veg%psi_critical = -1.0
+    veg%psi_delta = 0.0
     veg%EaV = 59700.0
     veg%EdV = 200000.0
     veg%dSV = 639.43

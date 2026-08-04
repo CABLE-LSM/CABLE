@@ -161,7 +161,7 @@ CONTAINS
       REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat, rt0bus
 
       INTEGER :: j
-      REAL(r_2) :: fws_tmp, psi_sat_j, psi_wilt_j
+      REAL(r_2) :: fws_tmp, psi_wilt_j
 
       INTEGER, SAVE :: call_number = 0
 
@@ -344,10 +344,7 @@ CONTAINS
          do j = 1, mp
             select case (cable_user%psi_soil_func)
             case ('linear-plateau')
-               psi_sat_j  = real(soil%sucs(j), r_2) * C%grav * C%RHOW * 1.0E-6
-               psi_wilt_j = psi_sat_j * MAX(1.E-9_r_2, MIN(1.0_r_2, &
-                            real(soil%swilt(j), r_2)/real(soil%ssat(j), r_2))) &
-                            ** (-real(soil%bch(j), r_2))
+               psi_wilt_j = real(veg%psi_critical(j), r_2) - real(veg%psi_delta(j), r_2)
                if (real(ssnow%psi_soilmean(j)) >= veg%psi_critical(j)) then
                   fws_tmp = 1.0_r_2
                else if (real(ssnow%psi_soilmean(j)) <= psi_wilt_j) then
@@ -1989,7 +1986,7 @@ CONTAINS
       integer :: NN, m, kmax, Mtag, Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
-      REAL :: psi_sat_i, psi_wilt_i  ! for LWP fwsoil_nongs stress function
+      REAL :: psi_wilt_i  ! for LWP fwsoil_nongs stress function
       real(r_2), dimension(mp, ms) :: wb_probe        ! per-point probed soil moisture for the LWP2+hydraulics refinement
       real(r_2) :: fws_tmp_hyd                        ! probed fwsoil value (dryLeaf-local; distinct from define_canopy's fws_tmp)
       real(r_2) :: fws_haverd_i                       ! scratch getrex_1d output; feeds only the local fwsoil/fwsoil_nongs arrays
@@ -2960,10 +2957,7 @@ CONTAINS
 
                         SELECT CASE (cable_user%psi_soil_func)
                         CASE ('linear-plateau')
-                           psi_sat_i  = real(soil%sucs(i), r_2) * C%grav * C%RHOW * 1.0E-6
-                           psi_wilt_i = psi_sat_i * MAX(1.E-9_r_2, MIN(1.0_r_2, &
-                                        real(soil%swilt(i), r_2)/real(soil%ssat(i), r_2))) &
-                                        ** (-real(soil%bch(i), r_2))
+                           psi_wilt_i = real(veg%psi_critical(i), r_2) - real(veg%psi_delta(i), r_2)
                            IF (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) THEN
                               fws_tmp_hyd = 1.0_r_2
                            ELSE IF (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) THEN
@@ -3093,10 +3087,7 @@ CONTAINS
 
                         SELECT CASE (cable_user%psi_soil_func)
                         CASE ('linear-plateau')
-                           psi_sat_i  = real(soil%sucs(i), r_2) * C%grav * C%RHOW * 1.0E-6
-                           psi_wilt_i = psi_sat_i * MAX(1.E-9_r_2, MIN(1.0_r_2, &
-                                        real(soil%swilt(i), r_2)/real(soil%ssat(i), r_2))) &
-                                        ** (-real(soil%bch(i), r_2))
+                           psi_wilt_i = real(veg%psi_critical(i), r_2) - real(veg%psi_delta(i), r_2)
                            IF (real(ssnow%psi_soilmean(i)) >= veg%psi_critical(i)) THEN
                               fws_tmp_hyd = 1.0_r_2
                            ELSE IF (real(ssnow%psi_soilmean(i)) <= psi_wilt_i) THEN
