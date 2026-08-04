@@ -2324,7 +2324,7 @@ CONTAINS
                   egam = C%egam
                   ekc = C%ekc
                   eko = C%eko
-                  qs = 0.5
+                  qs = 1.0
                   qm = 0.0     ! not used
                   qb = 1.0
                end if
@@ -2949,7 +2949,7 @@ CONTAINS
                            layer_breach(kk) = .TRUE.
                         END IF
                      END DO
-
+                    layer_breach(:) = .false.
                      IF (ANY(layer_breach)) THEN
                         wb_probe(i, :) = wbtmp(i, :)
                         WHERE (layer_breach) wb_probe(i, :) = real(soil%swilt(i), r_2)
@@ -3021,7 +3021,8 @@ CONTAINS
                                                    MAX(0.0, REAL(wbtmp(i, kk)) - 1.1*soil%swilt(i)) &
                                                    * soil%zse(kk) * 1000.0)
                      END DO
-
+                     layer_breach(:) = .false.
+                     ssnow%evapfbl(i,:) = layer_demand(:) 
                      ! Recalculate evapfbl so the total extraction across layers matches
                      ! the total transpiration demand (evapfb), rescaling each layer's
                      ! already-capped share proportionally.
