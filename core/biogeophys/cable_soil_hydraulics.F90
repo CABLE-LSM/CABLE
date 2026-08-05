@@ -552,8 +552,9 @@ CONTAINS
       REAL,                       INTENT(IN)    :: dels  ! timestep (s)
 
       REAL, DIMENSION(ms) :: est_evap, layer_depth
+      LOGICAL, DIMENSION(ms) :: eligible
       REAL :: total_est_evap, sumksoil, sumpsiksoil
-      INTEGER :: j
+      INTEGER :: j, n_eligible
 
       layer_depth(1) = 0.0
       DO j = 2, ms
@@ -566,6 +567,9 @@ CONTAINS
       ssnow%fraction_uptake(i,:) = 0.0
 
       DO j = 1, ms
+         eligible(j) = (layer_depth(j) < veg%zr(i) .AND. &
+                        ssnow%soilR(i,j) > 0.0 .AND. veg%froot(i,j) > 0.0 .AND. &
+                        ssnow%wbice(i,j) <= 0.0)
          IF (layer_depth(j) < veg%zr(i) .AND. &
              ssnow%soilR(i,j) > 0.0 .AND. veg%froot(i,j) > 0.0) THEN
             est_evap(j) = MAX(0.0, &
@@ -591,10 +595,22 @@ CONTAINS
       END IF
 
       total_est_evap = SUM(est_evap)
+      n_eligible = COUNT(eligible)
 
       IF (total_est_evap > 0.0) THEN
          ssnow%fraction_uptake(i,:) = est_evap / total_est_evap
+      ELSE IF (n_eligible > 0) THEN
+         ! No layer currently has a favourable extraction gradient -- spread uptake
+         ! uniformly, but only across layers actually accessible to roots (within
+         ! zr, with roots present, unfrozen), not the whole soil column.
+         WHERE (eligible)
+            ssnow%fraction_uptake(i,:) = 1.0 / REAL(n_eligible)
+         ELSEWHERE
+            ssnow%fraction_uptake(i,:) = 0.0
+         END WHERE
       ELSE
+         ! No layer is root-accessible at all (e.g. zr=0 or fully frozen root zone) --
+         ! last-resort fallback across the whole column.
          ssnow%fraction_uptake(i,:) = 1.0 / FLOAT(ms)
       END IF
 
