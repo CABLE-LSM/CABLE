@@ -272,7 +272,6 @@ CONTAINS
       canopy%cs_sh = 0.0_r_2
       canopy%tlf = 0.0_r_2
       canopy%dlf = 0.0_r_2
-      canopy%evapfbl = 0.0_r_2
 
       ! 13C
       canopy%An = 0.0_r_2
@@ -3566,9 +3565,6 @@ CONTAINS
          !canopy%dlf   = real(dsx, r_2)
          canopy%dlf = real(dsy, r_2)
 
-         ! print*, 'DD47 ', ssnow%evapfbl
-         canopy%evapfbl = ssnow%evapfbl
-
          ! 13C
          canopy%An = real(an_y, r_2)
          canopy%Rd = real(rdy, r_2)
@@ -4756,9 +4752,6 @@ CONTAINS
          ! change canopy%dlf from dsx to dsy, zihanlu, 19/12/2024
          !canopy%dlf   = real(dsx, r_2)
          canopy%dlf = real(dsy, r_2)
-
-         ! print*, 'DD47 ', ssnow%evapfbl
-         canopy%evapfbl = ssnow%evapfbl
 
          ! 13C
          canopy%An = real(an_y, r_2)

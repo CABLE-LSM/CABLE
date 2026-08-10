@@ -495,7 +495,6 @@ module cable_def_types_mod
           epotref1 => null()
 
      real, dimension(:,:), pointer :: &
-          evapfbl => null(), &
           gswx => null(),    & ! stom cond for water
           zetar => null(),   & ! stability parameter (ref height)
                                 !! vh_js !!
@@ -1312,7 +1311,6 @@ contains
     allocate(canopy%vlaiw(mp))
     allocate(canopy%rghlai(mp))
     allocate(canopy%fwet(mp))
-    allocate(canopy%evapfbl(mp,ms))
     allocate(canopy%gswx(mp,mf))
     allocate(canopy%zetar(mp,NITER))
     allocate(canopy%zetash(mp,NITER))
@@ -2051,7 +2049,6 @@ contains
     deallocate(canopy%cs_sh)
     deallocate(canopy%tlf)
     deallocate(canopy%dlf)
-    deallocate(canopy%evapfbl)
     deallocate(canopy%epot)
     deallocate(canopy%fnpp)
     deallocate(canopy%fevw_pot)
@@ -2667,7 +2664,6 @@ contains
     canopy%cs_sh          = 0
     canopy%tlf            = 0
     canopy%dlf            = 0
-    canopy%evapfbl   = 0
     canopy%epot      = 0
     canopy%fnpp      = 0
     canopy%fevw_pot  = 0
@@ -3364,7 +3360,6 @@ contains
     write(*,*) 'canopy%cs_sh ', canopy%cs_sh
     write(*,*) 'canopy%tlf ', canopy%tlf
     write(*,*) 'canopy%dlf ', canopy%dlf
-    write(*,*) 'canopy%evapfbl ', canopy%evapfbl
     write(*,*) 'canopy%epot ', canopy%epot
     write(*,*) 'canopy%fnpp ', canopy%fnpp
     write(*,*) 'canopy%fevw_pot ', canopy%fevw_pot

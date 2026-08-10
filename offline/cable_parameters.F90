@@ -1643,7 +1643,6 @@ CONTAINS
     canopy%cs_sh   = real(met%ca,r_2)
     canopy%tlf     = 0.0_r_2
     canopy%dlf     = 0.0_r_2
-    canopy%evapfbl = 0.0_r_2
 
     ! 13C
     canopy%An        = 0.0_r_2
