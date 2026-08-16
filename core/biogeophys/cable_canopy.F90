@@ -3145,6 +3145,57 @@ CONTAINS
                         canopy%fevc(i) = ecx(i)*(1.0_r_2 - real(canopy%fwet(i), r_2))
                      END IF
 
+                     ! Haverd2013-style fws diagnostic, mirroring the SOIL_SCHE=='hydraulics'
+                     ! branch's own alpha_root_hyd correction -- this branch's own froot-weighted
+                     ! ssnow%evapfbl (computed above) is left untouched; only fwsoil/fwsoil_nongs
+                     ! are set here. layer_demand uses this branch's own froot-weighted demand
+                     ! (evapfb*froot) in place of the hydraulics branch's fraction_uptake-weighted one.
+                     IF (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') THEN
+                        layer_demand(:) = evapfb(i)*real(veg%froot(i, :), r_2)
+                        theta_hyd(:) = wbtmp(i, :) - real(ssnow%wbice(i, :), r_2)
+                        layer_depth_hyd(1) = 0.0_r_2
+                        DO kk = 2, ms
+                           layer_depth_hyd(kk) = sum(real(soil%zse(1:kk - 1), r_2))
+                        END DO
+                        lthetar_hyd(:) = log(max(theta_hyd(:) - real(soil%swilt(i), r_2), 1.0e-3_r_2) &
+                                              /real(soil%ssat(i), r_2))
+                        where ((theta_hyd(:) - real(soil%swilt(i), r_2)) > 1.0e-3_r_2)
+                           alpha_root_hyd(:) = exp(veg%gamma(i) &
+                                                   /max(theta_hyd(:) - real(soil%swilt(i), r_2), 1.0e-3_r_2) &
+                                                   *lthetar_hyd(:))
+                        elsewhere
+                           alpha_root_hyd(:) = 0.0_r_2
+                        end where
+                        where (real(veg%froot(i, :), r_2) > 0.0_r_2 .and. layer_depth_hyd(:) < veg%zr(i))
+                           delta_root_hyd(:) = 1.0_r_2
+                        elsewhere
+                           delta_root_hyd(:) = 0.0_r_2
+                        end where
+
+                        ! Mirror getrex_1d's "reduce extraction efficiency" step: where the actual
+                        ! demand for a layer exceeds its available water, scale down alpha_root_hyd
+                        ! for that layer, keeping the diagnostic fws formula self-consistent.
+                        where ((real(layer_demand(:), r_2) > &
+                                (theta_hyd(:) - real(soil%swilt(i), r_2))*real(soil%zse(:), r_2)*1000.0_r_2) &
+                               .and. (real(layer_demand(:), r_2) > 0.0_r_2))
+                           alpha_root_hyd(:) = alpha_root_hyd(:) * &
+                              (theta_hyd(:) - real(soil%swilt(i), r_2))*real(soil%zse(:), r_2)*1000.0_r_2 / &
+                              (1.1_r_2*real(layer_demand(:), r_2))
+                        end where
+
+                        fws_haverd_i = maxval(alpha_root_hyd(2:)*delta_root_hyd(2:))
+
+                        IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
+                           fwsoil(i) = real(fws_haverd_i)
+                           if (cable_user%Cumberland_soil) then
+                              fwsoil(i) = max(fwsoil(i), 0.6)
+                           end if
+                        END IF
+                        IF (cable_user%NSL_switch == 'Haverd2013') THEN
+                           fwsoil_nongs(i) = real(fws_haverd_i)
+                        END IF
+                     END IF
+
                   END IF
 
                END IF
