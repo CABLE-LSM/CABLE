@@ -719,6 +719,11 @@ PROGRAM cable_offline_driver
                   soil%sfc(:) = site%sfc
                   print *,'sfc from site.nml is:', soil%sfc(:)
                end if
+               if (trim(cable_user%MetType) == 'site' .and. site%hyds > 0) then
+                  soil%hyds(:) = site%hyds
+                  soil%hsbh(:) = soil%hyds(:) * ABS(soil%sucs(:)) * soil%bch(:)
+                  print *,'hyds from site.nml is:', soil%hyds(:)
+               end if
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
                end if
