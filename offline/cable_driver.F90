@@ -724,10 +724,10 @@ PROGRAM cable_offline_driver
                   soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
                   print *,'swilt from site.nml is:', soil%swilt(:)
                end if
+               soil%hyds_rootres(:) = soil%hyds(:)
                if (trim(cable_user%MetType) == 'site' .and. site%hyds > 0) then
-                  soil%hyds(:) = site%hyds
-                  soil%hsbh(:) = soil%hyds(:) * ABS(soil%sucs(:)) * soil%bch(:)
-                  print *,'hyds from site.nml is:', soil%hyds(:)
+                  soil%hyds_rootres(:) = site%hyds
+                  print *,'hyds (root resistance only) from site.nml is:', soil%hyds_rootres(:)
                end if
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
