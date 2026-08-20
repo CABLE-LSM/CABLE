@@ -139,6 +139,7 @@ module cable_def_types_mod
           css => null(),     & ! soil specific heat capacity [kJ/kg/K]
           hsbh => null(),    & ! difsat * etasat (=hyds*abs(sucs)*bch)
           hyds => null(),    & ! hydraulic conductivity @ saturation [m/s], Ksat
+          hyds_rootres => null(), & ! hyds override for calc_soil_root_resistance only (site.nml)
           i2bp3 => null(),   & ! par. one in K vis suction (=nint(bch)+2)
           ibp2 => null(),    & ! par. two in K vis suction (fn of pbch)
           rhosoil => null(), & ! soil density [kg/m3]
@@ -1001,6 +1002,7 @@ contains
     allocate(soil%css(mp))
     allocate(soil%hsbh(mp))
     allocate(soil%hyds(mp))
+    allocate(soil%hyds_rootres(mp))
     allocate(soil%i2bp3(mp))
     allocate(soil%ibp2(mp))
     allocate(soil%rhosoil(mp))
@@ -1734,6 +1736,7 @@ contains
     deallocate(soil%css)
     deallocate(soil%hsbh)
     deallocate(soil%hyds)
+    deallocate(soil%hyds_rootres)
     deallocate(soil%i2bp3)
     deallocate(soil%ibp2)
     deallocate(soil%isoilm)
@@ -2329,6 +2332,7 @@ contains
     soil%css      = 0
     soil%hsbh     = 0
     soil%hyds     = 0
+    soil%hyds_rootres = 0
     soil%i2bp3    = 0
     soil%ibp2     = 0
     soil%isoilm   = 0
