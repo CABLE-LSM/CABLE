@@ -719,10 +719,10 @@ PROGRAM cable_offline_driver
                   soil%sfc(:) = site%sfc
                   print *,'sfc from site.nml is:', soil%sfc(:)
                end if
+               soil%hyds_rootres(:) = soil%hyds(:)
                if (trim(cable_user%MetType) == 'site' .and. site%hyds > 0) then
-                  soil%hyds(:) = site%hyds
-                  soil%hsbh(:) = soil%hyds(:) * ABS(soil%sucs(:)) * soil%bch(:)
-                  print *,'hyds from site.nml is:', soil%hyds(:)
+                  soil%hyds_rootres(:) = site%hyds
+                  print *,'hyds (root resistance only) from site.nml is:', soil%hyds_rootres(:)
                end if
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
