@@ -59,6 +59,7 @@ MODULE CABLE_site
      REAL :: zr ! root length
      REAL :: sfc ! vol H2O @ field capacity
      REAL :: swilt ! vol H2O @ wilting point
+     REAL :: hyds ! saturated hydraulic conductivity (m/s)
      REAL :: gamma
      REAL :: dc ! fraction 0-1
      INTEGER :: soiltype
@@ -98,6 +99,7 @@ CONTAINS
     REAL :: zr = 0.0 ! root maximum length, zihanlu
     REAL :: sfc = 0.0 ! vol H2O @ field capacity (m3/m3)
     REAL :: swilt = 0.0 ! vol H2O @ wilting point (m3/m3)
+    REAL :: hyds = 0.0 ! saturated hydraulic conductivity (m/s)
     REAL :: gamma = 0.0 ! parameter in fwsoil calculation in haverd2013 zihanlu
     REAL :: dc ! parameter used in iteration in dryLeaf, maybe abandoned later
     INTEGER :: soiltype, vegtype, Nmax
@@ -107,7 +109,7 @@ CONTAINS
     ! Flag for errors
 
     NAMELIST /siteNML/ RunType, CO2NdepFile, spinstartyear, spinendyear, spinCO2, &
-         spinNdep, spinPdep, zr, sfc, swilt, gamma, dc, soiltype, vegtype, Nmax
+         spinNdep, spinPdep, zr, sfc, swilt, hyds, gamma, dc, soiltype, vegtype, Nmax
 
     ! Read site namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
@@ -127,6 +129,7 @@ CONTAINS
     site%zr = zr
     site%sfc = sfc
     site%swilt = swilt
+    site%hyds = hyds
     site%gamma = gamma
     site%dc = dc
     site%soiltype = soiltype
@@ -156,9 +159,11 @@ CONTAINS
     WRITE(*   ,*)" zr (root depth) [m]             : ", site%zr
     WRITE(*   ,*)" sfc (field capacity) [m3/m3]   : ", site%sfc
     WRITE(*   ,*)" swilt (wilting point) [m3/m3]  : ", site%swilt
+    WRITE(*   ,*)" hyds (sat. hydraulic conductivity) [m/s] : ", site%hyds
     WRITE(logn,*)" zr (root depth) [m]             : ", site%zr
     WRITE(logn,*)" sfc (field capacity) [m3/m3]   : ", site%sfc
     WRITE(logn,*)" swilt (wilting point) [m3/m3]  : ", site%swilt
+    WRITE(logn,*)" hyds (sat. hydraulic conductivity) [m/s] : ", site%hyds
     WRITE(*   ,*)"========================================= site ============"
     WRITE(logn,*)"========================================= site ============"
 
