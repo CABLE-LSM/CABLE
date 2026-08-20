@@ -141,7 +141,7 @@ CONTAINS
       DO j = 1, ms ! Loop over 6 soil layers
 
          ! Soil hydraulic conductivity (m s-1), Campbell 1974
-         Ksoil0 = soil%hyds(i) * &
+         Ksoil0 = soil%hyds_rootres(i) * &
             (max(real(wbtmp(i,j)), soil%sres(i)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! Root biomass density (g biomass m-3 soil)
