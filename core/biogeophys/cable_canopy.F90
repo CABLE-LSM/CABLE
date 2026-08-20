@@ -1989,6 +1989,10 @@ CONTAINS
       real(r_2), dimension(mp, ms) :: wb_probe        ! per-point probed soil moisture for the LWP2+hydraulics refinement
       real(r_2) :: fws_tmp_hyd                        ! probed fwsoil value (dryLeaf-local; distinct from define_canopy's fws_tmp)
       real(r_2) :: fws_haverd_i                       ! scratch getrex_1d output; feeds only the local fwsoil/fwsoil_nongs arrays
+      real(r_2) :: fws_haverd_fixedgamma_i            ! fwsoil/fwsoil_nongs stress diagnostic using a fixed (non-PFT) gamma,
+                                                       ! decoupled from veg%gamma(i)-driven ssnow%rex/evapfbl
+      real(r_2), parameter :: gamma_fwsoil_fixed = 0.03_r_2
+      real(r_2), dimension(ms) :: rex_probe           ! throwaway rex output for the fixed-gamma probe call; never written to ssnow%rex
       real(r_2), dimension(ms) :: rex_raw_haverd      ! per-layer extraction before getrex_1d's efficiency-reduction rescale
       logical, dimension(ms) :: layer_breach          ! per-layer breach mask for the probe
       real, dimension(ms) :: layer_demand             ! per-layer demand signal for the LWP2 breach check
@@ -2911,8 +2915,23 @@ CONTAINS
                                  ktau_tot_dbg=ktau_tot, i_dbg=i, k_dbg=k)
                   where (ssnow%rex(i, :) > tiny(1.0_r_2)) &
                      ssnow%evapfbl(i, :) = real(ssnow%rex(i, :))*dels*1000. ! mm water &
+
+                  IF (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') THEN
+                     ! Second getrex_1d call: identical inputs to the call above, except gamma is fixed
+                     ! (decoupled from veg%gamma(i)) and its rex output is a throwaway probe array --
+                     ! only its fws output drives fwsoil/fwsoil_nongs below. ssnow%rex/evapfbl remain
+                     ! driven solely by the first (veg%gamma(i)-based) call above.
+                     call getrex_1d(wbtmp(i, :) - real(ssnow%wbice(i, :), r_2), rex_probe, &
+                                    fws_haverd_fixedgamma_i, &
+                                    real(veg%froot(i, :), r_2), SPREAD(real(soil%ssat(i), r_2), 1, ms), &
+                                    SPREAD(real(soil%swilt(i), r_2), 1, ms), &
+                                    max(canopy%fevc(i)/real(air%rlam(i), r_2)/1000.0_r_2, 0.0_r_2), &
+                                    gamma_fwsoil_fixed, &
+                                    real(soil%zse, r_2), real(dels, r_2), veg%zr(i))
+                  END IF
+
                   IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
-                     fwsoil(i) = real(fws_haverd_i)
+                     fwsoil(i) = real(fws_haverd_fixedgamma_i)
                      !(root water extraction) per time step
 
                      if (cable_user%Cumberland_soil) then
@@ -2923,7 +2942,7 @@ CONTAINS
                      end if
                   END IF
                   IF (cable_user%NSL_switch == 'Haverd2013') then
-                     fwsoil_nongs(i) = real(fws_haverd_i)
+                     fwsoil_nongs(i) = real(fws_haverd_fixedgamma_i)
 
                      if (cable_user%fwsoil_floor) then
                         fwsoil_nongs(i) = max(fwsoil_nongs(i), 0.1)
