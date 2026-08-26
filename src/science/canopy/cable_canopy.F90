@@ -618,10 +618,10 @@ write(6,*) "SLI is not an option right now"
        ENDIF
 
        ! Set total latent heat:
-       canopy%fe = canopy%fev + canopy%fes
+       canopy%fe = (canopy%fev + canopy%fes) * 0.5
 
        ! Set total sensible heat:
-       canopy%fh = canopy%fhv + canopy%fhs
+       canopy%fh = (canopy%fhv + canopy%fhs) * 0.5
 
        !---diagnostic purposes
        DO j=1,mp
