@@ -124,6 +124,8 @@ TYPE kbl_user_switches
 
   LOGICAL :: mpi_legacy = .TRUE. !! Enable the legacy MPI implementation of CABLE
 
+  LOGICAL :: my_option = .FALSE.
+
 END TYPE kbl_user_switches
 
 ! instantiate internal switches
