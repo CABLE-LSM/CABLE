@@ -1,4 +1,4 @@
-  subroutine landuse_data(mlon,mlat,landmask,arealand,luc_atransit,luc_fharvw,luc_xluh2cable)
+subroutine landuse_data(mlon,mlat,landmask,arealand,luc_atransit,luc_fharvw,luc_xluh2cable,luc_delarea)
   use netcdf
   use cable_abort_module,   ONLY: nc_abort 
   use cable_common_module,  ONLY: filename
@@ -10,6 +10,7 @@
   real(r_2), dimension(mland,mvmax,mvmax)         :: luc_atransit
   real(r_2), dimension(mland,mharvw)              :: luc_fharvw
   real(r_2), dimension(mland,mvmax,mstate)        :: luc_xluh2cable
+  real(r_2), dimension(mland,mvmax)               :: luc_delarea
   integer,    dimension(mlon,mlat)                :: landmask
   real(r_2),  dimension(mland)                    :: arealand
   ! "mland" variables
@@ -64,7 +65,7 @@
 
      ! get the mapping matrix (landuse type to PFT)
      call landuse_getxluh2(mlat,mlon,landmask,filename%fxluh2cable,luc_xluh2cable)    !"xluh2cable"
-     call landuse_getdata(mlat,mlon,landmask,filename%fxpft,luc_atransit,luc_fharvw)
+     call landuse_getdata(mlat,mlon,landmask,filename%fxpft0,filename%fxpft1,luc_atransit,luc_fharvw,luc_delarea)
   end subroutine landuse_data
 
 
@@ -85,7 +86,7 @@ SUBROUTINE landuse_getxluh2(mlat,mlon,landmask,fxluh2cable,luc_xluh2cable)
 
     allocate(xluh2cable(mlon,mlat,21,mstate))
     ok = nf90_open(fxluh2cable,nf90_nowrite,ncid2)
-    ok = nf90_inq_varid(ncid2,"xluh2cable",varxid)
+    ok = nf90_inq_varid(ncid2,"XLUH2CABLE_ACCESS",varxid)
     ok = nf90_get_var(ncid2,varxid,xluh2cable)
     ok = nf90_close(ncid2)
     ! assig the values of luc%variables
@@ -120,48 +121,101 @@ SUBROUTINE landuse_getxluh2(mlat,mlon,landmask,fxluh2cable,luc_xluh2cable)
 
  END SUBROUTINE landuse_getxluh2
 
-SUBROUTINE landuse_getdata(mlat,mlon,landmask,fxpft,luc_atransit,luc_fharvw)
+SUBROUTINE landuse_getdata(mlat,mlon,landmask,fxpft0,fxpft1,luc_atransit,luc_fharvw,luc_delarea)
 ! get LUC data
   USE netcdf
   USE cable_def_types_mod,  ONLY: mland,r_2
+  USE casa_ncdf_module,     ONLY: handle_err
   use landuse_constant,     ONLY: mstate,mvmax,mharvw
   IMPLICIT NONE
-  character*500 fxpft
+  character*500 fxpft0,fxpft1
+  character*200 msg
   integer mlat,mlon
   integer,   dimension(mlon,mlat)               :: landmask 
   real(r_2), dimension(mland,mvmax,mvmax)       :: luc_atransit
   real(r_2), dimension(mland,mharvw)            :: luc_fharvw
+  real(r_2), dimension(mland,mvmax)             :: luc_delarea
   ! local variables
-  real(r_2),  dimension(:,:,:),   allocatable   :: fracharvw
-  real(r_2),  dimension(:,:,:,:), allocatable   :: transitx
-  integer  ok,ncid1,varxid
-  integer  i,j,m,k,ivt
+  real,   dimension(:,:,:),   allocatable   :: fracharvw
+  real,   dimension(:,:,:,:), allocatable   :: transitx
+  real,   dimension(:,:,:),   allocatable   :: fracpatch0,fracpatch1
+  real,   dimension(:,:),     allocatable   :: fracp0,fracp1
+  integer,dimension(:,:,:),   allocatable   :: cablepft0,cablepft1
+  integer  ok,ncid0,ncid1,varxid
+  integer  i,j,m,k,ivt,pft0,pft1
 
     allocate(fracharvw(mlon,mlat,mharvw))
     allocate(transitx(mlon,mlat,mvmax,mvmax))
+    allocate(fracpatch0(mlon,mlat,mvmax),fracpatch1(mlon,mlat,mvmax))
+    allocate(cablepft0(mlon,mlat,mvmax),cablepft1(mlon,mlat,mvmax))
+    allocate(fracp0(mland,mvmax),fracp1(mland,mvmax))
 
-    ok = nf90_open(fxpft,nf90_nowrite,ncid1)
-    ok = nf90_inq_varid(ncid1,"harvest",varxid)
-    ok = nf90_get_var(ncid1,varxid,fracharvw)
-    ok = nf90_inq_varid(ncid1,"transition",varxid)
-    ok = nf90_get_var(ncid1,varxid,transitx)
+    ok = nf90_open(fxpft0,nf90_nowrite,ncid0)
+    ok = nf90_inq_varid(ncid0,"CABLEpft",varxid)
+    ok = nf90_get_var(ncid0,varxid,cablepft0)
+    msg = 'cablepft0 was not read correctly from file= '//trim(fxpft0)
+    call handle_err(ok,msg)
+
+    ok = nf90_inq_varid(ncid0,"patchfrac",varxid)
+    ok = nf90_get_var(ncid0,varxid,fracpatch0)
+    msg = 'patchfrac0 was not read correctly from file= '//trim(fxpft0)
+    call handle_err(ok,msg)
+
+    ok = nf90_inq_varid(ncid0,"harvest",varxid)
+    ok = nf90_get_var(ncid0,varxid,fracharvw)
+    msg = 'harvest was not read correctly from file= '//trim(fxpft0)
+    call handle_err(ok,msg)
+
+    ok = nf90_inq_varid(ncid0,"transition",varxid)
+    ok = nf90_get_var(ncid0,varxid,transitx)
+    msg = 'transition matrix was not read correctly from file= '//trim(fxpft0)
+    call handle_err(ok,msg)
+
+    ok = nf90_close(ncid0)
+
+    ok = nf90_open(fxpft1,nf90_nowrite,ncid1)
+    ok = nf90_inq_varid(ncid1,"CABLEpft",varxid)
+    ok = nf90_get_var(ncid1,varxid,cablepft1)
+    msg = 'cablepft was not read correctly from file= '//trim(fxpft1)
+    call handle_err(ok,msg)
+
+    ok = nf90_inq_varid(ncid1,"patchfrac",varxid)
+    ok = nf90_get_var(ncid1,varxid,fracpatch1)
+    msg = 'patchfrac was not read correctly from file= '//trim(fxpft1)
+    call handle_err(ok,msg)
+
     ok = nf90_close(ncid1)
 
-    ! assig the values of luc%variables
-    luc_fharvw(:,:) =0.0; luc_atransit(:,:,:)=0.0
+    ! assig the values of luc_variables
+    luc_fharvw(:,:) =0.0; luc_atransit(:,:,:)=0.0;luc_delarea(:,:) = 0.0; fracp0(:,:)=0.0; fracp1(:,:)=0.0
+    ! remove some missing values
+    transitx = min(1.0,max(0.0,transitx))
     m = 0
-    do i=1,mlon
     do j=1,mlat
+    do i=1,mlon
        if(landmask(i,j) ==1) then
           m= m +1
           luc_atransit(m,:,:)   = transitx(i,j,:,:)
           luc_fharvw(m,:)       = fracharvw(i,j,:)
+          do k=1,mvmax
+            pft0=cablepft0(i,j,k)
+            pft1=cablepft1(i,j,k)
+            fracp0(m,pft0) = min(1.0,max(0.0,fracpatch0(i,j,k)))
+            fracp1(m,pft1) = min(1.0,max(0.0,fracpatch1(i,j,k)))
+          enddo
+          do k=1,mvmax
+            luc_delarea(m,k) = min(1.0,max(-1.0,fracp1(m,k)-fracp0(m,k)))
+          enddo
        endif
     enddo
     enddo
     
     deallocate(fracharvw)
     deallocate(transitx)
+    deallocate(fracpatch0,fracpatch1)
+    deallocate(fracp0,fracp1)
+    deallocate(cablepft0,cablepft1)
+
 END SUBROUTINE landuse_getdata
 
   subroutine create_new_gridinfo(fgridold,fgridnew,mlon,mlat,landmask,patchfrac_new)
@@ -913,8 +967,8 @@ END SUBROUTINE landuse_getdata
     ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A4 = (/ 'csoil', 'nsoil', 'psoil' /)
 
     ! 1 dim arrays (npt )
-    CHARACTER(len=20),DIMENSION(12) :: A1
-    CHARACTER(len=20),DIMENSION(2)  :: AI1
+    CHARACTER(len=20),DIMENSION(13) :: A1
+    CHARACTER(len=20),DIMENSION(3)  :: AI1
     ! 2 dim arrays (npt,mplant)
     CHARACTER(len=20),DIMENSION(3)  :: A2
     ! 2 dim arrays (npt,mlitter)
@@ -942,9 +996,11 @@ END SUBROUTINE landuse_getdata
     A1(10) = 'phen'
     A1(11) = 'aphen'
     A1(12) = 'nsoilmin'
+    A1(13) = 'patchfrac'
 
     AI1(1) = 'phase'
     AI1(2) = 'doyphase3'
+    AI1(3) = 'iveg'
 
 
     A2(1) = 'cplant'
@@ -1074,10 +1130,16 @@ END SUBROUTINE landuse_getdata
     STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), lucmp%Nsoilmin )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), lucmp%patchfrac )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), lucmp%phase )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(2), lucmp%doyphase3 )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(3), lucmp%iveg )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), lucmp%cplant  )
