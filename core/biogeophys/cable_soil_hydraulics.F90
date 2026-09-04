@@ -575,9 +575,6 @@ CONTAINS
             est_evap(j) = MAX(0.0, &
                (real(ssnow%psi_soil(i,j)) - real(psix)) / &
                (ssnow%soilR(i,j) + ssnow%rootR(i,j)))
-            est_evap(j) = MIN(est_evap(j), &
-               MAX(0.0, REAL(ssnow%wb(i,j)) - 1.1*soil%swilt(i)) &
-               * soil%zse(j) * 1000.0 / dels)
             sumpsiksoil = sumpsiksoil + &
                real(ssnow%psi_soil(i,j)) / (ssnow%soilR(i,j) + ssnow%rootR(i,j))
             sumksoil = sumksoil + &
