@@ -497,7 +497,7 @@ CONTAINS
       END DO
       psix = (sumpsiksoil - ex) / sumksoil
       ! print*, 'calc_psix: psix ', psix
-
+       psix = MAX(psix, -2.5_r_2)   ! prevent the unsuccessful converge in dryLeaf loop
       !canopy%psix(i) = psi_sr - ex / veg%kmax(i)
       !psix = psi_sr - ex / veg%kmax(i)
 
