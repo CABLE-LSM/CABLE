@@ -216,7 +216,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   !to be read in via namelist at some point and checked against available options
   BLAZE%mort_opt = "TKC"
-  IF(.not. ANY(BLAZE%mort_opt == ["TKC", "ASC", "BKD", "TPN"]) ) then
+  IF(.not. ANY(BLAZE%mort_opt == ["TKC", "ASC", "BKD", "TMK", "TPN"]) ) then
      WRITE(*,*) "error: BLAZE mort_opt not a correct value: check mortality_interface"
      STOP
   END IF 

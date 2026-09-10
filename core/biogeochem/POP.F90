@@ -2890,14 +2890,14 @@ contains
   !*******************************************************************************
 
 
-  subroutine ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI, mort_opt)
+  subroutine ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI, CWD, mort_opt)
     ! reduces biomass on a cohort basis according to mortality vs dbh function
     ! interpolates patch-based fire mortality to get grid-cell mortality
     implicit none
 
     type( POP_TYPE ), intent(INOUT)  :: pop
     integer(i4b), intent(IN)        ::  disturbance_interval(:,:)
-    real(dp),  intent(IN)            :: burned_area(:), FLI(:)
+    real(dp),  intent(IN)            :: burned_area(:), FLI(:), CWD(:)
     integer(i4b) :: g, np, c, k, it, nc
     real(dp) :: mort, cmass_stem, dbh, tree_height
     character(len=3), intent(IN)     :: mort_opt
@@ -2926,7 +2926,7 @@ contains
 
                 !mort = TopKill_Collins(dbh, FLI(g)) * burned_area(g)
                 ! 10-9-2026 get mortality via interface routine
-                CALL mortality_interface(mort, mort_opt,dbh,tree_height,FLI(g))
+                CALL mortality_interface(mort, mort_opt,dbh,tree_height,FLI(g),CWD(g))
                 mort = mort * burned_area(g)
 
                 pop%pop_grid(g)%patch(k)%fire_mortality = mort* &
@@ -3588,13 +3588,13 @@ end function Area_Triangle
 ! Collection of fire related mortality functions - now all DP
 ! these maybe better placed inside the BLAZE MODULE and/or own MODULE
 
-SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI)
+SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI, CWD)
    !interface routine to select which mortality function to use
 
    implicit none
 
    real(dp), intent(out) :: mort
-   real(dp), intent(in)  :: dbh, tree_height, FLI
+   real(dp), intent(in)  :: dbh, tree_height, FLI, CWD
    CHARACTER(len=3), intent(in) :: mort_opt
 
    mort = 0.0_dp
@@ -3607,7 +3607,9 @@ SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI)
    ELSE IF (mort_opt == "BKD") then
       mort = p_mort_boreal (FLI)
    ELSE IF (mort_opt == "TPN") then
-      mort = p_mort_TROPICS (dbh, fli)
+      mort = p_mort_TROPICS (dbh, FLI)
+   ELSE IF (mort_opt == "TMK") then
+      mort = p_mort_TEMP_NL(dbh, FLI, CWD) 
    ELSE
       mort = 0.0_dp
    END IF
@@ -3681,7 +3683,7 @@ END FUNCTION p_mort_boreal
 
 ! fraction of kill by dbh, fli and CWD mass following Kobziar et al. 2006
 ! option "TMK"
-! needs adjustments to the BLAZE_driver and call to adjust_pop to be usable
+! check units!!!
 real(dp) function p_mort_TEMP_NL(dbh, fli, mass_cwd ) 
  
   IMPLICIT NONE
@@ -3690,8 +3692,8 @@ real(dp) function p_mort_TEMP_NL(dbh, fli, mass_cwd )
   REAL(dp)              :: dbh_cm, p_surv_750, p_surv_temp_nl, cwd
   real(dp), parameter:: a = 1.0337_dp, b =  0.000151_dp, c = 0.221_dp, d = 0.0219_dp
   
-  dbh_cm = dbh * 100._dp     ! m -> cm
-  cwd    = mass_cwd * 0.1_dp ! kg/m2 -> Mg/ha
+  dbh_cm = dbh * 100._dp         ! m -> cm
+  cwd    = mass_cwd * 0.01_dp    ! was 0.1 for kgC/m2 -> Mg/ha, CASA is in gC/m2
 
   IF ( fli .lt. 750._dp ) THEN
      p_surv_750    = 1._dp - &

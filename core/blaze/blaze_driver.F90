@@ -1,7 +1,7 @@
 SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
      climate, shootfrac, idoy, curyear, CTLFLAG, POP, veg, call_blaze, call_pop )
 
-  use cable_def_types_mod, only: r_2
+  use cable_def_types_mod, only: r_2, mp
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS !, Esatf
   USE CASAVARIABLE,        ONLY: casa_pool, casa_flux, casa_met
   USE BLAZE_MOD,           ONLY: RUN_BLAZE, TYPE_TURNOVER, BLAZE_TURNOVER, &
@@ -46,6 +46,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   TYPE(POP_TYPE),             INTENT(INOUT) :: POP
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   TYPE (TYPE_SIMFIRE) :: SF
+
+  REAL(dp)         :: CWD_local(mp)
 
   ! INITIALISATION ============================================================
 
@@ -177,11 +179,15 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
   ! set burned area and fire line intensity in veg%disturbance_intensity for use in
   ! calculating tree mortality in POP.
+  CWD_local(:) = 0.0
   DO i = 1, BLAZE%NCELLS
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
         veg%disturbance_intensity(patch_index,1) = BLAZE%AB(i)  ! needed for ADJUST_POP_FOR_FIRE
         veg%disturbance_intensity(patch_index,2) = BLAZE%FLI(i) ! needed for ADJUST_POP_FOR_FIRE
+
+        !map grid value of CWD across to mp-variable
+        CWD_local(patch_index) = real(CLITTER_w(i, CWD), kind=dp)
      ENDDO
   ENDDO
 
@@ -194,7 +200,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   !do not adjust POP if blaze not coupled to CASA-POP (i.e. call_blaze/=3
   IF (call_blaze==3) THEN
    CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
-        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2),BLAZE%mort_opt )
+        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2), CWD_local,BLAZE%mort_opt )
   ENDIF
 
   ! Apply turn-overs to biomass killed by fire in POP and evaluate fluxes for this call
