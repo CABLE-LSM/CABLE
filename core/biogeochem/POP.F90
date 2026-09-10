@@ -2890,7 +2890,7 @@ contains
   !*******************************************************************************
 
 
-  subroutine ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI)
+  subroutine ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI, mort_opt)
     ! reduces biomass on a cohort basis according to mortality vs dbh function
     ! interpolates patch-based fire mortality to get grid-cell mortality
     implicit none
@@ -2899,11 +2899,12 @@ contains
     integer(i4b), intent(IN)        ::  disturbance_interval(:,:)
     real(dp),  intent(IN)            :: burned_area(:), FLI(:)
     integer(i4b) :: g, np, c, k, it, nc
-    real(dp) :: mort, cmass_stem, dbh
+    real(dp) :: mort, cmass_stem, dbh, tree_height
+    character(len=3), intent(IN)     :: mort_opt
 
 
     np = size(POP%POP_grid)
-    mort = 0.0
+    mort = 0.0_dp
 
     do g=1,np
        POP%pop_grid(g)%fire_mortality = 0.0_dp
@@ -2921,8 +2922,12 @@ contains
 
                 dbh = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%diameter*100.0_dp
                 cmass_stem = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%biomass
+                tree_height = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%height
 
-                mort = TopKill_Collins(dbh, FLI(g)) * burned_area(g)
+                !mort = TopKill_Collins(dbh, FLI(g)) * burned_area(g)
+                ! 10-9-2026 get mortality via interface routine
+                CALL mortality_interface(mort, mort_opt,dbh,tree_height,FLI(g))
+                mort = mort * burned_area(g)
 
                 pop%pop_grid(g)%patch(k)%fire_mortality = mort* &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%biomass+ &
@@ -3580,9 +3585,37 @@ end function Area_Triangle
 
 
 !******************************************************************************
+! Collection of fire related mortality functions - now all DP
+! these maybe better placed inside the BLAZE MODULE and/or own MODULE
 
+SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI)
+   !interface routine to select which mortality function to use
+
+   implicit none
+
+   real(dp), intent(out) :: mort
+   real(dp), intent(in)  :: dbh, tree_height, FLI
+   CHARACTER(len=3), intent(in) :: mort_opt
+
+   mort = 0.0_dp
+
+   !To be extended - likely better as a CASE construct
+   IF (mort_opt == "TKC") then
+      mort = TOPKILL_Collins(dbh,FLI)
+   ELSE IF (mort_opt == "ASC") then
+      mort = p_mort_OzSavanna(tree_height, FLI)
+   ELSE IF (mort_opt == "BKD") then
+      mort = p_mort_boreal (FLI)
+   ELSE IF (mort_opt == "TPN") then
+      mort = p_mort_TROPICS (dbh, fli)
+   ELSE
+      mort = 0.0_dp
+   END IF
+
+END SUBROUTINE mortality_interface
 
 ! Fraction of topkill by DBH , according to Fig. 2 of Collins, J. Ec., 2020
+! option "TKC"
 real(dp) function TopKill_Collins(dbh, FLI)
 
   implicit none
@@ -3600,6 +3633,154 @@ real(dp) function TopKill_Collins(dbh, FLI)
 
 end function TopKill_Collins
 
+! Fraction of kill by height based on Cook fire-mortality for savannahs
+! option "ASC"
+! INH: need to check with CLN if tree height or flame height
+! Williams et al. 1999 is discussed interms of tree height and dbh so code up 
+! as if height
+REAL(dp) FUNCTION p_mort_OzSavanna(hgt, fli)
+
+  implicit none
+
+  real(dp), intent(in) :: hgt, fli
+  real(dp)             :: p_surv_OzSavanna
+  real(dp) :: max_prob_hgt, intensity, min_hgt
+
+  !  Cook fire-mortality
+  max_prob_hgt = 8.5_dp
+  intensity    = fli / 1000._dp
+  min_hgt      = 3.7_dp * (1.-exp(-0.19_dp * intensity))
+
+  if ( hgt > max_prob_hgt .and. hgt > min_hgt ) then
+     p_surv_OzSavanna = ( -.0011_dp * intensity - .00002_dp) * hgt + .0075_dp * intensity + 1._dp
+  elseif (hgt > min_hgt) then
+     p_surv_OzSavanna = (  .0178_dp * intensity + .0144_dp ) * &
+          hgt + (-.1174_dp * intensity + 0.9158_dp)
+  else
+     p_surv_OzSavanna = 0.001_dp
+  endif
+
+  p_surv_OzSavanna = max(0.001_dp, min(1._dp,p_surv_OzSavanna))
+  p_mort_OzSavanna = 1.0_dp - p_surv_OzSavanna
+
+END FUNCTION p_mort_OzSavanna
+
+! fraction of kill by FLI following Dalziel et al. 2008
+! option "BKD"
+REAL(dp) FUNCTION p_mort_boreal (fli)
+  
+  IMPLICIT NONE
+
+  REAL(dp), INTENT(IN) :: fli ! kW/m
+  REAL(dp)             :: p_surv_boreal
+  
+  p_surv_boreal = exp(-fli/500._dp)
+  p_mort_boreal = 1.0_dp - p_surv_boreal
+
+END FUNCTION p_mort_boreal
+
+! fraction of kill by dbh, fli and CWD mass following Kobziar et al. 2006
+! option "TMK"
+! needs adjustments to the BLAZE_driver and call to adjust_pop to be usable
+real(dp) function p_mort_TEMP_NL(dbh, fli, mass_cwd ) 
+ 
+  IMPLICIT NONE
+
+  REAL(dp), INTENT(IN)  :: dbh, fli,  mass_cwd ! m, kW/m, kg/m2
+  REAL(dp)              :: dbh_cm, p_surv_750, p_surv_temp_nl, cwd
+  real(dp), parameter:: a = 1.0337_dp, b =  0.000151_dp, c = 0.221_dp, d = 0.0219_dp
+  
+  dbh_cm = dbh * 100._dp     ! m -> cm
+  cwd    = mass_cwd * 0.1_dp ! kg/m2 -> Mg/ha
+
+  IF ( fli .lt. 750._dp ) THEN
+     p_surv_750    = 1._dp - &
+          (1._dp/(1._dp + exp(-(a + b * 750._dp - c*dbh_cm + d*cwd))))
+     p_surv_temp_nl = 1. - (fli/750._dp * (1. - p_surv_750) )
+  ELSE
+     p_surv_temp_nl = 1. - &
+          (1._dp/(1._dp + exp(-(a + b * fli  - c*dbh_cm + d*cwd))))
+  END IF
+
+  p_mort_TEMP_NL = 1.0_dp - p_surv_temp_nl
+
+END FUNCTION p_mort_TEMP_NL
+
+!fraction of kill by dbh, fli and is_respouter following Hickler et al. 2006
+!option "TMH"
+!will need additional work to feed respouter through
+real(dp) function p_mort_TEMP_BL(dbh, fli, is_resprouter)
+  
+  IMPLICIT NONE
+
+  REAL(dp)   , INTENT(IN) :: dbh, fli ! m, kW/m
+  LOGICAL, INTENT(IN)     :: is_resprouter ! yes=1,no=0
+  REAL (dp)               :: p_surv_3000, p_surv_temp_bl, resilience
+
+  IF ( is_resprouter ) THEN
+     resilience = 0.04_dp
+  ELSE
+     resilience = 0.07_dp
+  END IF
+
+  p_surv_3000 = 0.95_dp - 1._dp/(1._dp+ (dbh/resilience) ** 1.5_dp)
+
+  IF ( fli > 7000._dp ) THEN
+     p_surv_temp_bl = 0.001_dp
+  ELSE IF ( fli > 3000._dp ) THEN
+     p_surv_temp_bl = p_surv_3000 * (1._dp - (fli - 3000._dp)/ 4000._dp )
+  ELSE
+     p_surv_temp_bl = exp(fli / 3000._dp * log(p_surv_3000)) !CLN check log!!!!
+  END IF
+
+  p_mort_TEMP_BL = 1.0_dp - p_surv_TEMP_BL
+
+END FUNCTION p_mort_TEMP_BL
+
+!fraction of kill by dbh and fli following Nieustad 2005
+!option "TPN"
+real(dp) function p_mort_TROPICS (dbh, fli)
+  
+  IMPLICIT NONE
+  
+  REAL(dp), INTENT(IN) :: dbh, fli ! m, kW/m
+  REAL(dp)             :: dbh_cm, p_surv_3000, scal_fac, p_surv_tropics
+
+  p_surv_3000 = 1._dp - max( 0.82_dp - 0.035_dp * (dbh ** 0.7_dp) , 0._dp)
+  IF ( fli > 7000._dp) THEN
+     scal_fac = 1._dp - log(fli/7000._dp)
+     p_surv_tropics =scal_fac * p_surv_3000
+  ELSE IF ( fli > 3000._dp ) THEN
+     p_surv_tropics = p_surv_3000
+  ELSE
+     p_surv_tropics = exp(fli/3000._dp * log(p_surv_3000))
+  END IF
+
+  p_surv_tropics = MAX( MIN( 1._dp, p_surv_tropics ), 0._dp )
+
+  p_mort_TROPICS = 1.0_dp - p_surv_tropics
+
+END FUNCTION p_mort_TROPICS
+
+!fraction of kill by height and fli following Bond et al. 2008
+!option "TSB"
+!INH need to check if tree height or flame height.
+!also needs checking with CLN as original function didn't compile
+! real(dp) function p_mort_SAVANNA (height, fli)
+  
+!   IMPLICIT NONE
+
+!   REAL(dp), INTENT(IN) :: height, fli  ! m, kW/m
+!   REAL(dp)             :: fli_MWm, p_surv_savanna, intensity
+
+!   fli_MWm = fli / 1000._dp    !kW/m -> MW/m
+!   intensity = fli / 1000._dp  !INH just to get it to build
+
+!   p_surv_savanna = max(0._dp,1._dp - ( 1./(1. + exp(1.5_dp*(height - 0.5_dp * intensity - 1._dp )))))
+  
+!   p_mort_SAVANNA = 1.0_dp - p_surv_savanna
+
+! END FUNCTION p_mort_SAVANNA
 
 !******************************************************************************
 

@@ -27,6 +27,7 @@ TYPE TYPE_BLAZE
    CHARACTER(len=400) :: igbpfilename, faparfilename  !full paths to IGBP (SIMFIRE) and fapar climataolgy files
    CHARACTER(len=10) :: faparsource                   !source of fapar ("fromfile", "inline")
    CHARACTER(len=3)  :: couplingform                  !formulae for coupling to casa ("old", "new")
+   CHARACTER(len=3)  :: mort_opt                      !3 character code to set POP mortality function
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -212,6 +213,13 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
      WRITE(*,*) "error: BLAZE faparsource needs to be inline or fromfile"
      STOP
   END IF
+
+  !to be read in via namelist at some point and checked against available options
+  BLAZE%mort_opt = "TKC"
+  IF(.not. ANY(BLAZE%mort_opt == ["TKC", "ASC", "BKD", "TPN"]) ) then
+     WRITE(*,*) "error: BLAZE mort_opt not a correct value: check mortality_interface"
+     STOP
+  END IF 
 
   ! SETTINGS FOR BLAZE (BLAZEFLAG)
   ! bit value:               0            | 1
@@ -560,131 +568,134 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
 
 END SUBROUTINE BLAZE_TURNOVER
 
+! ----------------------------------------------------------------------------------
+! ! 10-9-2026 These routines have been moved and rewritten as mortalities in POP.F90
+!
+! FUNCTION p_surv_OzSavanna(hgt, fli)
 
-FUNCTION p_surv_OzSavanna(hgt, fli)
+!   implicit none
 
-  implicit none
+!   real, intent(in) :: hgt, fli
+!   real             :: p_surv_OzSavanna
 
-  real, intent(in) :: hgt, fli
-  real             :: p_surv_OzSavanna
+!   real :: max_prob_hgt, intensity, min_hgt
 
-  real :: max_prob_hgt, intensity, min_hgt
+!   !  Cook fire-mortality
+!   max_prob_hgt = 8.5
+!   intensity    = fli / 1000.
+!   min_hgt      = 3.7 * (1.-exp(-0.19 * intensity))
 
-  !  Cook fire-mortality
-  max_prob_hgt = 8.5
-  intensity    = fli / 1000.
-  min_hgt      = 3.7 * (1.-exp(-0.19 * intensity))
+!   if ( hgt > max_prob_hgt .and. hgt > min_hgt ) then
+!      p_surv_OzSavanna = ( -.0011 * intensity - .00002) * hgt + .0075 * intensity + 1.
+!   elseif (hgt > min_hgt) then
+!      p_surv_OzSavanna = (  .0178 * intensity + .0144 ) * &
+!           hgt + (-.1174 * intensity + 0.9158)
+!   else
+!      p_surv_OzSavanna = 0.001
+!   endif
 
-  if ( hgt > max_prob_hgt .and. hgt > min_hgt ) then
-     p_surv_OzSavanna = ( -.0011 * intensity - .00002) * hgt + .0075 * intensity + 1.
-  elseif (hgt > min_hgt) then
-     p_surv_OzSavanna = (  .0178 * intensity + .0144 ) * &
-          hgt + (-.1174 * intensity + 0.9158)
-  else
-     p_surv_OzSavanna = 0.001
-  endif
+!   p_surv_OzSavanna = max(0.001, min(1.,p_surv_OzSavanna))
 
-  p_surv_OzSavanna = max(0.001, min(1.,p_surv_OzSavanna))
+! END FUNCTION p_surv_OzSavanna
 
-END FUNCTION p_surv_OzSavanna
+! FUNCTION P_SURV_BOREAL (fli)
+!   ! Following Dalziel et al. 2008
 
-FUNCTION P_SURV_BOREAL (fli)
-  ! Following Dalziel et al. 2008
+!   IMPLICIT NONE
 
-  IMPLICIT NONE
-
-  REAL, INTENT(IN) :: fli ! kW/m
-  REAL             :: p_surv_boreal
+!   REAL, INTENT(IN) :: fli ! kW/m
+!   REAL             :: p_surv_boreal
   
-  p_surv_boreal = exp(-fli/500.)
+!   p_surv_boreal = exp(-fli/500.)
 
-END FUNCTION P_SURV_BOREAL
+! END FUNCTION P_SURV_BOREAL
 
-FUNCTION P_SURV_TEMP_NL(dbh, fli, mass_cwd ) 
-  ! Following Kobziar et al. 2006
+! FUNCTION P_SURV_TEMP_NL(dbh, fli, mass_cwd ) 
+!   ! Following Kobziar et al. 2006
   
-  IMPLICIT NONE
+!   IMPLICIT NONE
 
-  REAL, INTENT(IN)  :: dbh, fli,  mass_cwd ! m, kW/m, kg/m2
-  REAL              :: dbh_cm, p_surv_750, p_surv_temp_nl, cwd
+!   REAL, INTENT(IN)  :: dbh, fli,  mass_cwd ! m, kW/m, kg/m2
+!   REAL              :: dbh_cm, p_surv_750, p_surv_temp_nl, cwd
   
-  dbh_cm = dbh * 100.     ! m -> cm
-  cwd    = mass_cwd * 0.1 ! kg/m2 -> Mg/ha
+!   dbh_cm = dbh * 100.     ! m -> cm
+!   cwd    = mass_cwd * 0.1 ! kg/m2 -> Mg/ha
 
-  IF ( fli .lt. 750. ) THEN
-     p_surv_750    = 1. - &
-          (1./(1.+ exp(-(1.0337 + 0.000151 * 750. - .221*dbh_cm + .0219*cwd))))
-     p_surv_temp_nl = 1. - (fli/750. * (1. - p_surv_750) )
-  ELSE
-     p_surv_temp_nl = 1. - &
-          (1./(1.+ exp(-(1.0337 + 0.000151 * fli  - .221*dbh_cm + .0219*cwd))))
-  END IF
+!   IF ( fli .lt. 750. ) THEN
+!      p_surv_750    = 1. - &
+!           (1./(1.+ exp(-(1.0337 + 0.000151 * 750. - .221*dbh_cm + .0219*cwd))))
+!      p_surv_temp_nl = 1. - (fli/750. * (1. - p_surv_750) )
+!   ELSE
+!      p_surv_temp_nl = 1. - &
+!           (1./(1.+ exp(-(1.0337 + 0.000151 * fli  - .221*dbh_cm + .0219*cwd))))
+!   END IF
 
-END FUNCTION P_SURV_TEMP_NL
+! END FUNCTION P_SURV_TEMP_NL
 
-FUNCTION P_SURV_TEMP_BL(dbh, fli, is_resprouter)
-  ! Following Hickler et al. 2004
+! FUNCTION P_SURV_TEMP_BL(dbh, fli, is_resprouter)
+!   ! Following Hickler et al. 2004
   
-  IMPLICIT NONE
+!   IMPLICIT NONE
 
-  REAL   , INTENT(IN) :: dbh, fli ! m, kW/m
-  LOGICAL, INTENT(IN) :: is_resprouter ! yes=1,no=0
-  REAL                :: p_surv_3000, p_surv_temp_bl, resilience
+!   REAL   , INTENT(IN) :: dbh, fli ! m, kW/m
+!   LOGICAL, INTENT(IN) :: is_resprouter ! yes=1,no=0
+!   REAL                :: p_surv_3000, p_surv_temp_bl, resilience
 
-  IF ( is_resprouter ) THEN
-     resilience = 0.04
-  ELSE
-     resilience = 0.07
-  END IF
+!   IF ( is_resprouter ) THEN
+!      resilience = 0.04
+!   ELSE
+!      resilience = 0.07
+!   END IF
 
-  p_surv_3000 = 0.95 - 1./(1.+ (dbh/resilience) ** 1.5)
+!   p_surv_3000 = 0.95 - 1./(1.+ (dbh/resilience) ** 1.5)
 
-  IF ( fli > 7000. ) THEN
-     p_surv_temp_bl = 0.001
-  ELSE IF ( fli > 3000. ) THEN
-     p_surv_temp_bl = p_surv_3000 * (1. - (fli - 3000.)/ 4000. )
-  ELSE
-     p_surv_temp_bl = exp(fli / 3000. * log(p_surv_3000)) !CLN check log!!!!
-  END IF
+!   IF ( fli > 7000. ) THEN
+!      p_surv_temp_bl = 0.001
+!   ELSE IF ( fli > 3000. ) THEN
+!      p_surv_temp_bl = p_surv_3000 * (1. - (fli - 3000.)/ 4000. )
+!   ELSE
+!      p_surv_temp_bl = exp(fli / 3000. * log(p_surv_3000)) !CLN check log!!!!
+!   END IF
 
-END FUNCTION P_SURV_TEMP_BL
+! END FUNCTION P_SURV_TEMP_BL
 
-FUNCTION P_SURV_TROPICS (dbh, fli)
-  ! Following Nieustad 2005
+! FUNCTION P_SURV_TROPICS (dbh, fli)
+!   ! Following Nieustad 2005
   
-  IMPLICIT NONE
+!   IMPLICIT NONE
   
-  REAL, INTENT(IN) :: dbh, fli ! m, kW/m
-  REAL             :: dbh_cm, p_surv_3000, scal_fac, p_surv_tropics
+!   REAL, INTENT(IN) :: dbh, fli ! m, kW/m
+!   REAL             :: dbh_cm, p_surv_3000, scal_fac, p_surv_tropics
 
-  p_surv_3000 = 1. - max( 0.82 - 0.035 * (dbh ** 0.7) , 0.)
-  IF ( fli > 7000.) THEN
-     scal_fac = 1. - log(fli/7000.)
-     p_surv_tropics =scal_fac * p_surv_3000
-  ELSE IF ( fli > 3000. ) THEN
-     p_surv_tropics = p_surv_3000
-  ELSE
-     p_surv_tropics = exp(fli/3000. * log(p_surv_3000))
-  END IF
+!   p_surv_3000 = 1. - max( 0.82 - 0.035 * (dbh ** 0.7) , 0.)
+!   IF ( fli > 7000.) THEN
+!      scal_fac = 1. - log(fli/7000.)
+!      p_surv_tropics =scal_fac * p_surv_3000
+!   ELSE IF ( fli > 3000. ) THEN
+!      p_surv_tropics = p_surv_3000
+!   ELSE
+!      p_surv_tropics = exp(fli/3000. * log(p_surv_3000))
+!   END IF
 
-  p_surv_tropics = MAX( MIN( 1., p_surv_tropics ), 0. )
+!   p_surv_tropics = MAX( MIN( 1., p_surv_tropics ), 0. )
 
-END FUNCTION P_SURV_TROPICS
+! END FUNCTION P_SURV_TROPICS
 
-FUNCTION P_SURV_SAVANNA (height, fli)
-  !Following Bond et al. 2008
+! FUNCTION P_SURV_SAVANNA (height, fli)
+!   !Following Bond et al. 2008
   
-  IMPLICIT NONE
+!   IMPLICIT NONE
 
-  REAL, INTENT(IN) :: height, fli  ! m, kW/m
-  REAL             :: fli_MWm, p_surv_savanna, intensity
+!   REAL, INTENT(IN) :: height, fli  ! m, kW/m
+!   REAL             :: fli_MWm, p_surv_savanna, intensity
 
-  fli_MWm = fli / 1000. ! kW/m -> MW/m
-  intensity = fli / 1000.  !INH just to get it to build
+!   fli_MWm = fli / 1000. ! kW/m -> MW/m
+!   intensity = fli / 1000.  !INH just to get it to build
 
-  p_surv_savanna = max(0.,1. - ( 1./(1. + exp(1.5*(height - 0.5 * intensity - 1. )))))
+!   p_surv_savanna = max(0.,1. - ( 1./(1. + exp(1.5*(height - 0.5 * intensity - 1. )))))
   
-END FUNCTION P_SURV_SAVANNA
+! END FUNCTION P_SURV_SAVANNA
+! --------------------------------------------------------------------------------------
 
 ! INH - I'm under the impression that this is no longer utilised.
 FUNCTION BURNTIME( YEAR, DOY, FSTEP )

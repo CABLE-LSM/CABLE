@@ -823,7 +823,8 @@ CONTAINS
                                    rad%longitude(landpt(:)%cstart), sumBLAZE )
 
                     !load additional parameters needed for BLAZE/SIMFIRE after INI_BLAZE, before INI_SIMFIRE
-                    !global runs (BIOS done above) - this may not work since this is after the boradcast of climate.
+                    !these three lines need to be commented for global runs
+                    !issue is due to order of operations - initialization of blaze% and sumBLAZE% and and broadcasting climate.
                     !if ( trim(cable_user%MetType) .ne. 'bios' ) then
                     !     call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
                     !endif 

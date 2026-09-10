@@ -744,8 +744,12 @@ PROGRAM cable_offline_driver
               endif
 
               ! additional params needed for BIOS-BLAZE
-              if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
-
+              if ( trim(cable_user%MetType) .eq. 'bios' ) THEN
+               call cable_bios_load_climate_params(climate, .FALSE.)
+             ELSE !use hard-wired filenames for now
+               call cable_bios_load_climate_params(climate, .TRUE.)
+             END IF
+   
               !call_blaze=0 if blaze off, >0 if blaze on to some extent
               IF (cable_user%CALL_BLAZE>0) THEN
 !PRINT*,"CLN BLAZE INIT"
@@ -757,9 +761,11 @@ PROGRAM cable_offline_driver
 
                  !for non-bios runs need to read in the IGBP and FAPAR climatology after INI_BLAZE
                  ! and before INI_SIMFIRE
-                 if (trim(cable_user%MetType) .ne. 'bios') then
-                     call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
-                 endif
+                 ! 10-9-2026 - for consistency with MPI implementation moved call to above
+                 ! needed because of how cliamte% is braodcast across processors.
+                 !if (trim(cable_user%MetType) .ne. 'bios') then
+                 !    call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
+                 !endif
 
                  IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
 !PRINT*,"CLN SIMFIRE INIT"

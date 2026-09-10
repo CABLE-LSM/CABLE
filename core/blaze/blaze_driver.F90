@@ -194,7 +194,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   !do not adjust POP if blaze not coupled to CASA-POP (i.e. call_blaze/=3
   IF (call_blaze==3) THEN
    CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
-        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
+        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2),BLAZE%mort_opt )
   ENDIF
 
   ! Apply turn-overs to biomass killed by fire in POP and evaluate fluxes for this call
