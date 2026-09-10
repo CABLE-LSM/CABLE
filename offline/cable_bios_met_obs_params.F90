@@ -1775,7 +1775,7 @@ SUBROUTINE cable_bios_load_fracC4(fracC4)
 END SUBROUTINE cable_bios_load_fracC4
 
 !******************************************************************************
-SUBROUTINE cable_bios_load_climate_params(climate, invegfile, infaparfile)
+SUBROUTINE cable_bios_load_climate_params(climate, global) !invegfile, infaparfile)
 
 USE cable_def_types_mod,  ONLY: mland, climate_type
 USE cable_IO_vars_module, ONLY: latitude, longitude
@@ -1783,7 +1783,8 @@ USE cable_IO_vars_module, ONLY: latitude, longitude
   IMPLICIT NONE
 
 TYPE(climate_type), INTENT(INOUT)       :: climate ! climate variables
-CHARACTER(len=400), OPTIONAL :: invegfile, infaparfile
+LOGICAL, INTENT(IN)                     :: global
+!CHARACTER(len=400), OPTIONAL :: invegfile, infaparfile
 
 !for both types of file read
 INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
@@ -1808,8 +1809,10 @@ REAL(sp)  :: fapar,  fillfapar      !vars for fapar climatology read
 REAL(dp), DIMENSION(:), ALLOCATABLE :: vlat, vlon
 
 !IGBP file first - set name of source, global runs in via invegfile, BIOS via param_path
-IF (PRESENT(invegfile)) THEN
-  vegfile = TRIM(invegfile)
+!IF (PRESENT(invegfile)) THEN
+IF (global) THEN
+  !vegfile = TRIM(invegfile)
+  vegfile = "/g/data/x45/Data_BLAZE2/modis_igbp_class_pt25_adjustlat_real_latlonswitch.nc"
 ELSE
   vegfile = TRIM(param_path)//TRIM(vegtypeigbp_file)
 ENDIF
@@ -1900,6 +1903,7 @@ ELSEIF (TRIM(tag) .eq. 'nc') THEN
     is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
     ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
     climate%modis_igbp(is:ie) = INT(iclass)
+    WRITE(*,*) "IGBP read:", iland, ilat, ilon, latitude(iland), longitude(iland), iclass, is, ie, climate%modis_igbp(is) 
   END DO
   STATUS = NF90_CLOSE(fID)
   IF (fail .eq. 1) STOP
@@ -1907,13 +1911,15 @@ ELSEIF (TRIM(tag) .eq. 'nc') THEN
   DEALLOCATE(vlon,vlat)
   
 ELSE
-  WRITE(*,*) "STOP - file extension needs to be bin or nc for ", TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
+  WRITE(*,*) "STOP - file extension needs to be bin or nc for ", TRIM(vegfile) ; STOP ''
 END IF
 
 !-------------------------------------
 !annual maximum fAPAR - set name of source, global runs in via invegfile, BIOS via param_path
-IF (PRESENT(infaparfile)) THEN
-  faparfile = TRIM(infaparfile)
+!IF (PRESENT(infaparfile)) THEN
+IF (global) THEN
+  !faparfile = TRIM(infaparfile)
+  faparfile = "/g/data/x45/Data_BLAZE2/AnnMaxFAPAR_GIMMS4g_pt25_1982-2015_renlatlonswitch.nc"
 ELSE
   faparfile = TRIM(param_path)//TRIM(avgannmax_fapar_file)
 ENDIF

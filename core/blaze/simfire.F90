@@ -130,7 +130,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   DO i = 1, NCELLS
      IF ( SF%IGBP(i) .LT. 1 .OR. SF%IGBP(i) .GT. 16 ) THEN
-        WRITE(*,*) "Pixel i:",i," doesn't have proper IGBP veg:",SF%IGBP(i)
+        WRITE(*,*) "Pixel i:",i,"lat:",SF%lat(i),"lon:",SF%lon(i)," doesn't have proper IGBP veg:",SF%IGBP(i)
         SF%BIOME(i) = 0
      ELSEIF ( ABS(SF%LAT(i)) .GE. 50. ) THEN
         SF%BIOME(i) = IGBP2BIOME(SF%IGBP(i),2)
@@ -719,7 +719,7 @@ SUBROUTINE STOCH_AREA(AB,lat,lon,gca,iSTOCH,YEAR,NDAY)
    INTEGER, INTENT(IN) :: iSTOCH, YEAR, NDAY
 
    !parameters: eps needed to ensure randmomisation occurs globally, beta>=3 scaling within function 
-   !max_ba = maxBA possible per day ~200km2  
+   !max_ba = maxBA possible per day ~200km2 - note needs to match that in BLAZE.F90  
    REAL, PARAMETER     :: max_ba = 200., eps = 1.0, beta = 3.0
 
    !working vars

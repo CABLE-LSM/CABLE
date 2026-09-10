@@ -752,7 +752,11 @@ CONTAINS
                 where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
              endif
 
-             if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
+             if ( trim(cable_user%MetType) .eq. 'bios' ) THEN
+               call cable_bios_load_climate_params(climate, .FALSE.)
+             ELSE !use hard-wired filenames for now
+               call cable_bios_load_climate_params(climate, .TRUE.)
+             END IF
 
              ! MPI: above was standard serial code
              ! now it's time to initialize the workers
@@ -819,10 +823,10 @@ CONTAINS
                                    rad%longitude(landpt(:)%cstart), sumBLAZE )
 
                     !load additional parameters needed for BLAZE/SIMFIRE after INI_BLAZE, before INI_SIMFIRE
-                    !global runs (BIOS done above)
-                    if ( trim(cable_user%MetType) .ne. 'bios' ) then
-                         call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
-                    endif 
+                    !global runs (BIOS done above) - this may not work since this is after the boradcast of climate.
+                    !if ( trim(cable_user%MetType) .ne. 'bios' ) then
+                    !     call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
+                    !endif 
 
                    !par blaze restart not required uses climate data
                    !create handles for restart-data

@@ -155,6 +155,8 @@ CONTAINS
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING, INI_BLAZE
     USE BLAZE_MPI,            ONLY: WORKER_BLAZE_TYPES ! , WORKER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
+    ! for BLAZE global to read in SIMFIRE info
+    USE cable_bios_met_obs_params, ONLY: cable_bios_load_climate_params
 
     ! gm
     USE cable_adjust_JV_gm_module, ONLY: read_gm_LUT, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd
