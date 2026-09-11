@@ -15,7 +15,7 @@ TYPE TYPE_BLAZE
    INTEGER                              :: BURNMODE ! 0=off, 1=BLAZE only, 2=BLAZE with POP
    !CRM INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
    REAL                                 :: FT,tstp
-   LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE.
+   LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE., is_resprouter = .TRUE.
    CHARACTER                            :: GFEDP*80, FSTEP*7
    CHARACTER(len=6) :: OUTTSTEP  !"daily" or "ascasa"
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes

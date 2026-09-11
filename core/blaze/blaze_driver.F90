@@ -186,7 +186,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
         veg%disturbance_intensity(patch_index,1) = BLAZE%AB(i)  ! needed for ADJUST_POP_FOR_FIRE
         veg%disturbance_intensity(patch_index,2) = BLAZE%FLI(i) ! needed for ADJUST_POP_FOR_FIRE
 
-        !map grid value of CWD across to mp-variable
+        !gridded value of CWD mapped across to mp-variable - needed for one mortality function
         CWD_local(patch_index) = real(CLITTER_w(i, CWD), kind=dp)
      ENDDO
   ENDDO
@@ -200,7 +200,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   !do not adjust POP if blaze not coupled to CASA-POP (i.e. call_blaze/=3
   IF (call_blaze==3) THEN
    CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
-        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2), CWD_local,BLAZE%mort_opt )
+        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2), &
+        CWD_local, BLAZE%mort_opt, BLAZE%is_resprouter )
   ENDIF
 
   ! Apply turn-overs to biomass killed by fire in POP and evaluate fluxes for this call

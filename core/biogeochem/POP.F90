@@ -2890,7 +2890,8 @@ contains
   !*******************************************************************************
 
 
-  subroutine ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI, CWD, mort_opt)
+  subroutine ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI, & 
+                    CWD, mort_opt, is_resprouter)
     ! reduces biomass on a cohort basis according to mortality vs dbh function
     ! interpolates patch-based fire mortality to get grid-cell mortality
     implicit none
@@ -2901,6 +2902,7 @@ contains
     integer(i4b) :: g, np, c, k, it, nc
     real(dp) :: mort, cmass_stem, dbh, tree_height
     character(len=3), intent(IN)     :: mort_opt
+    logical, intent(in)              :: is_resprouter
 
 
     np = size(POP%POP_grid)
@@ -2926,7 +2928,7 @@ contains
 
                 !mort = TopKill_Collins(dbh, FLI(g)) * burned_area(g)
                 ! 10-9-2026 get mortality via interface routine
-                CALL mortality_interface(mort, mort_opt,dbh,tree_height,FLI(g),CWD(g))
+                CALL mortality_interface(mort, mort_opt,dbh,tree_height,FLI(g),CWD(g),is_resprouter)
                 mort = mort * burned_area(g)
 
                 pop%pop_grid(g)%patch(k)%fire_mortality = mort* &
@@ -3588,7 +3590,7 @@ end function Area_Triangle
 ! Collection of fire related mortality functions - now all DP
 ! these maybe better placed inside the BLAZE MODULE and/or own MODULE
 
-SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI, CWD)
+SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI, CWD, is_resprouter)
    !interface routine to select which mortality function to use
 
    implicit none
@@ -3596,10 +3598,11 @@ SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI, CWD)
    real(dp), intent(out) :: mort
    real(dp), intent(in)  :: dbh, tree_height, FLI, CWD
    CHARACTER(len=3), intent(in) :: mort_opt
+   LOGICAL, INTENT(IN) :: is_resprouter
 
    mort = 0.0_dp
-
-   !To be extended - likely better as a CASE construct
+   
+   !Likely better as a CASE construct
    IF (mort_opt == "TKC") then
       mort = TOPKILL_Collins(dbh,FLI)
    ELSE IF (mort_opt == "ASC") then
@@ -3610,6 +3613,10 @@ SUBROUTINE mortality_interface(mort, mort_opt, dbh, tree_height, FLI, CWD)
       mort = p_mort_TROPICS (dbh, FLI)
    ELSE IF (mort_opt == "TMK") then
       mort = p_mort_TEMP_NL(dbh, FLI, CWD) 
+   ELSE IF (mort_opt == "TSB") then
+      mort = p_mort_Savanna(tree_height, FLI)
+   ELSE IF (mort_opt == "TMH") then
+      mort = p_mort_TEMP_BL(dbh, fli, is_resprouter) 
    ELSE
       mort = 0.0_dp
    END IF
@@ -3708,7 +3715,7 @@ real(dp) function p_mort_TEMP_NL(dbh, fli, mass_cwd )
 
 END FUNCTION p_mort_TEMP_NL
 
-!fraction of kill by dbh, fli and is_respouter following Hickler et al. 2006
+!fraction of kill by dbh, fli and is_resprouter following Hickler et al. 2006
 !option "TMH"
 !will need additional work to feed respouter through
 real(dp) function p_mort_TEMP_BL(dbh, fli, is_resprouter)
@@ -3766,23 +3773,23 @@ END FUNCTION p_mort_TROPICS
 
 !fraction of kill by height and fli following Bond et al. 2008
 !option "TSB"
-!INH need to check if tree height or flame height.
-!also needs checking with CLN as original function didn't compile
-! real(dp) function p_mort_SAVANNA (height, fli)
+!INH - can't find the Bond reference but Lawes et al. 2011 indicates that Bond states 
+!that tree height is the controlling variable
+real(dp) function p_mort_SAVANNA (height, fli)
   
-!   IMPLICIT NONE
+  IMPLICIT NONE
 
-!   REAL(dp), INTENT(IN) :: height, fli  ! m, kW/m
-!   REAL(dp)             :: fli_MWm, p_surv_savanna, intensity
+  REAL(dp), INTENT(IN) :: height, fli  ! m, kW/m
+  REAL(dp)             :: fli_MWm, p_surv_savanna !, intensity
 
-!   fli_MWm = fli / 1000._dp    !kW/m -> MW/m
-!   intensity = fli / 1000._dp  !INH just to get it to build
+  !note original function had fli_MWm but then intensity in the function - changed 10-9-2026
+  fli_MWm = fli / 1000._dp    !kW/m -> MW/m
 
-!   p_surv_savanna = max(0._dp,1._dp - ( 1./(1. + exp(1.5_dp*(height - 0.5_dp * intensity - 1._dp )))))
+  p_surv_savanna = max(0._dp,1._dp - ( 1./(1. + exp(1.5_dp*(height - 0.5_dp * fli_MWm - 1._dp )))))
   
-!   p_mort_SAVANNA = 1.0_dp - p_surv_savanna
+  p_mort_SAVANNA = 1.0_dp - p_surv_savanna
 
-! END FUNCTION p_mort_SAVANNA
+END FUNCTION p_mort_SAVANNA
 
 !******************************************************************************
 
