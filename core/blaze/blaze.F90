@@ -2,13 +2,13 @@
 
 TYPE TYPE_BLAZE
    INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
-   REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA, w_prior, FDI
+   REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN, w_prior, FDI
    REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf,annAB
    REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac, k_tune_litter
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, ABM, TO, AGC_g, AGC_w
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AGLit_w, AGLit_g, BGLit_w, BGLit_g
    REAL,     DIMENSION(:,:),ALLOCATABLE :: CPLANT_g, CPLANT_w
-   REAL,     DIMENSION(:,:),ALLOCATABLE :: AvgAnnRAINF, FLUXES
+   REAL,     DIMENSION(:,:),ALLOCATABLE :: AvgAnnRAINF, FLUXES, AREA
    CHARACTER,DIMENSION(:),  ALLOCATABLE :: FTYPE*6
    INTEGER                              :: T_AVG, YEAR, MONTH, DAY, DOY, NCELLS !, time
    REAL                                 :: time     !needs to be real for outputting purposes
@@ -28,6 +28,7 @@ TYPE TYPE_BLAZE
    CHARACTER(len=10) :: faparsource                   !source of fapar ("fromfile", "inline")
    CHARACTER(len=3)  :: couplingform                  !formulae for coupling to casa ("old", "new")
    CHARACTER(len=3)  :: mort_opt                      !3 character code to set POP mortality function
+   CHARACTER(len=400) :: BurnedAreaFile               !full path to external BA file (e.g. GFED5)
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -160,7 +161,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%FTYPE(:) = "Seeder"
   ALLOCATE ( BLAZE%AB      ( np ) )    !burnt area on each call to BLAZE
   ALLOCATE ( BLAZE%annAB   ( np ) )    !cumulative burnt area - typically annual/over fire season
-  ALLOCATE ( BLAZE%AREA    ( np ) )    !INH - variable is redundant
+  ALLOCATE ( BLAZE%AREA    ( np, 12 ) )!now used for externally supplied monthly BA
   ALLOCATE ( BLAZE%U10     ( np ) )
   ALLOCATE ( BLAZE%RH      ( np ) )
   ALLOCATE ( BLAZE%LAT     ( np ) )
@@ -972,15 +973,15 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
        RAINF,             & ! [mm/d]
        TMIN,              & ! [deg C]
        TMAX,              & ! [deg C]
-       AB,                & ! [frac.]
-       popd,              & ! [kW/m]
-       mnest
+       AB !,                & ! [frac.]
+       !popd,              & ! [kW/m]
+       !mnest
 
-  REAL, DIMENSION(BLAZE%NCELLS)   :: &
-       T1,                &
-       T2,                &
-       T3,                &
-       T4
+  !REAL, DIMENSION(BLAZE%NCELLS)   :: &
+  !     T1,                &
+  !     T2,                &
+  !     T3,                &
+  !     T4
 
   ! CLN to simfire!!!
   !CRM  INTEGER,DIMENSION(BLAZE%NCELLS)  :: modis_igbp  ! [0,17] landcover index
@@ -1002,22 +1003,39 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
   ! READ GFED BA DATA
   AB(:) = 0.
-  IF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "GFED3.1" ) THEN
-!     CALL GET_GFED( BLAZE )
-!     CALL GET_GFED4_BA( BLAZE )
-!     CALL GET_GFED41s_BA( BLAZE )
-     WRITE(*,*)'GFED4 BA not available. Set cable_user%BURNT_AREA == "SIMFIRE"'
-     STOP -1
-     IF ( TRIM(BLAZE%FSTEP) .EQ. "none" ) THEN
-        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP, T1,T2,T3,T4 )
-        popd = SF%POPD
-        mnest= SF%MAX_NESTEROV
-        BLAZE%FSTEP = "annual"
-     ENDIF
-  ELSEIF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "SIMFIRE" ) THEN
-     ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
-     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP,  T1,T2,T3,T4  )
+!!  IF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "GFED3.1" ) THEN
+!INH: 2026-09-14 - this is what was here from outset
+!!     CALL GET_GFED( BLAZE )
+!!     CALL GET_GFED4_BA( BLAZE )
+!!     CALL GET_GFED41s_BA( BLAZE )
+!!     WRITE(*,*)'GFED4 BA not available. Set cable_user%BURNT_AREA == "SIMFIRE"'
+!!     STOP -1
+!!     IF ( TRIM(BLAZE%FSTEP) .EQ. "none" ) THEN
+!!        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP, T1,T2,T3,T4 )
+!!        popd = SF%POPD
+!!        mnest= SF%MAX_NESTEROV
+!!        BLAZE%FSTEP = "annual"
+!!     ENDIF
 
+ IF  ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "external" ) THEN
+      !we will need - may not need this call - except for diagnostics
+      !CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP)!,  T1,T2,T3,T4  )
+
+      !overwrite SIMFIRE BA with external data - first for that year-all months
+      IF (DOY .EQ. 1) THEN
+        CALL READ_BAtseries_data(BLAZE%AREA, BLAZE%NCELLS, BLAZE%LAT, BLAZE%LON, BLAZE%BurnedAreaFile, 2000, YYYY)
+      END IF
+      !then spread from month to daily
+      CALL monthly_to_daily_BA(BLAZE%AB, BLAZE%NCELLS, BLAZE%AREA, DOM, DOY)
+
+      !popd = SF%POPD
+      !mnest= SF%MAX_NESTEROV
+
+   ELSEIF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "SIMFIRE" ) THEN
+     ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
+     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP)!,  T1,T2,T3,T4  )
+
+     !2026-09-14  -this is in the wrong place - needs to be below or inside COMBUST()
      DO np = 1, BLAZE%NCELLS
         ! force all FLIx=5 ("seeders") fires >1km2 to be of larger size (0.5 max_ba)
         IF ((BLAZE%FLIx(np) .eq. 5) .and. (BLAZE%AB(np)*SF%AREA(np) .ge. 1.0)) THEN
@@ -1032,11 +1050,13 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      
      !limit AB during  periods of 'high' humidity - surrogate for fuel moisture 
      BLAZE%annAB = BLAZE%annAB - BLAZE%AB
+     !THis line should likely be in COMBUST
      BLAZE%AB = BLAZE%AB * ( 1.0  - MIN( 5.*MAX((BLAZE%RH-40.0),0.0),100.0)/100.0 )
+     !accounting shold go at the end....
      BLAZE%annAB = BLAZE%annAB + BLAZE%AB
      
-     popd = SF%POPD
-     mnest= SF%MAX_NESTEROV
+     !popd = SF%POPD
+     !mnest= SF%MAX_NESTEROV
   ELSE
      WRITE(*,*) "Wrong ignition type chosen: ", BLAZE%BURNT_AREA_SRC
      STOP -1
@@ -1073,7 +1093,9 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
   END DO
 
- !to get additional outputs - investigative purposes only 
+  !to get additional outputs - investigative purposes only 
+  ! needs to be in a Burnt_area_src condition I think
+  ! needs to be cleaned up T1-T4 not needed
   BLAZE%ROS = SF%MAX_NESTEROV
   !BLAZE%KBDI = T1
   !BLAZE%D = T2    !->DMacArthur
@@ -1355,11 +1377,13 @@ END SUBROUTINE RUN_BLAZE
 
  SUBROUTINE update_sumBLAZE(BLAZE, sumBLAZE, count)
 
+   IMPLICIT NONE
+
    TYPE(TYPE_BLAZE), INTENT(IN) :: BLAZE
    TYPE(TYPE_BLAZE), INTENT(INOUT) :: sumBLAZE
    INTEGER, INTENT(IN)    :: count
 
-   INTEGER :: mland
+   INTEGER :: mland, I
 
    !purpose: update running average of values in BLAZE TYPE variable
    !into sumBLAZE for purposes of outputting.  
@@ -1417,5 +1441,145 @@ END SUBROUTINE RUN_BLAZE
    end if
 
 END SUBROUTINE update_sumBLAZE
+
+! These two routines are used to read in and use monthly BA as given by external file
+! Likely needs to be a new MODULE
+
+SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, styear, year)
+  ! Purpose:  opens up BruendAreaFile, then for each grid cell passes data for year requested
+  ! reads data into monthlyBA array
+  ! if year requested is outside range (so styear + N data/12) then uses a climatology 
+  ! variable requested has to be BA 
+
+   use netcdf
+
+   IMPLICIT NONE
+
+   INTEGER, INTENT(IN)          :: NCELLS
+   REAL, INTENT(OUT)            :: monthlyBA(NCELLS,12)
+   REAL, INTENT(IN)             :: latin(NCELLS), lonin(NCELLS)
+   CHARACTER (len=400), INTENT(IN) :: BurnedAreaFile
+   INTEGER, INTENT(IN)          :: styear, year
+
+   LOGICAL  :: use_average
+   INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, T_ID, ilat,ilon,itime, NLAT, NLON, NTIME
+   INTEGER:: STATUS, I, J, nstart, nyear
+   REAL, DIMENSION(:), ALLOCATABLE :: lon_BA, lat_BA
+   REAL, DIMENSION(:,:), ALLOCATABLE :: this_year
+
+   !check whether BruneAreaFile exists and if var/dimension names are correct
+   STATUS = NF90_OPEN(TRIM(BurnedAreaFile), NF90_NOWRITE, F_ID)
+   CALL HANDLE_ERR(STATUS, "Opening BA File "//BurnedAreaFile)
+   STATUS = NF90_INQ_VARID(F_ID,'BA', V_ID)
+   CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//BurnedAreaFile)
+   STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
+   CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//BurnedAreaFile)
+   STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
+   CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//BurnedAreaFile)
+   STATUS = NF90_INQ_VARID(F_ID,'time', T_ID)
+   CALL HANDLE_ERR(STATUS, "Inquiring  var time in "//BurnedAreaFile)
+  
+   !get sizes of latitude, longitude, time
+   STATUS = NF90_INQUIRE_DIMENSION(F_ID, V_ID_lat, len=NLAT)
+   CALL HANDLE_ERR(STATUS, "finding size of latitude dimension"//BurnedAreaFile)
+   STATUS = NF90_INQUIRE_DIMENSION(F_ID, V_ID_lon, len=NLON)
+   CALL HANDLE_ERR(STATUS, "finding size of longitude dimension"//BurnedAreaFile)
+   STATUS = NF90_INQUIRE_DIMENSION(F_ID, T_ID, len=NTIME)
+   CALL HANDLE_ERR(STATUS, "finding size of time dimension"//BurnedAreaFile)
+   IF (MOD(NTIME,12) .NE. 0) THEN
+      WRITE(*,*) BurnedAreaFile, " has incrorrect number of months"
+      STOP
+   END IF
+   nyear = INT(ntime/12)
+  
+   !arrays for latitude and longitude
+   ALLOCATE(lat_BA(NLAT),lon_BA(NLON))
+   STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, start=(/1/)  )
+   STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, start=(/1/)  )
+
+   !check that all requested lat/lon are within range of BurnedAreaFile
+   IF ( (MINVAL(latin)<MINVAL(lat_BA)) .OR. (MAXVAL(latin)>MAXVAL(lat_BA)) ) THEN
+      WRITE(*,*) BurnedAreaFile, " does not span requested range of latitudes"
+      STOP
+   END IF
+   IF ( (MINVAL(lonin)<MINVAL(lon_BA)) .OR. (MAXVAL(lonin)>MAXVAL(lon_BA)) ) THEN
+      WRITE(*,*) BurnedAreaFile, " does not span requested range of longitudes"
+      STOP
+   END IF
+
+   !are we within data range or using a climatology - number of years is ntime/12
+   use_average = .FALSE.
+   IF ((year<styear) .OR. (year > styear + nyear - 1) ) THEN
+      use_average = .TRUE.
+   END IF
+
+   !read in data - depends on whether using_average or just this year
+   IF (use_average) THEN
+      ALLOCATE(this_year(1,12))
+      monthlyBA(:,:) = 0.0
+     
+      DO I = 1, NCELLS
+        ilat = MINLOC(ABS(lat_BA - latin),DIM=1)
+        ilon = MINLOC(ABS(lon_BA - lonin),DIM=1)
+
+        !running average
+        do j = 1, nyear
+           nstart = j*12 + 1
+           !NB assumes order of dimensions in array - ncdump (time,lat,lon)
+           STATUS = NF90_GET_VAR( F_ID, V_ID, this_year, &
+                start=(/nstart,ilon,ilat/), count=(/12,1,1/) )
+           CALL HANDLE_ERR(STATUS, "Reading direct from "//BurnedAreaFile)
+           monthlyBA(i,:) = (REAL(j)*monthlyBA(i,:) + this_year(1,:))/REAL(j+1)
+        end do
+      END DO
+
+      DEALLOCATE(this_year)
+
+   ELSE
+      nstart = (year-styear)*12+1
+
+      DO I = 1, NCELLS
+        ilat = MINLOC(ABS(lat_BA - latin),DIM=1)
+        ilon = MINLOC(ABS(lon_BA - lonin),DIM=1)
+
+        !NB assumes order of dimensions in array - ncdump (time,lat,lon)
+        STATUS = NF90_GET_VAR( F_ID, V_ID, monthlyBA(i,:), &
+           start=(/nstart,ilon,ilat/), count=(/12,1,1/))
+        CALL HANDLE_ERR(STATUS, "Reading direct from "//BurnedAreaFile)
+      END DO
+   END IF
+
+   DEALLOCATE(lat_BA, lon_BA)
+
+   STATUS = NF90_CLOSE(F_ID)
+   
+END SUBROUTINE READ_BAtseries_data
+
+SUBROUTINE monthly_to_daily_BA(dailyBA, NCELLS, monthlyBA, DOM, DOY)
+   ! Purpose: takes in monthlyBA, day of year and days in months and 
+   ! detemines dailyBA - no consideration of weather or 'catching up' from
+   ! earlier under/over accounting.
+   !
+   ! method currently is simply averaging over days in that month
+   
+   IMPLICIT NONE
+
+   INTEGER, INTENT(IN) :: NCELLS
+   REAL, INTENT(OUT)   :: dailyBA(NCELLS)
+   REAL, INTENT(IN)    :: monthlyBA(NCELLS)
+   INTEGER, INTENT(IN) :: DOM(12), DOY
+
+   INTEGER :: I, count
+
+   dailyBA(:) = 0.0
+   count = 0
+   DO I = 1,12
+      IF ( (DOY .GE. count) .AND. (DOY<count+DOM(I)) ) THEN
+         dailyBA(:) = monthlyBA(:)/REAL(DOM(I))
+      END IF
+      count = count + DOM(I)
+   END DO  
+
+END SUBROUTINE monthly_to_daily_BA
 
 END MODULE BLAZE_MOD

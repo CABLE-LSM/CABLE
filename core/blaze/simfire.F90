@@ -452,7 +452,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
 END SUBROUTINE GET_POPDENS
 
 !FUNCTION ANNUAL_BA ( FAPAR, FIRE_IDX, POPDENS, BIOME, REGIO_FLAG )
-SUBROUTINE GET_ANNUAL_BA ( FAPAR, FIRE_IDX, POPDENS, BIOME, REGIO_FLAG, ANNUAL_BA, T1, T2, T3, T4 )
+SUBROUTINE GET_ANNUAL_BA ( FAPAR, FIRE_IDX, POPDENS, BIOME, REGIO_FLAG, ANNUAL_BA) !, T1, T2, T3, T4 )
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -468,7 +468,7 @@ IMPLICIT NONE
 REAL   , INTENT(IN) :: FAPAR, FIRE_IDX, POPDENS
 INTEGER, INTENT(IN) :: BIOME, REGIO_FLAG
 !REAL                :: ANNUAL_BA
-REAL, INTENT(OUT)   :: ANNUAL_BA, T1, T2, T3, T4
+REAL, INTENT(OUT)   :: ANNUAL_BA !, T1, T2, T3, T4
 
 INTEGER :: ai
 
@@ -527,17 +527,17 @@ ENDIF
 ai    = REGIO_FLAG
 IF ( BIOME .EQ. 0 ) THEN
    ANNUAL_BA = 0.
-   T1 = 0.
-   T2 = 0.
-   T3 = 0.
-   T4 = 0.
+   !T1 = 0.
+   !T2 = 0.
+   !T3 = 0.
+   !T4 = 0.
 ELSE
    ANNUAL_BA = &
         a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
-   T1 = a(BIOME,ai)
-   T2 = FAPAR ** b(ai) 
-   T3 = (scalar * FIRE_IDX) ** c(ai)
-   T4 = EXP(e(ai)*POPDENS)
+   !T1 = a(BIOME,ai)
+   !T2 = FAPAR ** b(ai) 
+   !T3 = (scalar * FIRE_IDX) ** c(ai)
+   !T4 = EXP(e(ai)*POPDENS)
 !CLNELSE
 !CLN ! W.KNORR: Instead of fpar_corr1 * fpar_leafon + fpar_corr2 * fpar_leafon * fpar_leafon,
 !CLN ! simply use FAPAR - the correction takes into account that fpar_leafon has a high bias
@@ -551,7 +551,7 @@ ENDIF
 !END FUNCTION ANNUAL_BA
 END SUBROUTINE GET_ANNUAL_BA
 
-SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FAPARSOURCE, FSTEP, T1,T2,T3,T4 )
+SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FAPARSOURCE, FSTEP) !, T1,T2,T3,T4 )
 
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
   USE cable_IO_vars_module, ONLY:  landpt, patch
@@ -565,7 +565,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
   REAL,    INTENT(INOUT) :: annAB(*)
-  REAL,    INTENT(OUT):: T1(*), T2(*), T3(*), T4(*)
+  !REAL,    INTENT(OUT):: T1(*), T2(*), T3(*), T4(*)
   INTEGER, INTENT(IN) :: YEAR, MM
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
   CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
@@ -621,7 +621,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   DO i = 1, SF%NCELLS
      !AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
      CALL GET_ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i), &
-                         AB(i), T1(i), T2(i), T3(i), T4(i) )
+                         AB(i)) !, T1(i), T2(i), T3(i), T4(i) )
 
      !catch out-of-bounds issues
      AB(i) = MAX( 0., MIN(AB(i),.99) )
@@ -685,6 +685,8 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       !enforce that annAB can't exceed 1.0 through year
       !sumBLAZE accumulation (equiv to annAB) is done in update_sumblaze
       AB(i) = MAX( 0., MIN(AB(i),0.99-annAB(i)) )
+      !2026-09-14 - this line to be done in BLAZE after all the adjustments
+      !then change the INTENT attribute
       annAB(i) = annAB(i) + AB(i)
 
    END DO
@@ -773,6 +775,8 @@ SUBROUTINE seeded_random(x,seed)
    ! note x has to be <= 264432 in order to avoid overflow issues
    ! behaviour is compiler & serial/mpi dependent - so see catch on seed
 
+   IMPLICIT NONE
+
    real, intent(out) :: seed
    integer, intent(in) :: x
    integer :: work
@@ -787,6 +791,8 @@ SUBROUTINE seeded_random(x,seed)
 END SUBROUTINE seeded_random
 
 SUBROUTINE get_minlatlon_increment(NCELLS,latlon,dlatlon)
+
+   IMPLICIT NONE
 
    !routine determines the effective resolution of input from SF TYPE 
    !dummy routine while a more robust solution found
@@ -818,12 +824,14 @@ END SUBROUTINE get_minlatlon_increment
 
 SUBROUTINE get_grid_areakm2(NCELLS,lat,lon,area)
 
+   IMPLICIT NONE
+
    !NB assumes that lat,lon are given as grid cell centres
    INTEGER, INTENT(IN) :: NCELLS
    REAL, INTENT(IN)    :: lat(NCELLS), lon(NCELLS)
    REAL, INTENT(OUT)   :: area(NCELLS)
 
-   REAL :: dlat, dlon, PI, rEarth=6371.0
+   REAL :: dlat, dlon, PI, piR2, deg2rad, rEarth=6371.0
    INTEGER :: i
 
    CALL get_minlatlon_increment(NCELLS,lat,dlat)
