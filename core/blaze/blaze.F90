@@ -15,7 +15,7 @@ TYPE TYPE_BLAZE
    INTEGER                              :: BURNMODE ! 0=off, 1=BLAZE only, 2=BLAZE with POP
    !CRM INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
    REAL                                 :: FT,tstp
-   LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE., is_resprouter = .TRUE.
+   LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE., is_resprouter = .TRUE., FLIX_BA = .FALSE.
    CHARACTER                            :: GFEDP*80, FSTEP*7
    CHARACTER(len=6) :: OUTTSTEP  !"daily" or "ascasa"
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
@@ -29,6 +29,7 @@ TYPE TYPE_BLAZE
    CHARACTER(len=3)  :: couplingform                  !formulae for coupling to casa ("old", "new")
    CHARACTER(len=3)  :: mort_opt                      !3 character code to set POP mortality function
    CHARACTER(len=400) :: BurnedAreaFile               !full path to external BA file (e.g. GFED5)
+   INTEGER            :: BAF_styear                   !start year of the BAF
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -134,14 +135,17 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annual", faparsource ="fromfile"
   CHARACTER(len=6)    :: outtstep = "daily"
   CHARACTER(len=3)    :: couplingform = "old"
-  INTEGER :: iu
+  CHARACTER(len=3)    :: mort_opt = "TKC" 
+  LOGICAL             :: is_resprouter, FLIX_BA
+
+  INTEGER :: iu, BAF_styear
 
   !INH I think blazeTstep is now redundant
   !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
-  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode, &
+  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, BAF_styear, OutputMode, &
        K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL, outtstep, &
-       igbpfilename, faparfilename, faparsource, couplingform
+       igbpfilename, faparfilename, faparsource, couplingform, mort_opt, is_resprouter, FLIX_BA
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -199,7 +203,15 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   !call zero_blaze as if it is operating at end of year - triggers zero'ing of %annAB
   call zero_blaze(BLAZE,365)
   
+  ! pass BLAZE namelist information across to BLAZE TYPE - check for valid options
   BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
+  IF ((BLAZE%BURNT_AREA_SRC .ne. "external") .and. (BLAZE%BURNT_AREA_SRC .ne. "SIMFIRE")) THEN
+     WRITE(*,*) "error: BLAZE BURNT_AREA_SC incorrect"
+     STOP
+  END IF
+  IF (BLAZE%BURNT_AREA_SRC .eq. "external") THEN
+     BLAZE%BAF_styear = BAF_styear
+  END IF
   BLAZE%OUTMODE = TRIM(OutputMode)
   BLAZE%OUTTSTEP = TRIM(outtstep)
   IF ( (TRIM(BLAZE%OUTTSTEP) .ne. "daily") .and. (TRIM(BLAZE%OUTTSTEP) .ne. "ascasa") ) THEN
@@ -215,12 +227,22 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
      STOP
   END IF
 
-  !to be read in via namelist at some point and checked against available options
-  BLAZE%mort_opt = "TKC"
-  IF(.not. ANY(BLAZE%mort_opt == ["TKC", "ASC", "BKD", "TMK", "TPN"]) ) then
+  BLAZE%mort_opt = mort_opt
+  IF(.not. ANY(BLAZE%mort_opt == ["TKC", "ASC", "BKD", "TPN", "TMK", "TSB", "TMH"]) ) then
      WRITE(*,*) "error: BLAZE mort_opt not a correct value: check mortality_interface"
      STOP
-  END IF 
+  END IF
+  
+  IF (BLAZE%mort_opt .eq. "TMH") THEN
+     BLAZE%is_resprouter = is_resprouter
+  END IF
+
+  BLAZE%FLIX_BA = FLIX_BA
+  IF ((BLAZE%FLIX_BA) .AND. (BLAZE%BURNT_AREA_SRC .eq. "external")) THEN
+    WRITE(*,*) "-------------"
+    WRITE(*,*) "WARNING: conditions on FLIX are adjusting externally supplied BA"
+    WRITE(*,*) "-------------"
+  END IF
 
   ! SETTINGS FOR BLAZE (BLAZEFLAG)
   ! bit value:               0            | 1
@@ -1023,7 +1045,8 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
       !overwrite SIMFIRE BA with external data - first for that year-all months
       IF (DOY .EQ. 1) THEN
-        CALL READ_BAtseries_data(BLAZE%AREA, BLAZE%NCELLS, BLAZE%LAT, BLAZE%LON, BLAZE%BurnedAreaFile, 2000, YYYY)
+        CALL READ_BAtseries_data(BLAZE%AREA, BLAZE%NCELLS, BLAZE%LAT, BLAZE%LON, & 
+                      BLAZE%BurnedAreaFile, BLAZE%BAF_styear, YYYY)
       END IF
       !then spread from month to daily
       CALL monthly_to_daily_BA(BLAZE%AB, BLAZE%NCELLS, BLAZE%AREA, DOM, DOY)
