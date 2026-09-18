@@ -467,8 +467,8 @@ IMPLICIT NONE
 
 REAL   , INTENT(IN) :: FAPAR, FIRE_IDX, POPDENS
 INTEGER, INTENT(IN) :: BIOME, REGIO_FLAG
-!REAL                :: ANNUAL_BA
-REAL, INTENT(OUT)   :: ANNUAL_BA !, T1, T2, T3, T4
+REAL                :: ANNUAL_BA
+!REAL, INTENT(OUT)   :: ANNUAL_BA !, T1, T2, T3, T4
 
 INTEGER :: ai
 
@@ -564,7 +564,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
   TYPE (TYPE_SIMFIRE) :: SF
   REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
-  REAL,    INTENT(INOUT) :: annAB(*)
+  REAL,    INTENT(IN) :: annAB(*)
   !REAL,    INTENT(OUT):: T1(*), T2(*), T3(*), T4(*)
   INTEGER, INTENT(IN) :: YEAR, MM
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
@@ -687,7 +687,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
       AB(i) = MAX( 0., MIN(AB(i),0.99-annAB(i)) )
       !2026-09-14 - this line to be done in BLAZE after all the adjustments
       !then change the INTENT attribute
-      annAB(i) = annAB(i) + AB(i)
+      !annAB(i) = annAB(i) + AB(i)
 
    END DO
 

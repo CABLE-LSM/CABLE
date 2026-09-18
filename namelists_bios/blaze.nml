@@ -1,7 +1,8 @@
 &blazenml
     blazeTStep       = "daily"	      ! Nesterov frequency ("daily","annual")
-    BurnedAreaSource = "SIMFIRE"      ! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
+    BurnedAreaSource = "SIMFIRE"      ! Burnt Area ("external","SIMFIRE") 
     BurnedAreaFile   = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/BA_Aust_2001-2019.nc"     		! used for Prescribed fires !CLN not available for now!
+    BAF_styear       = 2001
     OutputMode       = "full"      	  ! "std" for standard vars, "full" for full set of BLAZE output
     K_LITTER_BOREAL    = 0.38         ! tuning coeff - boreal
     K_LITTER_SAVANNA   = 0.75         ! tuning coeff - savannah
@@ -13,6 +14,10 @@
     faparfilename    = " "            ! full path to fapar climatology file (global runs)
     faparsource      = "fromfile"     ! use climatology or inline fapar calculations (not active yet)
     couplingform     = "old"          ! which form of TO/coupling to use ("old" or "new")
+    mort_opt         = "TKC"          ! 3-letter code setting mortality function
+    is_resprouter    = .TRUE.         ! logical for mort_opt "TMH"
+    RH_BA            = .TRUE.         ! logical - restrict fire to periods of low humidity
+    FLIX_BA          = .FALSE.        ! logical - scale area by factor set by fire intensity
 &end
 &simfirenml
     SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 

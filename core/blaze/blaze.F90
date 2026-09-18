@@ -15,7 +15,8 @@ TYPE TYPE_BLAZE
    INTEGER                              :: BURNMODE ! 0=off, 1=BLAZE only, 2=BLAZE with POP
    !CRM INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
    REAL                                 :: FT,tstp
-   LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE., is_resprouter = .TRUE., FLIX_BA = .FALSE.
+   LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE.
+   LOGICAL                              :: is_resprouter = .TRUE., FLIX_BA = .FALSE., RH_BA = .FALSE.
    CHARACTER                            :: GFEDP*80, FSTEP*7
    CHARACTER(len=6) :: OUTTSTEP  !"daily" or "ascasa"
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
@@ -136,7 +137,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   CHARACTER(len=6)    :: outtstep = "daily"
   CHARACTER(len=3)    :: couplingform = "old"
   CHARACTER(len=3)    :: mort_opt = "TKC" 
-  LOGICAL             :: is_resprouter, FLIX_BA
+  LOGICAL             :: is_resprouter, FLIX_BA, RH_BA
 
   INTEGER :: iu, BAF_styear
 
@@ -145,7 +146,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   !CLN     SIMFIRE_REGION
   NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, BAF_styear, OutputMode, &
        K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL, outtstep, &
-       igbpfilename, faparfilename, faparsource, couplingform, mort_opt, is_resprouter, FLIX_BA
+       igbpfilename, faparfilename, faparsource, couplingform, mort_opt, is_resprouter, RH_BA, FLIX_BA
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -237,10 +238,17 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
      BLAZE%is_resprouter = is_resprouter
   END IF
 
+  BLAZE%RH_BA = RH_BA
+  IF ((BLAZE%RH_BA) .AND. (BLAZE%BURNT_AREA_SRC .eq. "external")) THEN
+    WRITE(*,*) "-------------"
+    WRITE(*,*) "WARNING: conditions on RH are adjusting the externally supplied BA"
+    WRITE(*,*) "-------------"
+  END IF
+
   BLAZE%FLIX_BA = FLIX_BA
   IF ((BLAZE%FLIX_BA) .AND. (BLAZE%BURNT_AREA_SRC .eq. "external")) THEN
     WRITE(*,*) "-------------"
-    WRITE(*,*) "WARNING: conditions on FLIX are adjusting externally supplied BA"
+    WRITE(*,*) "WARNING: conditions on FLIX are adjusting the externally supplied BA"
     WRITE(*,*) "-------------"
   END IF
 
@@ -998,6 +1006,9 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
        AB !,                & ! [frac.]
        !popd,              & ! [kW/m]
        !mnest
+   
+   !tunable coefficients linking daily FLIX to dailyBA
+   REAL, DIMENSION(5), PARAMETER :: FLXBA = (/0.5, 1.0, 2.0, 4.0, 5.0 /)
 
   !REAL, DIMENSION(BLAZE%NCELLS)   :: &
   !     T1,                &
@@ -1058,25 +1069,23 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP)!,  T1,T2,T3,T4  )
 
-     !2026-09-14  -this is in the wrong place - needs to be below or inside COMBUST()
+     !Prevent BA in CELLS with insufficient fuel
      DO np = 1, BLAZE%NCELLS
-        ! force all FLIx=5 ("seeders") fires >1km2 to be of larger size (0.5 max_ba)
-        IF ((BLAZE%FLIx(np) .eq. 5) .and. (BLAZE%AB(np)*SF%AREA(np) .ge. 1.0)) THEN
-           BLAZE%annAB(np) = BLAZE%annAB(np) - BLAZE%AB(np)
-           BLAZE%AB(np) = MAX( MIN(max_ba/2./SF%AREA(np), 0.99-BLAZE%annAB(np)), BLAZE%AB(np))
-           BLAZE%annAB(np) =  BLAZE%annAB(np) + BLAZE%AB(np)
-        END IF
+      !   ! force all FLIx=5 ("seeders") fires >1km2 to be of larger size (0.5 max_ba)
+      !   IF ((BLAZE%FLIx(np) .eq. 5) .and. (BLAZE%AB(np)*SF%AREA(np) .ge. 1.0)) THEN
+      !      BLAZE%annAB(np) = BLAZE%annAB(np) - BLAZE%AB(np)
+      !      BLAZE%AB(np) = MAX( MIN(max_ba/2./SF%AREA(np), 0.99-BLAZE%annAB(np)), BLAZE%AB(np))
+      !      BLAZE%annAB(np) =  BLAZE%annAB(np) + BLAZE%AB(np)
+      !   END IF
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:), &
              BLAZE%AGLit_g(np,:),BLAZE%K_TUNE_LITTER(np)) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
      END DO
      
-     !limit AB during  periods of 'high' humidity - surrogate for fuel moisture 
-     BLAZE%annAB = BLAZE%annAB - BLAZE%AB
-     !THis line should likely be in COMBUST
-     BLAZE%AB = BLAZE%AB * ( 1.0  - MIN( 5.*MAX((BLAZE%RH-40.0),0.0),100.0)/100.0 )
-     !accounting shold go at the end....
-     BLAZE%annAB = BLAZE%annAB + BLAZE%AB
+     !limit AB during  periods of 'high' humidity - surrogate for fuel moisture
+     !this necessarily reduces totalBA so scale by 1.5 
+     !BLAZE%AB = 1.5 *BLAZE%AB * ( 1.0  - MIN( 5.*MAX((BLAZE%RH-40.0),0.0),100.0)/100.0 )
+     !BLAZE%AB = MAX( MIN(BLAZE%AB,0.99-BLAZE%annAB),0. )
      
      !popd = SF%POPD
      !mnest= SF%MAX_NESTEROV
@@ -1097,14 +1106,15 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      BLAZE%DFLI(np) = BLAZE%FLI(np)
      BLAZE%TO(np,:) = 0.
 
+     !INH - what's this doing?  I think it can be removed 
+     ! - sets BLAZE%FLUXES but then overwritten in BLAZE_driver
      IF (BLAZE%AB(np) .GT. 0. ) THEN
         CALL BLAZE_TURNOVER( BLAZE%AB(np), CPLANT_g(np,:), CPLANT_w(np,:), &
              BLAZE%AGLit_g(np,:), BLAZE%AGLit_w(np,:),BLAZE%BGLit_g(np,:), BLAZE%BGLit_w(np,:), &
              BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE, BLAZE%IAM )
      ENDIF
 
-
-
+     !INH 2026-09-18 - what's this for?
      AB(np) = BLAZE%AB(np)
 
      ! Apply other half of former deadwood to litter now How to distribut (str
@@ -1116,14 +1126,34 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
   END DO
 
+  !limit AB during  periods of 'high' humidity - surrogate for fuel moisture
+   !this necessarily reduces totalBA so scale by 1.5 
+  IF (BLAZE%RH_BA) THEN
+     BLAZE%AB = 1.5 *BLAZE%AB * ( 1.0  - MIN( 5.*MAX((BLAZE%RH-40.0),0.0),100.0)/100.0 )
+     BLAZE%AB = MAX( MIN(BLAZE%AB,0.99-BLAZE%annAB),0. )
+  END IF
+
+  !adjust BA so that lower intensity fires are smaller, higher intensity fires are larger
+  !as specified by FLXBA
+  IF (BLAZE%FLIX_BA) THEN
+     DO np=1, BLAZE%NCELLS
+        AB(np) = FLXBA(BLAZE%FLIX(np))*BLAZE%AB(np)
+        BLAZE%AB(np) = MAX( MIN(max_ba/2./SF%AREA(np), 0.99-BLAZE%annAB(np)), AB(np))
+     END DO
+   END IF
+
+  !2026-09-18 increment the annualBA after all adjustments
+  !sumBLAZE accumulation (equiv to annAB) is done in update_sumblaze
+  BLAZE%annAB = BLAZE%annAB + BLAZE%AB
+
   !to get additional outputs - investigative purposes only 
   ! needs to be in a Burnt_area_src condition I think
   ! needs to be cleaned up T1-T4 not needed
-  BLAZE%ROS = SF%MAX_NESTEROV
-  !BLAZE%KBDI = T1
-  !BLAZE%D = T2    !->DMacArthur
-  !BLAZE%FFDI = T3
-  !BLAZE%LR = T4   !->LastRain
+  ! BLAZE%ROS = SF%MAX_NESTEROV
+  ! BLAZE%KBDI = T1
+  ! BLAZE%D = T2    !->DMacArthur
+  ! BLAZE%FFDI = T3
+  ! BLAZE%LR = T4   !->LastRain
 
 !  IF ( BLAZE%DAY .EQ. 1 ) &
 !       CALL BLAZE_DIAG( NCELLS, BLAZE, CPLANT_g, CPLANT_w, AGL_g, AGL_w, TO, "dref")
@@ -1474,6 +1504,7 @@ SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, 
   ! if year requested is outside range (so styear + N data/12) then uses a climatology 
   ! variable requested has to be BA 
 
+   USE CABLE_COMMON_MODULE, ONLY:  HANDLE_ERR
    use netcdf
 
    IMPLICIT NONE
