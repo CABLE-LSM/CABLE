@@ -11,7 +11,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up matrix
         id: set-matrix
@@ -29,21 +29,16 @@ jobs:
       max-parallel: 5
       matrix:
         file: ${{ fromJson(needs.pre-ci.outputs.matrix) }}
-    uses: access-nri/build-ci/.github/workflows/ci.yml@v3
+    uses: access-nri/build-ci/.github/workflows/ci.yml@v4
     with:
       spack-manifest-path: ${{ matrix.file }}
       allow-ssh-into-spack-install: false  # If true, PR author must ssh into instance to complete job
-      spack-manifest-data-path: .github/build-ci/data/standard.json
       spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache
       spack-compiler-manifest-path: .github/build-ci/compilers/spack.yaml
-      # builtin-spack-packages-ref: develop
-      # access-spack-packages-ref: api-v2
-      # spack-config-ref: main
-      # spack-ref: releases/v1.1
-      
       # CABLE isn't part of the ACCESS-NRI org so can't access the runners
       run-self-hosted: false
-
+      # Default args (including explicit spack/spack-config versions)
+      # are specified in https://github.com/ACCESS-NRI/build-ci/tree/v4/.github/workflows#inputs
     secrets:
       # Needed to access private ACCESS-NRI repos
       spack-install-command-pat: ${{ secrets.SPACK_INSTALL_COMMAND_PAT }}
