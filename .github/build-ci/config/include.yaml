@@ -1,0 +1,6 @@
+# This file is included via the manifest
+include:
+  - git: https://github.com/ACCESS-NRI/access-spack-packages
+    branch: api-v2
+    paths:
+    - .github/build-ci/config/include
