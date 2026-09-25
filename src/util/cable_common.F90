@@ -27,11 +27,10 @@ USE cable_runtime_opts_mod ,ONLY : cable_user
 USE cable_runtime_opts_mod ,ONLY : satuparam
 USE cable_runtime_opts_mod ,ONLY : wiltparam
 USE cable_runtime_opts_mod ,ONLY : snmin
+USE cable_phys_constants_mod, ONLY : mm2m
+
 
   IMPLICIT NONE
-
-  ! Unit conversion millimeter to meter:
-  REAL(r_2), PARAMETER :: mm2m=0.001_r_2
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node

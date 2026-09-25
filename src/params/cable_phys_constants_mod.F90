@@ -17,6 +17,8 @@ MODULE cable_phys_constants_mod
 ! Where it fits in the model flow:https://trac.nci.org.au/trac/cable/wiki/TBC
 !******************************************************************************
 
+USE cable_other_constants_mod, ONLY: r_2
+
 IMPLICIT NONE
 
 PUBLIC
@@ -83,5 +85,11 @@ REAL, PARAMETER :: umin   = 0.1     ! guarantees convergence, was 0.01
 
 !model parameter shared across subroutines -> cable_phys_constants
 REAL, PARAMETER :: snow_depth_thresh = 1.0
+
+! Unit conversion constants
+
+! millimeter to meter:
+REAL(r_2), PARAMETER :: mm2m=0.001_r_2
+
 
 END MODULE cable_phys_constants_mod
