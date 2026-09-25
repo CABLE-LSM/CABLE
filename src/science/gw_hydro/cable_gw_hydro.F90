@@ -2292,8 +2292,8 @@ subroutine swc_hyst_direction(soil,ssnow,veg)
                                         (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
                                          **(-1.0/soil%bch_vec(i,klev))+&
                                         ssnow%watr_hys(i,klev)
-               soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/(soil%hyds_vec(i,klev)*m2mm)&
-                                       **(1.0/(2.0*soil%bch_vec(i,klev)+3.0)) *&
+               soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/(soil%hyds_vec(i,klev)*m2mm)) &
+                                       **(1.0/(2.0*soil%bch_vec(i,klev)+3.0)) * &
                                        (ssnow%ssat_hys(i,klev)-ssnow%watr_hys(i,klev)) + ssnow%watr_hys(i,klev)
             end if
         end do
