@@ -1,27 +1,16 @@
 spack:
+  include:
+  # Include configuration from this repository, with the environment variable defined in build-ci
+  - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - um@13.0 +cable model=vn13 um_ref="AM3-dev" jules_ref="AM3-dev" ukca_ref="AM3-2026.08.000" shumlib_ref="2026.07.0" casim_ref="um13.8" socrates_ref="um13.8"
-
   packages:
     cable:
       require:
       - '@git.{{ ref }}'
       - '~mpi'
       - 'library=access3'
-
-    python:
-      require:
-        - '@3.11.14'
-
-    intel-oneapi-compilers-classic:
-      require:
-      - '@{{ oneapi_compiler_classic_ver }}'
-
     all:
       require:
       - '%access_intel'
-      - 'target={{ target }}'
-
   view: false
-  concretizer:
-    unify: false

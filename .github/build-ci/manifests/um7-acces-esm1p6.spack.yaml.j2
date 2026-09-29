@@ -1,5 +1,8 @@
 # Building UM7 stand-alone using access-esm1.6 spack version
 spack:
+  include:
+  # Include configuration from this repository, with the environment variable defined in build-ci
+  - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - 'um7'
   packages:
@@ -26,13 +29,7 @@ spack:
       require:
         - '@2021.05.0'
         - 'site=nci-gadi'
-    intel-oneapi-compilers:
-      require:
-      - '@{{ oneapi_compiler_ver }}'
     all:
       require:
       - '%access_oneapi'
-      - 'target={{ target }}'
-  concretizer:
-    unify: false
   view: false

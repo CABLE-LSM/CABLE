@@ -1,17 +1,11 @@
 spack:
+  include:
+  # Include configuration from this repository, with the environment variable defined in build-ci
+  - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - cable@git.{{ ref }}
-
   packages:
-    intel-oneapi-compilers-classic:
-      require:
-      - '@{{ oneapi_compiler_classic_ver }}'
-
     all:
       require:
-      - '%access_intel'  # https://github.com/ACCESS-NRI/spack-config/blob/main/v1.1/toolchains.yaml
-      - target={{ target }}
-
-  concretizer:
-    unify: false
+      - '%access_intel'
   view: false
