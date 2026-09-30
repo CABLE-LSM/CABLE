@@ -22,7 +22,7 @@ TYPE TYPE_BLAZE
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
    !CHARACTER(len=8) :: BLAZE_TSTEP    = "annual"    ! Call frequency ("daily","monthly","annual")
    CHARACTER(len=6) :: SIMFIRE_REGION = "GLOBAL"    ! either GLOBAL, EUROPE, ANZ
-   CHARACTER(len=7) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
+   CHARACTER(len=10) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
    INTEGER                              :: IAM ! number of master/worker for diagnostic output reasons
    REAL                                 :: K_LITTER_BOREAL, K_LITTER_SAVANNA, K_LITTER_TEMPERATE, K_LITTER_TROPICS
    CHARACTER(len=400) :: igbpfilename, faparfilename  !full paths to IGBP (SIMFIRE) and fapar climataolgy files
@@ -208,10 +208,13 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
   IF ((BLAZE%BURNT_AREA_SRC .ne. "external") .and. (BLAZE%BURNT_AREA_SRC .ne. "SIMFIRE")) THEN
      WRITE(*,*) "error: BLAZE BURNT_AREA_SC incorrect"
+     WRITE(*,*) "value is ", BLAZE%BURNT_AREA_SRC, " should be SIMFIRE or external" 
      STOP
   END IF
   IF (BLAZE%BURNT_AREA_SRC .eq. "external") THEN
+     BLAZE%BurnedAreaFile = BurnedAreaFile
      BLAZE%BAF_styear = BAF_styear
+     WRITE(*,*) "using external BurnedAreaFile", trim(BLAZE%BurnedAreaFile), "with start year", BLAZE%BAF_styear
   END IF
   BLAZE%OUTMODE = TRIM(OutputMode)
   BLAZE%OUTTSTEP = TRIM(outtstep)
@@ -1010,6 +1013,8 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
    !tunable coefficients linking daily FLIX to dailyBA
    REAL, DIMENSION(5), PARAMETER :: FLXBA = (/0.5, 1.0, 2.0, 4.0, 5.0 /)
 
+   LOGICAL, SAVE :: first_call = .TRUE.
+
   !REAL, DIMENSION(BLAZE%NCELLS)   :: &
   !     T1,                &
   !     T2,                &
@@ -1054,10 +1059,16 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
       !we will need - may not need this call - except for diagnostics
       !CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , BLAZE%annAB, climate, BLAZE%faparsource, BLAZE%FSTEP)!,  T1,T2,T3,T4  )
 
-      !overwrite SIMFIRE BA with external data - first for that year-all months
-      IF (DOY .EQ. 1) THEN
-        CALL READ_BAtseries_data(BLAZE%AREA, BLAZE%NCELLS, BLAZE%LAT, BLAZE%LON, & 
+      !Assume that BurnedAreaFile operates in a discrete time period after BAF_styear
+      !only need to read on first call (for climatology) or for years after BAF_styear
+      !this reduces number of open/close file and read files substantively
+      IF (first_call .OR. (YYYY .GE. BLAZE%BAF_styear)) THEN
+      !overwrite SIMFIRE BA with external data - get monthly data/monthly climatology
+         IF (DOY .EQ. 1) THEN
+            CALL READ_BAtseries_data(BLAZE%AREA, BLAZE%NCELLS, BLAZE%LAT, BLAZE%LON, & 
                       BLAZE%BurnedAreaFile, BLAZE%BAF_styear, YYYY)
+         END IF
+         first_call = .FALSE.
       END IF
       !then spread from month to daily
       CALL monthly_to_daily_BA(BLAZE%AB, BLAZE%NCELLS, BLAZE%AREA, DOM, DOY)
@@ -1499,10 +1510,10 @@ END SUBROUTINE update_sumBLAZE
 ! Likely needs to be a new MODULE
 
 SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, styear, year)
-  ! Purpose:  opens up BruendAreaFile, then for each grid cell passes data for year requested
+  ! Purpose:  opens up BurendAreaFile, then for each grid cell passes data for year requested
   ! reads data into monthlyBA array
   ! if year requested is outside range (so styear + N data/12) then uses a climatology 
-  ! variable requested has to be BA 
+  ! variable requested has to be BA, a scaling_factor is looked for
 
    USE CABLE_COMMON_MODULE, ONLY:  HANDLE_ERR
    use netcdf
@@ -1517,15 +1528,20 @@ SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, 
 
    LOGICAL  :: use_average
    INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, T_ID, ilat,ilon,itime, NLAT, NLON, NTIME
-   INTEGER:: STATUS, I, J, nstart, nyear
+   REAL :: scale_factor
+   INTEGER:: STATUS, I, J, K, nstart, nyear
    REAL, DIMENSION(:), ALLOCATABLE :: lon_BA, lat_BA
-   REAL, DIMENSION(:,:), ALLOCATABLE :: this_year
+   REAL, DIMENSION(:,:), ALLOCATABLE :: this_year, from_file
 
-   !check whether BruneAreaFile exists and if var/dimension names are correct
+   !check whether BruneAreaFile exists and if BA variable exists var/dimension names are correct
    STATUS = NF90_OPEN(TRIM(BurnedAreaFile), NF90_NOWRITE, F_ID)
    CALL HANDLE_ERR(STATUS, "Opening BA File "//BurnedAreaFile)
    STATUS = NF90_INQ_VARID(F_ID,'BA', V_ID)
    CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//BurnedAreaFile)
+   scale_factor = 1.0
+   STATUS = NF90_GET_ATT(F_ID, V_ID, "scale_factor", scale_factor)
+   
+   !check var/dimensions names are correct
    STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
    CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//BurnedAreaFile)
    STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
@@ -1545,12 +1561,14 @@ SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, 
       STOP
    END IF
    nyear = INT(ntime/12)
+
+   !order of dimensions in GFED5 is (time,lat,lon)
   
-   !arrays for latitude and longitude
+   !arrays for latitude and longitude from observations
    ALLOCATE(lat_BA(NLAT),lon_BA(NLON))
    STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, start=(/1/)  )
    STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, start=(/1/)  )
-
+   
    !check that all requested lat/lon are within range of BurnedAreaFile
    IF ( (MINVAL(latin)<MINVAL(lat_BA)) .OR. (MAXVAL(latin)>MAXVAL(lat_BA)) ) THEN
       WRITE(*,*) BurnedAreaFile, " does not span requested range of latitudes"
@@ -1560,7 +1578,7 @@ SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, 
       WRITE(*,*) BurnedAreaFile, " does not span requested range of longitudes"
       STOP
    END IF
-
+   
    !are we within data range or using a climatology - number of years is ntime/12
    use_average = .FALSE.
    IF ((year<styear) .OR. (year > styear + nyear - 1) ) THEN
@@ -1568,42 +1586,56 @@ SUBROUTINE READ_BAtseries_data(monthlyBA, NCELLS, latin, lonin, BurnedAreaFile, 
    END IF
 
    !read in data - depends on whether using_average or just this year
+   ALLOCATE(this_year(1,12),from_file(12,1))
    IF (use_average) THEN
-      ALLOCATE(this_year(1,12))
       monthlyBA(:,:) = 0.0
      
       DO I = 1, NCELLS
-        ilat = MINLOC(ABS(lat_BA - latin),DIM=1)
-        ilon = MINLOC(ABS(lon_BA - lonin),DIM=1)
-
+        ilat = MINLOC(ABS(lat_BA - latin(I)),DIM=1)
+        ilon = MINLOC(ABS(lon_BA - lonin(I)),DIM=1)
+        
         !running average
         do j = 1, nyear
-           nstart = j*12 + 1
-           !NB assumes order of dimensions in array - ncdump (time,lat,lon)
-           STATUS = NF90_GET_VAR( F_ID, V_ID, this_year, &
-                start=(/nstart,ilon,ilat/), count=(/12,1,1/) )
-           CALL HANDLE_ERR(STATUS, "Reading direct from "//BurnedAreaFile)
-           monthlyBA(i,:) = (REAL(j)*monthlyBA(i,:) + this_year(1,:))/REAL(j+1)
+            nstart = (j-1)*12
+            !NB assumes order of dimensions in array - ncdump (time,lat,lon)
+           
+            !get this year's monthly data
+            STATUS = NF90_GET_VAR( F_ID,V_ID,from_file, &
+                     start=(/nstart+1,ilon,ilat/), count=(/12,1,1/) )
+            CALL HANDLE_ERR(STATUS, "Averaging and Reading direct from "//BurnedAreaFile)
+            
+            !reshape to (NCELLS,12)
+            this_year = RESHAPE(from_file,[1,12] )
+
+            !running average with scaling factor applied
+            monthlyBA(i,:) = (REAL(j-1)*monthlyBA(i,:) + scale_factor*this_year(1,:))/REAL(j)
         end do
       END DO
 
-      DEALLOCATE(this_year)
-
    ELSE
-      nstart = (year-styear)*12+1
+      !just use this year's observations
+      nstart = (year-styear)*12
 
       DO I = 1, NCELLS
-        ilat = MINLOC(ABS(lat_BA - latin),DIM=1)
-        ilon = MINLOC(ABS(lon_BA - lonin),DIM=1)
+        ilat = MINLOC(ABS(lat_BA - latin(I)),DIM=1)
+        ilon = MINLOC(ABS(lon_BA - lonin(I)),DIM=1)
+        
+        !get this year's monthly data
+        STATUS = NF90_GET_VAR( F_ID,V_ID,from_file, &
+                  start=(/nstart+1,ilon,ilat/), count=(/12,1,1/) )
+        CALL HANDLE_ERR(STATUS, "Averaging and Reading direct from "//BurnedAreaFile)
 
-        !NB assumes order of dimensions in array - ncdump (time,lat,lon)
-        STATUS = NF90_GET_VAR( F_ID, V_ID, monthlyBA(i,:), &
-           start=(/nstart,ilon,ilat/), count=(/12,1,1/))
-        CALL HANDLE_ERR(STATUS, "Reading direct from "//BurnedAreaFile)
+        !reshape to (NCELLS,12)
+        this_year = RESHAPE(from_file,[1,12] )
+
+        !apply scaling factor
+        monthlyBA(i,:) = scale_factor*this_year(1,:)
+
       END DO
    END IF
 
-   DEALLOCATE(lat_BA, lon_BA)
+   DEALLOCATE(from_file,this_year)
+   DEALLOCATE(lon_BA,lat_BA)
 
    STATUS = NF90_CLOSE(F_ID)
    
@@ -1620,19 +1652,22 @@ SUBROUTINE monthly_to_daily_BA(dailyBA, NCELLS, monthlyBA, DOM, DOY)
 
    INTEGER, INTENT(IN) :: NCELLS
    REAL, INTENT(OUT)   :: dailyBA(NCELLS)
-   REAL, INTENT(IN)    :: monthlyBA(NCELLS)
+   REAL, INTENT(IN)    :: monthlyBA(NCELLS,12)
    INTEGER, INTENT(IN) :: DOM(12), DOY
 
-   INTEGER :: I, count
+   INTEGER :: I, count, II
 
-   dailyBA(:) = 0.0
+   !This section finds which month we're in
    count = 0
-   DO I = 1,12
+   II = 12                        !initialise to last month
+   DO I = 1,11
       IF ( (DOY .GE. count) .AND. (DOY<count+DOM(I)) ) THEN
-         dailyBA(:) = monthlyBA(:)/REAL(DOM(I))
+         II = I                   !reset II if in earlier month
       END IF
       count = count + DOM(I)
-   END DO  
+   END DO
+   
+   dailyBA(:) = monthlyBA(:,II)/REAL(DOM(II))
 
 END SUBROUTINE monthly_to_daily_BA
 
