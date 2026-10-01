@@ -17,6 +17,7 @@ options below will be passed to CMake when generating the build system.
 Options:
   -c, --clean   Delete build directory before invoking CMake.
   -m, --mpi     Compile MPI executable.
+  --pio         Build with PIO support. Requires --mpi.
   -C, --compiler <compiler>
                 Specify the compiler to use.
   -n, --ncpus <ncpus>
@@ -45,7 +46,7 @@ EOF
 # DEFAULTS
 
 # Configure
-cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF -DCABLE_LIBRARY=OFF)
+cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF -DCABLE_PIO=OFF -DCABLE_LIBRARY=OFF)
 
 # Build
 build_args=()
@@ -66,6 +67,9 @@ while [ ${#} -gt 0 ]; do
         -m|--mpi)
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
+            ;;
+        --pio)
+            cmake_args+=(-DCABLE_PIO="ON")
             ;;
         -l|--library)
             cmake_args+=(-DCABLE_LIBRARY="ON")
