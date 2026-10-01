@@ -10,42 +10,6 @@ option(CABLE_MPI "Build the MPI executable" OFF)
 option(CABLE_PIO "Build with PIO support (requires CABLE_MPI)" OFF)
 option(CABLE_TESTS "Build CABLE tests" OFF)
 
-if(CABLE_PIO AND NOT CABLE_MPI)
-    message(FATAL_ERROR "CABLE_PIO requires CABLE_MPI to be enabled.")
-endif()
-
-# third party libs
-if(CABLE_MPI)
-    find_package(MPI REQUIRED COMPONENTS Fortran)
-endif()
-if(CABLE_PIO)
-    find_package(PIO REQUIRED COMPONENTS Fortran)
-    message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
-endif()
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
-
-if(CABLE_TESTS)
-    if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "2024.0")
-        message(WARNING "Intel Fortran 2024.0 or higher is recommended for building tests.")
-    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14.1")
-        message(WARNING "GNU Fortran 14.1 or higher is recommended for building tests.")
-    endif()
-    enable_testing()
-    option(FORTUNO_WITH_MPI "Fortuno: whether to build the MPI interface" ${CABLE_MPI})
-    if(CABLE_MPI)
-        set(fortuno_libs Fortuno::fortuno_mpi)
-    else()
-        set(fortuno_libs Fortuno::fortuno_serial)
-    endif ()
-    include(FetchContent)
-    FetchContent_Declare(Fortuno
-        GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
-        GIT_TAG eb61214fd76d6235a3072b6f8ed83d0380c2f266
-    )
-    FetchContent_MakeAvailable(Fortuno)
-endif()
-
 set(CABLE_Intel_Fortran_FLAGS -fp-model precise)
 set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
 set(CABLE_Intel_Fortran_FLAGS_RELEASE -O2)
@@ -70,7 +34,13 @@ endif()
 
 # Set the module directory to assist Spack
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+
+# The library build is minimal: no MPI, no PIO, no NetCDF and no tests
 if(CABLE_LIBRARY)
+
+    if(CABLE_MPI OR CABLE_TESTS)
+        message(WARNING "CABLE_LIBRARY build: ignoring CABLE_MPI and CABLE_TESTS")
+    endif()
 
     # Set the core sources
     set(SOURCES
@@ -132,7 +102,7 @@ if(CABLE_LIBRARY)
         src/science/soilsnow/cbl_surfbv.F90
         src/science/soilsnow/cbl_thermal.F90
         src/science/soilsnow/cbl_trimb.F90
-	    src/science/landuse/landuse3.F90
+        src/science/landuse/landuse3.F90
         src/science/landuse/landuse_constant.F90
         src/params/cable_phys_constants_mod.F90
         src/params/grid_constants_cbl.F90
@@ -210,7 +180,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/casa/types/casa_dimension.F90
             src/coupled/AM3/casa/types/casa_inout.F90
             src/coupled/AM3/casa/types/casa_readbiome.F90
-	        src/offline/cable_surface_types.F90
+            src/offline/cable_surface_types.F90
             src/coupled/AM3/cable/landuse/casa_ESM15landuse.F90
         )
         if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
@@ -240,6 +210,38 @@ if(CABLE_LIBRARY)
     install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/ TYPE INCLUDE)
 
 else()
+
+    # third party libs
+    if(CABLE_MPI)
+        find_package(MPI REQUIRED COMPONENTS Fortran)
+        find_package(PIO COMPONENTS Fortran QUIET)
+        if(TARGET PIO::PIO_Fortran)
+            message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
+        endif()
+    endif()
+    if(CABLE_TESTS)
+        if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "2024.0")
+            message(WARNING "Intel Fortran 2024.0 or higher is recommended for building tests.")
+        elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14.1")
+            message(WARNING "GNU Fortran 14.1 or higher is recommended for building tests.")
+        endif()
+        enable_testing()
+        option(FORTUNO_WITH_MPI "Fortuno: whether to build the MPI interface" ${CABLE_MPI})
+        if(CABLE_MPI)
+            set(fortuno_libs Fortuno::fortuno_mpi)
+        else()
+            set(fortuno_libs Fortuno::fortuno_serial)
+        endif ()
+        include(FetchContent)
+        FetchContent_Declare(Fortuno
+            GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
+            GIT_TAG eb61214fd76d6235a3072b6f8ed83d0380c2f266
+        )
+        FetchContent_MakeAvailable(Fortuno)
+    endif()
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
 
     add_library(
         cable_common
