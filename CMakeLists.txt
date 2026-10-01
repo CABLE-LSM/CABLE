@@ -450,6 +450,7 @@ else()
             tests/testapp.F90
             tests/test_cable_netcdf.F90
             tests/test_cable_yaml.F90
+            tests/test_cable_netcdf_compression.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)

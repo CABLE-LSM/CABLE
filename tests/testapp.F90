@@ -8,11 +8,13 @@ program testapp
   use fortuno_interface_mod, only: test_list => test_list_t
   use test_cable_netcdf, only: cable_netcdf_test_list
   use test_cable_yaml, only: cable_yaml_test_list
+  use test_cable_netcdf_compression, only: cable_netcdf_compression_test_list
   implicit none
 
   call execute_cmd_app(test_list([ &
       cable_netcdf_test_list(), &
-      cable_yaml_test_list() &
+      cable_yaml_test_list(), &
+      cable_netcdf_compression_test_list() &
   ]))
 
 end program testapp
