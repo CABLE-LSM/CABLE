@@ -13,6 +13,7 @@ program testapp
   use test_cable_grid_reductions, only: cable_grid_reductions_test_list
   use test_cable_output_catalogue, only: cable_output_catalogue_test_list
   use test_cable_output_config, only: cable_output_config_test_list
+  use test_cable_output_streams, only: cable_output_streams_test_list
   implicit none
 
   call execute_cmd_app(test_list([ &
@@ -22,7 +23,8 @@ program testapp
       cable_timing_test_list(), &
       cable_grid_reductions_test_list(), &
       cable_output_catalogue_test_list(), &
-      cable_output_config_test_list() &
+      cable_output_config_test_list(), &
+      cable_output_streams_test_list() &
   ]))
 
 end program testapp

@@ -466,6 +466,7 @@ else()
             tests/test_cable_grid_reductions.F90
             tests/test_cable_output_catalogue.F90
             tests/test_cable_output_config.F90
+            tests/test_cable_output_streams.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)
