@@ -85,6 +85,8 @@ nav:
       - Restart: user_guide/inputs/restart.md
     - Output files:
       - user_guide/outputs/index.md
+      - Configuration file reference: user_guide/outputs/configuration_file.md
+      - Examples: user_guide/outputs/examples.md
       - Variable catalogue: user_guide/outputs/variable_catalogue.md
     - Running CABLE:
       - Running CABLE with CASA-CNP: user_guide/running_cable/running_cable_with_casacnp.md 
