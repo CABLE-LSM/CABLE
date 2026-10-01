@@ -7,6 +7,7 @@ project(
 )
 
 option(CABLE_MPI "Build the MPI executable" OFF)
+option(CABLE_PIO "Build with PIO support (requires CABLE_MPI)" OFF)
 option(CABLE_TESTS "Build CABLE tests" OFF)
 
 # Compiler flags are selected regardless of the type of build
@@ -38,8 +39,8 @@ set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 # The library build is minimal: no MPI, no PIO, no NetCDF and no tests
 if(CABLE_LIBRARY)
 
-    if(CABLE_MPI OR CABLE_TESTS)
-        message(WARNING "CABLE_LIBRARY build: ignoring CABLE_MPI and CABLE_TESTS")
+    if(CABLE_MPI OR CABLE_PIO OR CABLE_TESTS)
+        message(WARNING "CABLE_LIBRARY build: ignoring CABLE_MPI, CABLE_PIO and CABLE_TESTS")
     endif()
 
     # Set the core sources
@@ -211,11 +212,16 @@ if(CABLE_LIBRARY)
 
 else()
 
+    # PIO is an extension of the MPI build and cannot be enabled without it
+    if(CABLE_PIO AND NOT CABLE_MPI)
+        message(FATAL_ERROR "CABLE_PIO requires CABLE_MPI to be enabled")
+    endif()
+
     # third party libs
     if(CABLE_MPI)
         find_package(MPI REQUIRED COMPONENTS Fortran)
-        find_package(PIO COMPONENTS Fortran QUIET)
-        if(TARGET PIO::PIO_Fortran)
+        if(CABLE_PIO)
+            find_package(PIO REQUIRED COMPONENTS Fortran)
             message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
         endif()
     endif()
@@ -233,9 +239,11 @@ else()
             set(fortuno_libs Fortuno::fortuno_serial)
         endif ()
         include(FetchContent)
+        # Use a locally installed Fortuno if one can be found, otherwise clone it
         FetchContent_Declare(Fortuno
             GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
             GIT_TAG eb61214fd76d6235a3072b6f8ed83d0380c2f266
+            FIND_PACKAGE_ARGS NAMES Fortuno
         )
         FetchContent_MakeAvailable(Fortuno)
     endif()
@@ -384,13 +392,16 @@ else()
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
 
     if(CABLE_MPI)
-    target_compile_definitions(cable_common PRIVATE __MPI__)
-    target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
-    endif()
+        target_compile_definitions(cable_common PRIVATE __MPI__)
+        target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
 
-    if(TARGET PIO::PIO_Fortran)
-        target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
-        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+        # PIO is only available as part of the MPI build
+        if(CABLE_PIO)
+            target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
+            target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+        else()
+            target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
+        endif()
     else()
         target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
     endif()
@@ -431,7 +442,7 @@ else()
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_serial.F90)
         endif()
         target_link_libraries(cable-tests PRIVATE cable_common ${fortuno_libs})
-        if(NOT TARGET PIO::PIO_Fortran)
+        if(NOT CABLE_PIO)
             target_compile_definitions(cable-tests PRIVATE SKIP_PIO_TESTS)
         endif()
         if(CABLE_MPI)

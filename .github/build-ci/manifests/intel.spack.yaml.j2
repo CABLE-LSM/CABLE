@@ -4,6 +4,7 @@ spack:
   - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - cable@git.{{ ref }}
+  - cable@git.{{ ref }}+mpi+pio
   packages:
     all:
       require:
