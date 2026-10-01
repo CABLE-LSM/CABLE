@@ -11,6 +11,7 @@ program testapp
   use test_cable_netcdf_compression, only: cable_netcdf_compression_test_list
   use test_cable_timing, only: cable_timing_test_list
   use test_cable_grid_reductions, only: cable_grid_reductions_test_list
+  use test_cable_output_catalogue, only: cable_output_catalogue_test_list
   implicit none
 
   call execute_cmd_app(test_list([ &
@@ -18,7 +19,8 @@ program testapp
       cable_yaml_test_list(), &
       cable_netcdf_compression_test_list(), &
       cable_timing_test_list(), &
-      cable_grid_reductions_test_list() &
+      cable_grid_reductions_test_list(), &
+      cable_output_catalogue_test_list() &
   ]))
 
 end program testapp

@@ -1,0 +1,1369 @@
+# Catalogue of CABLE output variables.
+#
+# Each entry describes what a variable is. How it is written (stream,
+# aggregation, reduction, NetCDF name) is chosen by the output configuration
+# file. Model-state pointers, unit conversions and valid ranges live in the
+# Fortran binding modules, keyed by `name`.
+#
+#   name              User-facing field name; also the default NetCDF name.
+#   dimensions        Names accepted by cable_output_get_dimension.
+#   type              float or int.
+#   parameter         Written once, without a time axis. Default false.
+#   distributed       False if every rank holds a full copy. Default true.
+#   native_frequency  How often the model itself updates the value. Default timestep.
+#   group, module     Convenience selection for the output configuration.
+#   restart_name      Present if the variable is written to restart files, under this name.
+#   output            False for restart-only entries. Default true.
+#   metadata          Variable attributes written to the NetCDF file.
+variables:
+  - name: "SWdown"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "W/m^2"
+      long_name: "Downward shortwave radiation"
+  - name: "LWdown"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "W/m^2"
+      long_name: "Downward longwave radiation"
+  - name: "Rainf"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Rainfall+snowfall"
+  - name: "Snowf"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Snowfall"
+  - name: "PSurf"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "hPa"
+      long_name: "Surface air pressure"
+  - name: "Tair"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "K"
+      long_name: "Surface air temperature"
+  - name: "Qair"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "kg/kg"
+      long_name: "Surface specific humidity"
+  - name: "Wind"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "m/s"
+      long_name: "Scalar surface wind speed"
+  - name: "CO2air"
+    dimensions: [patch]
+    type: float
+    group: met
+    module: forcing
+    metadata:
+      units: "ppmv"
+      long_name: "Surface air CO2 concentration"
+  - name: "Qmom"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "kg/m/s2"
+      long_name: "Surface momentum flux"
+  - name: "Qle"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Surface latent heat flux"
+  - name: "Qh"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Surface sensible heat flux"
+  - name: "Qg"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    restart_name: "ga"
+    metadata:
+      units: "W/m^2"
+      long_name: "Surface ground heat flux"
+  - name: "Qs"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    restart_name: "rnof1"
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Surface runoff"
+  - name: "Qsb"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    restart_name: "rnof2"
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Subsurface runoff"
+  - name: "Evap"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Total evapotranspiration"
+  - name: "PotEvap"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Potential evaporation"
+  - name: "ECanop"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Wet canopy evaporation"
+  - name: "TVeg"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Vegetation transpiration"
+  - name: "ESoil"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Evaporation from soil"
+  - name: "HVeg"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Sensible heat from vegetation"
+  - name: "HSoil"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    restart_name: "fhs"
+    metadata:
+      units: "W/m^2"
+      long_name: "Sensible heat from soil"
+  - name: "RnetSoil"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Net radiation absorbed by ground"
+  - name: "SoilMoist"
+    dimensions: [patch, soil]
+    type: float
+    group: soil
+    module: biogeophysics
+    restart_name: "wb"
+    metadata:
+      units: "m^3/m^3"
+      long_name: "Average layer soil moisture"
+  - name: "SoilMoistIce"
+    dimensions: [patch, soil]
+    type: float
+    group: soil
+    module: biogeophysics
+    restart_name: "wbice"
+    metadata:
+      units: "m^3/m^3"
+      long_name: "Average layer frozen soil moisture"
+  - name: "SoilTemp"
+    dimensions: [patch, soil]
+    type: float
+    group: soil
+    module: biogeophysics
+    restart_name: "tgg"
+    metadata:
+      units: "K"
+      long_name: "Average layer soil temperature"
+  - name: "gammzz"
+    output: false
+    dimensions: [patch, soil]
+    type: float
+    restart_name: "gammzz"
+    metadata:
+      units: "J/kg/C"
+      long_name: "Heat capacity for each soil layer"
+  - name: "ssdn"
+    output: false
+    dimensions: [patch, snow]
+    type: float
+    restart_name: "ssdn"
+    metadata:
+      units: "kg/m^3"
+      long_name: "Average layer snow density"
+  - name: "smass"
+    output: false
+    dimensions: [patch, snow]
+    type: float
+    restart_name: "smass"
+    metadata:
+      units: "kg/m^2"
+      long_name: "Average layer snow mass"
+  - name: "BaresoilT"
+    dimensions: [patch]
+    type: float
+    group: soil
+    module: biogeophysics
+    metadata:
+      units: "K"
+      long_name: "Bare soil temperature"
+  - name: "SWE"
+    dimensions: [patch]
+    type: float
+    group: snow
+    module: biogeophysics
+    restart_name: "snowd"
+    metadata:
+      units: "kg/m^2"
+      long_name: "Snow water equivalent"
+  - name: "SnowMelt"
+    dimensions: [patch]
+    type: float
+    group: snow
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2/s"
+      long_name: "Snow Melt Rate"
+  - name: "tggsn"
+    output: false
+    dimensions: [patch, snow]
+    type: float
+    restart_name: "tggsn"
+    metadata:
+      units: "K"
+      long_name: "Average layer snow temperature"
+  - name: "SnowT"
+    dimensions: [patch]
+    type: float
+    group: snow
+    module: biogeophysics
+    metadata:
+      units: "K"
+      long_name: "Snow surface temperature"
+  - name: "sdepth"
+    output: false
+    dimensions: [patch, snow]
+    type: float
+    restart_name: "sdepth"
+    metadata:
+      units: "m"
+      long_name: "Snow layer depth"
+  - name: "SnowDepth"
+    dimensions: [patch]
+    type: float
+    group: snow
+    module: biogeophysics
+    metadata:
+      units: "m"
+      long_name: "Snow depth"
+  - name: "SWnet"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Net shortwave radiation absorbed by surface"
+  - name: "LWnet"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Net longwave radiation absorbed by surface"
+  - name: "Rnet"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Net radiation absorbed by surface"
+  - name: "Albedo"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    metadata:
+      units: "-"
+      long_name: "Surface albedo"
+  - name: "visAlbedo"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    metadata:
+      units: "-"
+      long_name: "Surface vis albedo"
+  - name: "nirAlbedo"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    metadata:
+      units: "-"
+      long_name: "Surface nir albedo"
+  - name: "RadT"
+    dimensions: [patch]
+    type: float
+    group: radiation
+    module: biogeophysics
+    restart_name: "trad"
+    metadata:
+      units: "K"
+      long_name: "Radiative surface temperature"
+  - name: "Tscrn"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "oC"
+      long_name: "screen level air temperature"
+  - name: "Txx"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "oC"
+      long_name: "max screen-level T in reporting period"
+  - name: "Tnn"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "oC"
+      long_name: "min screen-level T in reporting period"
+  - name: "Tmx"
+    dimensions: [patch]
+    type: float
+    native_frequency: daily
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "oC"
+      long_name: "averaged daily maximum screen-level T"
+  - name: "Tmn"
+    dimensions: [patch]
+    type: float
+    native_frequency: daily
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "oC"
+      long_name: "averaged daily minimum screen-level T"
+  - name: "Qscrn"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "kg/kg"
+      long_name: "screen level specific humidity"
+  - name: "VegT"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "K"
+      long_name: "Average vegetation temperature"
+  - name: "CanT"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "K"
+      long_name: "Within-canopy temperature"
+  - name: "Fwsoil"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "[-]"
+      long_name: "soil moisture modifier to stomatal conductance"
+  - name: "CanopInt"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    restart_name: "cansto"
+    metadata:
+      units: "kg/m^2"
+      long_name: "Canopy intercepted water storage"
+  - name: "LAI"
+    dimensions: [patch]
+    type: float
+    group: veg
+    module: biogeophysics
+    metadata:
+      units: "-"
+      long_name: "Leaf area index"
+  - name: "Ebal"
+    dimensions: [patch]
+    type: float
+    group: balances
+    module: biogeophysics
+    metadata:
+      units: "W/m^2"
+      long_name: "Cumulative energy imbalance"
+  - name: "Wbal"
+    dimensions: [patch]
+    type: float
+    group: balances
+    module: biogeophysics
+    metadata:
+      units: "kg/m^2"
+      long_name: "Cumulative water imbalance"
+  - name: "wbtot0"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "wbtot0"
+    metadata:
+      units: "mm"
+      long_name: "Initial time step soil water total"
+  - name: "osnowd0"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "osnowd0"
+    metadata:
+      units: "mm"
+      long_name: "Initial time step snow water total"
+  - name: "LeafResp"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Leaf respiration"
+  - name: "HeteroResp"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Heterotrophic respiration"
+  - name: "GPP"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Gross primary production"
+  - name: "NPP"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Net primary production"
+  - name: "AutoResp"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Autotrophic respiration"
+  - name: "NEE"
+    dimensions: [patch]
+    type: float
+    group: flux
+    module: biogeophysics
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Net ecosystem exchange of CO2"
+  - name: "WatTable"
+    dimensions: [patch]
+    type: float
+    group: soil
+    module: biogeophysics
+    metadata:
+      units: "m"
+      long_name: "Water Table Depth"
+  - name: "GWMoist"
+    dimensions: [patch]
+    type: float
+    group: soil
+    module: biogeophysics
+    restart_name: "GWwb"
+    metadata:
+      units: "mm3/mm3"
+      long_name: "Aquifer moisture content"
+  - name: "SatFrac"
+    dimensions: [patch]
+    type: float
+    group: soil
+    module: biogeophysics
+    metadata:
+      units: "unitless"
+      long_name: "Saturated fraction of grid cell"
+  - name: "Qrecharge"
+    dimensions: [patch]
+    type: float
+    group: soil
+    module: biogeophysics
+    metadata:
+      units: "mm/s"
+      long_name: "Recharge to or from Aquifer"
+  - name: "tss"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "tss"
+    metadata:
+      units: "K"
+      long_name: "Combined soil/snow temperature"
+  - name: "rtsoil"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "rtsoil"
+    metadata:
+      units: "??"
+      long_name: "Turbulent resistance for soil"
+  - name: "runoff"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "runoff"
+    metadata:
+      units: "mm/timestep"
+      long_name: "Total runoff"
+  - name: "ssdnn"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "ssdnn"
+    metadata:
+      units: "kg/m^3"
+      long_name: "Average snow density"
+  - name: "snage"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "snage"
+    metadata:
+      units: "??"
+      long_name: "Snow age"
+  - name: "osnowd"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "osnowd"
+    metadata:
+      units: "mm"
+      long_name: "Previous time step snow depth in water equivalent"
+  - name: "albsoilsn"
+    output: false
+    dimensions: [patch, rad]
+    type: float
+    restart_name: "albsoilsn"
+    metadata:
+      units: "-"
+      long_name: "Combined soil/snow albedo"
+  - name: "isflag"
+    output: false
+    dimensions: [patch]
+    type: int
+    restart_name: "isflag"
+    metadata:
+      units: "-"
+      long_name: "Snow layer scheme flag"
+  - name: "ghflux"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "ghflux"
+    metadata:
+      units: "W/m^2"
+      long_name: "????"
+  - name: "sghflux"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "sghflux"
+    metadata:
+      units: "W/m^2"
+      long_name: "????"
+  - name: "dgdtg"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "dgdtg"
+    metadata:
+      units: "W/m^2/K"
+      long_name: "Derivative of ground heat flux wrt soil temperature"
+  - name: "fev"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "fev"
+    metadata:
+      units: "W/m^2"
+      long_name: "Latent heat flux from vegetation"
+  - name: "fes"
+    output: false
+    dimensions: [patch]
+    type: float
+    restart_name: "fes"
+    metadata:
+      units: "W/m^2"
+      long_name: "Latent heat flux from soil"
+  - name: "albedo"
+    output: false
+    dimensions: [patch, rad]
+    type: float
+    restart_name: "albedo"
+    metadata:
+      units: "-"
+      long_name: "Albedo for shortwave and NIR radiation"
+  - name: "iveg"
+    dimensions: [patch]
+    type: int
+    parameter: true
+    group: params
+    module: parameters
+    restart_name: "iveg"
+    metadata:
+      units: "-"
+      long_name: "Vegetation type"
+  - name: "patchfrac"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    restart_name: "patchfrac"
+    metadata:
+      units: "-"
+      long_name: "Fractional cover of vegetation patches"
+  - name: "isoil"
+    dimensions: [patch]
+    type: int
+    parameter: true
+    group: params
+    module: parameters
+    restart_name: "isoil"
+    metadata:
+      units: "-"
+      long_name: "Soil type"
+  - name: "bch"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Parameter b, Campbell eqn 1985"
+  - name: "clay"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of soil which is clay"
+  - name: "sand"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of soil which is sand"
+  - name: "silt"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of soil which is silt"
+  - name: "ssat"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of soil volume which is water @ saturation"
+  - name: "sfc"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of soil volume which is water @ field capacity"
+  - name: "swilt"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of soil volume which is water @ wilting point"
+  - name: "hyds"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m/s"
+      long_name: "Hydraulic conductivity @ saturation"
+  - name: "sucs"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Suction @ saturation"
+  - name: "css"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "J/kg/C"
+      long_name: "Heat capacity of soil minerals"
+  - name: "rhosoil"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "kg/m^3"
+      long_name: "Density of soil minerals"
+  - name: "rs20"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Soil respiration coefficient at 20C"
+  - name: "albsoil"
+    dimensions: [patch, rad]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    restart_name: "albsoil"
+    metadata:
+      units: "-"
+      long_name: "Snow free shortwave soil reflectance fraction"
+  - name: "hc"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Height of canopy"
+  - name: "canst1"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "mm/LAI"
+      long_name: "Max water intercepted by canopy"
+  - name: "dleaf"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Characteristic length of leaf"
+  - name: "frac4"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of plants which are C4"
+  - name: "ejmax"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "mol/m^2/s"
+      long_name: "Max potential electron transport rate top leaf"
+  - name: "vcmax"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "mol/m^2/s"
+      long_name: "Maximum RuBP carboxylation rate top leaf"
+  - name: "rp20"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Plant respiration coefficient at 20C"
+  - name: "g0"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "g0 term in Medlyn Stom Cond. Param"
+  - name: "g1"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "g1 term in Medlyn Stom Cond. Param"
+  - name: "rpcoef"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "1/C"
+      long_name: "Temperature coef nonleaf plant respiration"
+  - name: "shelrb"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Sheltering factor"
+  - name: "xfang"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Leaf angle parameter"
+  - name: "wai"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Wood area index"
+  - name: "vegcf"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "vegcf"
+  - name: "extkn"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Nitrogen extinction coef for vert. canopy profile"
+  - name: "tminvj"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "C"
+      long_name: "Min temperature for the start of photosynthesis"
+  - name: "tmaxvj"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "C"
+      long_name: "Max temperature for photosynthesis"
+  - name: "vbeta"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Stomatal sensitivity to soil water"
+  - name: "xalbnir"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Modifier for albedo in near ir band"
+  - name: "meth"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Canopy turbulence parameterisation choice"
+  - name: "za_uv"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Reference height (lowest atm. model layer) for momentum"
+  - name: "za_tq"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Reference height (lowest atm. model layer) for scalars"
+  - name: "ratecp"
+    dimensions: [plant_carbon_pools]
+    type: float
+    parameter: true
+    distributed: false
+    group: params
+    module: parameters
+    metadata:
+      units: "1/year"
+      long_name: "Plant carbon rate constant"
+  - name: "ratecs"
+    dimensions: [soil_carbon_pools]
+    type: float
+    parameter: true
+    distributed: false
+    group: params
+    module: parameters
+    metadata:
+      units: "1/year"
+      long_name: "Soil carbon rate constant"
+  - name: "cplant"
+    output: false
+    dimensions: [patch, plant_carbon_pools]
+    type: float
+    restart_name: "cplant"
+    metadata:
+      units: "gC/m^2"
+      long_name: "Plant carbon stores"
+  - name: "csoil"
+    output: false
+    dimensions: [patch, soil_carbon_pools]
+    type: float
+    restart_name: "csoil"
+    metadata:
+      units: "gC/m^2"
+      long_name: "Soil carbon stores"
+  - name: "zse"
+    dimensions: [soil]
+    type: float
+    parameter: true
+    distributed: false
+    group: params
+    module: parameters
+    restart_name: "zse"
+    metadata:
+      units: "m"
+      long_name: "Depth of each soil layer"
+  - name: "froot"
+    dimensions: [patch, soil]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Fraction of roots in each soil layer"
+  - name: "GWdz"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Mean aquifer layer thickness"
+  - name: "Qhmax"
+    dimensions: []
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "mm/s"
+      long_name: "Maximum subsurface drainage"
+  - name: "QhmaxEfold"
+    dimensions: []
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Maximum subsurface drainage decay rate"
+  - name: "SatFracmax"
+    dimensions: []
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "-"
+      long_name: "Controls max saturated fraction"
+  - name: "HKefold"
+    dimensions: []
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "1/m"
+      long_name: "Rate HK decays with depth"
+  - name: "HKdepth"
+    dimensions: []
+    type: float
+    parameter: true
+    group: params
+    module: parameters
+    metadata:
+      units: "m"
+      long_name: "Depth at which HKsat(z) is HKsat(0)"
+  - name: "nap"
+    output: false
+    dimensions: [land_global]
+    type: float
+    distributed: false
+    restart_name: "nap"
+    metadata:
+      units: ""
+      long_name: ""
+  - name: "mvtype"
+    output: false
+    dimensions: []
+    type: float
+    distributed: false
+    restart_name: "mvtype"
+    metadata:
+      units: ""
+      long_name: "Number of vegetation types"
+  - name: "mstype"
+    output: false
+    dimensions: []
+    type: float
+    distributed: false
+    restart_name: "mstype"
+    metadata:
+      units: ""
+      long_name: "Number of soil types"
+  - name: "RootResp"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Fine Root Autotrophic respiration"
+  - name: "StemResp"
+    dimensions: [patch]
+    type: float
+    group: carbon
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "StemWood Autotrophic respiration"
+  - name: "NBP"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Net Biosphere Production (uptake +ve)"
+  - name: "dCdt"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Carbon accumulation rate (uptake +ve)"
+  - name: "TotSoilCarb"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Total Soil and Litter Carbon"
+  - name: "TotLittCarb"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Total Litter Carbon"
+  - name: "SoilCarbFast"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Soil Carbon: Fast Turnover"
+  - name: "SoilCarbSlow"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Soil Carbon: Slow Turnover"
+  - name: "SoilCarbPassive"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Soil Carbon: Passive"
+  - name: "LittCarbMetabolic"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Litter Carbon: metabolic"
+  - name: "LittCarbStructural"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Litter Carbon: structural"
+  - name: "LittCarbCWD"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Litter Carbon: CWD"
+  - name: "PlantCarbLeaf"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Plant Carbon: leaf"
+  - name: "PlantCarbWood"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Plant Carbon: wood (above- and below-ground)"
+  - name: "PlantCarbFineRoot"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Plant Carbon: Fine roots"
+  - name: "TotLivBiomass"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "kg C/m^2"
+      long_name: "Total Biomass"
+  - name: "PlantTurnover"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Total Biomass Turnover"
+  - name: "PlantTurnoverLeaf"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Leaf Biomass Turnover"
+  - name: "PlantTurnoverWood"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Woody Biomass Turnover"
+  - name: "PlantTurnoverFineRoot"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "FineRoot Biomass Turnover"
+  - name: "PlantTurnoverWoodDist"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Woody Biomass Turnover (disturbance)"
+  - name: "PlantTurnoverWoodCrowding"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Woody Biomass Turnover (crowding)"
+  - name: "PlantTurnoverWoodResourceLim"
+    dimensions: [patch]
+    type: float
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Woody Biomass Turnover (Resource Limitation)"
+  - name: "Area"
+    dimensions: [patch]
+    type: float
+    parameter: true
+    group: casa
+    module: biogeochemistry
+    metadata:
+      units: "km2"
+      long_name: "Patch Area"
+  - name: "LandUseFlux"
+    dimensions: [patch]
+    type: float
+    metadata:
+      units: "umol/m^2/s"
+      long_name: "Sum of wood harvest and clearing fluxes"

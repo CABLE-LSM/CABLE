@@ -94,6 +94,14 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     )
 endif()
 
+# Embed the output variable catalogue into the executable.
+include(cmake/EmbedText.cmake)
+cable_embed_text(
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/util/output/output_catalogue.yaml"
+    cable_output_catalogue_text_mod
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/cable_output_catalogue_text.F90"
+)
+
 # Set the module directory to assist Spack
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 if(CABLE_LIBRARY)
@@ -366,6 +374,8 @@ else()
         src/offline/cable_cru_TRENDY.F90
         src/offline/cable_diagnostics_casa.F90
         src/offline/cable_diagnostics.F90
+        src/offline/cable_output_bindings.F90
+        src/offline/cable_output_bindings_casa.F90
         src/offline/cable_driver_common.F90
         src/offline/cable_initialise.F90
         src/offline/cable_input.F90
@@ -404,6 +414,8 @@ else()
         src/util/output/cable_output_write.F90
         src/util/output/cable_output.F90
         src/util/yaml/cable_yaml.F90
+        src/util/output/cable_output_catalogue.F90
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/cable_output_catalogue_text.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF YAFYAML::yafyaml)
@@ -453,6 +465,7 @@ else()
             tests/test_cable_netcdf_compression.F90
             tests/test_cable_timing.F90
             tests/test_cable_grid_reductions.F90
+            tests/test_cable_output_catalogue.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)

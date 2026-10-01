@@ -254,6 +254,72 @@ module cable_output_mod
     procedure cable_output_variable_constructor
   end interface
 
+  type, public :: cable_output_binding_t
+    !* Ties an output catalogue name to the CABLE model state it describes.
+    !
+    ! The catalogue (`output_catalogue.yaml`) describes what a variable is. A
+    ! binding supplies the part that only Fortran can: the model variable
+    ! (through an aggregator), the unit conversion, the valid range, and whether
+    ! the variable exists in the current model configuration.
+    character(64) :: name = ""
+      !! Catalogue name of the variable this binding belongs to.
+    class(aggregator_t), allocatable :: aggregator
+      !! Aggregator wrapping the model working variable. Unallocated if the
+      !! variable is not available.
+    real :: scale_by = 1.0
+      !! Multiply the working variable by this to obtain the output value.
+    real :: divide_by = 1.0
+      !! Divide the working variable by this to obtain the output value.
+    real :: offset_by = 0.0
+      !! Add this to the working variable to obtain the output value.
+    real, allocatable :: range(:)
+      !! Valid range of the variable in output units. Unallocated if unchecked.
+    logical :: available = .true.
+      !! Whether the variable exists in the current model configuration.
+  end type
+
+  interface cable_output_binding_t
+    procedure cable_output_binding_constructor
+  end interface
+
+  type, public :: cable_output_variable_definition_t
+    !* Everything about an output variable that does not depend on how it is
+    ! written: what it is, where its data comes from and how it is converted.
+    ! Aggregation, reduction, frequency, stream and NetCDF name are chosen per
+    ! use by the output configuration.
+    character(64) :: field_name = ""
+      !! User-facing name, also the default NetCDF variable name.
+    character(64) :: restart_name = ""
+      !! Name used in restart files. Empty if the variable is not restarted.
+    logical :: outputtable = .true.
+      !! False for variables that are only written to restart files.
+    logical :: available = .true.
+      !! Whether the variable exists in the current model configuration.
+    type(cable_output_dim_t), allocatable :: data_shape(:)
+      !! In-memory shape of the working variable. Empty for scalars.
+    integer :: var_type = CABLE_OUTPUT_VAR_TYPE_UNDEFINED
+      !! NetCDF type of the output.
+    logical :: parameter = .false.
+      !! True for non-time-varying variables, written once without a time axis.
+    logical :: distributed = .true.
+      !! False if every process holds a full copy of the data.
+    character(64) :: native_frequency = "timestep"
+      !! How often the model itself updates the working variable.
+    character(64) :: group_name = ""
+      !! Convenience group the variable belongs to. Empty for none.
+    character(64) :: module_name = ""
+      !! Convenience module the variable belongs to. Empty for none.
+    real :: scale_by = 1.0
+    real :: divide_by = 1.0
+    real :: offset_by = 0.0
+    real :: range(2) = [-huge(0.0), huge(0.0)]
+      !! Valid range in the units of the working variable.
+    class(aggregator_t), allocatable :: aggregator
+      !! Aggregator wrapping the working variable. Copied for each use.
+    type(cable_output_attribute_t), allocatable :: metadata(:)
+      !! NetCDF variable attributes, e.g. `units` and `long_name`.
+  end type
+
   type :: cable_output_stream_t
     !* Type for describing a netCDF file output stream.
     real :: previous_write_time = 0.0
@@ -510,6 +576,32 @@ contains
     if (present(metadata)) this%metadata = metadata
 
   end function cable_output_variable_constructor
+
+  function cable_output_binding_constructor(name, aggregator, scale_by, divide_by, offset_by, range, available) result(this)
+    !! Constructor for `cable_output_binding_t`.
+    character(*), intent(in) :: name
+    class(aggregator_t), intent(in), optional :: aggregator
+      !! Absent for variables that do not exist in the current model configuration.
+    real, intent(in), optional :: scale_by
+    real, intent(in), optional :: divide_by
+    real, intent(in), optional :: offset_by
+    real, intent(in), optional :: range(:)
+    logical, intent(in), optional :: available
+    type(cable_output_binding_t) :: this
+
+    this%name = name
+    ! `source=` makes a copy of the aggregator that was passed in, so the
+    ! binding owns its own object. A binding for an unavailable variable is
+    ! built without one.
+    if (present(aggregator)) allocate(this%aggregator, source=aggregator)
+    ! Every other setting is optional and keeps the default declared in the
+    ! type (scale 1, divide 1, offset 0, no range check, available) if absent.
+    if (present(scale_by)) this%scale_by = scale_by
+    if (present(divide_by)) this%divide_by = divide_by
+    if (present(offset_by)) this%offset_by = offset_by
+    if (present(range)) this%range = range
+    if (present(available)) this%available = available
+  end function cable_output_binding_constructor
 
   elemental function cable_output_variable_get_netcdf_name(this) result(netcdf_name)
     !* Return the netCDF variable name, which defaults to `field_name` if not
