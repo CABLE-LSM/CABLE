@@ -320,6 +320,41 @@ module cable_output_mod
       !! NetCDF variable attributes, e.g. `units` and `long_name`.
   end type
 
+  integer, parameter, public :: CABLE_OUTPUT_CONFIG_LENGTH = 256
+  character(len=*), parameter, public :: CABLE_OUTPUT_DEFAULT_NETCDF_NAME = "{field_name}"
+
+  type, public :: cable_output_stream_config_t
+    !! Settings of one output stream.
+    integer :: stream_id = 0
+    character(len=CABLE_OUTPUT_CONFIG_LENGTH) :: file_name = ""
+    character(len=16) :: frequency = ""
+    character(len=CABLE_OUTPUT_CONFIG_LENGTH) :: netcdf_name = CABLE_OUTPUT_DEFAULT_NETCDF_NAME
+      !! Template for NetCDF variable names in this stream.
+    logical :: shuffle = .true.
+    integer :: compression_level = 1
+      !! Deflate level 0 to 9. Zero means no compression.
+    logical :: separate_file_per_variable = .false.
+    type(cable_output_attribute_t), allocatable :: metadata(:)
+      !! Global attributes, with templates filled in.
+  end type cable_output_stream_config_t
+
+  type, public :: cable_output_variable_config_t
+    !! One requested use of an output variable, after expansion of groups and modules.
+    character(len=64) :: field_name = ""
+    integer :: stream_id = 0
+    character(len=16) :: aggregation = ""
+    character(len=32) :: reduction = "none"
+    character(len=CABLE_OUTPUT_CONFIG_LENGTH) :: netcdf_name = ""
+      !! NetCDF variable name, with templates filled in.
+    type(cable_output_attribute_t), allocatable :: metadata(:)
+      !! Variable attributes from the file, with templates filled in.
+  end type cable_output_variable_config_t
+
+  type, public :: cable_output_config_t
+    type(cable_output_stream_config_t), allocatable :: streams(:)
+    type(cable_output_variable_config_t), allocatable :: variables(:)
+  end type cable_output_config_t
+
   type :: cable_output_stream_t
     !* Type for describing a netCDF file output stream.
     real :: previous_write_time = 0.0

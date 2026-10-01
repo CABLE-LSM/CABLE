@@ -416,6 +416,7 @@ else()
         src/util/yaml/cable_yaml.F90
         src/util/output/cable_output_catalogue.F90
         ${CMAKE_CURRENT_BINARY_DIR}/generated/cable_output_catalogue_text.F90
+        src/util/output/cable_output_config.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF YAFYAML::yafyaml)
@@ -466,6 +467,7 @@ else()
             tests/test_cable_timing.F90
             tests/test_cable_grid_reductions.F90
             tests/test_cable_output_catalogue.F90
+            tests/test_cable_output_config.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)
