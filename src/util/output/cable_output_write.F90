@@ -28,7 +28,8 @@ submodule (cable_output_mod:cable_output_common_smod) cable_output_write_smod
   use cable_netcdf_mod, only: cable_netcdf_decomp_t
 
   use cable_grid_reductions_mod, only: grid_cell_average
-  use cable_grid_reductions_mod, only: first_patch_in_grid_cell
+  use cable_grid_reductions_mod, only: first_tile_on_cell
+  use cable_grid_reductions_mod, only: dominant_tile
 
   implicit none
 
@@ -124,12 +125,19 @@ contains
         write_buffer_int32_1d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
         call cable_abort("Reduction method grid_cell_average is not supported for integer variables", __FILE__, __LINE__)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_int32_1d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_int32_1d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_int32_1d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_int32_1d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -159,12 +167,19 @@ contains
         write_buffer_int32_2d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
         call cable_abort("Reduction method grid_cell_average is not supported for integer variables", __FILE__, __LINE__)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_int32_2d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_int32_2d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_int32_2d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_int32_2d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -194,12 +209,19 @@ contains
         write_buffer_int32_3d => aggregator%aggregated_data
       else if (output_variable%reduction_method == "grid_cell_average") then
         call cable_abort("Reduction method grid_cell_average is not supported for integer variables", __FILE__, __LINE__)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_int32_3d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_int32_3d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_int32_3d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_int32_3d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -254,12 +276,19 @@ contains
               output_array=write_buffer_real32_1d, &
               landpt=landpt, &
               patch=patch)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_real32_1d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_real32_1d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_real32_1d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real32_1d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -294,12 +323,19 @@ contains
               output_array=write_buffer_real32_2d, &
               landpt=landpt, &
               patch=patch)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_real32_2d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_real32_2d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_real32_2d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real32_2d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -334,12 +370,19 @@ contains
               output_array=write_buffer_real32_3d, &
               landpt=landpt, &
               patch=patch)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_real32_3d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_real32_3d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_real32_3d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real32_3d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -416,12 +459,19 @@ contains
               output_array=write_buffer_real64_1d, &
               landpt=landpt, &
               patch=patch)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_real64_1d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_real64_1d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_real64_1d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real64_1d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -475,12 +525,19 @@ contains
               output_array=write_buffer_real64_2d, &
               landpt=landpt, &
               patch=patch)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_real64_2d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_real64_2d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_real64_2d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real64_2d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if
@@ -534,12 +591,19 @@ contains
               output_array=write_buffer_real64_3d, &
               landpt=landpt, &
               patch=patch)
-      else if (output_variable%reduction_method == "first_patch_in_grid_cell") then
+      else if (output_variable%reduction_method == "first_tile_on_cell") then
         call cable_output_reduction_buffers_associate(output_variable, write_buffer_real64_3d)
-        call first_patch_in_grid_cell( &
+        call first_tile_on_cell( &
               input_array=aggregator%aggregated_data, &
               output_array=write_buffer_real64_3d, &
               landpt=landpt)
+      else if (output_variable%reduction_method == "dominant_tile") then
+        call cable_output_reduction_buffers_associate(output_variable, write_buffer_real64_3d)
+        call dominant_tile( &
+              input_array=aggregator%aggregated_data, &
+              output_array=write_buffer_real64_3d, &
+              landpt=landpt, &
+              patch=patch)
       else
         call cable_abort("Invalid reduction method", __FILE__, __LINE__)
       end if

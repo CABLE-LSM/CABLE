@@ -242,7 +242,7 @@ contains
     ! according to the specified aggregation method.
     class(aggregator_t), intent(inout) :: this
     character(len=*), intent(in) :: method
-      !! The aggregation method to use (e.g., "mean", "sum", "point", "min", "max").
+      !! The aggregation method to use (e.g., "mean", "sum", "instant", "min", "max").
 
     select type (this)
     type is (aggregator_int32_0d_t)
@@ -308,7 +308,7 @@ contains
     ! accumulation and reset procedures based on the specified method.
     class(aggregator_t), intent(inout) :: this
     character(len=*), intent(in) :: method
-      !! The aggregation method to use (e.g., "mean", "sum", "point", "min", "max").
+      !! The aggregation method to use (e.g., "mean", "sum", "instant", "min", "max").
 
     if (method == "mean") then
       this%accumulate => mean_accumulate
@@ -316,9 +316,9 @@ contains
     elseif (method == "sum") then
       this%accumulate => sum_accumulate
       this%reset => other_reset
-    elseif (method == "point") then
-      this%accumulate => point_accumulate
-      this%reset => point_reset
+    elseif (method == "instant") then
+      this%accumulate => instant_accumulate
+      this%reset => instant_reset
     elseif (method == "min") then
       this%accumulate => min_accumulate
       this%reset => min_reset
@@ -751,8 +751,8 @@ contains
 
   end subroutine sum_accumulate
 
-  subroutine point_accumulate(this, scale, div, offset)
-    !* Accumulate the aggregated data from the source data using the point
+  subroutine instant_accumulate(this, scale, div, offset)
+    !* Accumulate the aggregated data from the source data using the instant
     ! aggregation method.
     class(aggregator_t), intent(inout) :: this
     real, intent(in), optional :: scale
@@ -823,7 +823,7 @@ contains
 
     this%counter = this%counter + 1
 
-  end subroutine point_accumulate
+  end subroutine instant_accumulate
 
   subroutine min_accumulate(this, scale, div, offset)
     !* Accumulate the aggregated data from the source data using the min
@@ -1005,12 +1005,12 @@ contains
 
   end subroutine max_accumulate
 
-  subroutine point_reset(this)
-    !* Reset the aggregated data for the point aggregation method. This is a
-    ! no-op since point aggregation always takes the value of the most recent data
+  subroutine instant_reset(this)
+    !* Reset the aggregated data for the instant aggregation method. This is a
+    ! no-op since instant aggregation always takes the value of the most recent data
     ! point.
     class(aggregator_t), intent(inout) :: this
-  end subroutine point_reset
+  end subroutine instant_reset
 
   subroutine min_reset(this)
     !! Reset the aggregated data for the min aggregation method.

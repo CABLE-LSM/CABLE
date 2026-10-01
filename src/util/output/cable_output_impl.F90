@@ -13,7 +13,7 @@ submodule (cable_output_mod:cable_output_common_smod) cable_output_impl_smod
   use cable_netcdf_mod, only: cable_netcdf_create_file
   use cable_netcdf_mod, only: CABLE_NETCDF_IOTYPE_CLASSIC
   use cable_timing_mod, only: frequency_matches => cable_timing_frequency_matches
-  use cable_timing_mod, only: frequency_is_greater_than => cable_timing_frequency_is_greater_than
+  use cable_timing_mod, only: frequency_rank => cable_timing_frequency_rank
   use cable_array_utils_mod, only: array_eq
   implicit none
 
@@ -30,6 +30,21 @@ submodule (cable_output_mod:cable_output_common_smod) cable_output_impl_smod
   type(cable_output_variable_t), allocatable :: registered_output_variables(:)
 
 contains
+
+  function legacy_frequency(averaging) result(frequency)
+    !! Translate the `output%averaging` namelist value to an output frequency.
+    character(len=*), intent(in) :: averaging
+    character(:), allocatable :: frequency
+
+    select case (trim(averaging))
+    case ("all")
+      frequency = "timestep"
+    case ("daily", "monthly")
+      frequency = trim(averaging)
+    case default
+      call cable_abort("Unsupported output%averaging '" // trim(averaging) // "'; use all, daily or monthly", __FILE__, __LINE__)
+    end select
+  end function legacy_frequency
 
   module subroutine cable_output_impl_init()
     !* Module initialisation procedure for `cable_output_mod`.
@@ -122,7 +137,7 @@ contains
     end if
 
     global_output_stream = cable_output_stream_t( &
-      sampling_frequency=output%averaging, &
+      sampling_frequency=legacy_frequency(output%averaging), &
       grid_type=grid_type, &
       file_name=filename%out, &
       output_file=cable_netcdf_create_file(filename%out, iotype=CABLE_NETCDF_IOTYPE_CLASSIC), &
@@ -135,7 +150,7 @@ contains
         if (count(output_var%get_netcdf_name() == global_output_stream%output_variables(:)%get_netcdf_name()) > 1) then
           call cable_abort("Duplicate netCDF variable name in output stream: " // output_var%get_netcdf_name(), __FILE__, __LINE__)
         end if
-        if (frequency_is_greater_than(global_output_stream%sampling_frequency, output_var%accumulation_frequency, dels)) then
+        if (frequency_rank(global_output_stream%sampling_frequency) < frequency_rank(output_var%accumulation_frequency)) then
           call cable_abort( &
             "Output stream sampling frequency '" // global_output_stream%sampling_frequency // &
             "' is greater than accumulation frequency '" // output_var%accumulation_frequency // &
@@ -143,7 +158,7 @@ contains
           )
         end if
         if (output_var%patchout) output_var%reduction_method = "none"
-        if (global_output_stream%sampling_frequency == "all") output_var%aggregation_method = "point"
+        if (global_output_stream%sampling_frequency == "timestep") output_var%aggregation_method = "instant"
       end associate
     end do
 
@@ -153,7 +168,7 @@ contains
 
     do i = 1, size(global_output_stream%coordinate_variables)
       associate(coordinate_variable => global_output_stream%coordinate_variables(i))
-        call coordinate_variable%aggregator%init(method="point")
+        call coordinate_variable%aggregator%init(method="instant")
         call coordinate_variable%aggregator%accumulate()
         call cable_output_write_variable(global_output_stream, coordinate_variable)
         call coordinate_variable%aggregator%reset()
@@ -235,7 +250,7 @@ contains
 
       current_time = time_index * dels
 
-      if (global_output_stream%sampling_frequency == "all") then
+      if (global_output_stream%sampling_frequency == "timestep") then
         call global_output_stream%output_file%put_var("time", current_time, start=[global_output_stream%frame + 1])
       else
         call global_output_stream%output_file%put_var("time", (current_time + global_output_stream%previous_write_time) / 2.0, start=[global_output_stream%frame + 1])

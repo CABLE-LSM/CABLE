@@ -464,8 +464,8 @@ contains
         parameter=.true., &
         active=output%casa .or. output%Area, &
         patchout=output%patch .or. patchout%Area, &
-        reduction_method="first_patch_in_grid_cell", &
-        aggregation_method="point", &
+        reduction_method="first_tile_on_cell", &
+        aggregation_method="instant", &
         aggregator=new_aggregator(casamet%areacell), &
         divide_by=1e6, &
         metadata=[ &

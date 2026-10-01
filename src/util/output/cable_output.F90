@@ -99,20 +99,21 @@ module cable_output_mod
 
   !> List of allowed reduction methods for output variables.
   !! Please refer to [[cable_grid_reductions_mod]] for more details on grid reductions.
-  character(32), parameter, public :: allowed_reduction_methods(3) = [ &
-    "none                    ", &
-    "grid_cell_average       ", &
-    "first_patch_in_grid_cell" &
+  character(32), parameter, public :: allowed_reduction_methods(4) = [character(32) :: &
+    "none", &
+    "grid_cell_average", &
+    "first_tile_on_cell", &
+    "dominant_tile" &
   ]
 
   !> List of allowed aggregation methods for output variables.
   !! Please refer to [[aggregator_mod]] for more details on aggregation methods.
-  character(32), parameter, public :: allowed_aggregation_methods(5) = [ &
-      "point", &
-      "mean ", &
-      "max  ", &
-      "min  ", &
-      "sum  " &
+  character(32), parameter, public :: allowed_aggregation_methods(5) = [character(32) :: &
+    "instant", &
+    "mean", &
+    "max", &
+    "min", &
+    "sum" &
   ]
 
   !> List of allowed grid types for an output stream.
@@ -173,18 +174,18 @@ module cable_output_mod
     character(64) :: netcdf_name = ""
       !* The name of the variable as it should appear in netCDF output files. If
       ! not specified, this defaults to `field_name`.
-    character(64) :: accumulation_frequency = "all"
+    character(64) :: accumulation_frequency = "timestep"
       !* The frequency at which the variable is accumulated when computing time
       ! aggregations. Please refer to the [[cable_timing_frequency_matches]]
       ! procedure for more information on the available frequency settings. If not
-      ! specified, this defaults to "all", meaning that the variable is
+      ! specified, this defaults to "timestep", meaning that the variable is
       ! accumulated at every CABLE time step.
     character(64) :: reduction_method = "none"
       !* The grid cell reduction method to apply to the variable. The allowed
       ! reduction methods are specified in `allowed_reduction_methods`. Please
       ! refer to [[cable_grid_reductions_mod]] for more details on grid
       ! reductions.
-    character(64) :: aggregation_method = "point"
+    character(64) :: aggregation_method = "instant"
       !* The time aggregation method to apply when sampling a diagnostic. Please refer to
       ! `allowed_aggregation_methods` for more details on the available
       ! aggregation methods.
