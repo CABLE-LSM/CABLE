@@ -109,6 +109,7 @@ nav:
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
+    - Output system: developer_guide/output_system.md
     - Other resources:
       - Coding standards: developer_guide/other_resources/coding_standards.md
       - Build System: developer_guide/other_resources/build_system.md
