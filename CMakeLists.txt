@@ -10,6 +10,7 @@ option(CABLE_MPI "Build the MPI executable" OFF)
 option(CABLE_PIO "Build with PIO support (requires CABLE_MPI)" OFF)
 option(CABLE_TESTS "Build CABLE tests" OFF)
 
+# Compiler flags are selected regardless of the type of build
 set(CABLE_Intel_Fortran_FLAGS -fp-model precise)
 set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
 set(CABLE_Intel_Fortran_FLAGS_RELEASE -O2)
