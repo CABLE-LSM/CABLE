@@ -238,9 +238,11 @@ else()
             set(fortuno_libs Fortuno::fortuno_serial)
         endif ()
         include(FetchContent)
+        # Use a locally installed Fortuno if one can be found, otherwise clone it
         FetchContent_Declare(Fortuno
             GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
             GIT_TAG eb61214fd76d6235a3072b6f8ed83d0380c2f266
+            FIND_PACKAGE_ARGS NAMES Fortuno
         )
         FetchContent_MakeAvailable(Fortuno)
     endif()
