@@ -20,6 +20,37 @@ endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
 
+# yaFyaml (YAML parser) for the output configuration file. Use an installed copy
+# if one can be found, otherwise fetch pinned versions of it and its
+# dependencies (gFTL, gFTL-shared; building gFTL-shared needs m4).
+find_package(YAFYAML QUIET)
+if(NOT TARGET YAFYAML::yafyaml)
+    message(STATUS "yaFyaml not found, fetching it with FetchContent")
+    include(FetchContent)
+    # The fetched projects would otherwise build their own test suites (which
+    # need extra tools), so switch testing off while they are added and put the
+    # user's choice back afterwards. SKIP_OPENMP stops yaFyaml looking for OpenMP.
+    set(_cable_saved_build_testing ${BUILD_TESTING})
+    set(BUILD_TESTING OFF)
+    set(SKIP_OPENMP YES)
+    FetchContent_Declare(gftl
+        GIT_REPOSITORY https://github.com/Goddard-Fortran-Ecosystem/gFTL.git
+        GIT_TAG v1.17.0
+    )
+    FetchContent_Declare(gftl-shared
+        GIT_REPOSITORY https://github.com/Goddard-Fortran-Ecosystem/gFTL-shared.git
+        GIT_TAG v1.12.0
+    )
+    FetchContent_Declare(yafyaml
+        GIT_REPOSITORY https://github.com/Goddard-Fortran-Ecosystem/yaFyaml.git
+        GIT_TAG v1.6.0
+    )
+    # Order matters: yaFyaml needs gFTL-shared, which needs gFTL. Making them
+    # available defines the YAFYAML::yafyaml target used below.
+    FetchContent_MakeAvailable(gftl gftl-shared yafyaml)
+    set(BUILD_TESTING ${_cable_saved_build_testing})
+endif()
+
 if(CABLE_TESTS)
     if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "2024.0")
         message(WARNING "Intel Fortran 2024.0 or higher is recommended for building tests.")
@@ -372,9 +403,10 @@ else()
         src/util/output/cable_output_reduction_buffers.F90
         src/util/output/cable_output_write.F90
         src/util/output/cable_output.F90
+        src/util/yaml/cable_yaml.F90
     )
 
-    target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
+    target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF YAFYAML::yafyaml)
 
     if(CABLE_MPI)
     target_compile_definitions(cable_common PRIVATE __MPI__)
@@ -417,6 +449,7 @@ else()
             tests/utils/file_utils.F90
             tests/testapp.F90
             tests/test_cable_netcdf.F90
+            tests/test_cable_yaml.F90
         )
         if(CABLE_MPI)
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)
