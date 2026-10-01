@@ -213,7 +213,12 @@ contains
         call output_stream%output_file%def_var( &
           var_name=variable_name, &
           dim_names=netcdf_dimensions(:)%name(), &
-          type=netcdf_var_type(output_var, use_native_type=restart_local) &
+          type=netcdf_var_type(output_var, use_native_type=restart_local), &
+          ! Compression settings belong to the file (its stream), and are applied
+          ! to each output variable. Coordinates and time are small, so they are
+          ! left uncompressed.
+          shuffle=output_stream%shuffle, &
+          deflate_level=output_stream%compression_level &
         )
         if (allocated(output_var%metadata)) then
           do j = 1, size(output_var%metadata)

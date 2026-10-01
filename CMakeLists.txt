@@ -372,8 +372,6 @@ else()
         src/offline/cable_abort.F90
         src/offline/cable_checks.F90
         src/offline/cable_cru_TRENDY.F90
-        src/offline/cable_diagnostics_casa.F90
-        src/offline/cable_diagnostics.F90
         src/offline/cable_output_bindings.F90
         src/offline/cable_output_bindings_casa.F90
         src/offline/cable_driver_common.F90

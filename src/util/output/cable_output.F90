@@ -5,69 +5,46 @@
 module cable_output_mod
   !* This module provides the interface for interacting with the CABLE output system.
   !
-  ! The output system is responsible for writing CABLE output variables to one or
-  ! more netCDF output and/or restart files, and includes functionality for
-  ! performing parallel I/O in MPI mode, grid cell reductions over sub-grid tiles,
-  ! and time aggregations of diagnostic variables.
+  ! The output system writes CABLE output variables to one or more netCDF
+  ! output and/or restart files, and includes functionality for performing
+  ! parallel I/O in MPI mode, grid cell reductions over sub-grid tiles, and time
+  ! aggregations of diagnostic variables.
+  !
+  ! What is written is described by an output configuration file (YAML) made of
+  ! streams (a file and a write frequency) and the variables directed to them.
+  ! See the user guide for the file format.
   !
   ! Using the output system involves the following steps:
   !
-  ! 1. [[cable_output_mod_init]] must be called before any
-  ! other procedures in this module to initialise the output system.
+  ! 1. [[cable_output_mod_init]] must be called before any other procedures in
+  ! this module to initialise the output system.
   !
-  ! 2. Diagnostics should be registered with the output system via
-  ! [[cable_output_register_output_variables]]. This involves creating an array of
-  ! `cable_output_variable_t` instances which describe the available diagnostics
-  ! and passing this array to `cable_output_register_output_variables`. For
-  ! example, a 1-dimensional diagnostic variable defined on the patch
-  ! dimension could be registered as follows:
+  ! 2. Output variable definitions are built from the output catalogue and the
+  ! bindings to model state (see [[cable_output_catalogue_mod]]) and registered
+  ! with [[cable_output_register_output_variables]]. A definition
+  ! (`cable_output_variable_definition_t`) says what a variable is; it does not
+  ! say whether or how it is written. Registering a variable does not mean it
+  ! is written: that is decided by the configuration. Variables that the
+  ! current model configuration cannot provide are registered as unavailable.
   !
-  !
-  !         call cable_output_register_output_variables([ &
-  !           cable_output_variable_t( &
-  !             field_name="my_diagnostic", &
-  !             data_shape=[cable_output_get_dimension("patch")], &
-  !             aggregator=new_aggregator(my_diagnostic_working_variable) &
-  !           ), &
-  !           cable_output_variable_t( &
-  !             ...
-  !           ) &
-  !         ])
-  !
-  !
-  !     Here, `"patch"` is a reserved dimension name which is recognised by the
-  !     output module. Please see [[cable_output_get_dimension]] for more
-  !     information on which dimensions are supported and how to add new ones.
-  !
-  !     Note that registering an output variable does not necessarily mean that the
-  !     variable will be written to an output stream - this can depend on whether the
-  !     output variable is active, which often depends on the output configuration,
-  !     or if the variable is a restart variable and whether we are writing to a
-  !     restart file. There are additional properties which may be specified for each
-  !     registered output variable - please see [[cable_output_variable_t]] for more
-  !     details. In general, output variables should be registered if their associated
-  !     diagnostic working variables are initialised in the model as this can help
-  !     provide information on the diagnostics which are available.
-  !
-  ! 3. Output streams should be initialised via [[cable_output_init_streams]]. This
-  ! should be done after registering output variables as the output stream
-  ! initialisation involves determining which output variables are active in each
-  ! output stream based on the current output configuration. Once an output stream
-  ! has been initialised, data can be written to disk.
+  ! 3. The output configuration is read and checked (see
+  ! [[cable_output_config_mod]]), then [[cable_output_init_streams]] creates
+  ! the files, defines their contents and writes their coordinate variables.
+  ! Every use of a definition (`cable_output_variable_t`) owns its own
+  ! aggregator, so one variable can appear in several streams.
   !
   ! 4. Typically on the first time step of the simulation,
-  ! [[cable_output_write_parameters]] should be called to write out any non-time
-  ! varying parameter output variables.
+  ! [[cable_output_write_parameters]] should be called to write out any
+  ! non-time varying parameter output variables.
   !
   ! 5. On each time step, [[cable_output_update]] should be called to update the
-  ! time aggregation accumulation for any output variables that are active in an
-  ! output stream. After `cable_output_update` is called, [[cable_output_write]]
-  ! should be called to write out the output variables for any output streams with
-  ! a sampling frequency that aligns with the current time step.
+  ! time aggregation accumulation for the output variables, followed by
+  ! [[cable_output_write]], which writes the streams whose write frequency
+  ! matches the current time step.
   !
   ! 6. If writing a CABLE restart file is required, then
   ! [[cable_output_write_restart]] should be called at the end of the simulation
-  ! to write out the restart variables to the CABLE restart file.
+  ! to write out the definitions that have a restart name, as they are.
   !
   ! 7. Lastly, after all output has been written, [[cable_output_mod_end]] should
   ! be called to close any open output streams and perform any necessary cleanup of
@@ -163,11 +140,13 @@ module cable_output_mod
   end type
 
   type, public :: cable_output_variable_t
-    !* Type for describing output variables.
+    !* Type for describing one use of an output variable in an output stream.
     !
-    ! This type provides the basis for registering output variables with the
-    ! output module via [[cable_output_register_output_variables]], and is used in
-    ! the definition and writing of output variables in various output streams.
+    ! Uses are built from a `cable_output_variable_definition_t` and the
+    ! aggregation, reduction and NetCDF name chosen in the output configuration,
+    ! and are what the output module defines and writes in each output stream.
+    ! The constructor taking the individual settings is used for the coordinate
+    ! variables written to every file.
     character(64) :: field_name
       !* The name of the variable as used in the CABLE code. This name is used
       ! as the netCDF variable name when writing CABLE restart files.
@@ -189,8 +168,6 @@ module cable_output_mod
       !* The time aggregation method to apply when sampling a diagnostic. Please refer to
       ! `allowed_aggregation_methods` for more details on the available
       ! aggregation methods.
-    logical :: active = .true.
-      !* A flag indicating whether the variable is active in the default output stream.
     logical :: parameter = .false.
       !* A flag indicating whether the variable is a non-time varying parameter.
       ! Variables with `parameter = .true.` are written once on the first time
@@ -202,16 +179,6 @@ module cable_output_mod
       ! distributed write to disk. If `distributed = .false.`, it is assumed by
       ! the output module that each process has a copy of the data, and only the
       ! data on the root process will be written.
-    logical :: restart = .false.
-      !* A flag indicating whether the variable should be written to the CABLE
-      ! restart file at the end of the run. Please see
-      ! [[cable_output_write_restart]] for more details on how restart variables
-      ! are written.
-    logical :: patchout = .false.
-      !* A flag indicating whether subgrid patch information should be included
-      ! in the output variable output. If `patchout = .true.`, this has the same
-      ! effect as setting `reduction_method = "none"`. This is a legacy flag for
-      ! backward compatibility with the CABLE output namelist settings.
     integer :: var_type = CABLE_OUTPUT_VAR_TYPE_UNDEFINED
       !* The netCDF variable type using `CABLE_NETCDF_<type>` constants. If not
       ! specified, the output module will use the native type of the data as the
@@ -240,8 +207,8 @@ module cable_output_mod
     class(aggregator_t), allocatable :: aggregator
       !* The aggregator object associated with the diagnostic working variable
       ! to be written for this output variable. The aggregator object should not
-      ! be initialised when registering output variables as this is done
-      ! internally in the output module the output variable is active.
+      ! be initialised by the caller; this is done internally in the output module
+      ! when the stream containing the variable is started.
     type(cable_output_attribute_t), allocatable :: metadata(:)
       !* NetCDF variable attributes to be written with the variable.
   contains
@@ -252,6 +219,7 @@ module cable_output_mod
 
   interface cable_output_variable_t
     procedure cable_output_variable_constructor
+    procedure cable_output_variable_from_definition
   end interface
 
   type, public :: cable_output_binding_t
@@ -355,7 +323,7 @@ module cable_output_mod
     type(cable_output_variable_config_t), allocatable :: variables(:)
   end type cable_output_config_t
 
-  type :: cable_output_stream_t
+  type, public :: cable_output_stream_t
     !* Type for describing a netCDF file output stream.
     real :: previous_write_time = 0.0
       !* The simulation time at which the output stream was last written.
@@ -374,6 +342,10 @@ module cable_output_mod
       ! `allowed_grid_types`.
     character(256) :: file_name
       !* The name of the netCDF file to which the output stream is written.
+    logical :: shuffle = .false.
+      !! Whether to apply the shuffle filter to the variables in the file.
+    integer :: compression_level = 0
+      !! Deflate level 0 to 9 for the variables in the file. Zero means no compression.
     class(cable_netcdf_file_t), allocatable :: output_file
       !* The netCDF file object associated with the output stream.
     type(cable_output_variable_t), allocatable :: coordinate_variables(:)
@@ -383,6 +355,9 @@ module cable_output_mod
     type(cable_output_attribute_t), allocatable :: metadata(:)
       !* Global netCDF file attributes to be written to the output stream.
   end type
+
+  public :: cable_output_restart_variable
+  public :: cable_output_grid_type
 
   public cable_output_mod_init
   interface cable_output_mod_init
@@ -406,23 +381,40 @@ module cable_output_mod
 
   public cable_output_register_output_variables
   interface cable_output_register_output_variables
-    module subroutine cable_output_impl_register_output_variables(output_variables)
-      !* Registers output variables with the output module. Note that
-      ! registering an output variable does not necessarily mean that the variable
-      ! will be written to an output stream - this can depend on whether the
-      ! output variable is active, or if it is a restart variable. Output
-      ! variables should be registered if their associated diagnostic working
-      ! variables are initialised in the model as this can help provide the
-      ! information on the diagnostics which are available.
-      type(cable_output_variable_t), dimension(:), intent(in) :: output_variables
-        !! An array of output variable definitions to be registered.
+    module subroutine cable_output_impl_register_definitions(definitions)
+      !* Registers output variable definitions with the output module. A
+      ! definition says what a variable is; whether and how it is written is
+      ! decided by the output configuration passed to [[cable_output_init_streams]].
+      type(cable_output_variable_definition_t), dimension(:), intent(in) :: definitions
+        !! The output variable definitions to register.
     end subroutine
+  end interface
+
+  public cable_output_build_streams
+  interface cable_output_build_streams
+    module function cable_output_impl_build_streams(config, definitions, grid_type) result(streams)
+      !* Works out which files the configuration produces and which variables
+      ! go into each, without creating any files.
+      type(cable_output_config_t), intent(in) :: config
+        !! The output configuration.
+      type(cable_output_variable_definition_t), intent(in) :: definitions(:)
+        !! The output variable definitions the configuration refers to.
+      character(len=*), intent(in) :: grid_type
+        !! The grid type of every output file, one of `allowed_grid_types`.
+      type(cable_output_stream_t), allocatable :: streams(:)
+    end function
   end interface
 
   public cable_output_init_streams
   interface cable_output_init_streams
-    module subroutine cable_output_impl_init_streams(dels)
-      !! Initialise output streams based on the current output configuration.
+    module subroutine cable_output_impl_init_streams_from_config(config, grid_type, dels)
+      !* Creates the output files described by the configuration, defines
+      ! their contents and writes their coordinate variables. Definitions must
+      ! have been registered first.
+      type(cable_output_config_t), intent(in) :: config
+        !! The output configuration.
+      character(len=*), intent(in) :: grid_type
+        !! The grid type of every output file, one of `allowed_grid_types`.
       real, intent(in) :: dels !! The current time step size in seconds.
     end subroutine
   end interface
@@ -563,8 +555,8 @@ contains
   end function
 
   function cable_output_variable_constructor(field_name, aggregator, netcdf_name, &
-    accumulation_frequency, reduction_method, aggregation_method, active, &
-    parameter, distributed, restart, patchout, var_type, scale_by, divide_by, &
+    accumulation_frequency, reduction_method, aggregation_method, &
+    parameter, distributed, var_type, scale_by, divide_by, &
     offset_by, range, data_shape, metadata &
   ) result(this)
     !! Constructor for `cable_output_variable_t`.
@@ -574,11 +566,8 @@ contains
     character(*), intent(in), optional :: accumulation_frequency
     character(*), intent(in), optional :: reduction_method
     character(*), intent(in), optional :: aggregation_method
-    logical, intent(in), optional :: active
     logical, intent(in), optional :: parameter
     logical, intent(in), optional :: distributed
-    logical, intent(in), optional :: restart
-    logical, intent(in), optional :: patchout
     integer, intent(in), optional :: var_type
     real, intent(in), optional :: scale_by
     real, intent(in), optional :: divide_by
@@ -594,11 +583,8 @@ contains
     if (present(accumulation_frequency)) this%accumulation_frequency = accumulation_frequency
     if (present(reduction_method)) this%reduction_method = reduction_method
     if (present(aggregation_method)) this%aggregation_method = aggregation_method
-    if (present(active)) this%active = active
     if (present(parameter)) this%parameter = parameter
     if (present(distributed)) this%distributed = distributed
-    if (present(restart)) this%restart = restart
-    if (present(patchout)) this%patchout = patchout
     if (present(var_type)) this%var_type = var_type
     if (present(scale_by)) this%scale_by = scale_by
     if (present(divide_by)) this%divide_by = divide_by
@@ -637,6 +623,130 @@ contains
     if (present(range)) this%range = range
     if (present(available)) this%available = available
   end function cable_output_binding_constructor
+
+  function cable_output_variable_from_definition(definition, aggregation, reduction, netcdf_name, metadata) result(this)
+    !* Constructs the use of a variable definition described by the arguments:
+    ! the definition says what the variable is, the arguments say how it is
+    ! written. The result owns its own copy of the aggregator, so one definition
+    ! can be used in several streams.
+    type(cable_output_variable_definition_t), intent(in) :: definition
+    character(*), intent(in) :: aggregation !! One of `allowed_aggregation_methods`.
+    character(*), intent(in) :: reduction !! One of `allowed_reduction_methods`.
+    character(*), intent(in) :: netcdf_name !! Name of the variable in the NetCDF file.
+    type(cable_output_attribute_t), intent(in), optional :: metadata(:)
+      !! Attributes to add to those of the definition.
+    type(cable_output_variable_t) :: this
+    type(cable_output_attribute_t), allocatable :: attributes(:)
+    integer :: definition_count, user_count
+
+    ! Part 1: settings chosen for this use (the arguments), plus the settings
+    ! that are a fixed property of the variable (taken from the definition).
+    this%field_name = definition%field_name
+    this%netcdf_name = netcdf_name
+    ! How often the variable is sampled is a property of the model, not of the
+    ! file, so the definition's native frequency becomes the sampling frequency.
+    this%accumulation_frequency = definition%native_frequency
+    this%reduction_method = reduction
+    this%aggregation_method = aggregation
+    this%parameter = definition%parameter
+    this%distributed = definition%distributed
+    this%var_type = definition%var_type
+    this%scale_by = definition%scale_by
+    this%divide_by = definition%divide_by
+    this%offset_by = definition%offset_by
+    this%range = definition%range
+    if (allocated(definition%data_shape)) this%data_shape = definition%data_shape
+    ! Copy (not share) the aggregator. It holds the running totals, and two
+    ! uses of one variable in different streams must not add into the same totals.
+    ! The copy still points at the same model variable, which is what we want.
+    allocate(this%aggregator, source=definition%aggregator)
+
+    ! Part 2: the NetCDF attributes, in a fixed order: the definition's own
+    ! (units, long_name), then cell_methods, then any the user added.
+    definition_count = 0
+    user_count = 0
+    if (allocated(definition%metadata)) definition_count = size(definition%metadata)
+    if (present(metadata)) user_count = size(metadata)
+    allocate(attributes(definition_count))
+    if (definition_count > 0) attributes = definition%metadata
+    ! cell_methods describes how the data was averaged, so it only applies to
+    ! variables that change with time. It is worked out from the aggregation
+    ! and reduction chosen, never stored, so it cannot disagree with the data.
+    if (.not. definition%parameter) then
+      attributes = [attributes, cable_output_attribute_t("cell_methods", cell_methods(aggregation, reduction))]
+    end if
+    ! Appending builds a longer array from the old one plus the new items.
+    if (user_count > 0) attributes = [attributes, metadata]
+    this%metadata = attributes
+  end function cable_output_variable_from_definition
+
+  function cable_output_restart_variable(definition) result(this)
+    !* Constructs the variable that writes a definition to the restart file:
+    ! the working variable is written as it is, without aggregation or
+    ! reduction, under its restart name.
+    type(cable_output_variable_definition_t), intent(in) :: definition
+    type(cable_output_variable_t) :: this
+
+    ! The restart file uses the variable's restart name, which may differ from
+    ! its user-facing name so that restart files stay readable across versions.
+    ! No aggregation or reduction is set: the write routine takes the current
+    ! model value as it is when it is told this is a restart write.
+    this%field_name = definition%restart_name
+    this%distributed = definition%distributed
+    this%var_type = definition%var_type
+    if (allocated(definition%data_shape)) this%data_shape = definition%data_shape
+    if (allocated(definition%metadata)) this%metadata = definition%metadata
+    allocate(this%aggregator, source=definition%aggregator)
+  end function cable_output_restart_variable
+
+  function cable_output_grid_type(output_grid, met_grid) result(grid_type)
+    !* The grid type of the output files, from the `output%grid` setting and
+    ! the grid type of the meteorological forcing.
+    character(len=*), intent(in) :: output_grid !! `default`, `land`, `mask` or `ALMA`.
+    character(len=*), intent(in) :: met_grid !! `land` or `mask`.
+    character(32) :: grid_type
+
+    ! "default" means follow the forcing: a land-point file gives compressed
+    ! land-point output, a lat/lon file gives lat/lon ("mask") output. "land",
+    ! "mask" and "ALMA" force the choice (ALMA is a convention for gridded
+    ! output, which is the lat/lon layout).
+    if (output_grid == "land" .or. (output_grid == "default" .and. met_grid == "land")) then
+      grid_type = "land"
+    else if ((output_grid == "default" .and. met_grid == "mask") .or. output_grid == "mask" .or. output_grid == "ALMA") then
+      grid_type = "mask"
+    else
+      ! Unrecognised combination, for example a forcing grid that is neither
+      ! land nor mask.
+      call cable_abort("Unable to determine output grid type.", __FILE__, __LINE__)
+    end if
+  end function cable_output_grid_type
+
+  pure function cell_methods(aggregation, reduction) result(text)
+    !! The CF `cell_methods` attribute for a variable aggregated and reduced as given.
+    character(*), intent(in) :: aggregation
+    character(*), intent(in) :: reduction
+    character(:), allocatable :: text
+
+    ! CF writes cell_methods as "dimension: method" pairs, spatial method first.
+    ! Only an area average is worth stating; picking one tile's value (first or
+    ! dominant) is not an averaging method.
+    text = ""
+    if (reduction == "grid_cell_average") text = "area: mean "
+    ! The time part uses CF's own words, so "max" becomes "maximum" and
+    ! "instant" becomes "point" (a value at one instant).
+    select case (aggregation)
+    case ("mean")
+      text = text // "time: mean"
+    case ("sum")
+      text = text // "time: sum"
+    case ("max")
+      text = text // "time: maximum"
+    case ("min")
+      text = text // "time: minimum"
+    case default
+      text = text // "time: point"
+    end select
+  end function cell_methods
 
   elemental function cable_output_variable_get_netcdf_name(this) result(netcdf_name)
     !* Return the netCDF variable name, which defaults to `field_name` if not

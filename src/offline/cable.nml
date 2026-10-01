@@ -1,6 +1,7 @@
 &cable
    filename%met = 'TumbaFluxnet.1.3_met.nc'
    filename%out = 'out_cable.nc'
+   filename%output_config = 'output_config.yaml'  ! which variables are written, where and how often
    filename%log = 'log_cable.txt'
    filename%restart_in  = ' ' 
    filename%restart_out = './restart_out.nc'
@@ -13,16 +14,6 @@
    delsoilM = 0.001   ! allowed variation in soil moisture for spin up
    delsoilT = 0.01    ! allowed variation in soil temperature for spin up
    output%restart = .TRUE.  ! should a restart file be created?
-   output%met = .TRUE.  ! input met data
-   output%flux = .TRUE.  ! convective, runoff, NEE
-   output%soil = .FALSE.  !see #354 soil statescrews up dimensions for ferret
-   output%snow = .TRUE.  ! snow states
-   output%radiation = .TRUE.  ! net rad, albedo
-   output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores
-   output%veg       = .TRUE.  ! vegetation states
-   output%params    = .TRUE.  ! input parameters used to produce run
-   output%patch     = .TRUE.  ! write per patch  
-   output%balances  = .TRUE.  ! energy and water balances
    check%ranges     = 0       ! variable ranges, input and output
    check%energy_bal = .TRUE.  ! energy balance
    check%mass_bal   = .TRUE.  ! water/mass balance

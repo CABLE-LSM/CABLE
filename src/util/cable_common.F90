@@ -103,6 +103,9 @@ USE cable_runtime_opts_mod ,ONLY : snmin
       !! input filename for combined fluxes at each timestep (control run)
     CHARACTER(LEN=500) :: new_sumbal = "new_sumbal"
       !! output filename for combined fluxes at each timestep (current run)
+    CHARACTER(LEN=500) :: output_config = ' '
+      !! name of the YAML output configuration file: which variables are written,
+      !! to which files, and how often. Required for runs that write output.
   END TYPE filenames_type
 
    TYPE(filenames_type) :: filename

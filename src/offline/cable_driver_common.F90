@@ -22,7 +22,6 @@ MODULE cable_driver_common_mod
   USE cable_IO_vars_module, ONLY : &
     soilparmnew,                   &
     output,                        &
-    patchout,                      &
     check,                         &
     verbose,                       &
     leaps,                         &
@@ -41,6 +40,7 @@ MODULE cable_driver_common_mod
     CABLE_NAMELIST,               &
     arg_not_namelist
   USE cable_mpi_mod, ONLY : mpi_grp_t
+  USE cable_error_handler_mod, ONLY : cable_abort
   USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
   USE cable_input_module, ONLY : open_met_file
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
@@ -76,7 +76,6 @@ MODULE cable_driver_common_mod
     delsoilT,       &
     delgwM,         &
     output,         &
-    patchout,       &
     check,          &
     verbose,        &
     leaps,          &
@@ -121,6 +120,7 @@ CONTAINS
     INTEGER, INTENT(OUT) :: NRRRR !! Number of repeated spin-up cycles
 
     INTEGER :: ioerror, unit
+    CHARACTER(len=256) :: ioerror_message
     CHARACTER(len=4) :: cRank ! for worker-logfiles
 
     !check to see if first argument passed to cable is
@@ -134,7 +134,16 @@ CONTAINS
 
     ! Open, read and close the namelist file.
     OPEN(NEWUNIT=unit, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ")
-    READ(unit, NML=CABLE)
+    READ(unit, NML=CABLE, IOSTAT=ioerror, IOMSG=ioerror_message)
+    ! The output%met, output%flux, ... and patchout%... switches no longer exist:
+    ! what is written is chosen in the file named by filename%output_config. An
+    ! old namelist that still sets them fails here, so say how to fix it.
+    IF (ioerror /= 0) THEN
+      CALL cable_abort("Could not read the &cable namelist from " // TRIM(CABLE_NAMELIST) // ": " // &
+        TRIM(ioerror_message) // ". If this names an output% or patchout% setting other than output%restart " // &
+        "or output%grid, that setting has been removed: choose the output variables in a YAML file named by " // &
+        "filename%output_config (see the user guide, Output files).", __FILE__, __LINE__)
+    END IF
     CLOSE(unit)
 
     cable_runtime%offline = .TRUE.
