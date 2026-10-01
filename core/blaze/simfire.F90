@@ -2,7 +2,7 @@ MODULE SIMFIRE_MOD
 
 TYPE TYPE_SIMFIRE
    INTEGER, DIMENSION(:), ALLOCATABLE    :: IGBP, BIOME, REGION, NDAY
-   REAL,    DIMENSION(:), ALLOCATABLE    :: POPD, MAX_NESTEROV, CNEST, LAT, LON, FLI, FAPAR, POPDENS, AREA
+   REAL,    DIMENSION(:), ALLOCATABLE    :: POPD, MAX_NESTEROV, CNEST, LAT, LON, FLI, FAPAR, POPDENS, CELLAREA
    REAL,    DIMENSION(:,:), ALLOCATABLE  :: SAV_NESTEROV, SAV_FAPAR, BA_MONTHLY_CLIM
    INTEGER   :: SYEAR, EYEAR, NCELLS
    REAL      :: RES, RESF
@@ -90,7 +90,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ALLOCATE( SF%FAPAR       (NCELLS) )
   ALLOCATE( SF%LAT         (NCELLS) )
   ALLOCATE( SF%LON         (NCELLS) )
-  ALLOCATE( SF%AREA        (NCELLS) )
+  ALLOCATE( SF%CELLAREA    (NCELLS) )
   ALLOCATE( SF%SAV_NESTEROV(NCELLS,12) )
   ALLOCATE( SF%SAV_FAPAR(NCELLS,FAPAR_AVG_INT) )
   ALLOCATE( SF%POPDENS     (NCELLS) )
@@ -103,7 +103,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   SF%LON  = LONGITUDE
 
   !get effective grid cell area - dummy until robust solution determined
-  CALL get_grid_areakm2(NCELLS,SF%LAT,SF%LON,SF%AREA)
+  CALL get_grid_areakm2(NCELLS,SF%LAT,SF%LON,SF%CELLAREA)
 
   !=============================================================================
   ! VEGTYPE from IGBP dataset
@@ -660,7 +660,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
 
       !apply randomness to AB annual
       !IF (SF%STOCH_AREA) THEN
-      !   CALL STOCH_AREA(AB(i),SF%LAT(i),SF%LON(i),SF%AREA(i),1,YEAR,365)
+      !   CALL STOCH_AREA(AB(i),SF%LAT(i),SF%LON(i),SF%CELLAREA(i),1,YEAR,365)
       !END IF
 
       ! Monthly Burned Area
@@ -675,7 +675,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, annAB, climate, FA
          iSTOCH = INT( REAL(DOY)/REAL(stoch_trig)) + 1
         
          !STOCH_AREA is deterministic, if iSTOCH is the same then the same AB will be produced.
-         CALL STOCH_AREA(AB(i),SF%LAT(i),SF%LON(i),SF%AREA(i),iSTOCH,YEAR,DOM(MM))
+         CALL STOCH_AREA(AB(i),SF%LAT(i),SF%LON(i),SF%CELLAREA(i),iSTOCH,YEAR,DOM(MM))
 
       END IF 
 

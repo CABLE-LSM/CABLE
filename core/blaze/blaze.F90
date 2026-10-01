@@ -3,7 +3,7 @@
 TYPE TYPE_BLAZE
    INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
    REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN, w_prior, FDI
-   REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf,annAB
+   REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf,annAB, CELLAREA
    REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac, k_tune_litter
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, ABM, TO, AGC_g, AGC_w
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AGLit_w, AGLit_g, BGLit_w, BGLit_g
@@ -125,6 +125,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   !! Called from cable_driver now
   USE cable_common_module, ONLY: get_unit
+  USE SIMFIRE_MOD, ONLY: get_grid_areakm2
 
   IMPLICIT NONE
 
@@ -171,6 +172,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%RH      ( np ) )
   ALLOCATE ( BLAZE%LAT     ( np ) )
   ALLOCATE ( BLAZE%LON     ( np ) )
+  ALLOCATE ( BLAZE%CELLAREA( np ) )    !area of grid cell
   ALLOCATE ( BLAZE%JLAT    ( np ) )
   ALLOCATE ( BLAZE%ILON    ( np ) )
   ALLOCATE ( BLAZE%TMAX    ( np ) )
@@ -290,6 +292,8 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
+  !get effective grid cell area - dummy until robust solution determined
+  CALL get_grid_areakm2(BLAZE%NCELLS,BLAZE%LAT,BLAZE%LON,BLAZE%CELLAREA)
 
 !!$  ! time for averaging annual rainfall [a]
 !!$  BLAZE%T_AVG = 5
@@ -1145,11 +1149,11 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
   END IF
 
   !adjust BA so that lower intensity fires are smaller, higher intensity fires are larger
-  !as specified by FLXBA
+  !as specified by FLXBA, FLIX always between 1 and 5
   IF (BLAZE%FLIX_BA) THEN
      DO np=1, BLAZE%NCELLS
-        AB(np) = FLXBA(BLAZE%FLIX(np))*BLAZE%AB(np)
-        BLAZE%AB(np) = MAX( MIN(max_ba/2./SF%AREA(np), 0.99-BLAZE%annAB(np)), AB(np))
+         AB(np) = FLXBA(BLAZE%FLIX(np))*BLAZE%AB(np)
+         BLAZE%AB(np) = MIN(max_ba/2./BLAZE%CELLAREA(np), 0.99-BLAZE%annAB(np), AB(np))
      END DO
    END IF
 
