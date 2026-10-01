@@ -229,7 +229,7 @@ module cable_netcdf_mod
         ! `CABLE_NETCDF_UNLIMITED` for unlimited dimensions.
     end subroutine
     !> Define a variable in the netCDF file with the specified name, dimensions, and type.
-    subroutine cable_netcdf_file_def_var(this, var_name, type, dim_names)
+    subroutine cable_netcdf_file_def_var(this, var_name, type, dim_names, shuffle, deflate_level)
       import cable_netcdf_file_t
       class(cable_netcdf_file_t), intent(inout) :: this
       character(len=*), intent(in) :: var_name
@@ -240,6 +240,13 @@ module cable_netcdf_mod
       character(len=*), intent(in), optional :: dim_names(:)
         !* Array of dimension names for the variable. If not provided, the
         ! variable will be defined as a scalar.
+      logical, intent(in), optional :: shuffle
+        !* Whether to apply the shuffle filter. Only used together with
+        ! `deflate_level`. Defaults to false.
+      integer, intent(in), optional :: deflate_level
+        !* Deflate compression level from 1 (fastest) to 9 (smallest). Zero or
+        ! absent means no compression. Compression needs a netCDF-4 file
+        ! (`CABLE_NETCDF_IOTYPE_NETCDF4C`) and is ignored for scalars.
     end subroutine
     !> Define a global attribute with a string value in the netCDF file.
     subroutine cable_netcdf_file_put_att_global_string(this, att_name, att_value)

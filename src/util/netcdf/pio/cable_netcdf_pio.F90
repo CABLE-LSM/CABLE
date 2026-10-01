@@ -358,14 +358,21 @@ contains
     end do
   end subroutine
 
-  subroutine cable_netcdf_pio_file_def_var(this, var_name, type, dim_names)
+  subroutine cable_netcdf_pio_file_def_var(this, var_name, type, dim_names, shuffle, deflate_level)
     class(cable_netcdf_pio_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
     integer, intent(in) :: type
     character(len=*), intent(in), optional :: dim_names(:)
+    logical, intent(in), optional :: shuffle
+    integer, intent(in), optional :: deflate_level
     integer, allocatable :: dimids(:)
     integer :: i
     type(pio_var_desc_t) :: tmp
+    if (present(deflate_level)) then
+      if (deflate_level > 0) then
+        call cable_abort("Variable compression is not yet supported with ParallelIO: " // var_name, __FILE__, __LINE__)
+      end if
+    end if
     if (.not. present(dim_names)) then
       call check_pio(pio_def_var(this%pio_file_desc, var_name, type_pio(type), tmp))
       return

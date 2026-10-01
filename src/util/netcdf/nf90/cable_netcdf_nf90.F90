@@ -26,6 +26,7 @@ module cable_netcdf_nf90_mod
   use netcdf, only: nf90_strerror
   use netcdf, only: nf90_def_dim
   use netcdf, only: nf90_def_var
+  use netcdf, only: nf90_def_var_deflate
   use netcdf, only: nf90_put_att
   use netcdf, only: nf90_get_att
   use netcdf, only: nf90_put_var
@@ -325,25 +326,45 @@ contains
     end do
   end subroutine
 
-  subroutine cable_netcdf_nf90_file_def_var(this, var_name, type, dim_names)
+  subroutine cable_netcdf_nf90_file_def_var(this, var_name, type, dim_names, shuffle, deflate_level)
     class(cable_netcdf_nf90_file_t), intent(inout) :: this
     character(len=*), intent(in) :: var_name
     integer, intent(in) :: type
     character(len=*), intent(in), optional :: dim_names(:)
+    logical, intent(in), optional :: shuffle
+    integer, intent(in), optional :: deflate_level
     integer, allocatable :: dimids(:)
     integer :: i, tmp
+    integer :: shuffle_flag
 
+    ! A variable with no dimensions is a scalar. It is defined directly, and is
+    ! never compressed (a single value cannot be).
     if (.not. present(dim_names)) then
       call check_nf90(nf90_def_var(this%ncid, var_name, type_nf90(type), tmp))
       return
     end if
 
+    ! NetCDF identifies dimensions by number, so look up each named dimension.
     allocate(dimids(size(dim_names)))
     do i = 1, size(dimids)
       call check_nf90(nf90_inq_dimid(this%ncid, dim_names(i), dimids(i)))
     end do
     call check_nf90(nf90_def_var(this%ncid, var_name, type_nf90(type), dimids, tmp))
 
+    ! Compression is applied after the variable exists, and only if asked for.
+    ! It needs a NetCDF-4 file; on a classic file the library reports an error.
+    if (present(deflate_level) .and. size(dimids) > 0) then
+      if (deflate_level > 0) then
+        ! The shuffle filter reorders bytes so that similar bytes sit together,
+        ! which makes the deflate step more effective. NetCDF wants 1 or 0.
+        shuffle_flag = 0
+        if (present(shuffle)) then
+          if (shuffle) shuffle_flag = 1
+        end if
+        ! Arguments: file, variable, shuffle on/off, deflate on (1), level.
+        call check_nf90(nf90_def_var_deflate(this%ncid, tmp, shuffle_flag, 1, deflate_level))
+      end if
+    end if
   end subroutine
 
   subroutine cable_netcdf_nf90_file_put_att_global_string(this, att_name, att_value)

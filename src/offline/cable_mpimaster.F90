@@ -88,7 +88,7 @@ MODULE cable_mpimaster
   USE cable_IO_vars_module, ONLY : NO_CHECK
   USE casa_cable
   USE casa_inout_module
-  USE cable_checks_module, ONLY: constant_check_range, mass_balance, energy_balance
+  USE cable_checks_module, ONLY: constant_check_range, mass_balance, energy_balance, ranges
   USE cable_mpi_mod, ONLY: mpi_grp_t
   USE cable_timing_mod, ONLY: cable_timing_set_start_year
   use cable_output_mod, only: cable_output_mod_init
@@ -99,8 +99,16 @@ MODULE cable_mpimaster
   use cable_output_mod, only: cable_output_write
   use cable_output_mod, only: cable_output_write_parameters
   use cable_output_mod, only: cable_output_write_restart
-  use cable_diagnostics_mod, only: cable_diagnostics
-  use cable_diagnostics_casa_mod, only: cable_diagnostics_casa
+  use cable_output_mod, only: cable_output_config_t
+  use cable_output_mod, only: cable_output_variable_definition_t
+  use cable_output_mod, only: cable_output_grid_type
+  use cable_output_catalogue_mod, only: cable_output_catalogue_definitions
+  use cable_output_config_mod, only: cable_output_config_load
+  use cable_output_config_mod, only: cable_output_config_parse
+  use cable_output_bindings_mod, only: cable_output_bindings
+  use cable_output_bindings_casa_mod, only: cable_output_bindings_casa
+  use cable_timing_mod, only: cable_timing_date_string
+  use cable_error_handler_mod, only: cable_abort
   use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
 
   IMPLICIT NONE
@@ -183,12 +191,14 @@ CONTAINS
          output,check,&
          patch_type,landpt,&
          timeunits, output, &
-         calendar, verbose, patch
+         calendar, verbose, patch, &
+         metgrid, landpt_global, syear, sdoy
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
          CurYear,    &
          l_landuse, &
          IS_LEAPYEAR, calcsoilalbedo,                &
+         gw_params, l_casacnp,                       &
          kwidth_gl
     USE casa_ncdf_module, ONLY: is_casa_time
     ! physical constants
@@ -323,6 +333,9 @@ CONTAINS
 
     INTEGER :: count_bal = 0
     INTEGER :: nkend=0
+    type(cable_output_variable_definition_t), allocatable :: output_definitions(:)
+    type(cable_output_config_t) :: output_config
+    character(len=10) :: output_start_date, output_end_date
 
     INTEGER :: i,kk,m,np,ivt
     INTEGER, PARAMETER :: mloop = 30   ! CASA-CNP PreSpinup loops
@@ -435,7 +448,8 @@ CONTAINS
             CABLE_USER%POPLUC= .FALSE.
 
 
-          ! Open output file:
+          ! Default name for filename%out, which the POPLUC output still uses. The
+          ! output files themselves are named in the output configuration file.
           IF (.NOT.CASAONLY) THEN
             IF ( TRIM(filename%out) .EQ. '' ) THEN
               IF ( CABLE_USER%YEARSTART .GT. 0 ) THEN
@@ -449,12 +463,37 @@ CONTAINS
                   TRIM(cable_user%RunIden)//'_cable_out.nc'
               ENDIF
             ENDIF
+            ! Output set-up, identical to the serial driver (see the comments in
+            ! cable_serial.F90 and the developer guide). Only the master process
+            ! writes output; the workers send their results to it.
             call cable_output_mod_init()
-            call cable_output_register_output_variables([ &
-              cable_diagnostics(met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, dels=dels), &
-              cable_diagnostics_casa(casaflux, casapool, casamet) &
+            output_definitions = cable_output_catalogue_definitions([ &
+              cable_output_bindings( &
+                met, canopy, soil, ssnow, rad, veg, bal, rough, bgc, ranges, gw_params, landpt_global, patch, &
+                mvtype, mstype, dels, cable_user%gw_model, cable_user%POPLUC, calcsoilalbedo &
+              ), &
+              cable_output_bindings_casa(casaflux, casapool, casamet, ranges, l_casacnp, cable_user%POPLUC) &
             ])
-            call cable_output_init_streams(dels)
+            call cable_output_register_output_variables(output_definitions)
+            output_start_date = cable_timing_date_string(max(syear, CurYear), sdoy, 0, leaps)
+            ! kend spans the whole run, except when looping over several years of
+            ! forcing, where it is one year long and the last year comes from YearEnd.
+            if (cable_user%YearEnd > cable_user%YearStart) then
+              write(output_end_date, '(i4.4,"-12-31")') cable_user%YearEnd
+            else
+              output_end_date = cable_timing_date_string( &
+                max(syear, CurYear), sdoy, max(nint(kend * dels / 86400.0) - 1, 0), leaps)
+            end if
+            ! The output configuration file is required: it says which variables are
+            ! written, to which files and how often. It is checked as a whole, and any
+            ! problem stops the run here with a full list.
+            if (len_trim(filename%output_config) == 0) then
+              call cable_abort("No output configuration file was given. Set filename%output_config " // &
+                "in the &cable namelist to a YAML file (see the user guide, Output files).", __FILE__, __LINE__)
+            end if
+            output_config = cable_output_config_load( &
+              trim(filename%output_config), output_definitions, output_start_date, output_end_date)
+            call cable_output_init_streams(output_config, cable_output_grid_type(output%grid, metgrid), dels)
             call cable_output_write_parameters(kstart, patch, landpt)
           ENDIF
 
@@ -1241,7 +1280,7 @@ CONTAINS
 
     IF ( SpinConv .AND. .NOT. CASAONLY) THEN
       ! Report balance info to log file if verbose writing is requested:
-      IF(output%balances .AND. verbose) THEN
+      IF(verbose) THEN
         WRITE(logn, *)
         DO i = 1, mland
           WRITE(logn, '(A51,I7,1X,A11,E12.4,A6)')                              &

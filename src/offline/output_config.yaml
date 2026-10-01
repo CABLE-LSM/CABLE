@@ -1,0 +1,53 @@
+# Example output configuration, to go with cable.nml in this directory. See the user guide,
+# "Output files", for every setting.
+#
+# Daily means of the groups that this namelist used to switch on with output%met, output%flux,
+# output%snow, output%radiation, output%carbon, output%veg and output%balances, with the
+# individual tiles kept (the old output%patch), and the model parameters, written once.
+
+streams:
+  1:
+    file_name: out_cable.nc
+    frequency: daily
+
+groups:
+  - name: met
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  - name: flux
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  - name: snow
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  - name: radiation
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  - name: carbon
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  - name: veg
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  - name: balances
+    stream: 1
+    aggregation: mean
+    reduction: none
+
+  # Parameters do not change in time. They are written once, and keep their tiles.
+  - name: params
+    stream: 1
+    aggregation: instant
+    reduction: none

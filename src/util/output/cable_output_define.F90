@@ -109,19 +109,19 @@ contains
     call output_stream%output_file%put_att("Source", "CABLE LSM output file")
     call output_stream%output_file%put_att("CABLE_input_file", trim(filename%met))
 
-    select case (output_stream%sampling_frequency)
-    case ("all")
+    select case (trim(output_stream%sampling_frequency))
+    case ("timestep")
       call output_stream%output_file%put_att("Output_averaging", "all timesteps recorded")
+    case ("3hrly")
+      call output_stream%output_file%put_att("Output_averaging", "3-hourly")
     case ("daily")
       call output_stream%output_file%put_att("Output_averaging", "daily")
     case ("monthly")
       call output_stream%output_file%put_att("Output_averaging", "monthly")
+    case ("yearly")
+      call output_stream%output_file%put_att("Output_averaging", "yearly")
     case default
-      if (output_stream%sampling_frequency(:4) == "user") then
-        call output_stream%output_file%put_att("Output_averaging", TRIM(output_stream%sampling_frequency(5:7)) // "-hourly output")
-      else
-        call cable_abort("Invalid sampling frequency '" // output_stream%sampling_frequency // "'", __FILE__, __LINE__)
-      end if
+      call cable_abort("Invalid sampling frequency '" // trim(output_stream%sampling_frequency) // "'", __FILE__, __LINE__)
     end select
 
   end subroutine set_global_attributes
@@ -213,7 +213,12 @@ contains
         call output_stream%output_file%def_var( &
           var_name=variable_name, &
           dim_names=netcdf_dimensions(:)%name(), &
-          type=netcdf_var_type(output_var, use_native_type=restart_local) &
+          type=netcdf_var_type(output_var, use_native_type=restart_local), &
+          ! Compression settings belong to the file (its stream), and are applied
+          ! to each output variable. Coordinates and time are small, so they are
+          ! left uncompressed.
+          shuffle=output_stream%shuffle, &
+          deflate_level=output_stream%compression_level &
         )
         if (allocated(output_var%metadata)) then
           do j = 1, size(output_var%metadata)
