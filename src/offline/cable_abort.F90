@@ -93,7 +93,7 @@ CONTAINS
     WRITE (*, *) message ! error from subroutine
     WRITE (*, *) NF90_STRERROR(ok) ! netcdf error details
 
-    STOP
+    STOP 1
 
   END SUBROUTINE nc_abort
 
