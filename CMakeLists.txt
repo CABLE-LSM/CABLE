@@ -7,7 +7,6 @@ project(
 )
 
 option(CABLE_MPI "Build the MPI executable" OFF)
-option(CABLE_PIO "Build with PIO support (requires CABLE_MPI)" OFF)
 option(CABLE_TESTS "Build CABLE tests" OFF)
 
 # Compiler flags are selected regardless of the type of build
@@ -39,8 +38,8 @@ set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 # The library build is minimal: no MPI, no PIO, no NetCDF and no tests
 if(CABLE_LIBRARY)
 
-    if(CABLE_MPI OR CABLE_PIO OR CABLE_TESTS)
-        message(WARNING "CABLE_LIBRARY build: ignoring CABLE_MPI, CABLE_PIO and CABLE_TESTS")
+    if(CABLE_MPI OR CABLE_TESTS)
+        message(WARNING "CABLE_LIBRARY build: ignoring CABLE_MPI and CABLE_TESTS")
     endif()
 
     # Set the core sources
@@ -212,17 +211,15 @@ if(CABLE_LIBRARY)
 
 else()
 
-    # PIO is an extension of the MPI build and cannot be enabled without it
-    if(CABLE_PIO AND NOT CABLE_MPI)
-        message(FATAL_ERROR "CABLE_PIO requires CABLE_MPI to be enabled")
-    endif()
-
     # third party libs
     if(CABLE_MPI)
         find_package(MPI REQUIRED COMPONENTS Fortran)
-        if(CABLE_PIO)
-            find_package(PIO REQUIRED COMPONENTS Fortran)
+        # PIO is an extension of the MPI build, and is used if it can be found
+        find_package(PIO COMPONENTS Fortran QUIET)
+        if(TARGET PIO::PIO_Fortran)
             message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
+        else()
+            message(STATUS "PIO_Fortran not found: building without PIO support")
         endif()
     endif()
     if(CABLE_TESTS)
@@ -396,7 +393,7 @@ else()
         target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
 
         # PIO is only available as part of the MPI build
-        if(CABLE_PIO)
+        if(TARGET PIO::PIO_Fortran)
             target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
             target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
         else()
@@ -442,7 +439,7 @@ else()
             target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_serial.F90)
         endif()
         target_link_libraries(cable-tests PRIVATE cable_common ${fortuno_libs})
-        if(NOT CABLE_PIO)
+        if(NOT TARGET PIO::PIO_Fortran)
             target_compile_definitions(cable-tests PRIVATE SKIP_PIO_TESTS)
         endif()
         if(CABLE_MPI)
