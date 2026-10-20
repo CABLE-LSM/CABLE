@@ -56,6 +56,7 @@ USE cable_roughness_type_mod, ONLY: roughness_type
 USE cable_bgc_pool_type_mod,  ONLY: bgc_pool_type
 USE cable_climate_type_mod,   ONLY: climate_type
 USE cable_sum_flux_type_mod,  ONLY: sum_flux_type
+USE uclem_state_mod,          ONLY: uclem_type
 
 IMPLICIT NONE
 
