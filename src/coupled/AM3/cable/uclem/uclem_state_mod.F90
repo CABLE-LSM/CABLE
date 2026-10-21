@@ -580,11 +580,6 @@ SUBROUTINE alloc_uclem_type(uclem, mp)
 
     !  pd
 
-    uclem%pd%cndzmin=max(10.,0.1*uclem%fp%bldheight+2.)                 ! updated in uclem_calc
-    uclem%pd%lzom=log(uclem%pd%cndzmin/(0.1*uclem%fp%bldheight)) ! updated in uclem_calc
-    uclem%pd%lzoh=6.+uclem%pd%lzom ! (Kanda et al 2005)           ! updated in uclem_calc
-    uclem%pd%cduv=(vkar/uclem%pd%lzom)**2                         ! updated in uclem_calc
-    uclem%pd%cdtq=vkar**2/(uclem%pd%lzom*uclem%pd%lzoh)    ! updated in uclem_calc
     uclem%pd%zol=0.                                                    ! updated in uclem_calc
     uclem%pd%tscrn=1.      ! + urbtemp                                   ! updated in uclem_calc
     uclem%pd%qscrn=0.                                                    ! updated in uclem_calc
@@ -667,6 +662,14 @@ SUBROUTINE alloc_uclem_type(uclem, mp)
     uclem%fp%intgains_flr = cintgains(itmp)
     uclem%fp%trafficfg = ctrafficfg(itmp)
     uclem%fp%bldheight = cbldheight(itmp)
+    ! The canyon aerodynamic state needs the building height, so it is set
+    ! only once fp%bldheight holds a value.  Evaluated earlier, it divided by
+    ! uninitialised memory.
+    uclem%pd%cndzmin=max(10.,0.1*uclem%fp%bldheight+2.)                 ! updated in uclem_calc
+    uclem%pd%lzom=log(uclem%pd%cndzmin/(0.1*uclem%fp%bldheight)) ! updated in uclem_calc
+    uclem%pd%lzoh=6.+uclem%pd%lzom ! (Kanda et al 2005)           ! updated in uclem_calc
+    uclem%pd%cduv=(vkar/uclem%pd%lzom)**2                         ! updated in uclem_calc
+    uclem%pd%cdtq=vkar**2/(uclem%pd%lzom*uclem%pd%lzoh)    ! updated in uclem_calc
     uclem%fp_roof%alpha = croofalpha(itmp)
     uclem%fp_wall%alpha = cwallalpha(itmp)
     uclem%fp_road%alpha = croadalpha(itmp)
