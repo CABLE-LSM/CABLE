@@ -214,9 +214,12 @@ else()
     # third party libs
     if(CABLE_MPI)
         find_package(MPI REQUIRED COMPONENTS Fortran)
+        # PIO is an extension of the MPI build, and is used if it can be found
         find_package(PIO COMPONENTS Fortran QUIET)
         if(TARGET PIO::PIO_Fortran)
             message(STATUS "Found PIO_Fortran: ${PIO_DIR}")
+        else()
+            message(STATUS "PIO_Fortran not found: building without PIO support")
         endif()
     endif()
     if(CABLE_TESTS)
@@ -233,9 +236,11 @@ else()
             set(fortuno_libs Fortuno::fortuno_serial)
         endif ()
         include(FetchContent)
+        # Use a locally installed Fortuno if one can be found, otherwise clone it
         FetchContent_Declare(Fortuno
             GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
             GIT_TAG eb61214fd76d6235a3072b6f8ed83d0380c2f266
+            FIND_PACKAGE_ARGS NAMES Fortuno
         )
         FetchContent_MakeAvailable(Fortuno)
     endif()
@@ -384,13 +389,16 @@ else()
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
 
     if(CABLE_MPI)
-    target_compile_definitions(cable_common PRIVATE __MPI__)
-    target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
-    endif()
+        target_compile_definitions(cable_common PRIVATE __MPI__)
+        target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
 
-    if(TARGET PIO::PIO_Fortran)
-        target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
-        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+        # PIO is only available as part of the MPI build
+        if(TARGET PIO::PIO_Fortran)
+            target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
+            target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+        else()
+            target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
+        endif()
     else()
         target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
     endif()
