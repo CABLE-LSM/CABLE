@@ -167,6 +167,7 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/cable/types/sum_flux_type.F90
             src/coupled/AM3/cable/types/veg_type.F90
             src/science/urban/uclem_science.f90
+            src/coupled/AM3/cable/uclem/uclem_state_mod.F90
             src/coupled/AM3/casa/types/casa_balance_type.F90
             src/coupled/AM3/casa/types/casa_biome_type.F90
             src/coupled/AM3/casa/types/casa_files_type.F90
