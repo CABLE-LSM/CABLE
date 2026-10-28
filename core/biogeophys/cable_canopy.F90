@@ -1985,6 +1985,7 @@ CONTAINS
       integer :: NN, m, kmax, Mtag, Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
+      real :: g0_term ! minimal stomatal conductance term used to update gswx
       REAL :: psi_wilt_i  ! for LWP fwsoil_nongs stress function
       real(r_2), dimension(mp, ms) :: wb_probe        ! per-point probed soil moisture for the LWP2+hydraulics refinement
       real(r_2) :: fws_tmp_hyd                        ! probed fwsoil value (dryLeaf-local; distinct from define_canopy's fws_tmp)
@@ -2708,6 +2709,8 @@ CONTAINS
                      gs_coeff(i, 2) = fwpsi(i, 2)*g1/real(csx(i, 2))
                      fwpsixx = fwpsi
                   end if
+                  ! scale g0 by fwpsi (per sunlit/shaded leaf); fwsoil_gswmin = 1.0 in this case
+                  gswmin(i, :) = gswmin(i, :)*real(fwpsixx(i, :))**qs
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                         cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -2826,16 +2829,25 @@ CONTAINS
                      csx(i, kk) = max(1.0e-4_r_2, csx(i, kk))
                      if (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
+                        ! fwsoil may be updated within the iteration (Haverd2013/LWP2), so use the
+                        ! current fwsoil here; tuzet+LWP1 already has fwpsi folded into gswmin
+                        if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                            cable_user%FWSOIL_SWITCH == 'LWP1') then
+                           g0_term = gswmin(i, kk)
+                        else
+                           g0_term = gswmin(i, kk)*fwsoil(i)**qs
+                        end if
+
                         ! Ticket #56, xleuning replaced with gs_coeff here
                         if (cable_user%g0_switch == 'default') then
-                           canopy%gswx(i, kk) = MAX(1.e-3, gswmin(i, kk)*fwsoil(i)**qs + &
+                           canopy%gswx(i, kk) = MAX(1.e-3, g0_term + &
                                                     MAX(0.0, C%RGSWC*gs_coeff(i, kk)* &
                                                         anx(i, kk)))
                         elseif (cable_user%g0_switch == 'maximum') then
                            ! set gsw to maximum of g0*fwsoil and humidity-dependent term,
                            ! according to third formulation suggested by Lombardozzi et al.,
                            ! GMD 10, 321-331, 2017, and applied in CLM
-                           canopy%gswx(i, kk) = MAX(1.e-3, max(gswmin(i, kk)*fwsoil(i)**qs, &
+                           canopy%gswx(i, kk) = MAX(1.e-3, max(g0_term, &
                                                                MAX(0.0, C%RGSWC*gs_coeff(i, kk)* &
                                                                    anx(i, kk))))
 
