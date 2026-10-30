@@ -86,7 +86,7 @@ MODULE cable_output_module
           vcmax_ts, jmax_ts, qcan_sl, qcan_sh, qcan_dif, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
-          TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
+          TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sl_midday, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, &
           abs_deltpsil_sl_vpd, abs_deltpsil_sh_vpd, abs_deltpsil_sl_sw, abs_deltpsil_sh_sw, kplant, &
           abs_deltpsil_sl_ref, abs_deltpsil_sh_ref, abs_deltlf_ref, abs_deltds_ref, &
@@ -312,6 +312,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootzone => null()  ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psix  => null()    ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sl  => null()     !
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sl_midday  => null()  ! mean of midday steps
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: n_midday  => null()  ! number of midday steps accumulated
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sh  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sl  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sh  => null()     !
@@ -1133,6 +1135,15 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sl(mp))
      out%psi_can_sl = 0.0 ! initialise
+     CALL define_ovar(ncid_out, ovid%psi_can_sl_midday, &
+                      'psi_can_sl_midday', 'MPa', &
+                      'sun-lit canopy water potential, mean of midday steps (local time)', &
+                      patchout%psi_can_sl, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%psi_can_sl_midday(mp))
+     ALLOCATE(out%n_midday(mp))
+     out%psi_can_sl_midday = 0.0 ! initialise
+     out%n_midday = 0.0 ! initialise
      CALL define_ovar(ncid_out, ovid%psi_can_sh, &
                       'psi_can_sh', 'MPa', 'shaded Canopy water potential', &
                       patchout%psi_can_sh, 'dummy', xID, yID, zID, &
@@ -5165,6 +5176,30 @@ CONTAINS
                         'default', met)
          ! Reset temporary output variable:
          out%psi_can_sl = 0.0
+      END IF
+      ! Midday sun-lit canopy water potential: mean over steps whose end
+      ! timestamp is 11:00-13:00 local time. For site met, met%hod is the
+      ! middle of the step (e.g. 10.75 for 10:30-11:00 with 30-min steps).
+      ! Meant for daily/monthly averaging; with averaging = "all", steps
+      ! outside the window write 0.
+      WHERE (met%hod >= 10.75 - 1.e-3 .AND. met%hod <= 12.75 + 1.e-3)
+         out%psi_can_sl_midday = out%psi_can_sl_midday + REAL(canopy%psi_can(:,1), 4)
+         out%n_midday = out%n_midday + 1.0
+      END WHERE
+      IF(writenow) THEN
+         ! Divide accumulated variable by number of accumulated midday steps:
+         WHERE (out%n_midday > 0.0)
+            out%psi_can_sl_midday = out%psi_can_sl_midday / out%n_midday
+         END WHERE
+         ! Write value to file:
+         CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sl_midday, &
+                        'psi_can_sl_midday', &
+                         out%psi_can_sl_midday, ranges%psi_can, &
+                         patchout%psi_can_sl, &
+                        'default', met)
+         ! Reset temporary output variables:
+         out%psi_can_sl_midday = 0.0
+         out%n_midday = 0.0
       END IF
         ! Add current timestep's value to total of temporary output variable:
         out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,2), 4)
