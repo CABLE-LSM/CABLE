@@ -3,10 +3,15 @@ spack:
   # Include configuration from this repository, with the environment variable defined in build-ci
   - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
-  - cable@git.{{ ref }}
-  - cable@git.{{ ref }}+mpi+pio
+  - cable@git.{{ ref }} --test=root
+  - cable@git.{{ ref }}+mpi+pio --test=root
   packages:
     all:
       require:
       - '%access_gcc'
   view: false
+  repos:
+    access_spack_packages:
+      git: https://github.com/ACCESS-NRI/access-spack-packages.git
+      branch: add-fortuno-to-cable-deps
+      destination: $env/package-repos/access-spack-packages
