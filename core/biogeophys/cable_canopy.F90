@@ -1903,7 +1903,8 @@ CONTAINS
          ecxs, &  ! lat. hflux big leaf (sap flux)
          psixx, &
          psixy,&
-         kplantx
+         kplantx, &
+         kplanty         ! kplantx saved at the accepted iteration (written to canopy%kplant)
 
       real(r_2) :: psixxi, kplantxi
       real, dimension(mp, ms)  :: oldevapfbl
@@ -3285,6 +3286,7 @@ CONTAINS
                vcmxt4y(i, :) = vcmxt4(i, :)
                cx2y(i) = cx2(i)
                psixy(i) = psixx(i)
+               kplanty(i) = kplantx(i)
             END IF
             ! if (ktau>=5184) then
             ! print*, 'check y=x ktau & k= ',ktau,k
@@ -3334,6 +3336,7 @@ CONTAINS
                vcmxt4y(i, :) = vcmxt4(i, :)
                cx2y(i) = cx2(i)
                psixy(i) = psixx(i)
+               kplanty(i) = kplantx(i)
             END IF
             !print*, 'check after k==1 ',ktau,k
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
@@ -3545,6 +3548,7 @@ CONTAINS
          END IF
          ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
          canopy%psix = real(psixy, r_2)
+         canopy%kplant = real(kplanty, r_2)
          canopy%psi_can = real(psily, r_2)
          canopy%frday = 12.0*SUM(rdy, 2)
          !! vh !! inserted min to avoid -ve values of GPP
