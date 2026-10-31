@@ -421,6 +421,7 @@ MODULE cable_IO_vars_module
          psi_rootzone = .FALSE.,       & 
          psix = .TRUE.,       & 
          psi_can_sl = .FALSE.,       & 
+         psi_can_sl_midday = .TRUE.,       & ! mean psi_can_sl over steps ending 11:00-13:00 local time
          psi_can_sh = .FALSE.,       &
          abs_deltpsil_sl = .TRUE.,       & 
          abs_deltpsil_sh = .TRUE.,       &
@@ -764,6 +765,7 @@ MODULE cable_IO_vars_module
          psi_rootzone = .FALSE.,       & 
          psix = .FALSE.,       & 
          psi_can_sl = .FALSE.,       & 
+         psi_can_sl_midday = .FALSE.,       & 
          psi_can_sh = .FALSE.,     &
          abs_deltpsil_sl = .FALSE.,       & 
          abs_deltpsil_sh = .FALSE.,      &
