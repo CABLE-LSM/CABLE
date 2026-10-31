@@ -1135,15 +1135,6 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sl(mp))
      out%psi_can_sl = 0.0 ! initialise
-     CALL define_ovar(ncid_out, ovid%psi_can_sl_midday, &
-                      'psi_can_sl_midday', 'MPa', &
-                      'sun-lit canopy water potential, mean of midday steps (local time)', &
-                      patchout%psi_can_sl, 'dummy', xID, yID, zID, &
-                      landID, patchID, tID)
-     ALLOCATE(out%psi_can_sl_midday(mp))
-     ALLOCATE(out%n_midday(mp))
-     out%psi_can_sl_midday = 0.0 ! initialise
-     out%n_midday = 0.0 ! initialise
      CALL define_ovar(ncid_out, ovid%psi_can_sh, &
                       'psi_can_sh', 'MPa', 'shaded Canopy water potential', &
                       patchout%psi_can_sh, 'dummy', xID, yID, zID, &
@@ -1151,6 +1142,18 @@ CONTAINS
      ALLOCATE(out%psi_can_sh(mp))
      out%psi_can_sh = 0.0 ! initialise
 
+  END IF
+
+  IF(output%veg .or. output%psi_can_sl_midday) THEN
+     CALL define_ovar(ncid_out, ovid%psi_can_sl_midday, &
+                      'psi_can_sl_midday', 'MPa', &
+                      'sun-lit canopy water potential, mean of midday steps (local time)', &
+                      patchout%psi_can_sl_midday, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%psi_can_sl_midday(mp))
+     ALLOCATE(out%n_midday(mp))
+     out%psi_can_sl_midday = 0.0 ! initialise
+     out%n_midday = 0.0 ! initialise
   END IF
 
   IF(output%veg .OR. output%abs_deltpsil_sl) THEN
@@ -5177,6 +5180,23 @@ CONTAINS
          ! Reset temporary output variable:
          out%psi_can_sl = 0.0
       END IF
+        ! Add current timestep's value to total of temporary output variable:
+        out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,2), 4)
+        IF(writenow) THEN
+           ! Divide accumulated variable by number of accumulated time steps:
+           out%psi_can_sh = out%psi_can_sh / REAL(output%interval, 4)
+           ! Write value to file:
+           CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sh, &
+                          'psi_can_sh', &
+                           out%psi_can_sh, ranges%psi_can, &
+                           patchout%psi_can_sh, &
+                          'default', met)
+           ! Reset temporary output variable:
+           out%psi_can_sh = 0.0
+        END IF
+
+     END IF
+   IF(output%veg .or. output%psi_can_sl_midday) THEN
       ! Midday sun-lit canopy water potential: mean over steps whose end
       ! timestamp is 11:00-13:00 local time. For site met, met%hod is the
       ! middle of the step (e.g. 10.75 for 10:30-11:00 with 30-min steps).
@@ -5195,28 +5215,13 @@ CONTAINS
          CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sl_midday, &
                         'psi_can_sl_midday', &
                          out%psi_can_sl_midday, ranges%psi_can, &
-                         patchout%psi_can_sl, &
+                         patchout%psi_can_sl_midday, &
                         'default', met)
          ! Reset temporary output variables:
          out%psi_can_sl_midday = 0.0
          out%n_midday = 0.0
       END IF
-        ! Add current timestep's value to total of temporary output variable:
-        out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,2), 4)
-        IF(writenow) THEN
-           ! Divide accumulated variable by number of accumulated time steps:
-           out%psi_can_sh = out%psi_can_sh / REAL(output%interval, 4)
-           ! Write value to file:
-           CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sh, &
-                          'psi_can_sh', &
-                           out%psi_can_sh, ranges%psi_can, &
-                           patchout%psi_can_sh, &
-                          'default', met)
-           ! Reset temporary output variable:
-           out%psi_can_sh = 0.0
-        END IF
-
-     END IF
+   END IF
      IF(output%veg .OR. output%abs_deltpsil_sl) THEN
           !IF(output%veg) THEN
              ! Add current timestep's value to total of temporary output variable:
