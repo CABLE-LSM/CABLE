@@ -102,15 +102,15 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     . /etc/bashrc
     module purge
     module add cmake/3.24.2
-    module add netcdf/4.6.3
+    module add netcdf/4.9.2
     case ${compiler} in
         intel)
             if [ $do_tests -eq 1 ]; then
                 # This is required to as Fortuno requires Intel Fortran
                 # 2024.0.0 or higher
-                module add intel-compiler-llvm/2024.0.2
+                module add intel-compiler-llvm/2025.3.2
             else
-                module add intel-compiler/2021.6.0
+                module add intel-compiler/2021.10.0
             fi
             compiler_lib_install_dir=Intel
             [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
@@ -118,7 +118,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         gnu)
             module add gcc/14.1.0
             compiler_lib_install_dir=GNU
-            [[ -n ${mpi} ]] && module add openmpi/4.1.4
+            [[ -n ${mpi} ]] && module add openmpi/4.1.7
             ;;
         ?*)
             echo -e "\nError: compiler ${compiler} is not supported.\n"
