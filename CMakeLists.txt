@@ -166,6 +166,9 @@ if(CABLE_LIBRARY)
             src/coupled/AM3/cable/types/ssnow_type.F90
             src/coupled/AM3/cable/types/sum_flux_type.F90
             src/coupled/AM3/cable/types/veg_type.F90
+            src/science/urban/uclem_science.f90
+            src/coupled/AM3/cable/uclem/uclem_state_mod.F90
+            src/coupled/AM3/cable/uclem/uclem_coupling_mod.F90
             src/coupled/AM3/casa/types/casa_balance_type.F90
             src/coupled/AM3/casa/types/casa_biome_type.F90
             src/coupled/AM3/casa/types/casa_files_type.F90
@@ -324,6 +327,9 @@ else()
         src/science/soilsnow/cbl_surfbv.F90
         src/science/soilsnow/cbl_thermal.F90
         src/science/soilsnow/cbl_trimb.F90
+        src/science/urban/uclem_science.f90
+        src/coupled/AM3/cable/uclem/uclem_state_mod.F90
+        src/coupled/AM3/cable/uclem/uclem_coupling_mod.F90
         src/params/cable_phys_constants_mod.F90
         src/params/grid_constants_cbl.F90
         src/params/cable_photo_constants_mod.F90
@@ -361,6 +367,7 @@ else()
         src/offline/cable_site.F90
         src/offline/cable_serial.F90
         src/offline/cable_soil_params.F90
+        src/offline/cable_uclem_offline.F90
         src/offline/cable_weathergenerator.F90
         src/offline/casa_cable.F90
         src/offline/cbl_model_driver_offline.F90
