@@ -101,7 +101,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
 
     . /etc/bashrc
     module purge
-    module add cmake/3.24.2
+    module add cmake/3.31.12
     module add netcdf/4.9.2
     case ${compiler} in
         intel)
