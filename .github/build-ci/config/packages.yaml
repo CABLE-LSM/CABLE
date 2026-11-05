@@ -1,0 +1,6 @@
+packages:
+  fortuno:
+  # We pin to a specific version of fortuno as the default @0.1.0 tag
+  # is too old to run CABLEs fortuno tests
+    require:
+    - '@git.eb61214fd76d6235a3072b6f8ed83d0380c2f266'

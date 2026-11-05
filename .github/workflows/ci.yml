@@ -29,7 +29,7 @@ jobs:
       max-parallel: 5
       matrix:
         file: ${{ fromJson(needs.pre-ci.outputs.matrix) }}
-    uses: access-nri/build-ci/.github/workflows/ci.yml@v4
+    uses: access-nri/build-ci/.github/workflows/ci.yml@post-build-testing/second-job
     with:
       spack-manifest-path: ${{ matrix.file }}
       allow-ssh-into-spack-install: false  # If true, PR author must ssh into instance to complete job
@@ -39,6 +39,8 @@ jobs:
       run-self-hosted: false
       # Default args (including explicit spack/spack-config versions)
       # are specified in https://github.com/ACCESS-NRI/build-ci/tree/v4/.github/workflows#inputs
+      enable-pytest: true
+      pytest-search-path: .github/build-ci/tests
     secrets:
       # Needed to access private ACCESS-NRI repos
       spack-install-command-pat: ${{ secrets.SPACK_INSTALL_COMMAND_PAT }}
