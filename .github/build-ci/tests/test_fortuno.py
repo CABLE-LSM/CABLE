@@ -23,10 +23,6 @@ import pytest
 
 TIMEOUT_S = 3600
 
-# Tests are only built for `library=none` specs; CMakeLists.txt ignores
-# CABLE_TESTS for library builds.
-SPEC_QUERY = "cable library=none"
-
 
 @dataclass(frozen=True)
 class CableSpec:
@@ -43,6 +39,11 @@ class CableSpec:
     @property
     def pio(self) -> bool:
         return "+pio" in self.variants
+
+    @property
+    def library(self) -> str:
+        match = re.search(r"library=(\S+)", self.variants)
+        return match.group(1) if match else "none"
 
     @property
     def build_type(self) -> str:
@@ -68,7 +69,7 @@ def _spack(*args: str) -> str:
 
 def discover_cable_specs() -> list[CableSpec]:
     try:
-        output = _spack("find", "--format", "{hash}|{compiler}|{variants}", SPEC_QUERY)
+        output = _spack("find", "--format", "{hash}|{compiler}|{variants}", "cable")
     except (RuntimeError, OSError, subprocess.SubprocessError):
         return []
     return [
@@ -140,16 +141,25 @@ def _tail(result: subprocess.CompletedProcess, limit: int = 4000) -> str:
 
 CABLE_SPECS = discover_cable_specs()
 
+# CMakeLists.txt ignores CABLE_TESTS for library builds, so manifests that only
+# build `library=<application>` specs have no Fortuno tests to run.
+TESTABLE_SPECS = [spec for spec in CABLE_SPECS if spec.library == "none"]
+
 
 def test_cable_specs_discovered():
     """Guard against silently skipping everything when discovery fails."""
     assert CABLE_SPECS, (
-        f"no installed specs matched `{SPEC_QUERY}` in the active Spack environment; "
+        "no installed `cable` specs in the active Spack environment; "
         "is the environment activated and installed?"
     )
+    if not TESTABLE_SPECS:
+        pytest.skip(
+            "manifest builds no `library=none` specs; Fortuno tests do not apply to "
+            "library builds"
+        )
 
 
-@pytest.mark.parametrize("spec", CABLE_SPECS, ids=lambda spec: spec.id)
+@pytest.mark.parametrize("spec", TESTABLE_SPECS, ids=lambda spec: spec.id)
 def test_fortuno_suites_pass(spec: CableSpec, tmp_path: Path):
     """Configure, build and run the Fortuno suites for one installed spec."""
     env = build_environment(spec)
