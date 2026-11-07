@@ -3027,54 +3027,6 @@ CONTAINS
 
                      ! ecx(i) = canopy%fevc(i)/(1.0 - canopy%fwet(i))
 
-                     IF (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') THEN
-                        theta_hyd(:) = wbtmp(i, :) - real(ssnow%wbice(i, :), r_2)
-                        layer_depth_hyd(1) = 0.0_r_2
-                        DO kk = 2, ms
-                           layer_depth_hyd(kk) = sum(real(soil%zse(1:kk - 1), r_2))
-                        END DO
-                        lthetar_hyd(:) = log(max(theta_hyd(:) - real(soil%swilt(i), r_2), 1.0e-3_r_2) &
-                                              /real(soil%ssat(i), r_2))
-                        where ((theta_hyd(:) - real(soil%swilt(i), r_2)) > 1.0e-3_r_2)
-                           alpha_root_hyd(:) = exp(veg%gamma(i) &
-                                                   /max(theta_hyd(:) - real(soil%swilt(i), r_2), 1.0e-3_r_2) &
-                                                   *lthetar_hyd(:))
-                        elsewhere
-                           alpha_root_hyd(:) = 0.0_r_2
-                        end where
-                        where (real(veg%froot(i, :), r_2) > 0.0_r_2 .and. layer_depth_hyd(:) < veg%zr(i))
-                           delta_root_hyd(:) = 1.0_r_2
-                        elsewhere
-                           delta_root_hyd(:) = 0.0_r_2
-                        end where
-
-                        ! Mirror getrex_1d's "reduce extraction efficiency" step (lines 5844-5847):
-                        ! where the actual plant-hydraulics demand for a layer exceeds its available
-                        ! water, scale down alpha_root_hyd for that layer, keeping the diagnostic fws
-                        ! formula consistent with getrex_1d's own rescaled-alpha_root behavior.
-                        where ((real(layer_demand(:), r_2) > &
-                                (theta_hyd(:) - real(soil%swilt(i), r_2))*real(soil%zse(:), r_2)*1000.0_r_2) &
-                               .and. (real(layer_demand(:), r_2) > 0.0_r_2))
-                           alpha_root_hyd(:) = alpha_root_hyd(:) * &
-                              (theta_hyd(:) - real(soil%swilt(i), r_2))*real(soil%zse(:), r_2)*1000.0_r_2 / &
-                              (1.1_r_2*real(layer_demand(:), r_2))
-                        end where
-
-
-                        fws_haverd_i = maxval(alpha_root_hyd(2:)*delta_root_hyd(2:))
-
-
-                        IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
-                           fwsoil(i) = real(fws_haverd_i)
-                           if (cable_user%Cumberland_soil) then
-                              fwsoil(i) = max(fwsoil(i), 0.6)
-                           end if
-                        END IF
-                        IF (cable_user%NSL_switch == 'Haverd2013') THEN
-                           fwsoil_nongs(i) = real(fws_haverd_i)
-                        END IF
-                     END IF
-
                      IF ((cable_user%FWSOIL_SWITCH == 'LWP2' .OR. cable_user%NSL_switch == 'LWP2') &
                          .AND. ANY(layer_breach)) THEN
                         wb_probe(i, :) = wbtmp(i, :)
@@ -3113,6 +3065,63 @@ CONTAINS
                         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, i, wbtmp)
                         CALL calc_swp(ssnow, soil, i, wbtmp)
                         CALL calc_frac_uptake(ssnow, soil, veg, psixx(i), i, dels)
+                     END IF
+                  ELSE
+                     ! no transpiration demand (ecx <= 0 or fully wet canopy): zero the layer demand so the
+                     ! Haverd fws below reduces to the pure theta function, as in the SOIL_SCHE == 'Haverd2013'
+                     ! branch (getrex_1d called with zero demand). layer_demand has no point index, so reset
+                     ! it here to avoid stale values from another point / iteration.
+                     layer_demand(:) = 0.0
+                  END IF
+
+                  ! Haverd2013-style fws, computed every iteration (also when ecx <= 0) so fwsoil/fwsoil_nongs
+                  ! track soil moisture at night / under a wet canopy and cannot lock at ~0 after the
+                  ! fwsoil < 1e-6 shutdown above.
+                  IF (cable_user%FWSOIL_SWITCH == 'Haverd2013' .OR. cable_user%NSL_switch == 'Haverd2013') THEN
+                     theta_hyd(:) = wbtmp(i, :) - real(ssnow%wbice(i, :), r_2)
+                     layer_depth_hyd(1) = 0.0_r_2
+                     DO kk = 2, ms
+                        layer_depth_hyd(kk) = sum(real(soil%zse(1:kk - 1), r_2))
+                     END DO
+                     lthetar_hyd(:) = log(max(theta_hyd(:) - real(soil%swilt(i), r_2), 1.0e-3_r_2) &
+                                           /real(soil%ssat(i), r_2))
+                     where ((theta_hyd(:) - real(soil%swilt(i), r_2)) > 1.0e-3_r_2)
+                        alpha_root_hyd(:) = exp(veg%gamma(i) &
+                                                /max(theta_hyd(:) - real(soil%swilt(i), r_2), 1.0e-3_r_2) &
+                                                *lthetar_hyd(:))
+                     elsewhere
+                        alpha_root_hyd(:) = 0.0_r_2
+                     end where
+                     where (real(veg%froot(i, :), r_2) > 0.0_r_2 .and. layer_depth_hyd(:) < veg%zr(i))
+                        delta_root_hyd(:) = 1.0_r_2
+                     elsewhere
+                        delta_root_hyd(:) = 0.0_r_2
+                     end where
+
+                     ! Mirror getrex_1d's "reduce extraction efficiency" step (lines 5844-5847):
+                     ! where the actual plant-hydraulics demand for a layer exceeds its available
+                     ! water, scale down alpha_root_hyd for that layer, keeping the diagnostic fws
+                     ! formula consistent with getrex_1d's own rescaled-alpha_root behavior.
+                     where ((real(layer_demand(:), r_2) > &
+                             (theta_hyd(:) - real(soil%swilt(i), r_2))*real(soil%zse(:), r_2)*1000.0_r_2) &
+                            .and. (real(layer_demand(:), r_2) > 0.0_r_2))
+                        alpha_root_hyd(:) = alpha_root_hyd(:) * &
+                           (theta_hyd(:) - real(soil%swilt(i), r_2))*real(soil%zse(:), r_2)*1000.0_r_2 / &
+                           (1.1_r_2*real(layer_demand(:), r_2))
+                     end where
+
+
+                     fws_haverd_i = maxval(alpha_root_hyd(2:)*delta_root_hyd(2:))
+
+
+                     IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
+                        fwsoil(i) = real(fws_haverd_i)
+                        if (cable_user%Cumberland_soil) then
+                           fwsoil(i) = max(fwsoil(i), 0.6)
+                        end if
+                     END IF
+                     IF (cable_user%NSL_switch == 'Haverd2013') THEN
+                        fwsoil_nongs(i) = real(fws_haverd_i)
                      END IF
                   END IF
 
