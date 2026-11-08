@@ -719,6 +719,11 @@ PROGRAM cable_offline_driver
                   soil%sfc(:) = site%sfc
                   print *,'sfc from site.nml is:', soil%sfc(:)
                end if
+               if (trim(cable_user%MetType) == 'site' .and. site%swilt > 0) then
+                  soil%swilt(:) = site%swilt
+                  soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
+                  print *,'swilt from site.nml is:', soil%swilt(:)
+               end if
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
                end if
