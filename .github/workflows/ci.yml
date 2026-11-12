@@ -39,6 +39,8 @@ jobs:
       run-self-hosted: false
       # Default args (including explicit spack/spack-config versions)
       # are specified in https://github.com/ACCESS-NRI/build-ci/tree/v4/.github/workflows#inputs
+      enable-build-tests: true
+      enable-stand-alone-tests: true
     secrets:
       # Needed to access private ACCESS-NRI repos
       spack-install-command-pat: ${{ secrets.SPACK_INSTALL_COMMAND_PAT }}
