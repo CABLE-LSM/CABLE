@@ -10,8 +10,8 @@ option(CABLE_MPI "Build the MPI executable" OFF)
 option(CABLE_TESTS "Build CABLE tests" OFF)
 
 # Compiler flags are selected regardless of the type of build
-set(CABLE_Intel_Fortran_FLAGS -fp-model precise)
-set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
+set(CABLE_Intel_Fortran_FLAGS -fp-model precise -g)
+set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -traceback -fpe0)
 set(CABLE_Intel_Fortran_FLAGS_RELEASE -O2)
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     add_compile_options(
@@ -21,8 +21,8 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     )
 endif()
 
-set(CABLE_GNU_Fortran_FLAGS -cpp -ffree-form -ffree-line-length-none)
-set(CABLE_GNU_Fortran_FLAGS_DEBUG -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -fbacktrace -ffpe-trap=zero,overflow,underflow -finit-real=nan)
+set(CABLE_GNU_Fortran_FLAGS -cpp -ffree-form -ffree-line-length-none -g)
+set(CABLE_GNU_Fortran_FLAGS_DEBUG -O -pedantic-errors -Wall -W -Wno-maybe-uninitialized -fbacktrace -ffpe-trap=zero,overflow,underflow -finit-real=nan)
 set(CABLE_GNU_Fortran_FLAGS_RELEASE -O3 -Wno-aggressive-loop-optimizations)
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     add_compile_options(
