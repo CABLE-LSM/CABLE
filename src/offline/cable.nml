@@ -60,7 +60,7 @@
                                                  ! 2. non-linear extrapolation 
                                                  ! 3. Lai and Ktaul 2000 
    cable_user%GS_SWITCH = 'leuning'
-   cable_user%DIAG_SOIL_RESP = 'ON ' 
+   cable_user%DIAG_SOIL_RESP = .TRUE. 
    cable_user%LEAF_RESPIRATION = 'ON ' 
    cable_user%RUN_DIAG_LEVEL= 'BASIC'        ! choices are: 
                                                  ! 1. BASIC

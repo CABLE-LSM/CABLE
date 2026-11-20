@@ -12,8 +12,8 @@ REAL :: snmin = 1.0
 ! CABLE-2.0 user switches all in single namelist file cable.nml
 ! clean these up for new namelist(s) format
 TYPE kbl_user_switches
-  !jhan:make this logical
-  CHARACTER(LEN=3) :: diag_soil_resp=''
+  
+  LOGICAL :: diag_soil_resp = .FALSE. 
 
   CHARACTER(LEN=20) :: fwsoil_switch='standard'
 
