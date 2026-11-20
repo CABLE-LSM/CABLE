@@ -140,6 +140,8 @@ CONTAINS
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
     USE cable_cbm_module
+    USE cable_uclem_offline_mod, ONLY: uclem_offline_init, uclem_offline_step
+    USE cable_namelist_util, ONLY: CABLE_NAMELIST
     USE cable_climate_mod
 
     ! modules related to CASA-CNP
@@ -297,6 +299,8 @@ CONTAINS
 
           CALL worker_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy,&
                &                        rough,rad,sum_flux,bal)
+
+          CALL uclem_offline_init(CABLE_NAMELIST, mp, veg, logn)
 
           !mrd561 debug
           WRITE(logn,*) ' ssat_vec min',MINVAL(soil%ssat_vec),MINLOC(soil%ssat_vec)
@@ -502,6 +506,8 @@ CONTAINS
           ! CALL land surface scheme for this timestep, all grid points:
           CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
                     rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch )
+
+          CALL uclem_offline_step(mp, dels, met, air, rad, rough, canopy, ssnow)
 
           ssnow%smelt  = ssnow%smelt*dels
           ssnow%rnof1  = ssnow%rnof1*dels

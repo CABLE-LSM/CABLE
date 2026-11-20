@@ -118,6 +118,8 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
   USE cable_IO_vars_module, ONLY: timeunits,calendar
    USE cable_cbm_module, ONLY : cbm
+  USE cable_uclem_offline_mod, ONLY: uclem_offline_init, uclem_offline_step
+  USE cable_namelist_util, ONLY: CABLE_NAMELIST
   !mpidiff
   USE cable_climate_mod
     
@@ -403,6 +405,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
                casamet, casabal, phen, POP, spinup,        &
                CEMSOIL, CTFRZ, LUC_EXPT, POPLUC, mpi_grp)
 
+          CALL uclem_offline_init(CABLE_NAMELIST, mp, veg, logn)
+
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"
             CALL constant_check_range(soil, veg, ktau=0)
@@ -593,6 +597,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             ! Call land surface scheme for this timestep, all grid points:
             CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
                  rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch )
+
+            CALL uclem_offline_step(mp, dels, met, air, rad, rough, canopy, ssnow)
 
             IF (cable_user%CALL_climate) &
               CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &

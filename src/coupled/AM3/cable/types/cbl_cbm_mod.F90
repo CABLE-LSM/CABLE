@@ -7,8 +7,9 @@ MODULE cable_cbm_module
 
 CONTAINS
 
-SUBROUTINE cbm_expl( mp, nrb, ktau,dels, air, bgc, canopy, met,                &
-                bal, rad, rough, soil, ssnow, sum_flux, veg, climate )
+SUBROUTINE cbm_expl( mp, nrb, ktau, dels, air, bgc, canopy, met,              &
+                     bal, rad, rough, soil, ssnow, sum_flux, veg, climate,    &
+                     uclem, uclem_active, uclem_iu0, uclem_nu, wind_u, wind_v )
 !subrs:
 USE cbl_albedo_mod,            ONLY: albedo
 USE cbl_init_radiation_module, ONLY: init_radiation
@@ -20,12 +21,13 @@ USE cable_canopy_module,       ONLY: define_canopy
 
 USE cable_common_module
 USE cable_carbon_module
+USE uclem_coupling_mod, ONLY: run_uclem_beam_fraction, run_uclem_access_coupling
 
 USE cable_def_types_mod, ONLY: met_type, radiation_type, veg_parameter_type,  &
                                soil_parameter_type, roughness_type,           &
                                canopy_type, soil_snow_type, balances_type,    &
                                air_type, bgc_pool_type, sum_flux_type,        &
-                               climate_type
+                               climate_type, uclem_type
                                    
 ! data: scalars
 USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols
@@ -62,6 +64,10 @@ INTEGER, INTENT(IN) :: nrb
 REAL,    INTENT(IN)    :: dels ! time setp size (s)
 INTEGER, INTENT(IN) :: ktau
 INTEGER :: k,kk,j
+TYPE (uclem_type), INTENT(INOUT), OPTIONAL :: uclem
+LOGICAL, INTENT(IN), OPTIONAL :: uclem_active
+INTEGER, INTENT(IN), OPTIONAL :: uclem_iu0, uclem_nu
+REAL, INTENT(IN), OPTIONAL :: wind_u(mp), wind_v(mp)
 
 ! local vars
 LOGICAL :: veg_mask(mp), sunlit_mask(mp), sunlit_veg_mask(mp)
@@ -136,6 +142,16 @@ CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              rad%reffbm, rad%reffdf                                        &
            ) !EffSurfRefl_beam, EffSurfRefldif_
 
+! UCLEM state is owned by the caller; when enabled, run its beam-fraction
+! update on the explicit path using the caller-provided urban point slice.
+IF (PRESENT(uclem_active)) THEN
+  IF (uclem_active) THEN
+    IF (.NOT. (PRESENT(uclem) .AND. PRESENT(uclem_iu0) .AND. PRESENT(uclem_nu) &
+               .AND. PRESENT(wind_u) .AND. PRESENT(wind_v))) STOP 'UCLEM active but required arguments are absent'
+    CALL run_uclem_beam_fraction(mp, uclem_iu0, uclem_nu, met, rad, uclem)
+  ENDIF
+ENDIF
+
 ! on 1st call tss, wetfac initialized in _um_init_soilsnow  
 ! on subsequent calls it has the value as updated in soilsnow 
 ssnow%otss    = ssnow%tss
@@ -176,20 +192,29 @@ soil_trad = Cemsoil * ssnow%tss**4
 rad%trad = ( veg_wt * veg_trad )  + ( soil_wt * soil_trad )
 rad%trad = rad%trad**0.25
 
+IF (PRESENT(uclem_active)) THEN
+  IF (uclem_active) THEN
+    CALL run_uclem_access_coupling(mp, dels, uclem_iu0, uclem_nu, wind_u, wind_v, &
+                                   met, air, rough, uclem, 1)
+  ENDIF
+ENDIF
+
 RETURN
 END SUBROUTINE cbm_expl
 
 SUBROUTINE cbm_impl( cycleno, numcycles, mp, nrb, ktau, dels,                  &
                      air, bgc, canopy, met, bal, rad, rough,                   &
-                     soil, ssnow, sum_flux, veg, climate )
+                     soil, ssnow, sum_flux, veg, climate, uclem,              &
+                     uclem_active, uclem_iu0, uclem_nu, wind_u, wind_v )
 
 USE cable_common_module
 USE cable_carbon_module
+USE uclem_coupling_mod, ONLY: run_uclem_beam_fraction, run_uclem_access_coupling
 
 USE cable_def_types_mod, ONLY : met_type, radiation_type, veg_parameter_type,  &
                                 soil_parameter_type, roughness_type,           &
                                 canopy_type, soil_snow_type, balances_type,    &
-                                air_type, bgc_pool_type, sum_flux_type
+                                air_type, bgc_pool_type, sum_flux_type, uclem_type
 
 USE cable_def_types_mod, only : climate_type
 
@@ -242,6 +267,10 @@ INTEGER, INTENT(IN) :: nrb
 REAL, INTENT(IN)    :: dels ! time setp size (s)
 INTEGER, INTENT(IN) :: ktau
 INTEGER :: k,kk,j
+TYPE (uclem_type), INTENT(INOUT), OPTIONAL :: uclem
+LOGICAL, INTENT(IN), OPTIONAL :: uclem_active
+INTEGER, INTENT(IN), OPTIONAL :: uclem_iu0, uclem_nu
+REAL, INTENT(IN), OPTIONAL :: wind_u(mp), wind_v(mp)
 
 LOGICAL :: veg_mask(mp), sunlit_mask(mp), sunlit_veg_mask(mp)
 
@@ -283,6 +312,14 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                      !coszen, metDoY, SW_down,
                      canopy%vlaiw                                              &
                    ) !reducedLAIdue2snow 
+
+IF (PRESENT(uclem_active)) THEN
+  IF (uclem_active) THEN
+    IF (.NOT. (PRESENT(uclem) .AND. PRESENT(uclem_iu0) .AND. PRESENT(uclem_nu) &
+               .AND. PRESENT(wind_u) .AND. PRESENT(wind_v))) STOP 'UCLEM active but required arguments are absent'
+    CALL run_uclem_beam_fraction(mp, uclem_iu0, uclem_nu, met, rad, uclem)
+  ENDIF
+ENDIF
 
 ! on 1st call tss, wetfac initialized in _um_init_soilsnow  
 ! on subsequent calls it has the value as updated in soilsnow 
@@ -387,6 +424,13 @@ CALL carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
 
 canopy%fnpp = -1.0* canopy%fpn - canopy%frp
 canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
+
+IF (PRESENT(uclem_active)) THEN
+  IF (uclem_active) THEN
+    CALL run_uclem_access_coupling(mp, dels, uclem_iu0, uclem_nu, wind_u, wind_v, &
+                                   met, air, rough, uclem, 0)
+  ENDIF
+ENDIF
   
 RETURN
 END SUBROUTINE cbm_impl
