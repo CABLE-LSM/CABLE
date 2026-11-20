@@ -61,10 +61,6 @@
                                                  ! 3. Lai and Ktaul 2000 
    cable_user%GS_SWITCH = 'leuning'
    cable_user%DIAG_SOIL_RESP = 'ON ' 
-   cable_user%LEAF_RESPIRATION = 'ON ' 
-   cable_user%RUN_DIAG_LEVEL= 'BASIC'        ! choices are: 
-                                                 ! 1. BASIC
-                                                 ! 1. NONE
    cable_user%CONSISTENCY_CHECK= .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparisson to A control run 
    cable_user%CASA_DUMP_READ = .FALSE.      ! TRUE reads CASA forcing from netcdf format
    cable_user%CASA_DUMP_WRITE = .FALSE.      ! TRUE outputs CASA forcing in netcdf format
