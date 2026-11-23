@@ -4,8 +4,9 @@ spack:
   - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - cable@git.{{ ref }} ~mpi library=access-esm1.6
+  - intel-oneapi-compilers@2025.2.0
   packages:
     all:
       require:
-      - '%access_intel'
+      - '%access_oneapi'
   view: false
