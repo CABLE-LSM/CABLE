@@ -5,6 +5,9 @@ spack:
   specs:
   - cable@git.{{ ref }} ~mpi library=access3
   packages:
+    gcc:
+      require::
+      - '@15.1.0'
     all:
       require:
       - '%access_gcc'

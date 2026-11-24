@@ -5,6 +5,9 @@ spack:
   specs:
   - cable@git.{{ ref }} ~mpi library=access3
   packages:
+    intel-oneapi-compilers:
+      require::
+      - '@2025.3.2'
     all:
       require:
       - '%access_oneapi'

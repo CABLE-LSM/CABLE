@@ -10,6 +10,9 @@ spack:
       - '@git.{{ ref }}'
       - '~mpi'
       - 'library=access3'
+    intel-oneapi-compilers:
+      require::
+      - '@2025.3.2'
     all:
       require:
       - '%access_oneapi'
