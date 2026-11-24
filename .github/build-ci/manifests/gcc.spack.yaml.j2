@@ -3,7 +3,6 @@ spack:
   # Include configuration from this repository, with the environment variable defined in build-ci
   - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
-  - cable@git.{{ ref }}
   - cable@git.{{ ref }}+mpi+pio
   packages:
     gcc:
