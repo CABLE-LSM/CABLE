@@ -1,5 +1,5 @@
 spack:
-  specs::
+  specs:
   - gcc@15.1.0
   - intel-oneapi-compilers@2025.3.2
   view: false
