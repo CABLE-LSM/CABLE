@@ -4,7 +4,7 @@ spack:
   # Include configuration from this repository, with the environment variable defined in build-ci
   - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
-  - 'um7'
+  - um7
   packages:
     dummygrib:
       require:
@@ -29,6 +29,9 @@ spack:
       require:
         - '@2021.05.0'
         - 'site=nci-gadi'
+    intel-oneapi-compilers:
+      require::
+      - '@2025.3.2'
     all:
       require:
       - '%access_oneapi'
