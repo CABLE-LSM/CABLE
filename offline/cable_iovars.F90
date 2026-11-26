@@ -453,6 +453,8 @@ MODULE cable_IO_vars_module
          gsw_epotcan3_sh = .TRUE.,       &
          fwpsi_sl = .TRUE.,       &
          fwpsi_sh = .TRUE.,       &   
+         fwpsi_epotcan3_sl = .TRUE.,       &
+         fwpsi_epotcan3_sh = .TRUE.,       &
          plc_sat = .FALSE.,       & 
          plc_stem = .FALSE.,       & 
          plc_can = .FALSE.,       & 
@@ -796,6 +798,8 @@ MODULE cable_IO_vars_module
          gsw_epotcan3_sh = .FALSE.,       &
          fwpsi_sl = .FALSE.,       &
          fwpsi_sh = .FALSE.,       &   
+         fwpsi_epotcan3_sl = .FALSE.,       &
+         fwpsi_epotcan3_sh = .FALSE.,       &
          plc_sat = .FALSE.,       & 
          plc_stem = .FALSE.,       & 
          plc_can = .FALSE.,       & 

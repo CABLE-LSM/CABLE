@@ -64,7 +64,8 @@ MODULE cable_output_module
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp, &
           StemResp,LeafResp, HeteroResp, GPP, NPP, LAI, &
           ECanop, TVeg, ESoil, CanopInt, SnowDepth, &
-          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoil_nongs,Fwsoil_end,Fwsoil_nongs_end,fwpsi_sl, fwpsi_sh, RnetSoil, SnowMelt, &
+          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoil_nongs,Fwsoil_end,Fwsoil_nongs_end,fwpsi_sl, fwpsi_sh, &
+          fwpsi_epotcan3_sl, fwpsi_epotcan3_sh, RnetSoil, SnowMelt, &
                                 ! vh_mc ! additional variables for ESM-SnowMIP
           hfds, hfdsn, hfls, hfmlt, hfrs, hfsbl, hfss, rlus, rsus, &
           esn, evspsbl, evspsblsoi, evspsblveg, mrrob, mrros, sbl, &
@@ -225,6 +226,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil_nongs_end => null()  ! fwsoil_nongs after the dryLeaf convergence loop [-]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sl => null()  !
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sh => null()  !
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_epotcan3_sl => null()  ! fwpsi_sl from the wb=ssat call
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_epotcan3_sh => null()  ! fwpsi_sh from the wb=ssat call
      ! [umol/m2/s]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: NBP => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dCdt => null()
@@ -1559,6 +1562,20 @@ CONTAINS
                'dummy', xID, yID, zID, landID, patchID, tID)
           ALLOCATE(out%fwpsi_sh(mp))
           out%fwpsi_sh = zero4 ! initialise
+     END IF
+     IF(output%veg .OR. output%fwpsi_epotcan3_sl) THEN
+          CALL define_ovar(ncid_out, ovid%fwpsi_epotcan3_sl, 'fwpsi_epotcan3_sl', '[-]', &
+               'sun-lit leaf psi modifier to stomatal conductance when wb=ssat (epotcan3 call)', patchout%fwpsi_epotcan3_sl, &
+               'dummy', xID, yID, zID, landID, patchID, tID)
+          ALLOCATE(out%fwpsi_epotcan3_sl(mp))
+          out%fwpsi_epotcan3_sl = zero4 ! initialise
+     END IF
+     IF(output%veg .OR. output%fwpsi_epotcan3_sh) THEN
+          CALL define_ovar(ncid_out, ovid%fwpsi_epotcan3_sh, 'fwpsi_epotcan3_sh', '[-]', &
+               'shaded leaf psi modifier to stomatal conductance when wb=ssat (epotcan3 call)', patchout%fwpsi_epotcan3_sh, &
+               'dummy', xID, yID, zID, landID, patchID, tID)
+          ALLOCATE(out%fwpsi_epotcan3_sh(mp))
+          out%fwpsi_epotcan3_sh = zero4 ! initialise
      END IF
     IF (output%mwstress) THEN
        CALL define_ovar(ncid_out, ovid%mwstress, 'mwstress', '[ ]', &
@@ -4028,6 +4045,24 @@ CONTAINS
                ranges%fwpsi, patchout%fwpsi_sh, 'default', met)
           ! Reset temporary output variable:
           out%fwpsi_sh = zero4
+          END IF
+     END IF
+     IF (output%veg .OR. output%fwpsi_epotcan3_sl) THEN
+          out%fwpsi_epotcan3_sl = out%fwpsi_epotcan3_sl + toreal4(canopy%fwpsi_epotcan3(:,1))
+          IF (writenow) THEN
+          out%fwpsi_epotcan3_sl = out%fwpsi_epotcan3_sl * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi_epotcan3_sl, 'fwpsi_epotcan3_sl', out%fwpsi_epotcan3_sl, &
+               ranges%fwpsi, patchout%fwpsi_epotcan3_sl, 'default', met)
+          out%fwpsi_epotcan3_sl = zero4
+          END IF
+     END IF
+     IF (output%veg .OR. output%fwpsi_epotcan3_sh) THEN
+          out%fwpsi_epotcan3_sh = out%fwpsi_epotcan3_sh + toreal4(canopy%fwpsi_epotcan3(:,2))
+          IF (writenow) THEN
+          out%fwpsi_epotcan3_sh = out%fwpsi_epotcan3_sh * rinterval
+          CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi_epotcan3_sh, 'fwpsi_epotcan3_sh', out%fwpsi_epotcan3_sh, &
+               ranges%fwpsi, patchout%fwpsi_epotcan3_sh, 'default', met)
+          out%fwpsi_epotcan3_sh = zero4
           END IF
      END IF
     IF (output%mwstress) THEN

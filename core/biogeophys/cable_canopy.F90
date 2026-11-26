@@ -621,11 +621,23 @@ CONTAINS
             END DO
             dsxpsdo = dsx
             dsypsdo = dsy
-            psilxpsdo = psilx
-            psilypsdo = psily
+            ! Esat: start the leaf water potential iteration from the wet-soil state
+            ! (root-weighted saturated soil water potential), not from the actual run's psilx,
+            ! so the converged Esat does not depend on the actual run's stress history
+            DO j = 1, mp
+               psilxpsdo(j, :) = SUM(real(veg%froot(j, :), r_2)*real(ssnow%psi_soil(j, :), r_2))
+            END DO
+            psilypsdo = psilxpsdo
+            if (cable_user%FWSOIL_SWITCH == 'LWP1') then
+               fwpsipsdo(:, 1) = (1.0_r_2 + exp(veg%slope_leaf(:)*veg%psi_50_leaf(:)))/ &
+                                 (1.0_r_2 + exp(veg%slope_leaf(:)*(veg%psi_50_leaf(:) - psilxpsdo(:, 1))))
+               fwpsipsdo(:, 2) = (1.0_r_2 + exp(veg%slope_leaf(:)*veg%psi_50_leaf(:)))/ &
+                                 (1.0_r_2 + exp(veg%slope_leaf(:)*(veg%psi_50_leaf(:) - psilxpsdo(:, 2))))
+            else
+               fwpsipsdo = fwpsi
+            end if
             fwsoilpsdo = fwsoil
             fwsoil_nongspsdo = fwsoil_nongs
-            fwpsipsdo = fwpsi
             tlfxpsdo = tlfx
             tlfypsdo = tlfy
             ecypsdo = ecy
@@ -2225,10 +2237,11 @@ CONTAINS
          end if
       END IF
       k = 0
-      if (present(wbpsdo) .or. present(vpdpsdo)) then
+      fwpsiy = fwpsi ! default for points skipped by the iteration (e.g. low LAI)
+      if (present(vpdpsdo)) then
          kmax = veg%Nmax(1)
       else
-         kmax = C%MAXITER
+         kmax = C%MAXITER   ! actual run and Esat (wbpsdo) use the same iteration cap
       end if
       Numtag = 3
       DO WHILE (k < kmax)
@@ -3369,6 +3382,7 @@ CONTAINS
                fwpsi1_tmp(i, 2) = (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)))/ &
                                   (1.0_r_2 + exp(veg%slope_leaf(i)*(veg%psi_50_leaf(i) - psilxm(i, 2))))
                Mtag = 1
+               inc = 0.1_r_2 ! max change of fwpsi per damped iteration (both directions)
                if (fwpsi1_tmp(i, 1) - fwpsixx(i, 1) < -0.1_r_2) then
                   Mtag = 2
                   if (present(wbpsdo)) then
@@ -3376,7 +3390,6 @@ CONTAINS
                   else
                      canopy%N_neg = canopy%N_neg + 1.0
                   end if
-                  inc = 0.1_r_2
                   fwpsi1_tmp(i, 1) = fwpsixx(i, 1) - inc
                   psilxm(i, 1) = veg%psi_50_leaf(i) - (1.0_r_2/veg%slope_leaf(i))* &
                                  log((1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i, 1))/fwpsi1_tmp(i, 1))
@@ -3480,6 +3493,7 @@ CONTAINS
          !! vh !! inserted min to avoid -ve values of GPP
          canopy%fpn_epotcan3 = min(-12.0*SUM(an_y, 2), canopy%frday)
          canopy%gsw_epotcan3 = canopy%gswx
+         canopy%fwpsi_epotcan3 = fwpsiy
          canopy%abs_deltpsil_sw = abs_deltpsil
          canopy%abs_deltcs_sw = abs_deltcs*1.0e6_r_2
          canopy%abs_deltlf_sw = abs_deltlf

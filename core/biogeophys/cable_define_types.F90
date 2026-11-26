@@ -553,6 +553,7 @@ module cable_def_types_mod
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
      real(r_2), dimension(:,:),     pointer :: fwpsi => null() ! zihanlu 10/11/2024
+     real(r_2), dimension(:,:),     pointer :: fwpsi_epotcan3 => null() ! fwpsi from the wb=ssat (Esat/epotcan3) dryLeaf call
      real(r_2), dimension(:),     pointer :: fwsoil_nongs => null() ! non-stomatal stress from Haverd2013 getrex_1d
      real(r_2), dimension(:),     pointer :: fwsoil_end => null() ! fwsoil after the dryLeaf convergence loop
      real(r_2), dimension(:),     pointer :: fwsoil_nongs_end => null() ! fwsoil_nongs after the dryLeaf convergence loop
@@ -1372,6 +1373,7 @@ contains
     ! allocate(canopy%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
     allocate(canopy%fwsoil(mp))
     allocate(canopy%fwpsi(mp,mf))
+    allocate(canopy%fwpsi_epotcan3(mp,mf))
     allocate(canopy%fwsoil_nongs(mp))
     allocate(canopy%fwsoil_end(mp))
     allocate(canopy%fwsoil_nongs_end(mp))
@@ -2065,6 +2067,7 @@ contains
     deallocate(canopy%zetash)
     deallocate(canopy%fwsoil)
     deallocate(canopy%fwpsi)
+    deallocate(canopy%fwpsi_epotcan3)
     deallocate(canopy%fwsoil_nongs)
     deallocate(canopy%fwsoil_end)
     deallocate(canopy%fwsoil_nongs_end)
@@ -2683,6 +2686,7 @@ contains
     canopy%fwsoil_end       = 0
     canopy%fwsoil_nongs_end = 0
     canopy%fwpsi        = 0
+    canopy%fwpsi_epotcan3    = 0
     canopy%psix    = 0
     canopy%ofes      = 0
     canopy%gw     = 0
